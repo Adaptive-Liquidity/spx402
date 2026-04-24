@@ -9,38 +9,307 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as OperatorsRouteImport } from './routes/operators'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as ApiRouteImport } from './routes/api'
+import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiDocsRouteImport } from './routes/api.docs'
+import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OperatorsRoute = OperatorsRouteImport.update({
+  id: '/operators',
+  path: '/operators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRoute = ApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDocsRoute = ApiDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ApiRoute,
+} as any)
+const AgentMintRoute = AgentMintRouteImport.update({
+  id: '/agent/$mint',
+  path: '/agent/$mint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/alerts': typeof AlertsRoute
+  '/api': typeof ApiRouteWithChildren
+  '/changelog': typeof ChangelogRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/explore': typeof ExploreRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/operators': typeof OperatorsRoute
+  '/pricing': typeof PricingRoute
+  '/signup': typeof SignupRoute
+  '/status': typeof StatusRoute
+  '/agent/$mint': typeof AgentMintRoute
+  '/api/docs': typeof ApiDocsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/alerts': typeof AlertsRoute
+  '/api': typeof ApiRouteWithChildren
+  '/changelog': typeof ChangelogRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/explore': typeof ExploreRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/operators': typeof OperatorsRoute
+  '/pricing': typeof PricingRoute
+  '/signup': typeof SignupRoute
+  '/status': typeof StatusRoute
+  '/agent/$mint': typeof AgentMintRoute
+  '/api/docs': typeof ApiDocsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/alerts': typeof AlertsRoute
+  '/api': typeof ApiRouteWithChildren
+  '/changelog': typeof ChangelogRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/explore': typeof ExploreRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/operators': typeof OperatorsRoute
+  '/pricing': typeof PricingRoute
+  '/signup': typeof SignupRoute
+  '/status': typeof StatusRoute
+  '/agent/$mint': typeof AgentMintRoute
+  '/api/docs': typeof ApiDocsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/alerts'
+    | '/api'
+    | '/changelog'
+    | '/disclaimer'
+    | '/explore'
+    | '/login'
+    | '/methodology'
+    | '/operators'
+    | '/pricing'
+    | '/signup'
+    | '/status'
+    | '/agent/$mint'
+    | '/api/docs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/alerts'
+    | '/api'
+    | '/changelog'
+    | '/disclaimer'
+    | '/explore'
+    | '/login'
+    | '/methodology'
+    | '/operators'
+    | '/pricing'
+    | '/signup'
+    | '/status'
+    | '/agent/$mint'
+    | '/api/docs'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/alerts'
+    | '/api'
+    | '/changelog'
+    | '/disclaimer'
+    | '/explore'
+    | '/login'
+    | '/methodology'
+    | '/operators'
+    | '/pricing'
+    | '/signup'
+    | '/status'
+    | '/agent/$mint'
+    | '/api/docs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AlertsRoute: typeof AlertsRoute
+  ApiRoute: typeof ApiRouteWithChildren
+  ChangelogRoute: typeof ChangelogRoute
+  DisclaimerRoute: typeof DisclaimerRoute
+  ExploreRoute: typeof ExploreRoute
+  LoginRoute: typeof LoginRoute
+  MethodologyRoute: typeof MethodologyRoute
+  OperatorsRoute: typeof OperatorsRoute
+  PricingRoute: typeof PricingRoute
+  SignupRoute: typeof SignupRoute
+  StatusRoute: typeof StatusRoute
+  AgentMintRoute: typeof AgentMintRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/operators': {
+      id: '/operators'
+      path: '/operators'
+      fullPath: '/operators'
+      preLoaderRoute: typeof OperatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api': {
+      id: '/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof ApiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +317,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/docs': {
+      id: '/api/docs'
+      path: '/docs'
+      fullPath: '/api/docs'
+      preLoaderRoute: typeof ApiDocsRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/agent/$mint': {
+      id: '/agent/$mint'
+      path: '/agent/$mint'
+      fullPath: '/agent/$mint'
+      preLoaderRoute: typeof AgentMintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface ApiRouteChildren {
+  ApiDocsRoute: typeof ApiDocsRoute
+}
+
+const ApiRouteChildren: ApiRouteChildren = {
+  ApiDocsRoute: ApiDocsRoute,
+}
+
+const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AlertsRoute: AlertsRoute,
+  ApiRoute: ApiRouteWithChildren,
+  ChangelogRoute: ChangelogRoute,
+  DisclaimerRoute: DisclaimerRoute,
+  ExploreRoute: ExploreRoute,
+  LoginRoute: LoginRoute,
+  MethodologyRoute: MethodologyRoute,
+  OperatorsRoute: OperatorsRoute,
+  PricingRoute: PricingRoute,
+  SignupRoute: SignupRoute,
+  StatusRoute: StatusRoute,
+  AgentMintRoute: AgentMintRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
