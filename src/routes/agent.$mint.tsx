@@ -104,8 +104,8 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
 }
 
 function AgentDossierPage() {
-  const { agent } = Route.useLoaderData();
-  return <Dossier agent={agent} />;
+  const data = Route.useLoaderData() as { agent: Agent };
+  return <Dossier agent={data.agent} />;
 }
 
 function Dossier({ agent }: { agent: Agent }) {
