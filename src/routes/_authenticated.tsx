@@ -7,12 +7,12 @@ export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
 });
 
-const TABS = [
+const TABS: ReadonlyArray<{ to: string; label: string; exact?: boolean }> = [
   { to: "/dashboard", label: "Overview", exact: true },
   { to: "/dashboard/watchlist", label: "Watchlist" },
   { to: "/dashboard/alerts", label: "Alerts" },
   { to: "/dashboard/api-keys", label: "API Keys" },
-] as const;
+];
 
 function AuthenticatedLayout() {
   const { session, loading, user, signOut } = useAuth();
