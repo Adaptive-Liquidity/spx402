@@ -21,9 +21,14 @@ import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
+import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
+import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
@@ -85,6 +90,10 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -100,6 +109,29 @@ const AgentMintRoute = AgentMintRouteImport.update({
   path: '/agent/$mint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDashboardWatchlistRoute =
+  AuthenticatedDashboardWatchlistRouteImport.update({
+    id: '/watchlist',
+    path: '/watchlist',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardApiKeysRoute =
+  AuthenticatedDashboardApiKeysRouteImport.update({
+    id: '/api-keys',
+    path: '/api-keys',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardAlertsRoute =
+  AuthenticatedDashboardAlertsRouteImport.update({
+    id: '/alerts',
+    path: '/alerts',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -115,8 +147,12 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
+  '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,12 +168,17 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
+  '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
@@ -150,8 +191,12 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
+  '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -169,8 +214,12 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signup'
     | '/status'
+    | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/dashboard/alerts'
+    | '/dashboard/api-keys'
+    | '/dashboard/watchlist'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,11 +235,16 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signup'
     | '/status'
+    | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/dashboard/alerts'
+    | '/dashboard/api-keys'
+    | '/dashboard/watchlist'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about'
     | '/alerts'
     | '/api'
@@ -203,12 +257,17 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signup'
     | '/status'
+    | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/_authenticated/dashboard/alerts'
+    | '/_authenticated/dashboard/api-keys'
+    | '/_authenticated/dashboard/watchlist'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
@@ -310,6 +369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -331,8 +397,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentMintRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/watchlist': {
+      id: '/_authenticated/dashboard/watchlist'
+      path: '/watchlist'
+      fullPath: '/dashboard/watchlist'
+      preLoaderRoute: typeof AuthenticatedDashboardWatchlistRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/api-keys': {
+      id: '/_authenticated/dashboard/api-keys'
+      path: '/api-keys'
+      fullPath: '/dashboard/api-keys'
+      preLoaderRoute: typeof AuthenticatedDashboardApiKeysRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/alerts': {
+      id: '/_authenticated/dashboard/alerts'
+      path: '/alerts'
+      fullPath: '/dashboard/alerts'
+      preLoaderRoute: typeof AuthenticatedDashboardAlertsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
   }
 }
+
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardAlertsRoute: typeof AuthenticatedDashboardAlertsRoute
+  AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
+  AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardAlertsRoute: AuthenticatedDashboardAlertsRoute,
+    AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
+    AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
@@ -346,6 +470,7 @@ const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
@@ -363,12 +488,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

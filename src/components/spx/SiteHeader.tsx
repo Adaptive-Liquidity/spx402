@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 const NAV = [
   { to: "/", label: "Terminal" },
@@ -13,6 +14,7 @@ const NAV = [
 
 export function SiteHeader() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { session } = useAuth();
   return (
     <header className="sticky top-0 z-40 border-b border-bronze/40 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-4 py-3 lg:px-8">
@@ -55,18 +57,29 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/login"
-            className="hidden px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper md:inline-flex"
-          >
-            Sign in
-          </Link>
-          <Link
-            to="/signup"
-            className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber hover:text-panel-deep"
-          >
-            Open Terminal
-          </Link>
+          {session ? (
+            <Link
+              to="/dashboard"
+              className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber hover:text-panel-deep"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="hidden px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper md:inline-flex"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/signup"
+                className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber hover:text-panel-deep"
+              >
+                Open Terminal
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
