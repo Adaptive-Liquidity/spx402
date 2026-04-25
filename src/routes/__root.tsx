@@ -4,6 +4,7 @@ import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/spx/SiteHeader";
 import { SiteFooter } from "@/components/spx/SiteFooter";
 import { TickerTape } from "@/components/spx/TickerTape";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -88,13 +89,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <TickerTape />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <SiteFooter />
-    </div>
+    <AuthProvider>
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
+        <TickerTape />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <SiteFooter />
+      </div>
+    </AuthProvider>
   );
 }
