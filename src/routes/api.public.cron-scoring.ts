@@ -40,7 +40,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               grade: result.grade,
               verdict: result.verdict,
               confidence: result.confidence,
-              score_breakdown: result.breakdown,
+              score_breakdown: result.breakdown as unknown as never,
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,

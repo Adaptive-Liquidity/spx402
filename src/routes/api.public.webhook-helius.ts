@@ -62,7 +62,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
             occurred_at: e.occurredAt,
             amount_sol: e.amountSol,
             amount_token: e.amountToken,
-            raw: e.raw,
+            raw: e.raw as never,
           }));
           // Avoid double-counting if the same signature is replayed.
           const { data, error } = await supabaseAdmin

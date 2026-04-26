@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
               occurred_at: e.occurredAt,
               amount_sol: e.amountSol,
               amount_token: e.amountToken,
-              raw: e.raw,
+              raw: e.raw as never,
             }));
             const { data } = await supabaseAdmin
               .from("agent_events")
