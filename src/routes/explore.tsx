@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AGENTS } from "@/lib/agents";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
+import { fetchAllAgents } from "@/lib/agents-db";
+import type { Agent } from "@/lib/agents";
 
 export const Route = createFileRoute("/explore")({
   head: () => ({
@@ -15,6 +16,19 @@ export const Route = createFileRoute("/explore")({
       { property: "og:description", content: "Filter by observable execution. Not by vibes." },
     ],
   }),
+  loader: () => fetchAllAgents(),
+  staleTime: 30_000,
+  pendingComponent: () => (
+    <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+      Loading agent index…
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="mx-auto max-w-[1400px] px-4 py-20 text-center">
+      <div className="label-amber">Index unavailable</div>
+      <p className="mt-3 text-paper-muted">{error.message}</p>
+    </div>
+  ),
   component: ExplorePage,
 });
 
@@ -22,7 +36,7 @@ const SECTIONS: Array<{
   title: string;
   eyebrow: string;
   body: string;
-  filter: (a: typeof AGENTS[number]) => boolean;
+  filter: (a: Agent) => boolean;
 }> = [
   {
     eyebrow: "High-confidence dossiers",
@@ -51,6 +65,7 @@ const SECTIONS: Array<{
 ];
 
 function ExplorePage() {
+  const agents = Route.useLoaderData();
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-16">
       <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
@@ -70,7 +85,7 @@ function ExplorePage() {
       </div>
 
       {SECTIONS.map((section, i) => {
-        const list = AGENTS.filter(section.filter);
+        const list = agents.filter(section.filter);
         return (
           <section key={section.title} className="mt-16">
             <div className="flex flex-wrap items-end justify-between gap-3">
@@ -88,7 +103,7 @@ function ExplorePage() {
             <div className="mt-6 space-y-2">
               {list.length === 0 ? (
                 <div className="border border-dashed border-bronze/60 p-8 text-center font-mono text-sm text-paper-muted">
-                  No agents match this filter in the demo index.
+                  No agents match this filter in the index.
                 </div>
               ) : (
                 list.map((a) => <AgentRow key={a.mint} agent={a} />)
@@ -110,6 +125,9 @@ function ExplorePage() {
         <div className="mx-auto mt-6 max-w-xl">
           <AgentSearchBar />
         </div>
+        <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-wire">
+          <Link to="/" className="text-amber hover:underline">Return to terminal</Link>
+        </p>
       </div>
     </div>
   );
