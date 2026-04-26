@@ -26,6 +26,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
+import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
+import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
+import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
@@ -114,6 +118,26 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
+  id: '/public/webhook-helius',
+  path: '/public/webhook-helius',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiPublicCronScoringRoute = ApiPublicCronScoringRouteImport.update({
+  id: '/public/cron-scoring',
+  path: '/public/cron-scoring',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
+  id: '/public/cron-reconciler',
+  path: '/public/cron-reconciler',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiPublicCronBackfillRoute = ApiPublicCronBackfillRouteImport.update({
+  id: '/public/cron-backfill',
+  path: '/public/cron-backfill',
+  getParentRoute: () => ApiRoute,
+} as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
     id: '/watchlist',
@@ -153,6 +177,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,6 +202,10 @@ export interface FileRoutesByTo {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,6 +229,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -220,6 +256,10 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/cron-backfill'
+    | '/api/public/cron-reconciler'
+    | '/api/public/cron-scoring'
+    | '/api/public/webhook-helius'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -241,6 +281,10 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/cron-backfill'
+    | '/api/public/cron-reconciler'
+    | '/api/public/cron-scoring'
+    | '/api/public/webhook-helius'
   id:
     | '__root__'
     | '/'
@@ -263,6 +307,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/public/cron-backfill'
+    | '/api/public/cron-reconciler'
+    | '/api/public/cron-scoring'
+    | '/api/public/webhook-helius'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -404,6 +452,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/webhook-helius': {
+      id: '/api/public/webhook-helius'
+      path: '/public/webhook-helius'
+      fullPath: '/api/public/webhook-helius'
+      preLoaderRoute: typeof ApiPublicWebhookHeliusRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/cron-scoring': {
+      id: '/api/public/cron-scoring'
+      path: '/public/cron-scoring'
+      fullPath: '/api/public/cron-scoring'
+      preLoaderRoute: typeof ApiPublicCronScoringRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/cron-reconciler': {
+      id: '/api/public/cron-reconciler'
+      path: '/public/cron-reconciler'
+      fullPath: '/api/public/cron-reconciler'
+      preLoaderRoute: typeof ApiPublicCronReconcilerRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/cron-backfill': {
+      id: '/api/public/cron-backfill'
+      path: '/public/cron-backfill'
+      fullPath: '/api/public/cron-backfill'
+      preLoaderRoute: typeof ApiPublicCronBackfillRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/_authenticated/dashboard/watchlist': {
       id: '/_authenticated/dashboard/watchlist'
       path: '/watchlist'
@@ -460,10 +536,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
+  ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
+  ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
+  ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
+  ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
+  ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
+  ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
