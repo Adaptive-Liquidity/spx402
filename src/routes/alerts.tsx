@@ -104,11 +104,15 @@ function AlertsPage() {
 
       <div className="mt-16 panel-engraved p-8 text-center">
         <h2 className="font-display text-3xl font-bold text-paper">
-          Configure your first alert.
+          Be first when alerts go live.
         </h2>
+        <p className="mx-auto mt-3 max-w-xl text-paper-muted">
+          Create an account now — we'll notify subscribed users the moment the
+          alert pipeline ships.
+        </p>
         <div className="mt-6">
           <Link to="/signup" className="inline-flex border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim">
-            Open dashboard →
+            Create account →
           </Link>
         </div>
       </div>
