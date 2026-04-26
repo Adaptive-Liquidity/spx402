@@ -199,12 +199,10 @@ function Dossier({ agent }: { agent: Agent }) {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <WatchlistButton mint={agent.mint} symbol={agent.symbol} />
+            <AlertSubscribeButton mint={agent.mint} />
             <button className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
               <Share2 className="h-3.5 w-3.5" /> Share dossier
             </button>
-            <Link to="/alerts" className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
-              Set alert
-            </Link>
           </div>
         </div>
 
