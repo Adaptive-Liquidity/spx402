@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { fetchWatchlist } from "@/lib/watchlist";
+import { ComingSoon } from "@/components/spx/ComingSoon";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -24,21 +25,27 @@ function DashboardOverview() {
       .catch(() => setWatchedCount(0));
   }, [user]);
 
-  const stats = [
-    { l: "Watched agents", v: watchedCount === null ? "…" : String(watchedCount) },
-    { l: "Active alerts", v: "Soon" },
-    { l: "API keys", v: "Soon" },
-  ];
-
   return (
     <div className="space-y-8">
       <div className="grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
-        {stats.map((s) => (
-          <div key={s.l} className="bg-panel p-6">
-            <div className="label-mono">{s.l}</div>
-            <div className="mt-2 font-display text-3xl font-bold text-paper">{s.v}</div>
+        <div className="bg-panel p-6">
+          <div className="label-mono">Watched agents</div>
+          <div className="mt-2 font-display text-3xl font-bold text-paper">
+            {watchedCount === null ? "…" : String(watchedCount)}
           </div>
-        ))}
+        </div>
+        <ComingSoon label="Coming soon" className="block">
+          <div className="bg-panel p-6">
+            <div className="label-mono">Active alerts</div>
+            <div className="mt-2 font-display text-3xl font-bold text-paper">0</div>
+          </div>
+        </ComingSoon>
+        <ComingSoon label="Coming soon" className="block">
+          <div className="bg-panel p-6">
+            <div className="label-mono">API keys</div>
+            <div className="mt-2 font-display text-3xl font-bold text-paper">0</div>
+          </div>
+        </ComingSoon>
       </div>
 
       <section className="panel-engraved p-6">
@@ -58,9 +65,11 @@ function DashboardOverview() {
           <Link to="/dashboard/watchlist" className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
             Open watchlist
           </Link>
-          <Link to="/dashboard/api-keys" className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
-            Issue API key
-          </Link>
+          <ComingSoon label="Coming soon">
+            <span className="inline-block border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted">
+              Issue API key
+            </span>
+          </ComingSoon>
         </div>
       </section>
     </div>
