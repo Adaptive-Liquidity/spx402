@@ -4,8 +4,9 @@ import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
 import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
 import { ComingSoon } from "@/components/spx/ComingSoon";
-import { type Agent } from "@/lib/agents";
+import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
 import { fetchAgent } from "@/lib/agents-db";
+import { fetchAgentEvents, relativeFromNow, type AgentEventRow } from "@/lib/live-data";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/lib/auth";
 import {
@@ -15,6 +16,82 @@ import { useEffect, useState } from "react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
+
+const KNOWN_EVENT_TYPES: EventType[] = [
+  "DEPOSIT_RECEIVED",
+  "BUYBACK_EXECUTED",
+  "BURN_CONFIRMED",
+  "CONFIG_CHANGED",
+  "FAILED_WINDOW",
+  "ANOMALY_DETECTED",
+  "OPERATOR_VERIFIED",
+];
+
+const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
+
+function eventTitleFor(type: string): string {
+  switch (type) {
+    case "DEPOSIT_RECEIVED": return "Deposit received";
+    case "BUYBACK_EXECUTED": return "Buyback executed";
+    case "BURN_CONFIRMED": return "Burn confirmed";
+    case "CONFIG_CHANGED": return "Config changed";
+    case "FAILED_WINDOW": return "Failed buyback window";
+    case "ANOMALY_DETECTED": return "Anomaly detected";
+    case "OPERATOR_VERIFIED": return "Operator verified";
+    default: return type;
+  }
+}
+
+function eventDescFor(row: AgentEventRow): string {
+  switch (row.type) {
+    case "DEPOSIT_RECEIVED":
+      return `${row.amountSol.toFixed(4)} SOL routed to the agent deposit address.`;
+    case "BUYBACK_EXECUTED":
+      return `Buyback swap of ${row.amountSol.toFixed(4)} SOL executed on-chain.`;
+    case "BURN_CONFIRMED":
+      return `${row.amountToken.toLocaleString()} tokens burned and supply reduced.`;
+    case "CONFIG_CHANGED":
+      return "Agent configuration parameters changed on-chain.";
+    case "FAILED_WINDOW":
+      return "Reconciler flagged a buyback window with no confirmed burn.";
+    case "ANOMALY_DETECTED":
+      return "Indexer flagged this transaction for review.";
+    case "OPERATOR_VERIFIED":
+      return "Operator wallet signed an Ed25519 challenge for this agent.";
+    default:
+      return "Decoded program event.";
+  }
+}
+
+function rowToAgentEvent(row: AgentEventRow): AgentEvent {
+  const type = (KNOWN_EVENT_TYPES as string[]).includes(row.type as string)
+    ? (row.type as EventType)
+    : "ANOMALY_DETECTED";
+  const severity = (KNOWN_SEVERITIES as string[]).includes(row.severity as string)
+    ? (row.severity as Severity)
+    : "info";
+  return {
+    id: row.id,
+    type,
+    severity,
+    title: eventTitleFor(type),
+    description: eventDescFor(row),
+    signature: row.signature,
+    amount: row.amountSol || undefined,
+    tokenAmount: row.amountToken || undefined,
+    slot: row.slot ?? 0,
+    confidence: "high",
+    occurredAt: relativeFromNow(row.occurredAt),
+    iso: row.occurredAt,
+  };
+}
+
+// Live agent_events are authoritative once present. The seeded jsonb is only
+// shown when no live events have been indexed for this agent yet.
+function mergeEvents(live: AgentEventRow[], seeded: AgentEvent[]): AgentEvent[] {
+  if (live.length === 0) return seeded;
+  return live.map(rowToAgentEvent);
+}
 
 export const Route = createFileRoute("/agent/$mint")({
   head: ({ loaderData }: { loaderData?: { agent: Agent } }) => {
@@ -42,7 +119,11 @@ export const Route = createFileRoute("/agent/$mint")({
   loader: async ({ params }) => {
     const agent = await fetchAgent(params.mint);
     if (!agent) throw notFound();
-    return { agent };
+    // Pull verified on-chain events from agent_events. Falls back to the
+    // seeded events on the agent row when nothing is indexed yet.
+    const liveEvents = await fetchAgentEvents(agent.mint, 100);
+    const merged = mergeEvents(liveEvents, agent.events);
+    return { agent: { ...agent, events: merged } };
   },
   staleTime: 30_000,
   component: AgentDossierPage,
