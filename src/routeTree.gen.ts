@@ -27,6 +27,7 @@ import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
+import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
@@ -123,6 +124,12 @@ const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
   path: '/public/webhook-helius',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicHeliusWebhookSetupRoute =
+  ApiPublicHeliusWebhookSetupRouteImport.update({
+    id: '/public/helius-webhook-setup',
+    path: '/public/helius-webhook-setup',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronScoringRoute = ApiPublicCronScoringRouteImport.update({
   id: '/public/cron-scoring',
   path: '/public/cron-scoring',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
 export interface FileRoutesByTo {
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
 export interface FileRoutesById {
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
 export interface FileRouteTypes {
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scoring'
+    | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scoring'
+    | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
   id:
     | '__root__'
@@ -310,6 +322,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scoring'
+    | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
   fileRoutesById: FileRoutesById
 }
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhookHeliusRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/helius-webhook-setup': {
+      id: '/api/public/helius-webhook-setup'
+      path: '/public/helius-webhook-setup'
+      fullPath: '/api/public/helius-webhook-setup'
+      preLoaderRoute: typeof ApiPublicHeliusWebhookSetupRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-scoring': {
       id: '/api/public/cron-scoring'
       path: '/public/cron-scoring'
@@ -539,6 +559,7 @@ interface ApiRouteChildren {
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
+  ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
 }
 
@@ -547,6 +568,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
+  ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
 }
 
