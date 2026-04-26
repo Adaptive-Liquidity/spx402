@@ -541,12 +541,11 @@ function WatchlistButton({ mint, symbol }: { mint: string; symbol: string }) {
 
 function AlertSubscribeButton({ mint: _mint }: { mint: string }) {
   return (
-    <span
-      title="Alert subscriptions are coming soon"
-      className="inline-flex items-center gap-2 border border-bronze/50 bg-panel-deep/40 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-wire cursor-not-allowed"
-    >
-      <Bell className="h-3.5 w-3.5" /> Alerts · coming soon
-    </span>
+    <ComingSoon label="Alerts coming soon">
+      <span className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber">
+        <Bell className="h-3.5 w-3.5" /> Subscribe to alerts
+      </span>
+    </ComingSoon>
   );
 }
 
