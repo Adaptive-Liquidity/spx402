@@ -67,6 +67,7 @@ export type Database = {
           confidence: string
           config_last_changed_label: string | null
           created_at: string
+          deposit_address: string | null
           events: Json
           failed_windows: number
           grade: string
@@ -76,10 +77,12 @@ export type Database = {
           mint: string
           name: string
           operator_verified: boolean
+          operator_wallet: string | null
           parser_version: string
           price_series: Json
           score: number | null
           score_breakdown: Json
+          scored_at: string | null
           status: string
           symbol: string
           tagline: string | null
@@ -99,6 +102,7 @@ export type Database = {
           confidence?: string
           config_last_changed_label?: string | null
           created_at?: string
+          deposit_address?: string | null
           events?: Json
           failed_windows?: number
           grade: string
@@ -108,10 +112,12 @@ export type Database = {
           mint: string
           name: string
           operator_verified?: boolean
+          operator_wallet?: string | null
           parser_version?: string
           price_series?: Json
           score?: number | null
           score_breakdown?: Json
+          scored_at?: string | null
           status?: string
           symbol: string
           tagline?: string | null
@@ -131,6 +137,7 @@ export type Database = {
           confidence?: string
           config_last_changed_label?: string | null
           created_at?: string
+          deposit_address?: string | null
           events?: Json
           failed_windows?: number
           grade?: string
@@ -140,10 +147,12 @@ export type Database = {
           mint?: string
           name?: string
           operator_verified?: boolean
+          operator_wallet?: string | null
           parser_version?: string
           price_series?: Json
           score?: number | null
           score_breakdown?: Json
+          scored_at?: string | null
           status?: string
           symbol?: string
           tagline?: string | null
