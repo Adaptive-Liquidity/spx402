@@ -64,9 +64,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     }
   };
 
-  const google = async () => {
+  const oauth = async (provider: "google" | "apple") => {
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: `${window.location.origin}/dashboard`,
     });
     if ("error" in result && result.error) {
