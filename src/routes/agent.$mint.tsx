@@ -43,7 +43,11 @@ export const Route = createFileRoute("/agent/$mint")({
   loader: async ({ params }) => {
     const agent = await fetchAgent(params.mint);
     if (!agent) throw notFound();
-    return { agent };
+    // Pull verified on-chain events from agent_events. Falls back to the
+    // seeded events on the agent row when nothing is indexed yet.
+    const liveEvents = await fetchAgentEvents(agent.mint, 100);
+    const merged = mergeEvents(liveEvents, agent.events);
+    return { agent: { ...agent, events: merged } };
   },
   staleTime: 30_000,
   component: AgentDossierPage,
