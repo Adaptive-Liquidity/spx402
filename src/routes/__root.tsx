@@ -50,6 +50,12 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@SPX402" },
+      { name: "twitter:title", content: "SPX402 — Execution Grade for Tokenized AI Agents" },
+      { name: "description", content: "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con" },
+      { property: "og:description", content: "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con" },
+      { name: "twitter:description", content: "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
