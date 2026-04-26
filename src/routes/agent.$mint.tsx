@@ -6,9 +6,14 @@ import { Panel } from "@/components/spx/Panel";
 import { type Agent } from "@/lib/agents";
 import { fetchAgent } from "@/lib/agents-db";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
+import {
+  deleteAlertSubscription,
+  fetchAlertSubscriptionForMint,
+  upsertAlertSubscription,
+} from "@/lib/alerts";
 import { useAuth } from "@/lib/auth";
 import {
-  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity, Check,
+  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity, Check, Bell, BellOff,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -194,12 +199,10 @@ function Dossier({ agent }: { agent: Agent }) {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <WatchlistButton mint={agent.mint} symbol={agent.symbol} />
+            <AlertSubscribeButton mint={agent.mint} />
             <button className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
               <Share2 className="h-3.5 w-3.5" /> Share dossier
             </button>
-            <Link to="/alerts" className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
-              Set alert
-            </Link>
           </div>
         </div>
 
@@ -540,3 +543,70 @@ function WatchlistButton({ mint, symbol }: { mint: string; symbol: string }) {
     </button>
   );
 }
+
+function AlertSubscribeButton({ mint }: { mint: string }) {
+  const { user } = useAuth();
+  const [subId, setSubId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setChecked(true);
+      return;
+    }
+    let cancelled = false;
+    fetchAlertSubscriptionForMint(user.id, mint, "email")
+      .then((s) => { if (!cancelled) setSubId(s?.id ?? null); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setChecked(true); });
+    return () => { cancelled = true; };
+  }, [user, mint]);
+
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+      >
+        <Bell className="h-3.5 w-3.5" /> Sign in for alerts
+      </Link>
+    );
+  }
+
+  const subscribed = !!subId;
+
+  const toggle = async () => {
+    if (busy || !checked) return;
+    setBusy(true);
+    try {
+      if (subId) {
+        await deleteAlertSubscription(subId);
+        setSubId(null);
+      } else {
+        const created = await upsertAlertSubscription(user.id, { mint, channel: "email" });
+        setSubId(created.id);
+      }
+    } catch {
+      /* swallow — UI stays as-is */
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={toggle}
+      disabled={busy || !checked}
+      className={
+        subscribed
+          ? "inline-flex items-center gap-2 border border-verified/80 bg-verified/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-verified hover:border-critical hover:text-critical disabled:opacity-50"
+          : "inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber disabled:opacity-50"
+      }
+    >
+      {subscribed ? <BellOff className="h-3.5 w-3.5" /> : <Bell className="h-3.5 w-3.5" />}
+      {subscribed ? "Alerts on" : "Subscribe to alerts"}
+    </button>
+  );
+}
+

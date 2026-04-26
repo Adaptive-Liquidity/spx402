@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { fetchWatchlist } from "@/lib/watchlist";
+import { fetchAlertSubscriptions } from "@/lib/alerts";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -16,17 +17,21 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardOverview() {
   const { user } = useAuth();
   const [watchedCount, setWatchedCount] = useState<number | null>(null);
+  const [alertsCount, setAlertsCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
     fetchWatchlist(user.id)
       .then((rows) => setWatchedCount(rows.length))
       .catch(() => setWatchedCount(0));
+    fetchAlertSubscriptions(user.id)
+      .then((rows) => setAlertsCount(rows.filter((r) => !r.paused).length))
+      .catch(() => setAlertsCount(0));
   }, [user]);
 
   const stats = [
     { l: "Watched agents", v: watchedCount === null ? "…" : String(watchedCount) },
-    { l: "Active alerts", v: "0" },
+    { l: "Active alerts", v: alertsCount === null ? "…" : String(alertsCount) },
     { l: "API keys", v: "0" },
   ];
 
