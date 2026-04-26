@@ -1,20 +1,23 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
 import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
-import { getAgent, type Agent } from "@/lib/agents";
+import { type Agent } from "@/lib/agents";
+import { fetchAgent } from "@/lib/agents-db";
+import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
+import { useAuth } from "@/lib/auth";
 import {
-  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity,
+  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity, Check,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 
 export const Route = createFileRoute("/agent/$mint")({
-  head: ({ params }) => {
-    const a = getAgent(params.mint);
+  head: ({ loaderData }) => {
+    const a = loaderData?.agent;
     if (!a) {
       return {
         meta: [
@@ -35,13 +38,29 @@ export const Route = createFileRoute("/agent/$mint")({
       ],
     };
   },
-  loader: ({ params }) => {
-    const agent = getAgent(params.mint);
+  loader: async ({ params }) => {
+    const agent = await fetchAgent(params.mint);
     if (!agent) throw notFound();
     return { agent };
   },
+  staleTime: 30_000,
   component: AgentDossierPage,
   notFoundComponent: () => <NotFound mint="" />,
+  errorComponent: ({ error, reset }) => {
+    const router = useRouter();
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <div className="label-amber">Dossier error</div>
+        <p className="mt-3 text-paper-muted">{error.message}</p>
+        <button
+          onClick={() => { router.invalidate(); reset(); }}
+          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  },
 });
 
 function NotFound({ mint }: { mint: string }) {
