@@ -6,14 +6,9 @@ import { Panel } from "@/components/spx/Panel";
 import { type Agent } from "@/lib/agents";
 import { fetchAgent } from "@/lib/agents-db";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
-import {
-  deleteAlertSubscription,
-  fetchAlertSubscriptionForMint,
-  upsertAlertSubscription,
-} from "@/lib/alerts";
 import { useAuth } from "@/lib/auth";
 import {
-  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity, Check, Bell, BellOff,
+  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity, Check, Bell,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
