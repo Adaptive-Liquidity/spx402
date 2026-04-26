@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_events: {
+        Row: {
+          amount_sol: number
+          amount_token: number
+          created_at: string
+          id: string
+          mint: string
+          occurred_at: string
+          parser_version: string
+          raw: Json
+          severity: string
+          signature: string
+          slot: number | null
+          type: string
+        }
+        Insert: {
+          amount_sol?: number
+          amount_token?: number
+          created_at?: string
+          id?: string
+          mint: string
+          occurred_at?: string
+          parser_version?: string
+          raw?: Json
+          severity?: string
+          signature: string
+          slot?: number | null
+          type: string
+        }
+        Update: {
+          amount_sol?: number
+          amount_token?: number
+          created_at?: string
+          id?: string
+          mint?: string
+          occurred_at?: string
+          parser_version?: string
+          raw?: Json
+          severity?: string
+          signature?: string
+          slot?: number | null
+          type?: string
+        }
+        Relationships: []
+      }
       agents: {
         Row: {
           burn_confirmation_rate: number
@@ -164,6 +209,99 @@ export type Database = {
           score_drop_threshold?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      changelog: {
+        Row: {
+          created_at: string
+          id: string
+          items: string[]
+          released_on: string
+          type: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: string[]
+          released_on: string
+          type: string
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: string[]
+          released_on?: string
+          type?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      indexer_runs: {
+        Row: {
+          duration_ms: number
+          id: string
+          notes: string | null
+          ok: boolean
+          ran_at: string
+          worker: string
+        }
+        Insert: {
+          duration_ms?: number
+          id?: string
+          notes?: string | null
+          ok?: boolean
+          ran_at?: string
+          worker: string
+        }
+        Update: {
+          duration_ms?: number
+          id?: string
+          notes?: string | null
+          ok?: boolean
+          ran_at?: string
+          worker?: string
+        }
+        Relationships: []
+      }
+      operator_challenges: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          mint: string
+          nonce: string
+          signature: string | null
+          signed_at: string | null
+          user_id: string
+          wallet: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mint: string
+          nonce: string
+          signature?: string | null
+          signed_at?: string | null
+          user_id: string
+          wallet: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          mint?: string
+          nonce?: string
+          signature?: string | null
+          signed_at?: string | null
+          user_id?: string
+          wallet?: string
         }
         Relationships: []
       }
