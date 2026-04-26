@@ -45,7 +45,11 @@ const SAMPLES = [
 function AlertsPage() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">Alerts</div>
+      <div className="inline-flex items-center gap-2 border border-amber/60 bg-amber/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-amber">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-amber" />
+        Shipping soon
+      </div>
+      <div className="label-amber mt-5">Alerts</div>
       <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
         When the tape changes,<br />
         <span className="text-amber">you hear it first.</span>
@@ -100,11 +104,15 @@ function AlertsPage() {
 
       <div className="mt-16 panel-engraved p-8 text-center">
         <h2 className="font-display text-3xl font-bold text-paper">
-          Configure your first alert.
+          Be first when alerts go live.
         </h2>
+        <p className="mx-auto mt-3 max-w-xl text-paper-muted">
+          Create an account now — we'll notify subscribed users the moment the
+          alert pipeline ships.
+        </p>
         <div className="mt-6">
           <Link to="/signup" className="inline-flex border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim">
-            Open dashboard →
+            Create account →
           </Link>
         </div>
       </div>
