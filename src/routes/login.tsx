@@ -146,10 +146,20 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <div className="rule-bronze" />
         <button
           type="button"
-          onClick={google}
+          onClick={() => oauth("google")}
           className="flex w-full items-center justify-center gap-2 border border-bronze/60 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
         >
           Continue with Google
+        </button>
+        <button
+          type="button"
+          onClick={() => oauth("apple")}
+          className="flex w-full items-center justify-center gap-2 border border-bronze/60 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+        >
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+            <path d="M16.365 1.43c0 1.14-.43 2.22-1.21 3.01-.81.83-2.12 1.47-3.21 1.38-.13-1.1.42-2.24 1.18-3.02.83-.86 2.24-1.5 3.24-1.37zM20.5 17.36c-.55 1.27-.81 1.84-1.51 2.97-.98 1.57-2.36 3.53-4.07 3.55-1.52.02-1.91-.99-3.97-.98-2.06.01-2.49 1-4.01.98-1.71-.02-3.02-1.78-4-3.35C.6 15.97-.04 11.4 1.74 8.36c1.26-2.16 3.25-3.43 5.11-3.43 1.9 0 3.09 1.04 4.66 1.04 1.52 0 2.45-1.04 4.65-1.04 1.66 0 3.42.91 4.67 2.47-4.1 2.25-3.43 8.1.67 9.96z" />
+          </svg>
+          Continue with Apple
         </button>
       </form>
 
