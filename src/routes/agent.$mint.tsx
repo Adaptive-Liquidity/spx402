@@ -16,13 +16,13 @@ import {
 } from "recharts";
 
 export const Route = createFileRoute("/agent/$mint")({
-  head: ({ loaderData }) => {
+  head: ({ loaderData }: { loaderData?: { agent: Agent } }) => {
     const a = loaderData?.agent;
     if (!a) {
       return {
         meta: [
-          { title: "SPX404 — Agent not found · SPX402" },
-          { name: "description", content: "No receipts. No rating." },
+          { title: "Agent dossier · SPX402" },
+          { name: "description", content: "Tokenized agent dossier." },
         ],
       };
     }
