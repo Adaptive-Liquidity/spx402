@@ -1,0 +1,135 @@
+// Supabase-backed data access for agents.
+// The agents table is the source of truth; src/lib/agents.ts only holds types
+// and the static seed fallback for the home page boot animation.
+
+import { supabase } from "@/integrations/supabase/client";
+import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
+
+type AgentRow = {
+  mint: string;
+  symbol: string;
+  name: string;
+  tagline: string | null;
+  grade: string;
+  score: number | null;
+  status: string;
+  operator_verified: boolean;
+  confidence: string;
+  parser_version: string;
+  last_indexed_seconds: number;
+  total_deposits_count: number;
+  total_buybacks_count: number;
+  total_burns_count: number;
+  failed_windows: number;
+  total_deposited_sol: number | string;
+  total_buyback_sol: number | string;
+  total_burned_tokens: number | string;
+  buyback_execution_rate: number | string;
+  burn_confirmation_rate: number | string;
+  buyback_bps: number;
+  last_buyback_label: string | null;
+  last_burn_label: string | null;
+  config_last_changed_label: string | null;
+  score_breakdown: unknown;
+  verdict: string | null;
+  events: unknown;
+  price_series: unknown;
+};
+
+const num = (v: number | string | null | undefined): number =>
+  v == null ? 0 : typeof v === "number" ? v : Number(v);
+
+function rowToAgent(r: AgentRow): Agent {
+  return {
+    mint: r.mint,
+    symbol: r.symbol,
+    name: r.name,
+    tagline: r.tagline ?? "",
+    grade: r.grade as Grade,
+    score: r.score,
+    status: (r.status as Agent["status"]) ?? "unknown",
+    operatorVerified: r.operator_verified,
+    confidence: (r.confidence as Agent["confidence"]) ?? "low",
+    parserVersion: r.parser_version,
+    lastIndexedSeconds: r.last_indexed_seconds,
+    totalDepositsCount: r.total_deposits_count,
+    totalBuybacksCount: r.total_buybacks_count,
+    totalBurnsCount: r.total_burns_count,
+    failedWindows: r.failed_windows,
+    totalDepositedSol: num(r.total_deposited_sol),
+    totalBuybackSol: num(r.total_buyback_sol),
+    totalBurnedTokens: num(r.total_burned_tokens),
+    buybackExecutionRate: num(r.buyback_execution_rate),
+    burnConfirmationRate: num(r.burn_confirmation_rate),
+    buybackBps: r.buyback_bps,
+    lastBuybackLabel: r.last_buyback_label ?? "—",
+    lastBurnLabel: r.last_burn_label ?? "—",
+    configLastChangedLabel: r.config_last_changed_label ?? "—",
+    scoreBreakdown: (r.score_breakdown as AgentScoreBreakdown) ?? {
+      depositConsistency: 0,
+      buybackExecution: 0,
+      burnConfirmation: 0,
+      failedTx: 0,
+      recency: 0,
+      metadata: 0,
+      operator: 0,
+    },
+    verdict: r.verdict ?? "",
+    events: ((r.events as AgentEvent[]) ?? []).map((e) => ({
+      ...e,
+      slot: typeof e.slot === "number" ? e.slot : Number(e.slot),
+    })),
+    priceSeries: (r.price_series as { t: string; v: number }[]) ?? [],
+  };
+}
+
+export async function fetchAllAgents(): Promise<Agent[]> {
+  const { data, error } = await supabase
+    .from("agents")
+    .select("*")
+    .order("score", { ascending: false, nullsFirst: false });
+  if (error) throw error;
+  return (data as AgentRow[]).map(rowToAgent);
+}
+
+export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
+  const q = mintOrSymbol.trim();
+  if (!q) return null;
+
+  // Try exact mint first
+  const { data: byMint } = await supabase
+    .from("agents")
+    .select("*")
+    .eq("mint", q)
+    .maybeSingle();
+  if (byMint) return rowToAgent(byMint as AgentRow);
+
+  // Try symbol (case-insensitive)
+  const { data: bySymbol } = await supabase
+    .from("agents")
+    .select("*")
+    .ilike("symbol", q)
+    .maybeSingle();
+  if (bySymbol) return rowToAgent(bySymbol as AgentRow);
+
+  // Try mint prefix
+  const { data: byPrefix } = await supabase
+    .from("agents")
+    .select("*")
+    .ilike("mint", `${q}%`)
+    .limit(1)
+    .maybeSingle();
+  if (byPrefix) return rowToAgent(byPrefix as AgentRow);
+
+  return null;
+}
+
+export async function fetchAgentsByMints(mints: string[]): Promise<Agent[]> {
+  if (mints.length === 0) return [];
+  const { data, error } = await supabase
+    .from("agents")
+    .select("*")
+    .in("mint", mints);
+  if (error) throw error;
+  return (data as AgentRow[]).map(rowToAgent);
+}
