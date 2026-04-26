@@ -476,3 +476,67 @@ function Dossier({ agent }: { agent: Agent }) {
     </div>
   );
 }
+
+function WatchlistButton({ mint, symbol }: { mint: string; symbol: string }) {
+  const { user } = useAuth();
+  const [tracked, setTracked] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setChecked(true);
+      return;
+    }
+    let cancelled = false;
+    isOnWatchlist(user.id, mint)
+      .then((v) => { if (!cancelled) setTracked(v); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setChecked(true); });
+    return () => { cancelled = true; };
+  }, [user, mint]);
+
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        <Activity className="h-3.5 w-3.5" /> Sign in to watchlist
+      </Link>
+    );
+  }
+
+  const toggle = async () => {
+    if (busy || !checked) return;
+    setBusy(true);
+    try {
+      if (tracked) {
+        await removeFromWatchlist(user.id, mint);
+        setTracked(false);
+      } else {
+        await addToWatchlist(user.id, mint, symbol);
+        setTracked(true);
+      }
+    } catch {
+      /* swallow — UI stays as-is */
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={toggle}
+      disabled={busy || !checked}
+      className={
+        tracked
+          ? "inline-flex items-center gap-2 border border-verified/80 bg-verified/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-verified hover:border-critical hover:text-critical disabled:opacity-50"
+          : "inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
+      }
+    >
+      {tracked ? <Check className="h-3.5 w-3.5" /> : <Activity className="h-3.5 w-3.5" />}
+      {tracked ? "On watchlist" : "Add to watchlist"}
+    </button>
+  );
+}
