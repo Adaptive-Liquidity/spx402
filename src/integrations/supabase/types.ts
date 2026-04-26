@@ -113,6 +113,60 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_subscriptions: {
+        Row: {
+          channel: string
+          created_at: string
+          event_burn: boolean
+          event_buyback: boolean
+          event_config_change: boolean
+          event_deposit: boolean
+          event_failed_window: boolean
+          event_score_drop: boolean
+          id: string
+          min_sol_threshold: number
+          mint: string
+          paused: boolean
+          score_drop_threshold: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          event_burn?: boolean
+          event_buyback?: boolean
+          event_config_change?: boolean
+          event_deposit?: boolean
+          event_failed_window?: boolean
+          event_score_drop?: boolean
+          id?: string
+          min_sol_threshold?: number
+          mint: string
+          paused?: boolean
+          score_drop_threshold?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          event_burn?: boolean
+          event_buyback?: boolean
+          event_config_change?: boolean
+          event_deposit?: boolean
+          event_failed_window?: boolean
+          event_score_drop?: boolean
+          id?: string
+          min_sol_threshold?: number
+          mint?: string
+          paused?: boolean
+          score_drop_threshold?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
