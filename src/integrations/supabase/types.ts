@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      agents: {
+        Row: {
+          burn_confirmation_rate: number
+          buyback_bps: number
+          buyback_execution_rate: number
+          confidence: string
+          config_last_changed_label: string | null
+          created_at: string
+          events: Json
+          failed_windows: number
+          grade: string
+          last_burn_label: string | null
+          last_buyback_label: string | null
+          last_indexed_seconds: number
+          mint: string
+          name: string
+          operator_verified: boolean
+          parser_version: string
+          price_series: Json
+          score: number | null
+          score_breakdown: Json
+          status: string
+          symbol: string
+          tagline: string | null
+          total_burned_tokens: number
+          total_burns_count: number
+          total_buyback_sol: number
+          total_buybacks_count: number
+          total_deposited_sol: number
+          total_deposits_count: number
+          updated_at: string
+          verdict: string | null
+        }
+        Insert: {
+          burn_confirmation_rate?: number
+          buyback_bps?: number
+          buyback_execution_rate?: number
+          confidence?: string
+          config_last_changed_label?: string | null
+          created_at?: string
+          events?: Json
+          failed_windows?: number
+          grade: string
+          last_burn_label?: string | null
+          last_buyback_label?: string | null
+          last_indexed_seconds?: number
+          mint: string
+          name: string
+          operator_verified?: boolean
+          parser_version?: string
+          price_series?: Json
+          score?: number | null
+          score_breakdown?: Json
+          status?: string
+          symbol: string
+          tagline?: string | null
+          total_burned_tokens?: number
+          total_burns_count?: number
+          total_buyback_sol?: number
+          total_buybacks_count?: number
+          total_deposited_sol?: number
+          total_deposits_count?: number
+          updated_at?: string
+          verdict?: string | null
+        }
+        Update: {
+          burn_confirmation_rate?: number
+          buyback_bps?: number
+          buyback_execution_rate?: number
+          confidence?: string
+          config_last_changed_label?: string | null
+          created_at?: string
+          events?: Json
+          failed_windows?: number
+          grade?: string
+          last_burn_label?: string | null
+          last_buyback_label?: string | null
+          last_indexed_seconds?: number
+          mint?: string
+          name?: string
+          operator_verified?: boolean
+          parser_version?: string
+          price_series?: Json
+          score?: number | null
+          score_breakdown?: Json
+          status?: string
+          symbol?: string
+          tagline?: string | null
+          total_burned_tokens?: number
+          total_burns_count?: number
+          total_buyback_sol?: number
+          total_buybacks_count?: number
+          total_deposited_sol?: number
+          total_deposits_count?: number
+          updated_at?: string
+          verdict?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -38,6 +137,30 @@ export type Database = {
           id?: string
           operator_wallet?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          mint: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          mint: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          mint?: string
+          user_id?: string
         }
         Relationships: []
       }

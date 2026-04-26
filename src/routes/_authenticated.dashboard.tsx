@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { fetchWatchlist } from "@/lib/watchlist";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -13,14 +15,25 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function DashboardOverview() {
   const { user } = useAuth();
+  const [watchedCount, setWatchedCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchWatchlist(user.id)
+      .then((rows) => setWatchedCount(rows.length))
+      .catch(() => setWatchedCount(0));
+  }, [user]);
+
+  const stats = [
+    { l: "Watched agents", v: watchedCount === null ? "…" : String(watchedCount) },
+    { l: "Active alerts", v: "0" },
+    { l: "API keys", v: "0" },
+  ];
+
   return (
     <div className="space-y-8">
       <div className="grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
-        {[
-          { l: "Watched agents", v: "0" },
-          { l: "Active alerts", v: "0" },
-          { l: "API keys", v: "0" },
-        ].map((s) => (
+        {stats.map((s) => (
           <div key={s.l} className="bg-panel p-6">
             <div className="label-mono">{s.l}</div>
             <div className="mt-2 font-display text-3xl font-bold text-paper">{s.v}</div>
@@ -41,6 +54,9 @@ function DashboardOverview() {
         <div className="mt-5 flex flex-wrap gap-3">
           <Link to="/explore" className="border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep">
             Browse agents →
+          </Link>
+          <Link to="/dashboard/watchlist" className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
+            Open watchlist
           </Link>
           <Link to="/dashboard/api-keys" className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
             Issue API key
