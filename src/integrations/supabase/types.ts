@@ -496,6 +496,42 @@ export type Database = {
       }
     }
     Views: {
+      candidate_agents_public: {
+        Row: {
+          category: string | null
+          check_attempts: number | null
+          created_at: string | null
+          discovered_via: string | null
+          identifier_kind: string | null
+          last_checked_at: string | null
+          mint: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          check_attempts?: number | null
+          created_at?: string | null
+          discovered_via?: string | null
+          identifier_kind?: string | null
+          last_checked_at?: string | null
+          mint?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          check_attempts?: number | null
+          created_at?: string | null
+          discovered_via?: string | null
+          identifier_kind?: string | null
+          last_checked_at?: string | null
+          mint?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       my_profile: {
         Row: {
           avatar_url: string | null

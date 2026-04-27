@@ -47,6 +47,7 @@ import { Route as ApiPublicCronRegisteredAgentDiffRouteImport } from './routes/a
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
 import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
+import { Route as ApiPublicAdminSeedVaultRouteImport } from './routes/api.public.admin-seed-vault'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
@@ -249,6 +250,11 @@ const ApiPublicCronBackfillRoute = ApiPublicCronBackfillRouteImport.update({
   path: '/public/cron-backfill',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicAdminSeedVaultRoute = ApiPublicAdminSeedVaultRouteImport.update({
+  id: '/public/admin-seed-vault',
+  path: '/public/admin-seed-vault',
+  getParentRoute: () => ApiRoute,
+} as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
     id: '/watchlist',
@@ -315,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
@@ -360,6 +367,7 @@ export interface FileRoutesByTo {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
@@ -407,6 +415,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
@@ -454,6 +463,7 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
@@ -545,6 +556,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
@@ -856,6 +868,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronBackfillRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/admin-seed-vault': {
+      id: '/api/public/admin-seed-vault'
+      path: '/public/admin-seed-vault'
+      fullPath: '/api/public/admin-seed-vault'
+      preLoaderRoute: typeof ApiPublicAdminSeedVaultRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/_authenticated/dashboard/watchlist': {
       id: '/_authenticated/dashboard/watchlist'
       path: '/watchlist'
@@ -933,6 +952,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiPublicAdminSeedVaultRoute: typeof ApiPublicAdminSeedVaultRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
@@ -952,6 +972,7 @@ interface ApiRouteChildren {
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiPublicAdminSeedVaultRoute: ApiPublicAdminSeedVaultRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
