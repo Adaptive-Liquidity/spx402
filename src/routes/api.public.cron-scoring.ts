@@ -6,6 +6,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { score } from "@/lib/indexer/scoring.server";
+import { checkCronAuth } from "@/lib/indexer/auth.server";
 
 export const Route = createFileRoute("/api/public/cron-scoring")({
   server: {

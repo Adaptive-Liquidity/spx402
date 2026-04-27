@@ -5,6 +5,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { checkCronAuth } from "@/lib/indexer/auth.server";
 
 const TOLERANCE_MS = 15 * 60 * 1000; // burn must follow buyback within 15 min
 
@@ -76,12 +77,6 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
   },
 });
 
-function checkCronAuth(req: Request): boolean {
-  const secret = process.env.HELIUS_WEBHOOK_SECRET;
-  if (!secret) return false;
-  const auth = req.headers.get("authorization") ?? "";
-  return auth === secret || auth === `Bearer ${secret}`;
-}
 
 async function heartbeat(
   worker: string,
