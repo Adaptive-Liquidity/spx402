@@ -13,12 +13,20 @@
 
 import { fetchAddressTxs, type HeliusEnhancedTx, touchesPumpFun, extractBurn } from "./helius.server";
 import { decodeTx } from "./decode.server";
+import { decodeSwapTx } from "./decode-swap.server";
+import { decodeX402Tx } from "./decode-x402.server";
+import type { IdentifierKind } from "@/lib/agents/categories";
 
 export interface VerificationSignals {
+  // Tokenized-agent signals.
   skills_md: boolean;
   invoice_pda: boolean;
   on_chain_earnings: boolean;
   agent_registry: boolean;
+  // Executor / registered signals (only populated for non-mint kinds).
+  swap_activity?: boolean;
+  x402_activity?: boolean;
+  registered_identity?: boolean;
 }
 
 export interface VerificationResult {
