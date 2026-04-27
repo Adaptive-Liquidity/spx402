@@ -61,8 +61,7 @@ function BootSequence() {
   );
 }
 
-function TerminalSampleCard() {
-  const nova = getAgent("NOVA")!;
+function TerminalSampleCard({ agent }: { agent: Agent | null }) {
   return (
     <div className="panel-engraved relative overflow-hidden">
       <div className="flex items-center justify-between border-b border-bronze/50 bg-panel-deep/60 px-4 py-2.5">
@@ -72,62 +71,88 @@ function TerminalSampleCard() {
           <span className="h-2 w-2 rounded-full bg-verified" />
         </div>
         <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
-          spx402://terminal/live-sample
+          spx402://terminal/{agent ? "live-sample" : "awaiting-first-dossier"}
         </div>
         <div className="font-mono text-[10px] text-amber">● LIVE</div>
       </div>
       <div className="space-y-4 p-5">
         <BootSequence />
         <div className="rule-amber" />
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div>
-            <div className="label-mono">Agent</div>
-            <div className="mt-1 font-mono text-paper">{nova.name}</div>
-          </div>
-          <div>
-            <div className="label-mono">Mint</div>
-            <div className="mt-1 truncate font-mono text-paper">
-              {nova.mint.slice(0, 6)}…{nova.mint.slice(-4)}
+        {agent ? (
+          <>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <div className="label-mono">Agent</div>
+                <div className="mt-1 font-mono text-paper">{agent.name}</div>
+              </div>
+              <div>
+                <div className="label-mono">Mint</div>
+                <div className="mt-1 truncate font-mono text-paper">
+                  {agent.mint.slice(0, 6)}…{agent.mint.slice(-4)}
+                </div>
+              </div>
+              <div>
+                <div className="label-mono">Status</div>
+                <div className="mt-1 font-mono text-verified">TOKENIZED_AGENT_CONFIRMED</div>
+              </div>
+              <div>
+                <div className="label-mono">Operator</div>
+                <div className={`mt-1 font-mono ${agent.operatorVerified ? "text-verified" : "text-paper-muted"}`}>
+                  {agent.operatorVerified ? "VERIFIED" : "UNVERIFIED"}
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="label-mono">Status</div>
-            <div className="mt-1 font-mono text-verified">TOKENIZED_AGENT_CONFIRMED</div>
-          </div>
-          <div>
-            <div className="label-mono">Operator</div>
-            <div className="mt-1 font-mono text-verified">VERIFIED</div>
-          </div>
-        </div>
-        <div className="rule-bronze" />
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-xs">
-          <div className="flex justify-between"><span className="text-wire">DEPOSITS OBSERVED</span><span className="text-paper">847</span></div>
-          <div className="flex justify-between"><span className="text-wire">BUYBACKS</span><span className="text-paper">842</span></div>
-          <div className="flex justify-between"><span className="text-wire">BURNS</span><span className="text-paper">842</span></div>
-          <div className="flex justify-between"><span className="text-wire">FAILED WINDOWS</span><span className="text-amber">5</span></div>
-          <div className="col-span-2 flex justify-between"><span className="text-wire">LAST BUYBACK</span><span className="text-paper">14 minutes ago</span></div>
-        </div>
-        <div className="rule-amber" />
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="label-mono">Execution Grade</div>
-            <div className="mt-2"><ExecutionGradeBadge grade="SPX AA" size="lg" /></div>
-          </div>
-          <div className="text-right">
-            <div className="label-mono">Score</div>
-            <div className="num-display mt-1 text-4xl font-bold text-verified">87</div>
-          </div>
-        </div>
-        <div className="border-l-2 border-amber/60 pl-3 font-mono text-xs italic text-paper-muted">
-          “Operational. Minor gaps. Still awake.”
-        </div>
-        <Link
-          to="/agent/$mint"
-          params={{ mint: nova.mint }}
-          className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
-        >
-          Open full dossier <ArrowRight className="h-3 w-3" />
-        </Link>
+            <div className="rule-bronze" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-xs">
+              <div className="flex justify-between"><span className="text-wire">DEPOSITS OBSERVED</span><span className="text-paper">{agent.totalDepositsCount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-wire">BUYBACKS</span><span className="text-paper">{agent.totalBuybacksCount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-wire">BURNS</span><span className="text-paper">{agent.totalBurnsCount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-wire">FAILED WINDOWS</span><span className="text-amber">{agent.failedWindows}</span></div>
+              <div className="col-span-2 flex justify-between"><span className="text-wire">LAST BUYBACK</span><span className="text-paper">{agent.lastBuybackLabel}</span></div>
+            </div>
+            <div className="rule-amber" />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="label-mono">Execution Grade</div>
+                <div className="mt-2"><ExecutionGradeBadge grade={agent.grade} size="lg" /></div>
+              </div>
+              <div className="text-right">
+                <div className="label-mono">Score</div>
+                <div className="num-display mt-1 text-4xl font-bold text-verified">{agent.score ?? "—"}</div>
+              </div>
+            </div>
+            {agent.tagline && (
+              <div className="border-l-2 border-amber/60 pl-3 font-mono text-xs italic text-paper-muted">
+                "{agent.tagline}"
+              </div>
+            )}
+            <Link
+              to="/agent/$mint"
+              params={{ mint: agent.mint }}
+              className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
+            >
+              Open full dossier <ArrowRight className="h-3 w-3" />
+            </Link>
+          </>
+        ) : (
+          <>
+            <div className="space-y-2 font-mono text-xs">
+              <div className="flex justify-between"><span className="text-wire">REGISTRY SCAN</span><span className="text-amber">QUEUED</span></div>
+              <div className="flex justify-between"><span className="text-wire">PUMP.FUN STREAM</span><span className="text-verified">LISTENING</span></div>
+              <div className="flex justify-between"><span className="text-wire">CANDIDATES</span><span className="text-paper">awaiting first verified dossier</span></div>
+            </div>
+            <div className="rule-bronze" />
+            <p className="font-mono text-xs text-paper-muted">
+              No agent has yet passed the verification bar (on-chain earnings + at least one identity proof). Submit a mint or wait for the indexer to catch one in the wild.
+            </p>
+            <Link
+              to="/submit"
+              className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
+            >
+              Submit a mint <ArrowRight className="h-3 w-3" />
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
