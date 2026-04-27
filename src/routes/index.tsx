@@ -85,13 +85,15 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
-  const allAgents = Route.useLoaderData() as Agent[];
+  const { agents: allAgents, tape } = Route.useLoaderData() as {
+    agents: Agent[];
+    tape: TapeRow[];
+  };
   // Homepage tape, hero card, and featured grid only show leaderboard-quality
   // agents. SPX D / SPX404 / flagged agents are excluded — they live on
   // /explore and /flagged respectively.
   const agents = allAgents.filter(qualifiesForLeaderboard);
   const featured = agents.slice(0, 3);
-  const heroAgent = agents[0] ?? null;
   const totalBuybacks = agents.reduce((acc, a) => acc + a.totalBuybacksCount, 0);
   return (
     <div>
