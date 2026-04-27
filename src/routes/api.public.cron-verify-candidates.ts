@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
 
         const { data: queue } = await supabaseAdmin
           .from("candidate_agents")
-          .select("mint, check_attempts, signals")
+          .select("mint, check_attempts, signals, discovered_via")
           .in("status", ["pending", "verifying"])
           .order("last_checked_at", { ascending: true, nullsFirst: true })
           .limit(MAX_PER_RUN);
@@ -31,7 +31,9 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
         let stillPending = 0;
 
         for (const c of queue ?? []) {
-          const result = await verifyCandidate(c.mint);
+          const result = await verifyCandidate(c.mint, {
+            discoveredVia: c.discovered_via,
+          });
           const attempts = (c.check_attempts ?? 0) + 1;
 
           if (result.passed) {
