@@ -101,6 +101,16 @@ function tickerLine(type: string, mint: string, sol: number): string {
       return `DEPOSIT · ${m} · ${sol.toFixed(2)} SOL`;
     case "FAILED_WINDOW":
       return `FAILED WINDOW · ${m} · reconciler flagged`;
+    case "FAILED_BUYBACK_WINDOW":
+      return `FAILED BUYBACK · ${m} · deposit unsettled`;
+    case "PROMISED_BUYBACK_NOT_SETTLED":
+      return `BUYBACK REVERTED · ${m}`;
+    case "X402_PAYMENT_REVERTED":
+      return `x402 REVERTED · ${m}`;
+    case "X402_PAYMENT_RECEIVED":
+      return `x402 PAID · ${m} · ${sol.toFixed(2)} SOL`;
+    case "SWAP_EXECUTED":
+      return `SWAP · ${m} · ${sol.toFixed(2)} SOL`;
     case "CONFIG_CHANGED":
       return `CONFIG CHANGED · ${m}`;
     case "ANOMALY_DETECTED":
@@ -128,6 +138,7 @@ const KNOWN_WORKERS = [
   "backfill",
   "scoring",
   "reconciler",
+  "failure_reconciler",
 ] as const;
 
 export async function fetchLatestIndexerRuns(): Promise<
