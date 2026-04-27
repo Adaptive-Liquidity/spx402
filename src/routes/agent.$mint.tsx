@@ -487,16 +487,32 @@ function Dossier({ agent }: { agent: Agent }) {
         <div className="panel-engraved relative lg:col-span-8 p-8">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
-              <div className="label-amber">Tokenized Agent {isSPX404 ? "· not found" : "confirmed"}</div>
+              <div className="label-amber">{cat.longLabel} {isSPX404 ? "· not found" : "confirmed"}</div>
               <h1 className="mt-3 font-display text-5xl font-bold text-paper">
-                ${agent.symbol}
+                {isTokenized ? `$${agent.symbol}` : agent.name}
               </h1>
-              <div className="mt-1 text-lg text-paper-muted">{agent.name}</div>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs text-wire">MINT</span>
-                <span className="font-mono text-xs text-paper">{shortMint(agent.mint)}</span>
-                <CopyButton value={agent.mint} />
+              <div className="mt-1 text-lg text-paper-muted">
+                {isTokenized ? agent.name : `$${agent.symbol}`}
               </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="font-mono text-xs text-wire">{cat.identifierLabel.toUpperCase()}</span>
+                <span className="font-mono text-xs text-paper">{shortMint(agent.identifier)}</span>
+                <CopyButton value={agent.identifier} />
+              </div>
+              {isExecutor && agent.executorWallet && agent.executorWallet !== agent.identifier && (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs text-wire">EXECUTOR</span>
+                  <span className="font-mono text-xs text-paper">{shortMint(agent.executorWallet)}</span>
+                  <CopyButton value={agent.executorWallet} />
+                </div>
+              )}
+              {isRegistered && agent.coreAsset && agent.coreAsset !== agent.identifier && (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs text-wire">MPL ASSET</span>
+                  <span className="font-mono text-xs text-paper">{shortMint(agent.coreAsset)}</span>
+                  <CopyButton value={agent.coreAsset} />
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-end gap-3">
               <ExecutionGradeBadge grade={agent.grade} size="lg" />
