@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { fetchAllAgents } from "@/lib/agents-db";
-import type { Agent } from "@/lib/agents";
+import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -61,20 +61,24 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
 ];
 
 function rankAgents(agents: Agent[], tab: Tab): Agent[] {
+  // Quality gate first: leaderboard surfaces never include SPX D, SPX404,
+  // or flagged agents. Those live on /explore and /flagged respectively.
+  const qualified = agents.filter(qualifiesForLeaderboard);
+
   if (tab === "earners") {
-    return [...agents]
+    return [...qualified]
       .filter((a) => a.totalBuybackSol > 0)
       .sort((a, b) => b.totalBuybackSol - a.totalBuybackSol)
       .slice(0, 50);
   }
   if (tab === "consistent") {
-    return [...agents]
+    return [...qualified]
       .filter((a) => a.totalBuybacksCount >= 5)
       .sort((a, b) => b.buybackExecutionRate - a.buybackExecutionRate)
       .slice(0, 50);
   }
   // recent
-  return [...agents]
+  return [...qualified]
     .filter((a) => a.operatorVerified || (a.score ?? 0) >= 70)
     .sort((a, b) => a.lastIndexedSeconds - b.lastIndexedSeconds)
     .slice(0, 50);
@@ -90,6 +94,7 @@ function LeaderboardPage() {
   const topEarner = useMemo(
     () =>
       [...agents]
+        .filter(qualifiesForLeaderboard)
         .filter((a) => a.totalBuybackSol > 0)
         .sort((a, b) => b.totalBuybackSol - a.totalBuybackSol)[0] ?? null,
     [agents],
