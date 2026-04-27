@@ -15,6 +15,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { checkCronAuth } from "@/lib/indexer/auth.server";
 
 // Solana Agent Registry program (per Solana Foundation docs).
 const SOLANA_AGENT_REGISTRY_PROGRAM_ID =
