@@ -22,10 +22,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
-import { type HeliusEnhancedTx } from "@/lib/indexer/helius.server";
+import {
+  fetchEnhancedTxs,
+  type HeliusEnhancedTx,
+} from "@/lib/indexer/helius.server";
 
 const HELIUS_RPC = "https://mainnet.helius-rpc.com";
-const HELIUS_API = "https://api.helius.xyz/v0";
 
 // Both SPL Memo program IDs. Most x402 implementations attach an SPL memo
 // instruction with the receipt header on the same tx as the SOL/USDC transfer.
@@ -76,12 +78,9 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
         let parsed = 0;
         for (let i = 0; i < sigs.length; i += ENHANCED_BATCH) {
           const batch = sigs.slice(i, i + ENHANCED_BATCH);
-          const txs = await getEnhancedTxs(heliusKey, batch);
+          const txs = await fetchEnhancedTxs(batch);
           parsed += txs.length;
           for (const tx of txs) {
-            // Extract every wallet that received SOL or USDC alongside an
-            // x402-shaped memo. We pass the candidate wallet list as the
-            // intersection of receivers, then let the decoder confirm.
             const candidates = collectReceivers(tx);
             if (candidates.length === 0) continue;
             const events = decodeX402Tx(tx, candidates);
