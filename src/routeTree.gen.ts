@@ -14,6 +14,7 @@ import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -29,6 +30,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
+import { Route as OperatorWalletRouteImport } from './routes/operator.$wallet'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
@@ -36,6 +38,7 @@ import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
+import { Route as ApiPublicCronScoreSnapshotRouteImport } from './routes/api.public.cron-score-snapshot'
 import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.cron-scan-x402'
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
@@ -71,6 +74,11 @@ const SignupRoute = SignupRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PulseRoute = PulseRouteImport.update({
+  id: '/pulse',
+  path: '/pulse',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -147,6 +155,11 @@ const TapeEventIdRoute = TapeEventIdRouteImport.update({
   path: '/$eventId',
   getParentRoute: () => TapeRoute,
 } as any)
+const OperatorWalletRoute = OperatorWalletRouteImport.update({
+  id: '/operator/$wallet',
+  path: '/operator/$wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -184,6 +197,12 @@ const ApiPublicCronScoringRoute = ApiPublicCronScoringRouteImport.update({
   path: '/public/cron-scoring',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronScoreSnapshotRoute =
+  ApiPublicCronScoreSnapshotRouteImport.update({
+    id: '/public/cron-score-snapshot',
+    path: '/public/cron-score-snapshot',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronScanX402Route = ApiPublicCronScanX402RouteImport.update({
   id: '/public/cron-scan-x402',
   path: '/public/cron-scan-x402',
@@ -262,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
@@ -270,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -279,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
+  '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
@@ -301,6 +323,7 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
@@ -309,6 +332,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -318,6 +342,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
+  '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
@@ -342,6 +367,7 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
@@ -350,6 +376,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -359,6 +386,7 @@ export interface FileRoutesById {
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
+  '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
@@ -383,6 +411,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/pulse'
     | '/register'
     | '/signup'
     | '/status'
@@ -391,6 +420,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/operator/$wallet'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -400,6 +430,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
+    | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
@@ -422,6 +453,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/pulse'
     | '/register'
     | '/signup'
     | '/status'
@@ -430,6 +462,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/operator/$wallet'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -439,6 +472,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
+    | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
@@ -462,6 +496,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/pulse'
     | '/register'
     | '/signup'
     | '/status'
@@ -470,6 +505,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/operator/$wallet'
     | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
@@ -479,6 +515,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
+    | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
@@ -503,12 +540,14 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
   PricingRoute: typeof PricingRoute
+  PulseRoute: typeof PulseRoute
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
   AgentMintRoute: typeof AgentMintRoute
+  OperatorWalletRoute: typeof OperatorWalletRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -546,6 +585,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pulse': {
+      id: '/pulse'
+      path: '/pulse'
+      fullPath: '/pulse'
+      preLoaderRoute: typeof PulseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -653,6 +699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TapeEventIdRouteImport
       parentRoute: typeof TapeRoute
     }
+    '/operator/$wallet': {
+      id: '/operator/$wallet'
+      path: '/operator/$wallet'
+      fullPath: '/operator/$wallet'
+      preLoaderRoute: typeof OperatorWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/docs': {
       id: '/api/docs'
       path: '/docs'
@@ -700,6 +753,13 @@ declare module '@tanstack/react-router' {
       path: '/public/cron-scoring'
       fullPath: '/api/public/cron-scoring'
       preLoaderRoute: typeof ApiPublicCronScoringRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/cron-score-snapshot': {
+      id: '/api/public/cron-score-snapshot'
+      path: '/public/cron-score-snapshot'
+      fullPath: '/api/public/cron-score-snapshot'
+      preLoaderRoute: typeof ApiPublicCronScoreSnapshotRouteImport
       parentRoute: typeof ApiRoute
     }
     '/api/public/cron-scan-x402': {
@@ -819,6 +879,7 @@ interface ApiRouteChildren {
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
   ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
+  ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
@@ -835,6 +896,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
   ApiPublicCronScanX402Route: ApiPublicCronScanX402Route,
+  ApiPublicCronScoreSnapshotRoute: ApiPublicCronScoreSnapshotRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
@@ -872,12 +934,14 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
   PricingRoute: PricingRoute,
+  PulseRoute: PulseRoute,
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
   AgentMintRoute: AgentMintRoute,
+  OperatorWalletRoute: OperatorWalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -504,6 +504,13 @@ function Dossier({ agent }: { agent: Agent }) {
                   <span className="font-mono text-xs text-wire">EXECUTOR</span>
                   <span className="font-mono text-xs text-paper">{shortMint(agent.executorWallet)}</span>
                   <CopyButton value={agent.executorWallet} />
+                  <Link
+                    to="/operator/$wallet"
+                    params={{ wallet: agent.executorWallet }}
+                    className="font-mono text-[10px] uppercase tracking-widest text-amber hover:underline"
+                  >
+                    operator profile ↗
+                  </Link>
                 </div>
               )}
               {isRegistered && agent.coreAsset && agent.coreAsset !== agent.identifier && (

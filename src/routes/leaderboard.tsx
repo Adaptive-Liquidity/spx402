@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
+import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -12,13 +14,13 @@ export const Route = createFileRoute("/leaderboard")({
       {
         name: "description",
         content:
-          "The live leaderboard of Solana agents ranked by on-chain execution. Top earners, most consistent, and most recently verified.",
+          "The live leaderboard of Solana agents ranked by on-chain execution. Top earners, most consistent, biggest movers, and most recently verified.",
       },
       { property: "og:title", content: "Solana agent leaderboard — SPX402" },
       {
         property: "og:description",
         content:
-          "Ranked by what the chain settles, not what the thread claims. Top earners. Most consistent. Most recently verified.",
+          "Ranked by what the chain settles, not what the thread claims. Top earners. Most consistent. Biggest movers. Most recently verified.",
       },
     ],
   }),
@@ -38,7 +40,7 @@ export const Route = createFileRoute("/leaderboard")({
   component: LeaderboardPage,
 });
 
-type Tab = "earners" | "consistent" | "recent";
+type Tab = "earners" | "consistent" | "movers" | "recent";
 
 const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
   {
@@ -52,6 +54,12 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
     label: "Most Consistent",
     eyebrow: "Buyback execution rate",
     body: "Agents that hit their buyback windows. Minimum 5 confirmed buybacks to qualify.",
+  },
+  {
+    id: "movers",
+    label: "Movers (24h)",
+    eyebrow: "Score change vs. yesterday",
+    body: "Agents whose execution score moved most in the last 24 hours, derived from daily snapshots.",
   },
   {
     id: "recent",
@@ -98,6 +106,11 @@ function rankAgents(
       .sort((a, b) => consistencySignal(b) - consistencySignal(a))
       .slice(0, 50);
   }
+  if (tab === "movers") {
+    // Movers are rendered from snapshots, not the agents list — return empty
+    // here and let the page render the dedicated movers list.
+    return [];
+  }
   // recent
   return [...qualified]
     .filter((a) => a.operatorVerified || (a.score ?? 0) >= 70)
@@ -109,6 +122,19 @@ function LeaderboardPage() {
   const agents = Route.useLoaderData();
   const [tab, setTab] = useState<Tab>("earners");
   const [catFilter, setCatFilter] = useState<CategoryFilter>("all");
+  const [movers, setMovers] = useState<ScoreMover[] | null>(null);
+  const [moversLoading, setMoversLoading] = useState(false);
+
+  // Lazy-load movers when the tab is first opened. Movers data lives in
+  // agent_score_snapshots and isn't part of the main agents fetch.
+  useEffect(() => {
+    if (tab !== "movers" || movers !== null) return;
+    setMoversLoading(true);
+    fetchScoreMovers(24, 30)
+      .then((m) => setMovers(m))
+      .catch(() => setMovers([]))
+      .finally(() => setMoversLoading(false));
+  }, [tab, movers]);
 
   const ranked = useMemo(
     () => rankAgents(agents, tab, catFilter),
@@ -235,17 +261,41 @@ function LeaderboardPage() {
         <div>
           <div className="label-amber">{active.eyebrow}</div>
           <p className="mt-1 max-w-xl text-sm text-paper-muted">{active.body}</p>
-          <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
-            Quality gate · grade ≥ SPX BB · score ≥ 50 · not flagged
-          </p>
+          {tab !== "movers" && (
+            <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
+              Quality gate · grade ≥ SPX BB · score ≥ 50 · not flagged
+            </p>
+          )}
+          {tab === "movers" && (
+            <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
+              Source · agent_score_snapshots (daily) · 24h window
+            </p>
+          )}
         </div>
         <span className="font-mono text-xs uppercase tracking-widest text-wire">
-          {ranked.length} ranked
+          {tab === "movers"
+            ? `${movers?.length ?? 0} movers`
+            : `${ranked.length} ranked`}
         </span>
       </div>
 
       <div className="mt-6 space-y-2">
-        {ranked.length === 0 ? (
+        {tab === "movers" ? (
+          moversLoading ? (
+            <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
+              Loading movers…
+            </div>
+          ) : !movers || movers.length === 0 ? (
+            <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
+              No score deltas yet — snapshots accumulate daily.
+              <div className="mt-3 font-mono text-[11px] text-wire">
+                The first 24h of snapshot data is being collected.
+              </div>
+            </div>
+          ) : (
+            movers.map((m, i) => <MoverRow key={m.mint} mover={m} rank={i} />)
+          )
+        ) : ranked.length === 0 ? (
           <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
             No agents qualify for this leaderboard yet.
             <div className="mt-3 space-x-4">
@@ -305,5 +355,68 @@ function LeaderboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function MoverRow({ mover, rank }: { mover: ScoreMover; rank: number }) {
+  const positive = mover.scoreDelta > 0;
+  const Icon = positive ? ArrowUp : ArrowDown;
+  return (
+    <Link
+      to="/agent/$mint"
+      params={{ mint: mover.mint }}
+      className="flex flex-wrap items-center gap-4 panel-engraved p-4 transition-colors hover:bg-panel/60"
+    >
+      <span
+        className={`hidden w-8 font-mono text-[10px] uppercase tracking-widest sm:block ${
+          rank < 3 ? "text-amber" : "text-wire"
+        }`}
+      >
+        #{String(rank + 1).padStart(2, "0")}
+      </span>
+      <span
+        className={`flex h-8 w-8 items-center justify-center border ${
+          positive
+            ? "border-verified/50 bg-verified/10 text-verified"
+            : "border-critical/50 bg-critical/10 text-critical"
+        }`}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-lg font-bold text-paper">
+            ${mover.symbol}
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
+            {mover.grade}
+          </span>
+        </div>
+        <div className="mt-1 truncate font-mono text-[11px] text-paper-muted">
+          {mover.name}
+        </div>
+      </div>
+      <div className="text-right">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
+          score
+        </div>
+        <div className="num-display text-base text-paper">
+          {mover.previousScore} → {mover.currentScore}
+        </div>
+      </div>
+      <div className="text-right">
+        <div
+          className={`num-display text-2xl font-bold ${
+            positive ? "text-verified" : "text-critical"
+          }`}
+        >
+          {positive ? "+" : ""}
+          {mover.scoreDelta}
+        </div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
+          conf {Math.round(mover.currentConfidence * 100)}%
+        </div>
+      </div>
+    </Link>
   );
 }

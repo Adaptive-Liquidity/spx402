@@ -4,12 +4,13 @@ import { useAuth } from "@/lib/auth";
 
 const NAV = [
   { to: "/", label: "Terminal" },
+  { to: "/tape", label: "Tape" },
+  { to: "/pulse", label: "Pulse" },
   { to: "/leaderboard", label: "Leaderboard" },
   { to: "/explore", label: "Explore" },
   { to: "/methodology", label: "Methodology" },
   { to: "/api", label: "API" },
   { to: "/operators", label: "Operators" },
-  { to: "/pricing", label: "Pricing" },
 ] as const;
 
 export function SiteHeader() {
