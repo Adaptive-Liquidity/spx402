@@ -82,6 +82,12 @@ const COMPONENT_ROWS: Array<{
     description:
       "Detects FAILED_BUYBACK_WINDOW when deposits land without a timely buyback (10m cadence).",
   },
+  {
+    key: "score_snapshot",
+    name: "Score snapshot worker",
+    description:
+      "Daily snapshot of every agent's score + confidence — drives /pulse and Movers (24h).",
+  },
 ];
 
 type Health = "operational" | "degraded" | "no-data";
