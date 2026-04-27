@@ -759,22 +759,55 @@ function Dossier({ agent }: { agent: Agent }) {
 
           <Panel eyebrow="Configuration" title="Agent parameters">
             <dl className="space-y-3 font-mono text-xs">
-              <div className="flex justify-between border-b border-bronze/30 pb-2">
-                <dt className="text-wire">BUYBACK_BPS</dt>
-                <dd className="text-paper">{agent.buybackBps}</dd>
-              </div>
-              <div className="flex justify-between border-b border-bronze/30 pb-2">
-                <dt className="text-wire">LAST CONFIG CHANGE</dt>
-                <dd className="text-paper">{agent.configLastChangedLabel}</dd>
-              </div>
-              <div className="flex justify-between border-b border-bronze/30 pb-2">
-                <dt className="text-wire">LAST BUYBACK</dt>
-                <dd className="text-paper">{agent.lastBuybackLabel}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-wire">LAST BURN</dt>
-                <dd className="text-paper">{agent.lastBurnLabel}</dd>
-              </div>
+              {isTokenized ? (
+                <>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">BUYBACK_BPS</dt>
+                    <dd className="text-paper">{agent.buybackBps}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">LAST CONFIG CHANGE</dt>
+                    <dd className="text-paper">{agent.configLastChangedLabel}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">LAST BUYBACK</dt>
+                    <dd className="text-paper">{agent.lastBuybackLabel}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-wire">LAST BURN</dt>
+                    <dd className="text-paper">{agent.lastBurnLabel}</dd>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">CATEGORY</dt>
+                    <dd className="text-paper">{cat.label}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">IDENTIFIER KIND</dt>
+                    <dd className="text-paper">{agent.identifierKind}</dd>
+                  </div>
+                  {agent.executorWallet && (
+                    <div className="flex justify-between border-b border-bronze/30 pb-2">
+                      <dt className="text-wire">EXECUTOR</dt>
+                      <dd className="text-paper">{shortMint(agent.executorWallet)}</dd>
+                    </div>
+                  )}
+                  {agent.coreAsset && (
+                    <div className="flex justify-between border-b border-bronze/30 pb-2">
+                      <dt className="text-wire">MPL ASSET</dt>
+                      <dd className="text-paper">{shortMint(agent.coreAsset)}</dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-wire">DECODER</dt>
+                    <dd className={cat.decoderLive ? "text-verified" : "text-amber"}>
+                      {cat.decoderLive ? "LIVE" : "PENDING"}
+                    </dd>
+                  </div>
+                </>
+              )}
             </dl>
           </Panel>
         </div>
