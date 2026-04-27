@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
+import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
+import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { fetchTape, type TapeRow } from "@/lib/live-data";
-import { ArrowDownToLine, Repeat, Flame, Award, ArrowRight } from "lucide-react";
+import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
