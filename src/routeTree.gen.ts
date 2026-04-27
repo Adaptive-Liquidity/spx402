@@ -31,6 +31,7 @@ import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
+import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
@@ -148,6 +149,12 @@ const ApiPublicCronScoringRoute = ApiPublicCronScoringRouteImport.update({
   path: '/public/cron-scoring',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronScanAgentRegistryRoute =
+  ApiPublicCronScanAgentRegistryRouteImport.update({
+    id: '/public/cron-scan-agent-registry',
+    path: '/public/cron-scan-agent-registry',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
   id: '/public/cron-reconciler',
   path: '/public/cron-reconciler',
@@ -200,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
@@ -228,6 +236,7 @@ export interface FileRoutesByTo {
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
@@ -258,6 +267,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/dashboard/watchlist'
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
+    | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/dashboard/watchlist'
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
+    | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
@@ -345,6 +357,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/watchlist'
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
+    | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
@@ -526,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronScoringRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-scan-agent-registry': {
+      id: '/api/public/cron-scan-agent-registry'
+      path: '/public/cron-scan-agent-registry'
+      fullPath: '/api/public/cron-scan-agent-registry'
+      preLoaderRoute: typeof ApiPublicCronScanAgentRegistryRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-reconciler': {
       id: '/api/public/cron-reconciler'
       path: '/public/cron-reconciler'
@@ -598,6 +618,7 @@ interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
+  ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
@@ -608,6 +629,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
+  ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
