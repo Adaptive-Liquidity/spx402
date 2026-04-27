@@ -367,8 +367,11 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
   );
 }
 
-function AgentDossierPage() {
-  const data = Route.useLoaderData() as { agent: Agent };
+function AgentRoutePage() {
+  const data = Route.useLoaderData() as LoaderData;
+  if (data.kind === "verifying") {
+    return <VerifyingState mint={data.mint} candidate={data.candidate} />;
+  }
   return <Dossier agent={data.agent} />;
 }
 
