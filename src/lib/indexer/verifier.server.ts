@@ -245,7 +245,10 @@ export async function checkAgentRegistry(mint: string): Promise<boolean> {
 // Orchestrator
 // ============================================================================
 
-export async function verifyCandidate(mint: string): Promise<VerificationResult> {
+export async function verifyCandidate(
+  mint: string,
+  opts: { discoveredVia?: string } = {},
+): Promise<VerificationResult> {
   const [skills, invoice, earnings, registry] = await Promise.all([
     checkSkillsMd(mint),
     checkInvoicePda(mint),
@@ -265,7 +268,16 @@ export async function verifyCandidate(mint: string): Promise<VerificationResult>
     Number(signals.skills_md) +
     Number(signals.invoice_pda) +
     Number(signals.agent_registry);
-  const passed = signals.on_chain_earnings && identityProofs >= 1;
+
+  // Curated seeds bypass the identity gate (we vouched for them) but must
+  // still show real on-chain pump.fun activity. They also accept buyback-only
+  // earnings since pump.fun Tokenized Agents v1 makes burns optional.
+  const isCuratedSeed = opts.discoveredVia === "curated_seed";
+  const earningsForCurated =
+    earnings.buybacksSeen >= 5 || (signals.on_chain_earnings as boolean);
+  const passed = isCuratedSeed
+    ? earningsForCurated
+    : signals.on_chain_earnings && identityProofs >= 1;
 
   const notes = [
     `burns=${earnings.burnsSeen}`,
@@ -273,6 +285,7 @@ export async function verifyCandidate(mint: string): Promise<VerificationResult>
     `skills=${signals.skills_md}`,
     `invoice=${signals.invoice_pda}`,
     `registry=${signals.agent_registry}`,
+    isCuratedSeed ? "curated" : "open",
   ].join(" ");
 
   return {
