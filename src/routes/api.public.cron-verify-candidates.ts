@@ -53,7 +53,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
               .from("candidate_agents")
               .update({
                 status: "verified",
-                signals: result.signals,
+                signals: result.signals as unknown as Json,
                 check_attempts: attempts,
                 last_checked_at: new Date().toISOString(),
                 notes: result.notes,
@@ -65,7 +65,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
               .from("candidate_agents")
               .update({
                 status: "rejected",
-                signals: result.signals,
+                signals: result.signals as unknown as Json,
                 rejection_reason: "Failed verification bar after max attempts",
                 check_attempts: attempts,
                 last_checked_at: new Date().toISOString(),
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
               .from("candidate_agents")
               .update({
                 status: "verifying",
-                signals: result.signals,
+                signals: result.signals as unknown as Json,
                 check_attempts: attempts,
                 last_checked_at: new Date().toISOString(),
                 notes: result.notes,
