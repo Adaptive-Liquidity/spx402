@@ -66,6 +66,9 @@ export type Database = {
           buyback_execution_rate: number
           category: string
           confidence: string
+          confidence_breakdown: Json
+          confidence_model_version: string
+          confidence_score: number
           config_last_changed_label: string | null
           core_asset: string | null
           created_at: string
@@ -82,6 +85,7 @@ export type Database = {
           last_buyback_label: string | null
           last_indexed_seconds: number
           metadata_uri: string | null
+          methodology_version: string
           mint: string
           name: string
           operator_verified: boolean
@@ -109,6 +113,9 @@ export type Database = {
           buyback_execution_rate?: number
           category?: string
           confidence?: string
+          confidence_breakdown?: Json
+          confidence_model_version?: string
+          confidence_score?: number
           config_last_changed_label?: string | null
           core_asset?: string | null
           created_at?: string
@@ -125,6 +132,7 @@ export type Database = {
           last_buyback_label?: string | null
           last_indexed_seconds?: number
           metadata_uri?: string | null
+          methodology_version?: string
           mint: string
           name: string
           operator_verified?: boolean
@@ -152,6 +160,9 @@ export type Database = {
           buyback_execution_rate?: number
           category?: string
           confidence?: string
+          confidence_breakdown?: Json
+          confidence_model_version?: string
+          confidence_score?: number
           config_last_changed_label?: string | null
           core_asset?: string | null
           created_at?: string
@@ -168,6 +179,7 @@ export type Database = {
           last_buyback_label?: string | null
           last_indexed_seconds?: number
           metadata_uri?: string | null
+          methodology_version?: string
           mint?: string
           name?: string
           operator_verified?: boolean

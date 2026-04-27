@@ -57,7 +57,7 @@ export function AgentRow({ agent }: { agent: Agent }) {
         <div className="col-span-6 sm:col-span-2">
           <div className="label-mono">Grade</div>
           <div className="mt-1.5">
-            <ExecutionGradeBadge grade={agent.grade} size="sm" />
+            <ExecutionGradeBadge grade={agent.grade} size="sm" confidenceScore={agent.confidenceScore} />
           </div>
         </div>
 

@@ -515,7 +515,25 @@ function Dossier({ agent }: { agent: Agent }) {
               )}
             </div>
             <div className="flex flex-col items-end gap-3">
-              <ExecutionGradeBadge grade={agent.grade} size="lg" />
+              <ExecutionGradeBadge
+                grade={agent.grade}
+                size="lg"
+                confidenceScore={agent.confidenceScore}
+              />
+              {/* Wave 2 — explicit numeric confidence chip. Outlined badge
+                  + low-confidence chip together signal "thin evidence base." */}
+              <span
+                className={`inline-flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest ${
+                  agent.confidenceScore >= 0.66
+                    ? "border-verified/70 bg-verified/10 text-verified"
+                    : agent.confidenceScore >= 0.33
+                      ? "border-amber/70 bg-amber/10 text-amber"
+                      : "border-wire/70 bg-panel-deep/60 text-paper-muted"
+                }`}
+                title={`${agent.confidenceModelVersion} · ${agent.methodologyVersion}`}
+              >
+                Confidence {(agent.confidenceScore * 100).toFixed(0)}%
+              </span>
               {agent.operatorVerified ? (
                 <span className="inline-flex items-center gap-1.5 border border-verified/70 bg-verified/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-verified">
                   <ShieldCheck className="h-3 w-3" /> Operator Verified

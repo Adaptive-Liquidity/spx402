@@ -130,7 +130,7 @@ function WatchlistPage() {
                 </div>
                 <div className="col-span-3">
                   {agent ? (
-                    <ExecutionGradeBadge grade={agent.grade} size="sm" />
+                    <ExecutionGradeBadge grade={agent.grade} size="sm" confidenceScore={agent.confidenceScore} />
                   ) : (
                     <span className="font-mono text-xs text-wire">—</span>
                   )}

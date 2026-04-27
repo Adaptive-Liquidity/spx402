@@ -20,6 +20,9 @@ type AgentRow = {
   status: string;
   operator_verified: boolean;
   confidence: string;
+  confidence_score: number | string | null;
+  methodology_version: string | null;
+  confidence_model_version: string | null;
   parser_version: string;
   last_indexed_seconds: number;
   total_deposits_count: number;
@@ -68,6 +71,9 @@ function rowToAgent(r: AgentRow): Agent {
     status: (r.status as Agent["status"]) ?? "unknown",
     operatorVerified: r.operator_verified,
     confidence: (r.confidence as Agent["confidence"]) ?? "low",
+    confidenceScore: num(r.confidence_score),
+    methodologyVersion: r.methodology_version ?? "spx-score-v0.3.0",
+    confidenceModelVersion: r.confidence_model_version ?? "spx-confidence-v0.2.0",
     parserVersion: r.parser_version,
     lastIndexedSeconds: r.last_indexed_seconds,
     totalDepositsCount: r.total_deposits_count,

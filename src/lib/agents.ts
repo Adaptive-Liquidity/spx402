@@ -78,6 +78,11 @@ export interface Agent {
   status: "active" | "degraded" | "stale" | "inactive" | "unknown";
   operatorVerified: boolean;
   confidence: "high" | "medium" | "low";
+  // Wave 2 — numeric confidence (0..1). The categorical `confidence` field
+  // above is derived from this (≥0.66 high, ≥0.33 medium, else low).
+  confidenceScore: number;
+  methodologyVersion: string;
+  confidenceModelVersion: string;
   parserVersion: string;
   lastIndexedSeconds: number;
   totalDepositsCount: number;
