@@ -59,6 +59,39 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_score_snapshots: {
+        Row: {
+          confidence_model_version: string
+          confidence_score: number
+          grade: string | null
+          id: string
+          methodology_version: string
+          mint: string
+          score: number | null
+          taken_at: string
+        }
+        Insert: {
+          confidence_model_version?: string
+          confidence_score?: number
+          grade?: string | null
+          id?: string
+          methodology_version?: string
+          mint: string
+          score?: number | null
+          taken_at?: string
+        }
+        Update: {
+          confidence_model_version?: string
+          confidence_score?: number
+          grade?: string | null
+          id?: string
+          methodology_version?: string
+          mint?: string
+          score?: number | null
+          taken_at?: string
+        }
+        Relationships: []
+      }
       agents: {
         Row: {
           burn_confirmation_rate: number
