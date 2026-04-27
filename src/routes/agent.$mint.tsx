@@ -448,35 +448,83 @@ function Dossier({ agent }: { agent: Agent }) {
           </div>
         </div>
 
-        <Panel className="lg:col-span-4" eyebrow="Transparency Score" title="Score breakdown">
+        <Panel className="lg:col-span-4" eyebrow="SPX Execution Score" title="Reputation pillars">
           <div className="flex flex-col items-center">
             <TransparencyScoreRing score={agent.score} />
           </div>
-          <div className="mt-6 space-y-2">
+          <div className="mt-6 space-y-4">
             {[
-              { l: "Deposit consistency", v: agent.scoreBreakdown.depositConsistency, m: 20 },
-              { l: "Buyback execution", v: agent.scoreBreakdown.buybackExecution, m: 25 },
-              { l: "Burn confirmation", v: agent.scoreBreakdown.burnConfirmation, m: 20 },
-              { l: "Failed tx (inverse)", v: agent.scoreBreakdown.failedTx, m: 15 },
-              { l: "Recency", v: agent.scoreBreakdown.recency, m: 10 },
-              { l: "Metadata", v: agent.scoreBreakdown.metadata, m: 5 },
-              { l: "Operator verification", v: agent.scoreBreakdown.operator, m: 5 },
+              {
+                pillar: "Execution",
+                hint: "Deposits → buybacks → burns",
+                value:
+                  agent.scoreBreakdown.depositConsistency +
+                  agent.scoreBreakdown.buybackExecution +
+                  agent.scoreBreakdown.burnConfirmation,
+                max: 65,
+                tone: "text-verified",
+              },
+              {
+                pillar: "Reliability",
+                hint: "Failed-window rate · indexing recency",
+                value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+                max: 25,
+                tone: "text-amber",
+              },
+              {
+                pillar: "Identity",
+                hint: "Metadata · operator signature",
+                value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
+                max: 10,
+                tone: "text-paper",
+              },
             ].map((row) => {
-              const pct = row.m === 0 ? 0 : (row.v / row.m) * 100;
+              const pct = row.max === 0 ? 0 : (row.value / row.max) * 100;
               return (
-                <div key={row.l}>
-                  <div className="flex justify-between font-mono text-[11px] uppercase tracking-wider">
-                    <span className="text-paper-muted">{row.l}</span>
-                    <span className="text-paper">{row.v} / {row.m}</span>
+                <div key={row.pillar}>
+                  <div className="flex items-baseline justify-between">
+                    <span className={`font-display text-sm font-semibold ${row.tone}`}>
+                      {row.pillar}
+                    </span>
+                    <span className="num-display text-sm text-paper">
+                      {row.value} <span className="text-wire">/ {row.max}</span>
+                    </span>
                   </div>
-                  <div className="mt-1 h-1 w-full bg-bronze-dim/60">
+                  <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-wire">
+                    {row.hint}
+                  </div>
+                  <div className="mt-1.5 h-1 w-full bg-bronze-dim/60">
                     <div className="h-full bg-amber" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
             })}
           </div>
+          <div className="mt-5 border-t border-bronze/30 pt-4 text-[10px] font-mono uppercase tracking-widest text-wire">
+            Pillars compose the SPX Execution Score. Methodology · v0.1.7
+          </div>
         </Panel>
+      </div>
+
+      {/* CATEGORY + CLAIM STRIP */}
+      <div className="mt-6 panel-engraved flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="label-mono">Category</span>
+          <span className="border border-amber/60 bg-amber/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-amber">
+            Tokenized Buyback
+          </span>
+          <span className="font-mono text-[11px] text-wire">
+            Default for currently indexed agents · operators can re-categorize
+          </span>
+        </div>
+        {!agent.operatorVerified && (
+          <Link
+            to="/operators"
+            className="inline-flex items-center gap-2 border border-amber/70 bg-amber/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          >
+            Is this your agent? Verify operator → climb the leaderboard
+          </Link>
+        )}
       </div>
 
       {/* METRIC CARDS */}
