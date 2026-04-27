@@ -25,7 +25,13 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: () => fetchAllAgents(),
+  loader: async () => {
+    const [agents, tape] = await Promise.all([
+      fetchAllAgents(),
+      fetchTape({ limit: 18 }),
+    ]);
+    return { agents, tape };
+  },
   staleTime: 30_000,
   component: HomePage,
 });
