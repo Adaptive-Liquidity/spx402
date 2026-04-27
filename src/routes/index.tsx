@@ -4,7 +4,8 @@ import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
-import { useEffect, useState } from "react";
+import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
+import { fetchTape, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -24,139 +25,16 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: () => fetchAllAgents(),
+  loader: async () => {
+    const [agents, tape] = await Promise.all([
+      fetchAllAgents(),
+      fetchTape({ limit: 18 }),
+    ]);
+    return { agents, tape };
+  },
   staleTime: 30_000,
   component: HomePage,
 });
-
-const BOOT_LINES = [
-  "[ 0.001 ] SPX402 TERMINAL :: BOOT",
-  "[ 0.014 ] PARSER v0.1.7 LOADED",
-  "[ 0.038 ] HELIUS WEBHOOK STREAM   ONLINE",
-  "[ 0.062 ] PUMP IDL DECODER        ARMED",
-  "[ 0.087 ] SPL BURN OBSERVER       ARMED",
-  "[ 0.112 ] AGENT INDEX             842 / 847 RECONCILED",
-  "[ 0.140 ] HTTP 402                READY",
-];
-
-function BootSequence() {
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (n >= BOOT_LINES.length) return;
-    const t = setTimeout(() => setN(n + 1), 220);
-    return () => clearTimeout(t);
-  }, [n]);
-
-  return (
-    <div className="font-mono text-[11px] leading-relaxed text-amber/80">
-      {BOOT_LINES.slice(0, n).map((l, i) => (
-        <div key={i} className="boot-line">{l}</div>
-      ))}
-      {n >= BOOT_LINES.length ? (
-        <div className="mt-1 text-paper cursor-blink">READY_</div>
-      ) : (
-        <div className="mt-1 text-amber cursor-blink"></div>
-      )}
-    </div>
-  );
-}
-
-function TerminalSampleCard({ agent }: { agent: Agent | null }) {
-  return (
-    <div className="panel-engraved relative overflow-hidden">
-      <div className="flex items-center justify-between border-b border-bronze/50 bg-panel-deep/60 px-4 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-critical" />
-          <span className="h-2 w-2 rounded-full bg-amber" />
-          <span className="h-2 w-2 rounded-full bg-verified" />
-        </div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
-          spx402://terminal/{agent ? "live-sample" : "awaiting-first-dossier"}
-        </div>
-        <div className="font-mono text-[10px] text-amber">● LIVE</div>
-      </div>
-      <div className="space-y-4 p-5">
-        <BootSequence />
-        <div className="rule-amber" />
-        {agent ? (
-          <>
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <div className="label-mono">Agent</div>
-                <div className="mt-1 font-mono text-paper">{agent.name}</div>
-              </div>
-              <div>
-                <div className="label-mono">Mint</div>
-                <div className="mt-1 truncate font-mono text-paper">
-                  {agent.mint.slice(0, 6)}…{agent.mint.slice(-4)}
-                </div>
-              </div>
-              <div>
-                <div className="label-mono">Status</div>
-                <div className="mt-1 font-mono text-verified">TOKENIZED_AGENT_CONFIRMED</div>
-              </div>
-              <div>
-                <div className="label-mono">Operator</div>
-                <div className={`mt-1 font-mono ${agent.operatorVerified ? "text-verified" : "text-paper-muted"}`}>
-                  {agent.operatorVerified ? "VERIFIED" : "UNVERIFIED"}
-                </div>
-              </div>
-            </div>
-            <div className="rule-bronze" />
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-xs">
-              <div className="flex justify-between"><span className="text-wire">DEPOSITS OBSERVED</span><span className="text-paper">{agent.totalDepositsCount.toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-wire">BUYBACKS</span><span className="text-paper">{agent.totalBuybacksCount.toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-wire">BURNS</span><span className="text-paper">{agent.totalBurnsCount.toLocaleString()}</span></div>
-              <div className="flex justify-between"><span className="text-wire">FAILED WINDOWS</span><span className="text-amber">{agent.failedWindows}</span></div>
-              <div className="col-span-2 flex justify-between"><span className="text-wire">LAST BUYBACK</span><span className="text-paper">{agent.lastBuybackLabel}</span></div>
-            </div>
-            <div className="rule-amber" />
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="label-mono">Execution Grade</div>
-                <div className="mt-2"><ExecutionGradeBadge grade={agent.grade} size="lg" /></div>
-              </div>
-              <div className="text-right">
-                <div className="label-mono">Score</div>
-                <div className="num-display mt-1 text-4xl font-bold text-verified">{agent.score ?? "—"}</div>
-              </div>
-            </div>
-            {agent.tagline && (
-              <div className="border-l-2 border-amber/60 pl-3 font-mono text-xs italic text-paper-muted">
-                "{agent.tagline}"
-              </div>
-            )}
-            <Link
-              to="/agent/$mint"
-              params={{ mint: agent.mint }}
-              className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
-            >
-              Open full dossier <ArrowRight className="h-3 w-3" />
-            </Link>
-          </>
-        ) : (
-          <>
-            <div className="space-y-2 font-mono text-xs">
-              <div className="flex justify-between"><span className="text-wire">REGISTRY SCAN</span><span className="text-amber">QUEUED</span></div>
-              <div className="flex justify-between"><span className="text-wire">PUMP.FUN STREAM</span><span className="text-verified">LISTENING</span></div>
-              <div className="flex justify-between"><span className="text-wire">CANDIDATES</span><span className="text-paper">awaiting first verified dossier</span></div>
-            </div>
-            <div className="rule-bronze" />
-            <p className="font-mono text-xs text-paper-muted">
-              No agent has yet passed the verification bar (on-chain earnings + at least one identity proof). Submit a mint or wait for the indexer to catch one in the wild.
-            </p>
-            <Link
-              to="/register"
-              className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
-            >
-              Register an agent <ArrowRight className="h-3 w-3" />
-            </Link>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
 
 const PROOF_STEPS = [
   { icon: ArrowDownToLine, title: "Deposit detected", body: "Agent Deposit Address receives SOL, USDC, USDT, or USD1.", code: "DEPOSIT_RECEIVED" },
@@ -207,13 +85,15 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
-  const allAgents = Route.useLoaderData() as Agent[];
+  const { agents: allAgents, tape } = Route.useLoaderData() as {
+    agents: Agent[];
+    tape: TapeRow[];
+  };
   // Homepage tape, hero card, and featured grid only show leaderboard-quality
   // agents. SPX D / SPX404 / flagged agents are excluded — they live on
   // /explore and /flagged respectively.
   const agents = allAgents.filter(qualifiesForLeaderboard);
   const featured = agents.slice(0, 3);
-  const heroAgent = agents[0] ?? null;
   const totalBuybacks = agents.reduce((acc, a) => acc + a.totalBuybacksCount, 0);
   return (
     <div>
@@ -278,7 +158,7 @@ function HomePage() {
           </div>
 
           <div className="lg:col-span-5">
-            <TerminalSampleCard agent={heroAgent} />
+            <LiveTapeHero initialRows={tape} />
           </div>
         </div>
       </section>
