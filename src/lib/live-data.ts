@@ -139,6 +139,7 @@ const KNOWN_WORKERS = [
   "scoring",
   "reconciler",
   "failure_reconciler",
+  "score_snapshot",
 ] as const;
 
 export async function fetchLatestIndexerRuns(): Promise<
