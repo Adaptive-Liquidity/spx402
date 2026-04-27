@@ -1,0 +1,65 @@
+// Shared timing-safe bearer-token auth for internal endpoints.
+// We keep three distinct secrets so a leak of one does not compromise
+// every server-side surface:
+//   - CRON_SECRET            : 5 cron workers (read+mutate via service role)
+//   - HELIUS_WEBHOOK_SECRET  : webhook ingest only (also HMAC key)
+//   - HELIUS_ADMIN_SECRET    : webhook setup/list/delete (reconfigures Helius)
+//
+// During the rollout window we accept the legacy HELIUS_WEBHOOK_SECRET as a
+// fallback for cron/admin so that an unconfigured CRON_SECRET / HELIUS_ADMIN_SECRET
+// does not break pg_cron jobs in flight. Once both new secrets are set in
+// production, those fallbacks become no-ops.
+
+import { timingSafeEqual } from "node:crypto";
+
+function safeEq(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  try {
+    return timingSafeEqual(ab, bb);
+  } catch {
+    return false;
+  }
+}
+
+function extractBearer(headerValue: string | null): string | null {
+  if (!headerValue) return null;
+  const trimmed = headerValue.trim();
+  if (trimmed.length === 0) return null;
+  if (trimmed.toLowerCase().startsWith("bearer ")) {
+    return trimmed.slice(7).trim();
+  }
+  return trimmed;
+}
+
+function authHeaderMatches(req: Request, secret: string): boolean {
+  const presented = extractBearer(req.headers.get("authorization"));
+  if (!presented) return false;
+  return safeEq(presented, secret);
+}
+
+/**
+ * Check cron auth: prefers CRON_SECRET, falls back to HELIUS_WEBHOOK_SECRET
+ * during rollout. Returns true only if at least one is configured AND the
+ * request presented a matching token.
+ */
+export function checkCronAuth(req: Request): boolean {
+  const cronSecret = process.env.CRON_SECRET;
+  const legacy = process.env.HELIUS_WEBHOOK_SECRET;
+  if (cronSecret && authHeaderMatches(req, cronSecret)) return true;
+  if (legacy && authHeaderMatches(req, legacy)) return true;
+  return false;
+}
+
+/**
+ * Check admin auth for the Helius webhook setup endpoint. Prefers
+ * HELIUS_ADMIN_SECRET; falls back to HELIUS_WEBHOOK_SECRET during rollout.
+ */
+export function checkAdminAuth(req: Request): boolean {
+  const adminSecret = process.env.HELIUS_ADMIN_SECRET;
+  const legacy = process.env.HELIUS_WEBHOOK_SECRET;
+  if (adminSecret && authHeaderMatches(req, adminSecret)) return true;
+  if (legacy && authHeaderMatches(req, legacy)) return true;
+  return false;
+}

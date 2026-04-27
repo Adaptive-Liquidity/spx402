@@ -104,7 +104,6 @@ type CandidateRow = {
     on_chain_earnings?: boolean;
     agent_registry?: boolean;
   } | null;
-  notes: string | null;
   rejection_reason: string | null;
   last_checked_at: string | null;
   discovered_via: string;
@@ -117,7 +116,7 @@ type LoaderData =
 async function fetchCandidate(mint: string): Promise<CandidateRow | null> {
   const { data } = await supabase
     .from("candidate_agents")
-    .select("mint, status, check_attempts, signals, notes, rejection_reason, last_checked_at, discovered_via")
+    .select("mint, status, check_attempts, signals, rejection_reason, last_checked_at, discovered_via")
     .eq("mint", mint)
     .maybeSingle();
   return (data as CandidateRow | null) ?? null;

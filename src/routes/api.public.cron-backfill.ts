@@ -6,6 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchAddressTxs } from "@/lib/indexer/helius.server";
 import { decodeTx } from "@/lib/indexer/decode.server";
+import { checkCronAuth } from "@/lib/indexer/auth.server";
 
 export const Route = createFileRoute("/api/public/cron-backfill")({
   server: {
@@ -76,12 +77,6 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
   },
 });
 
-function checkCronAuth(req: Request): boolean {
-  const secret = process.env.HELIUS_WEBHOOK_SECRET;
-  if (!secret) return false;
-  const auth = req.headers.get("authorization") ?? "";
-  return auth === secret || auth === `Bearer ${secret}`;
-}
 
 async function heartbeat(
   worker: string,

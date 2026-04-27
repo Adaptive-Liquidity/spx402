@@ -4,6 +4,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { verifyCandidate } from "@/lib/indexer/verifier.server";
+import { checkCronAuth } from "@/lib/indexer/auth.server";
 import type { Json } from "@/integrations/supabase/types";
 
 const MAX_PER_RUN = 10;
@@ -14,9 +15,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
     handlers: {
       POST: async ({ request }) => {
         const started = Date.now();
-        const secret = process.env.HELIUS_WEBHOOK_SECRET;
-        const auth = request.headers.get("authorization") ?? "";
-        if (!secret || (auth !== secret && auth !== `Bearer ${secret}`)) {
+        if (!checkCronAuth(request)) {
           return new Response("unauthorized", { status: 401 });
         }
 

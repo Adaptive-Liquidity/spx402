@@ -15,6 +15,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { checkCronAuth } from "@/lib/indexer/auth.server";
 
 // Solana Agent Registry program (per Solana Foundation docs).
 const SOLANA_AGENT_REGISTRY_PROGRAM_ID =
@@ -32,12 +33,10 @@ export const Route = createFileRoute("/api/public/cron-scan-agent-registry")({
     handlers: {
       POST: async ({ request }) => {
         const startedAt = Date.now();
-        const secret = process.env.HELIUS_WEBHOOK_SECRET;
-        const heliusKey = process.env.HELIUS_API_KEY;
-        const auth = request.headers.get("authorization") ?? "";
-        if (!secret || (auth !== secret && auth !== `Bearer ${secret}`)) {
+        if (!checkCronAuth(request)) {
           return new Response("unauthorized", { status: 401 });
         }
+        const heliusKey = process.env.HELIUS_API_KEY;
         if (!heliusKey) {
           return json(500, { ok: false, error: "missing HELIUS_API_KEY" });
         }
