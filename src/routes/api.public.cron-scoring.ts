@@ -260,6 +260,9 @@ async function aggregateCounters(mint: string) {
     totalX402Count,
     totalX402Sol,
     totalX402Usdc,
+    failedNegativeCount,
+    distinctEventTypes,
+    observationWindowSeconds,
   };
 }
 
