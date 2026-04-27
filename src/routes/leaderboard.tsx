@@ -61,10 +61,19 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
   },
 ];
 
-function rankAgents(agents: Agent[], tab: Tab): Agent[] {
+type CategoryFilter = "all" | AgentCategory;
+
+function rankAgents(
+  agents: Agent[],
+  tab: Tab,
+  catFilter: CategoryFilter,
+): Agent[] {
   // Quality gate first: leaderboard surfaces never include SPX D, SPX404,
   // or flagged agents. Those live on /explore and /flagged respectively.
-  const qualified = agents.filter(qualifiesForLeaderboard);
+  let qualified = agents.filter(qualifiesForLeaderboard);
+  if (catFilter !== "all") {
+    qualified = qualified.filter((a) => a.category === catFilter);
+  }
 
   if (tab === "earners") {
     return [...qualified]
