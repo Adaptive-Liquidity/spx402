@@ -4,6 +4,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { verifyCandidate } from "@/lib/indexer/verifier.server";
+import type { Json } from "@/integrations/supabase/types";
 
 const MAX_PER_RUN = 10;
 const MAX_ATTEMPTS = 5;
@@ -52,7 +53,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
               .from("candidate_agents")
               .update({
                 status: "verified",
-                signals: result.signals,
+                signals: result.signals as unknown as Json,
                 check_attempts: attempts,
                 last_checked_at: new Date().toISOString(),
                 notes: result.notes,
@@ -64,7 +65,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
               .from("candidate_agents")
               .update({
                 status: "rejected",
-                signals: result.signals,
+                signals: result.signals as unknown as Json,
                 rejection_reason: "Failed verification bar after max attempts",
                 check_attempts: attempts,
                 last_checked_at: new Date().toISOString(),
@@ -77,7 +78,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
               .from("candidate_agents")
               .update({
                 status: "verifying",
-                signals: result.signals,
+                signals: result.signals as unknown as Json,
                 check_attempts: attempts,
                 last_checked_at: new Date().toISOString(),
                 notes: result.notes,
