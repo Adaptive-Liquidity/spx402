@@ -36,7 +36,7 @@ export const Route = createFileRoute("/pulse")({
 });
 
 function PulsePage() {
-  const entries = Route.useLoaderData();
+  const entries = Route.useLoaderData() as PulseEntry[];
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-16">
