@@ -184,26 +184,6 @@ async function getRecentSignatures(
   }
 }
 
-async function getEnhancedTxs(
-  apiKey: string,
-  signatures: string[],
-): Promise<HeliusEnhancedTx[]> {
-  if (signatures.length === 0) return [];
-  try {
-    const res = await fetch(
-      `${HELIUS_API}/transactions?api-key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ transactions: signatures }),
-      },
-    );
-    if (!res.ok) return [];
-    return (await res.json()) as HeliusEnhancedTx[];
-  } catch {
-    return [];
-  }
-}
 
 // Collect every wallet that received SOL or USDC in this tx — those are the
 // only candidates a real x402 receipt could point at.
