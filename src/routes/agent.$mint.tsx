@@ -5,6 +5,7 @@ import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
 import { ComingSoon } from "@/components/spx/ComingSoon";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
+import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
 import { fetchAgentEvents, relativeFromNow, type AgentEventRow } from "@/lib/live-data";
 import { supabase } from "@/integrations/supabase/client";
