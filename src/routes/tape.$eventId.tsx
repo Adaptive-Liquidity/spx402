@@ -8,7 +8,7 @@ import { categoryLabel } from "@/lib/agents/categories";
 
 export const Route = createFileRoute("/tape/$eventId")({
   head: ({ loaderData }) => {
-    const r = loaderData as Awaited<ReturnType<typeof fetchTapeEventWithRaw>>;
+    const r = loaderData as unknown as Awaited<ReturnType<typeof fetchTapeEventWithRaw>>;
     const subject = r?.agentSymbol ? `$${r.agentSymbol}` : "agent";
     const title = r ? `${r.type} · ${subject} — SPX402 Tape` : "Event — SPX402 Tape";
     return {
