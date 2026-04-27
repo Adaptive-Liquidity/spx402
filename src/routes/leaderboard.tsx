@@ -261,17 +261,41 @@ function LeaderboardPage() {
         <div>
           <div className="label-amber">{active.eyebrow}</div>
           <p className="mt-1 max-w-xl text-sm text-paper-muted">{active.body}</p>
-          <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
-            Quality gate · grade ≥ SPX BB · score ≥ 50 · not flagged
-          </p>
+          {tab !== "movers" && (
+            <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
+              Quality gate · grade ≥ SPX BB · score ≥ 50 · not flagged
+            </p>
+          )}
+          {tab === "movers" && (
+            <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
+              Source · agent_score_snapshots (daily) · 24h window
+            </p>
+          )}
         </div>
         <span className="font-mono text-xs uppercase tracking-widest text-wire">
-          {ranked.length} ranked
+          {tab === "movers"
+            ? `${movers?.length ?? 0} movers`
+            : `${ranked.length} ranked`}
         </span>
       </div>
 
       <div className="mt-6 space-y-2">
-        {ranked.length === 0 ? (
+        {tab === "movers" ? (
+          moversLoading ? (
+            <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
+              Loading movers…
+            </div>
+          ) : !movers || movers.length === 0 ? (
+            <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
+              No score deltas yet — snapshots accumulate daily.
+              <div className="mt-3 font-mono text-[11px] text-wire">
+                The first 24h of snapshot data is being collected.
+              </div>
+            </div>
+          ) : (
+            movers.map((m, i) => <MoverRow key={m.mint} mover={m} rank={i} />)
+          )
+        ) : ranked.length === 0 ? (
           <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
             No agents qualify for this leaderboard yet.
             <div className="mt-3 space-x-4">
