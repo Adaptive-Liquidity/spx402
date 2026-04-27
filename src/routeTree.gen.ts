@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TapeRouteImport } from './routes/tape'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -27,6 +28,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
@@ -44,6 +46,11 @@ import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
 
+const TapeRoute = TapeRouteImport.update({
+  id: '/tape',
+  path: '/tape',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmitRoute = SubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
@@ -132,6 +139,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TapeEventIdRoute = TapeEventIdRouteImport.update({
+  id: '/$eventId',
+  path: '/$eventId',
+  getParentRoute: () => TapeRoute,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
@@ -240,9 +252,11 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
@@ -275,9 +289,11 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
@@ -312,9 +328,11 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
@@ -349,9 +367,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/submit'
+    | '/tape'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
@@ -384,9 +404,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/submit'
+    | '/tape'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
@@ -420,9 +442,11 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/submit'
+    | '/tape'
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
@@ -457,11 +481,19 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
+  TapeRoute: typeof TapeRouteWithChildren
   AgentMintRoute: typeof AgentMintRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tape': {
+      id: '/tape'
+      path: '/tape'
+      fullPath: '/tape'
+      preLoaderRoute: typeof TapeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submit': {
       id: '/submit'
       path: '/submit'
@@ -587,6 +619,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/tape/$eventId': {
+      id: '/tape/$eventId'
+      path: '/$eventId'
+      fullPath: '/tape/$eventId'
+      preLoaderRoute: typeof TapeEventIdRouteImport
+      parentRoute: typeof TapeRoute
     }
     '/api/docs': {
       id: '/api/docs'
@@ -764,6 +803,16 @@ const ApiRouteChildren: ApiRouteChildren = {
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
+interface TapeRouteChildren {
+  TapeEventIdRoute: typeof TapeEventIdRoute
+}
+
+const TapeRouteChildren: TapeRouteChildren = {
+  TapeEventIdRoute: TapeEventIdRoute,
+}
+
+const TapeRouteWithChildren = TapeRoute._addFileChildren(TapeRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
@@ -783,6 +832,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
+  TapeRoute: TapeRouteWithChildren,
   AgentMintRoute: AgentMintRoute,
 }
 export const routeTree = rootRouteImport
