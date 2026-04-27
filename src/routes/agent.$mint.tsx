@@ -621,14 +621,36 @@ function Dossier({ agent }: { agent: Agent }) {
 
       {/* METRIC CARDS — category aware */}
       {isTokenized ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <MetricCard label="Total Deposits" value={agent.totalDepositsCount.toLocaleString()} />
-          <MetricCard label="Buybacks Confirmed" value={agent.totalBuybacksCount.toLocaleString()} tone="verified" />
-          <MetricCard label="Burns Confirmed" value={agent.totalBurnsCount.toLocaleString()} tone="verified" />
-          <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
-          <MetricCard label="Buyback Rate" value={`${(agent.buybackExecutionRate * 100).toFixed(1)}`} suffix="%" />
-          <MetricCard label="Burn Confirm Rate" value={`${(agent.burnConfirmationRate * 100).toFixed(1)}`} suffix="%" />
-        </div>
+        (() => {
+          // Pump.fun fee-buyback model has no explicit DEPOSIT_RECEIVED events,
+          // so rate denominators collapse to 0 even when buybacks are firing.
+          // Surface "—" instead of a misleading 0.0% in those cases.
+          const isFeeModel = agent.totalDepositsCount === 0 && agent.totalBuybacksCount > 0;
+          const buybackRateDisplay = isFeeModel
+            ? "—"
+            : `${(agent.buybackExecutionRate * 100).toFixed(1)}`;
+          const burnRateDisplay = agent.totalBuybacksCount === 0
+            ? "—"
+            : `${(agent.burnConfirmationRate * 100).toFixed(1)}`;
+          return (
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              <MetricCard label="Total Deposits" value={agent.totalDepositsCount.toLocaleString()} />
+              <MetricCard label="Buybacks Confirmed" value={agent.totalBuybacksCount.toLocaleString()} tone="verified" />
+              <MetricCard label="Burns Confirmed" value={agent.totalBurnsCount.toLocaleString()} tone="verified" />
+              <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
+              <MetricCard
+                label={isFeeModel ? "Buyback Rate (fee model)" : "Buyback Rate"}
+                value={buybackRateDisplay}
+                suffix={isFeeModel ? undefined : "%"}
+              />
+              <MetricCard
+                label="Burn Confirm Rate"
+                value={burnRateDisplay}
+                suffix={agent.totalBuybacksCount === 0 ? undefined : "%"}
+              />
+            </div>
+          );
+        })()
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard label="Swaps Executed" value={swapCount.toLocaleString()} tone="verified" />

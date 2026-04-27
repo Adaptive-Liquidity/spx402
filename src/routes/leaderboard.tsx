@@ -82,9 +82,20 @@ function rankAgents(
       .slice(0, 50);
   }
   if (tab === "consistent") {
+    // For pump.fun fee-buyback agents there are no explicit deposit events,
+    // so buybackExecutionRate stays 0. Fall back to a normalized buyback
+    // count signal so those agents aren't unfairly buried.
+    const consistencySignal = (a: typeof qualified[number]) => {
+      if (a.buybackExecutionRate > 0) return a.buybackExecutionRate;
+      // Treat 20+ buybacks with zero deposits as ~"100% fee-routed".
+      if (a.totalDepositsCount === 0 && a.totalBuybacksCount > 0) {
+        return Math.min(1, a.totalBuybacksCount / 20);
+      }
+      return 0;
+    };
     return [...qualified]
       .filter((a) => a.totalBuybacksCount >= 5)
-      .sort((a, b) => b.buybackExecutionRate - a.buybackExecutionRate)
+      .sort((a, b) => consistencySignal(b) - consistencySignal(a))
       .slice(0, 50);
   }
   // recent
