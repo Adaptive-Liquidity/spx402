@@ -106,6 +106,11 @@ function rankAgents(
       .sort((a, b) => consistencySignal(b) - consistencySignal(a))
       .slice(0, 50);
   }
+  if (tab === "movers") {
+    // Movers are rendered from snapshots, not the agents list — return empty
+    // here and let the page render the dedicated movers list.
+    return [];
+  }
   // recent
   return [...qualified]
     .filter((a) => a.operatorVerified || (a.score ?? 0) >= 70)
