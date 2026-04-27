@@ -158,7 +158,7 @@ function HomePage() {
           </div>
 
           <div className="lg:col-span-5">
-            <TerminalSampleCard agent={heroAgent} />
+            <LiveTapeHero initialRows={tape} />
           </div>
         </div>
       </section>
