@@ -5,6 +5,24 @@ import { categoryMeta } from "@/lib/agents/categories";
 import { ShieldCheck, AlertTriangle } from "lucide-react";
 
 export function AgentRow({ agent }: { agent: Agent }) {
+  const cat = categoryMeta(agent.category);
+  // For executor / registered categories, show swap or x402 throughput in
+  // the "buybacks" slot since buybacks are tokenized-only.
+  const isExecutor = agent.category === "x402_executor";
+  const isRegistered = agent.category === "registered_agent";
+  const middleLabel = isExecutor
+    ? "x402 receipts"
+    : isRegistered
+      ? "Swap activity"
+      : "Buybacks";
+  const middleValue = isExecutor || isRegistered
+    ? "—" // populated once x402 / swap counters land on Agent type (next wave)
+    : agent.totalBuybacksCount.toLocaleString();
+  const lastLabel = isExecutor
+    ? "Last receipt"
+    : isRegistered
+      ? "Last activity"
+      : "Last buyback";
   return (
     <Link
       to="/agent/$mint"
