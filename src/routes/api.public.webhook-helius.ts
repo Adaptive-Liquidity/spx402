@@ -43,20 +43,71 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         // Load the agent lookup table once.
         const { data: agentsRows } = await supabaseAdmin
           .from("agents")
-          .select("mint, deposit_address");
+          .select("mint, deposit_address, executor_wallet, identifier_kind, category");
         const agents = (agentsRows ?? []).map((r) => ({
           mint: r.mint,
           depositAddress: r.deposit_address ?? null,
         }));
+        // Build executor wallet -> identifier (mint column) mapping for
+        // wallet-centric agents (executor_wallet kind, registered, etc.).
+        const executorAgents = (agentsRows ?? [])
+          .filter((r) => !!r.executor_wallet)
+          .map((r) => ({
+            identifier: r.mint, // we store identifier in `mint` column
+            wallet: r.executor_wallet as string,
+            category: r.category ?? "registered_agent",
+          }));
+        const executorWallets = executorAgents.map((e) => e.wallet);
 
         const events: DecodedEvent[] = [];
         for (const tx of txs) {
           events.push(...decodeTx(tx, agents));
         }
 
+        // Wallet-centric: SWAP_EXECUTED + X402_PAYMENT_RECEIVED.
+        // We map back from executor wallet to its agent identifier (stored
+        // in the `mint` column) so the events table keeps a single FK shape.
+        const walletEvents: DecodedEvent[] = [];
+        if (executorWallets.length > 0) {
+          for (const tx of txs) {
+            for (const ev of decodeSwapTx(tx, executorWallets)) {
+              const a = executorAgents.find((e) => e.wallet === ev.executorWallet);
+              if (!a) continue;
+              walletEvents.push({
+                mint: a.identifier,
+                type: "BUYBACK_EXECUTED" as DecodedEvent["type"], // re-used severity slot; scoring branch reads category
+                severity: "info",
+                signature: ev.signature,
+                slot: ev.slot,
+                occurredAt: ev.occurredAt,
+                amountSol: ev.amountSol,
+                amountToken: ev.amountToken,
+                raw: { ...ev.raw, kind: "SWAP_EXECUTED", wallet: ev.executorWallet },
+              });
+            }
+            for (const ev of decodeX402Tx(tx, executorWallets)) {
+              const a = executorAgents.find((e) => e.wallet === ev.executorWallet);
+              if (!a) continue;
+              walletEvents.push({
+                mint: a.identifier,
+                type: "DEPOSIT_RECEIVED" as DecodedEvent["type"], // re-used; scoring reads raw.kind
+                severity: "success",
+                signature: ev.signature,
+                slot: ev.slot,
+                occurredAt: ev.occurredAt,
+                amountSol: ev.amountSol,
+                amountToken: ev.amountToken,
+                raw: { ...ev.raw, kind: "X402_PAYMENT_RECEIVED", wallet: ev.executorWallet },
+              });
+            }
+          }
+        }
+
+        const allEvents = [...events, ...walletEvents];
+
         let inserted = 0;
-        if (events.length > 0) {
-          const rows = events.map((e) => ({
+        if (allEvents.length > 0) {
+          const rows = allEvents.map((e) => ({
             mint: e.mint,
             type: e.type,
             severity: e.severity,
