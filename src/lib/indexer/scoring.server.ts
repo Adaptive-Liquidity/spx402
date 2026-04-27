@@ -91,7 +91,7 @@ export function score(inputs: ScoringInputs): ScoreResult {
 // ─────────────────────────────────────────────────────────────────────
 // Branch 1: tokenized_buyback (classic + fee-buyback fallback)
 // ─────────────────────────────────────────────────────────────────────
-function scoreTokenized(inputs: ScoringInputs) {
+function scoreTokenized(inputs: ScoringInputs): ScoreResult {
   const isFeeBuyback =
     inputs.totalDepositsCount === 0 && inputs.totalBuybacksCount >= 3;
   const buybackSol = inputs.totalBuybackSol ?? 0;
@@ -166,7 +166,7 @@ function verdictForTokenized(total: number, i: ScoringInputs): string {
 // ─────────────────────────────────────────────────────────────────────
 // Score philosophy: identity is the bulk (35pts). Activity boosts (45pts).
 // Recency, metadata, operator round it out.
-function scoreRegistered(inputs: ScoringInputs) {
+function scoreRegistered(inputs: ScoringInputs): ScoreResult {
   const identityProof = inputs.registryProof ? 35 : 0;
   const swapCount = inputs.totalSwapCount ?? 0;
   const swapSol = inputs.totalSwapSol ?? 0;
@@ -232,7 +232,7 @@ function verdictForRegistered(total: number, i: ScoringInputs): string {
 // receipts as ~$1 each and SOL receipts at face SOL value (no FX call to
 // keep the worker cheap). This is deliberately simple — refine when
 // volume warrants.
-function scoreX402(inputs: ScoringInputs) {
+function scoreX402(inputs: ScoringInputs): ScoreResult {
   const count = inputs.totalX402Count ?? 0;
   const sol = inputs.totalX402Sol ?? 0;
   const usdc = inputs.totalX402Usdc ?? 0;
