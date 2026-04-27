@@ -60,7 +60,9 @@ function shortWallet(w: string) {
 }
 
 function OperatorProfilePage() {
-  const profile = Route.useLoaderData();
+  const profile = Route.useLoaderData() as NonNullable<
+    Awaited<ReturnType<typeof fetchOperatorProfile>>
+  >;
   const { wallet, agents, aggregate, recentEvents } = profile;
 
   return (
