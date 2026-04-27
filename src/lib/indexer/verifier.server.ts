@@ -38,11 +38,11 @@ const HELIUS_RPC = "https://mainnet.helius-rpc.com";
 // derived PDA as a positive signal.
 const PUMPFUN_INVOICE_SEED = "invoice";
 
-// Solana Agent Registry program (per Solana Foundation docs).
-// Source: https://solana.com/agent-registry — program ID is well-known and
-// stable. If this drifts, we'll catch it in the heartbeat notes.
+// Metaplex MPL Agent Identity program (verified mainnet program ID, March 2026).
+// Source: https://developers.metaplex.com/smart-contracts/mpl-agent
+// Same address on Mainnet and Devnet.
 const SOLANA_AGENT_REGISTRY_PROGRAM_ID =
-  "AgentRegV1ZS6QbKFYkD3FEHAqbDpZRnGd8C9z3gBuUq2";
+  "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 
 // ============================================================================
 // Check 1 — Skills.md in Metaplex metadata
