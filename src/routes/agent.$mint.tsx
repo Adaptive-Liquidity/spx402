@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
 import { MetricCard } from "@/components/spx/MetricCard";
@@ -7,6 +7,7 @@ import { ComingSoon } from "@/components/spx/ComingSoon";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
 import { fetchAgent } from "@/lib/agents-db";
 import { fetchAgentEvents, relativeFromNow, type AgentEventRow } from "@/lib/live-data";
+import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/lib/auth";
 import {
