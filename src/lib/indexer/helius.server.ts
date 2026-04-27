@@ -165,6 +165,32 @@ export function touchesPumpFun(tx: HeliusEnhancedTx): boolean {
   return all.some((ix) => ix.programId === PUMPFUN_PROGRAM_ID);
 }
 
+/**
+ * Extract every distinct SPL mint that appears in a Pump.fun-touching tx.
+ * Used by the webhook to surface NEW mints into candidate_agents so the
+ * verifier can decide if they qualify as real tokenized agents.
+ *
+ * We only return mints when the tx actually touches Pump.fun, so we do not
+ * pollute candidates with unrelated SPL transfers.
+ */
+export function extractPumpFunMints(tx: HeliusEnhancedTx): string[] {
+  if (!touchesPumpFun(tx)) return [];
+  const mints = new Set<string>();
+  for (const t of tx.tokenTransfers ?? []) {
+    if (t.mint) mints.add(t.mint);
+  }
+  // Also pick up burns / mint instructions that didn't show up as transfers.
+  const all = flattenInstructions(tx.instructions ?? []);
+  for (const ix of all) {
+    const info = ix.parsed?.info ?? {};
+    const mint = info.mint as string | undefined;
+    if (mint) mints.add(mint);
+  }
+  // Filter out the wrapped-SOL mint (commonly appears in pumpfun swaps).
+  mints.delete("So11111111111111111111111111111111111111112");
+  return Array.from(mints);
+}
+
 // ---------------------------------------------------------------
 // Helius RPC helpers (Enhanced Transactions)
 
