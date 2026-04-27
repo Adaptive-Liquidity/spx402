@@ -160,7 +160,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
 async function aggregateCounters(mint: string) {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [{ data: events }, { data: latest }] = await Promise.all([
+  const [{ data: events }, { data: latest }, { data: first }] = await Promise.all([
     supabaseAdmin
       .from("agent_events")
       .select("type, severity, amount_sol, amount_token, occurred_at")
@@ -171,6 +171,15 @@ async function aggregateCounters(mint: string) {
       .select("occurred_at")
       .eq("mint", mint)
       .order("occurred_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    // First-ever event for this subject — drives the observation_window
+    // confidence factor. Cheap with the (mint, occurred_at) index.
+    supabaseAdmin
+      .from("agent_events")
+      .select("occurred_at")
+      .eq("mint", mint)
+      .order("occurred_at", { ascending: true })
       .limit(1)
       .maybeSingle(),
   ]);
@@ -184,8 +193,19 @@ async function aggregateCounters(mint: string) {
   const totalDepositsCount = deposits.length;
   const totalBuybacksCount = buybacks.length;
   const totalBurnsCount = burns.length;
+  // Legacy: only the original FAILED_WINDOW + ANOMALY counters feed the
+  // risk-score branch. The Wave 1b negative-event taxonomy is summed
+  // separately below so confidence can grow without inflating risk twice.
   const failedWindows = rows.filter(
     (r) => r.type === "FAILED_WINDOW" || r.type === "ANOMALY_DETECTED",
+  ).length;
+  const failedNegativeCount = rows.filter((r) =>
+    [
+      "FAILED_BUYBACK_WINDOW",
+      "PROMISED_BUYBACK_NOT_SETTLED",
+      "X402_PAYMENT_REVERTED",
+      "WINDOW_MISSED",
+    ].includes(r.type),
   ).length;
 
   const totalDepositedSol = deposits.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
@@ -216,6 +236,14 @@ async function aggregateCounters(mint: string) {
     ? Math.max(0, Math.floor((Date.now() - new Date(lastIso).getTime()) / 1000))
     : 60 * 60 * 24 * 30;
 
+  // Distinct event types observed in window — drives parser_coverage.
+  const distinctEventTypes = new Set(rows.map((r) => r.type)).size;
+
+  // Observation window: seconds since the very first event for this subject.
+  const firstIso = first?.occurred_at ?? null;
+  const observationWindowSeconds = firstIso
+    ? Math.max(0, Math.floor((Date.now() - new Date(firstIso).getTime()) / 1000))
+    : 0;
   return {
     totalDepositsCount,
     totalBuybacksCount,
