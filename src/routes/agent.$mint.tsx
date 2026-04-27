@@ -129,12 +129,31 @@ type LoaderData =
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
 
 async function fetchCandidate(mint: string): Promise<CandidateRow | null> {
+  // Reads from the public view that exposes only safe columns. Internal
+  // fields (signals, rejection_reason, submitted_by, notes) are no longer
+  // public — set to null in the local row shape so existing UI keeps working.
   const { data } = await supabase
-    .from("candidate_agents")
-    .select("mint, status, check_attempts, signals, rejection_reason, last_checked_at, discovered_via")
+    .from("candidate_agents_public" as never)
+    .select("mint, status, check_attempts, last_checked_at, discovered_via")
     .eq("mint", mint)
     .maybeSingle();
-  return (data as CandidateRow | null) ?? null;
+  if (!data) return null;
+  const row = data as {
+    mint: string;
+    status: string;
+    check_attempts: number;
+    last_checked_at: string | null;
+    discovered_via: string;
+  };
+  return {
+    mint: row.mint,
+    status: row.status,
+    check_attempts: row.check_attempts,
+    signals: null,
+    rejection_reason: null,
+    last_checked_at: row.last_checked_at,
+    discovered_via: row.discovered_via,
+  };
 }
 
 async function enqueueMint(mint: string): Promise<CandidateRow | null> {
