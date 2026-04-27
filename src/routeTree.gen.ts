@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as ChangelogRouteImport } from './routes/changelog'
@@ -37,6 +39,7 @@ import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.c
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
+import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
 
 const SubmitRoute = SubmitRouteImport.update({
   id: '/submit',
@@ -51,6 +54,11 @@ const StatusRoute = StatusRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -71,6 +79,11 @@ const MethodologyRoute = MethodologyRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -183,6 +196,12 @@ const AuthenticatedDashboardAlertsRoute =
     path: '/alerts',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiPublicBadgeChar123mintChar125DotsvgRoute =
+  ApiPublicBadgeChar123mintChar125DotsvgRouteImport.update({
+    id: '/public/badge/{$mint}.svg',
+    path: '/public/badge/{$mint}.svg',
+    getParentRoute: () => ApiRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -192,10 +211,12 @@ export interface FileRoutesByFullPath {
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
@@ -212,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -221,10 +243,12 @@ export interface FileRoutesByTo {
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
@@ -241,6 +265,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -252,10 +277,12 @@ export interface FileRoutesById {
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
@@ -272,6 +299,7 @@ export interface FileRoutesById {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -283,10 +311,12 @@ export interface FileRouteTypes {
     | '/changelog'
     | '/disclaimer'
     | '/explore'
+    | '/leaderboard'
     | '/login'
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/register'
     | '/signup'
     | '/status'
     | '/submit'
@@ -303,6 +333,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
+    | '/api/public/badge/{$mint}.svg'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -312,10 +343,12 @@ export interface FileRouteTypes {
     | '/changelog'
     | '/disclaimer'
     | '/explore'
+    | '/leaderboard'
     | '/login'
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/register'
     | '/signup'
     | '/status'
     | '/submit'
@@ -332,6 +365,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
+    | '/api/public/badge/{$mint}.svg'
   id:
     | '__root__'
     | '/'
@@ -342,10 +376,12 @@ export interface FileRouteTypes {
     | '/changelog'
     | '/disclaimer'
     | '/explore'
+    | '/leaderboard'
     | '/login'
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/register'
     | '/signup'
     | '/status'
     | '/submit'
@@ -362,6 +398,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
+    | '/api/public/badge/{$mint}.svg'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -373,10 +410,12 @@ export interface RootRouteChildren {
   ChangelogRoute: typeof ChangelogRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
   PricingRoute: typeof PricingRoute
+  RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
@@ -406,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -432,6 +478,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -581,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAlertsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/api/public/badge/{$mint}.svg': {
+      id: '/api/public/badge/{$mint}.svg'
+      path: '/public/badge/{$mint}.svg'
+      fullPath: '/api/public/badge/{$mint}.svg'
+      preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
+      parentRoute: typeof ApiRoute
+    }
   }
 }
 
@@ -623,6 +683,7 @@ interface ApiRouteChildren {
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
+  ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
@@ -634,6 +695,8 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
+  ApiPublicBadgeChar123mintChar125DotsvgRoute:
+    ApiPublicBadgeChar123mintChar125DotsvgRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
@@ -647,10 +710,12 @@ const rootRouteChildren: RootRouteChildren = {
   ChangelogRoute: ChangelogRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
   PricingRoute: PricingRoute,
+  RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,

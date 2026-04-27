@@ -71,6 +71,21 @@ export async function fetchRecentTickerEvents(limit = 20): Promise<
   }));
 }
 
+// Leaderboard-flavored ticker lines (top earners) — woven in alongside event lines.
+export async function fetchLeaderboardTickerLines(limit = 5): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("agents")
+    .select("symbol, grade, total_buyback_sol")
+    .gt("total_buyback_sol", 0)
+    .order("total_buyback_sol", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return data.map((r, i) => {
+    const sol = numOrZero(r.total_buyback_sol);
+    return `#${i + 1} EARNER · $${r.symbol} · ${sol.toFixed(2)} SOL bought back (${r.grade})`;
+  });
+}
+
 function shortMint(m: string) {
   return m.length > 12 ? `${m.slice(0, 4)}…${m.slice(-4)}` : m;
 }
