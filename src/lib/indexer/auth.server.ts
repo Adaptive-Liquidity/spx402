@@ -52,11 +52,16 @@ export function checkCronAuth(req: Request): boolean {
 
 /**
  * Check admin auth for the Helius webhook setup endpoint and the
- * one-shot Vault seeder. Requires HELIUS_ADMIN_SECRET; legacy
- * HELIUS_WEBHOOK_SECRET fallback removed for the same reason as above.
+ * one-shot Vault seeder. Prefers HELIUS_ADMIN_SECRET; retains a
+ * HELIUS_WEBHOOK_SECRET fallback so an operator can run the bootstrap
+ * vault-seed call even before HELIUS_ADMIN_SECRET is provisioned.
+ * Once both are set, rotate HELIUS_WEBHOOK_SECRET and the fallback
+ * becomes a no-op.
  */
 export function checkAdminAuth(req: Request): boolean {
   const adminSecret = process.env.HELIUS_ADMIN_SECRET;
-  if (!adminSecret) return false;
-  return authHeaderMatches(req, adminSecret);
+  const legacy = process.env.HELIUS_WEBHOOK_SECRET;
+  if (adminSecret && authHeaderMatches(req, adminSecret)) return true;
+  if (legacy && authHeaderMatches(req, legacy)) return true;
+  return false;
 }
