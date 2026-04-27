@@ -27,6 +27,9 @@ const KNOWN_EVENT_TYPES: EventType[] = [
   "FAILED_WINDOW",
   "ANOMALY_DETECTED",
   "OPERATOR_VERIFIED",
+  "SWAP_EXECUTED",
+  "X402_PAYMENT_RECEIVED",
+  "TASK_COMPLETED",
 ];
 
 const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
@@ -40,6 +43,9 @@ function eventTitleFor(type: string): string {
     case "FAILED_WINDOW": return "Failed buyback window";
     case "ANOMALY_DETECTED": return "Anomaly detected";
     case "OPERATOR_VERIFIED": return "Operator verified";
+    case "SWAP_EXECUTED": return "DEX swap executed";
+    case "X402_PAYMENT_RECEIVED": return "x402 payment received";
+    case "TASK_COMPLETED": return "Task completed";
     default: return type;
   }
 }
