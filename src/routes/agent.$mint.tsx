@@ -649,7 +649,7 @@ function Dossier({ agent }: { agent: Agent }) {
         <Panel className="lg:col-span-8" eyebrow="Proof Timeline" title="On-chain execution log"
           right={
             <div className="flex flex-wrap gap-1">
-              {(["all","buyback","burn","deposit","anomaly","config"] as const).map((f) => (
+              {filterKeys.map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
