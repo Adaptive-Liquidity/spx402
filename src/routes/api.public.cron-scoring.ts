@@ -7,6 +7,43 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { score } from "@/lib/indexer/scoring.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import {
+  computeRiskScore,
+  RISK_SCORE_MODEL_VERSION,
+} from "@/lib/scoring/risk-score";
+import {
+  computeConfidence,
+  CONFIDENCE_MODEL_VERSION,
+} from "@/lib/scoring/confidence";
+import type { AgentCategory } from "@/lib/agents/categories";
+
+// Wave 2 — Failure-decoder coverage by category. Reflects which negative-event
+// decoders are actually shipped today. Update this map as new decoders land
+// (it directly drives the confidence number, so honesty matters).
+const FAILURE_DECODER_COVERAGE: Record<AgentCategory, number> = {
+  tokenized_buyback: 1.0, // FAILED_BUYBACK_WINDOW + PROMISED_BUYBACK_NOT_SETTLED shipped
+  registered_agent: 0.3,  // partial — config/operator change decoders pending
+  x402_executor: 0.6,     // X402_PAYMENT_REVERTED shipped, refund-decoder pending
+  copy_trader: 0,
+  task_executor: 0,
+  general: 0,
+};
+
+// Bucketed identity strength per category. Verified registry membership
+// gives the strongest anchor; passive observation the weakest.
+function identityStrength(category: AgentCategory, operatorVerified: boolean): number {
+  if (category === "registered_agent") return 1.0;
+  if (operatorVerified) return 0.85;
+  if (category === "tokenized_buyback") return 0.7;
+  if (category === "x402_executor") return 0.5;
+  return 0.3;
+}
+
+// Map the 0..1 numeric confidence to the legacy categorical column so older
+// surfaces keep rendering.
+function confidenceLabel(score: number): "high" | "medium" | "low" {
+  return score >= 0.66 ? "high" : score >= 0.33 ? "medium" : "low";
+}
 
 export const Route = createFileRoute("/api/public/cron-scoring")({
   server: {
