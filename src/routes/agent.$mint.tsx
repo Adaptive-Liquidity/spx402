@@ -104,7 +104,6 @@ type CandidateRow = {
     on_chain_earnings?: boolean;
     agent_registry?: boolean;
   } | null;
-  notes: string | null;
   rejection_reason: string | null;
   last_checked_at: string | null;
   discovered_via: string;
