@@ -390,6 +390,38 @@ function Dossier({ agent }: { agent: Agent }) {
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+      {/* Flagged-agent warning banner — permanent, public chain of custody */}
+      {agent.flagged && (
+        <div className="mb-6 border-2 border-critical bg-critical/10 p-5">
+          <div className="flex items-start gap-4">
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-critical" />
+            <div className="flex-1">
+              <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-critical">
+                Flagged by SPX402 — trust violation
+              </div>
+              <p className="mt-1 text-sm text-paper">
+                This agent has been flagged and is excluded from the leaderboard,
+                explorer, homepage tape, and ticker. Dossier remains public for
+                auditability.
+              </p>
+              {agent.flagReason && (
+                <p className="mt-2 font-mono text-xs text-critical/90">
+                  Reason: {agent.flagReason}
+                  {agent.flaggedAt && (
+                    <span className="ml-2 text-wire">
+                      · flagged {new Date(agent.flaggedAt).toISOString().slice(0, 10)}
+                    </span>
+                  )}
+                </p>
+              )}
+              <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-wire">
+                Dispute? Email <span className="text-amber">disputes@spx402.com</span> with on-chain evidence.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top status bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 border border-bronze/50 bg-panel-deep/60 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-wire">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1">

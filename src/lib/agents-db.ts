@@ -34,6 +34,9 @@ type AgentRow = {
   verdict: string | null;
   events: unknown;
   price_series: unknown;
+  flagged: boolean | null;
+  flag_reason: string | null;
+  flagged_at: string | null;
 };
 
 const num = (v: number | string | null | undefined): number =>
@@ -80,6 +83,9 @@ function rowToAgent(r: AgentRow): Agent {
       slot: typeof e.slot === "number" ? e.slot : Number(e.slot),
     })),
     priceSeries: (r.price_series as { t: string; v: number }[]) ?? [],
+    flagged: Boolean(r.flagged),
+    flagReason: r.flag_reason ?? null,
+    flaggedAt: r.flagged_at ?? null,
   };
 }
 

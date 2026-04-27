@@ -79,6 +79,34 @@ export interface Agent {
   verdict: string;
   events: AgentEvent[];
   priceSeries: { t: string; v: number }[];
+  flagged: boolean;
+  flagReason: string | null;
+  flaggedAt: string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Quality gates: which grades qualify for which surfaces.
+// LEADERBOARD = high-trust public board. Hides D/404 and any flagged agents.
+// EXPLORE     = full visible index. Includes everything except flagged agents.
+// FLAGGED     = the dedicated /flagged page only.
+// ─────────────────────────────────────────────────────────────────────
+const LEADERBOARD_GRADES: ReadonlySet<Grade> = new Set([
+  "SPX AAA",
+  "SPX AA",
+  "SPX A",
+  "SPX BBB",
+  "SPX BB",
+]);
+
+export function qualifiesForLeaderboard(agent: Agent): boolean {
+  if (agent.flagged) return false;
+  if (!LEADERBOARD_GRADES.has(agent.grade)) return false;
+  if ((agent.score ?? 0) < 50) return false;
+  return true;
+}
+
+export function isLowGrade(agent: Agent): boolean {
+  return agent.grade === "SPX D" || agent.grade === "SPX404";
 }
 
 export function gradeColor(grade: Grade): string {

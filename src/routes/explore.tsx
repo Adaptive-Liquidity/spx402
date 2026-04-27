@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { fetchAllAgents } from "@/lib/agents-db";
-import type { Agent } from "@/lib/agents";
+import { isLowGrade, type Agent, type Grade } from "@/lib/agents";
+import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/explore")({
   head: () => ({
@@ -11,10 +12,15 @@ export const Route = createFileRoute("/explore")({
       { title: "Explore Agents — SPX402" },
       {
         name: "description",
-        content: "Browse tokenized agents by execution consistency, recent verification, stale activity, and SPX404 archive.",
+        content:
+          "Browse every Solana agent SPX402 indexes, filter by execution grade, and inspect the long tail. SPX D and SPX404 archive included.",
       },
       { property: "og:title", content: "Explore tokenized agents — SPX402" },
-      { property: "og:description", content: "Filter by observable execution. Not by vibes." },
+      {
+        property: "og:description",
+        content:
+          "Filter by observable execution. Not by vibes. Includes the SPX404 archive.",
+      },
     ],
   }),
   loader: () => fetchAllAgents(),
@@ -33,78 +39,89 @@ export const Route = createFileRoute("/explore")({
   component: ExplorePage,
 });
 
-const SECTIONS: Array<{
-  title: string;
-  eyebrow: string;
-  body: string;
-  filter: (a: Agent) => boolean;
-}> = [
-  {
-    eyebrow: "High-confidence dossiers",
-    title: "Most consistent execution",
-    body: "Agents with high buyback execution rate and active operator verification.",
-    filter: (a) => (a.score ?? 0) >= 80,
-  },
-  {
-    eyebrow: "Live activity",
-    title: "Recently analyzed",
-    body: "Most recently reconciled agents in the SPX402 index.",
-    filter: () => true,
-  },
-  {
-    eyebrow: "Watch closely",
-    title: "Recently degraded",
-    body: "Execution patterns that have lost rhythm. The tape has developed a limp.",
-    filter: (a) => a.grade === "SPX BB" || a.grade === "SPX B" || a.grade === "SPX BBB",
-  },
-  {
-    eyebrow: "SPX404 archive",
-    title: "Insufficient evidence",
-    body: "Agents not found, inactive, or lacking enough verifiable execution to grade.",
-    filter: (a) => a.grade === "SPX404",
-  },
-];
+type GradeFilter = "all" | "high" | "mid" | "low" | "spx404";
 
-type CategoryTab = "all" | "tokenized" | "copy" | "task";
-
-const CATEGORY_TABS: Array<{
-  id: CategoryTab;
+const GRADE_FILTERS: Array<{
+  id: GradeFilter;
   label: string;
-  emptyHint: string;
-  available: boolean;
+  description: string;
+  match: (a: Agent) => boolean;
 }> = [
-  { id: "all", label: "All Agents", emptyHint: "No agents indexed yet.", available: true },
   {
-    id: "tokenized",
-    label: "Tokenized Buyback",
-    emptyHint: "No tokenized agents indexed yet.",
-    available: true,
+    id: "all",
+    label: "All Indexed",
+    description: "Every agent in the SPX402 index, regardless of grade.",
+    match: () => true,
   },
   {
-    id: "copy",
-    label: "Copy-Trader",
-    emptyHint:
-      "First copy-trader to register here gets featured. PnL scoring lands in Phase 2.",
-    available: false,
+    id: "high",
+    label: "High Trust",
+    description: "Grades SPX A through SPX AAA. Strongest execution evidence.",
+    match: (a) =>
+      a.grade === "SPX AAA" || a.grade === "SPX AA" || a.grade === "SPX A",
   },
   {
-    id: "task",
-    label: "Task Executor",
-    emptyHint:
-      "First task-executing agent to register here gets featured. Validation Registry support lands in Phase 2.",
-    available: false,
+    id: "mid",
+    label: "Mid Trust",
+    description:
+      "Grades SPX BB and SPX BBB. Acceptable execution with some coverage gaps.",
+    match: (a) => a.grade === "SPX BBB" || a.grade === "SPX BB",
+  },
+  {
+    id: "low",
+    label: "Low / Watch",
+    description:
+      "Grades SPX B and SPX D. Limited or degraded execution — treat metrics as indicative only.",
+    match: (a) => a.grade === "SPX B" || a.grade === "SPX D",
+  },
+  {
+    id: "spx404",
+    label: "SPX404 Archive",
+    description:
+      "No on-chain activity observed in the indexed window. Insufficient evidence to grade.",
+    match: (a) => a.grade === "SPX404",
   },
 ];
 
 function ExplorePage() {
-  const agents = Route.useLoaderData();
-  const [tab, setTab] = useState<CategoryTab>("all");
+  const allAgents = Route.useLoaderData();
+  const [filter, setFilter] = useState<GradeFilter>("all");
 
-  const filteredAgents = useMemo<Agent[]>(() => {
-    // For now every indexed agent defaults to "tokenized buyback".
-    if (tab === "all" || tab === "tokenized") return agents;
-    return [];
-  }, [agents, tab]);
+  // Flagged agents never appear on /explore — they live on /flagged only.
+  const visible = useMemo(
+    () => allAgents.filter((a) => !a.flagged),
+    [allAgents],
+  );
+
+  const flaggedCount = allAgents.length - visible.length;
+
+  const active = GRADE_FILTERS.find((f) => f.id === filter)!;
+  const filtered = useMemo(
+    () =>
+      [...visible]
+        .filter(active.match)
+        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
+    [visible, active],
+  );
+
+  // Counts by filter for the chip badges
+  const counts = useMemo(() => {
+    const c: Record<GradeFilter, number> = {
+      all: 0,
+      high: 0,
+      mid: 0,
+      low: 0,
+      spx404: 0,
+    };
+    for (const a of visible) {
+      for (const f of GRADE_FILTERS) {
+        if (f.match(a)) c[f.id]++;
+      }
+    }
+    return c;
+  }, [visible]);
+
+  const showsLowGradeWarning = filter === "low" || filter === "spx404";
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-16">
@@ -115,8 +132,10 @@ function ExplorePage() {
             Every Solana agent we have heard.
           </h1>
           <p className="mt-4 max-w-xl text-paper-muted">
-            Filter by category. Sort by what the chain settles. SPX402 ranks by
-            observable execution patterns, not hype, holders, or sentiment.
+            Filter by execution grade. The full index — including the SPX404
+            archive of agents we found but couldn&apos;t verify. The
+            leaderboard only shows high-trust grades; this page shows
+            everything else too.
           </p>
         </div>
         <div className="lg:col-span-5">
@@ -124,81 +143,105 @@ function ExplorePage() {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
-        {CATEGORY_TABS.map((t) => {
-          const isActive = tab === t.id;
+      {/* Grade filter chips */}
+      <div className="mt-10 flex flex-wrap gap-2">
+        {GRADE_FILTERS.map((f) => {
+          const isActive = filter === f.id;
           return (
             <button
-              key={t.id}
+              key={f.id}
               type="button"
-              onClick={() => setTab(t.id)}
-              className={`flex-1 min-w-[140px] px-4 py-3 font-mono text-[11px] uppercase tracking-widest transition-colors ${
+              onClick={() => setFilter(f.id)}
+              className={`group flex items-center gap-2 border px-4 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors ${
                 isActive
-                  ? "bg-panel-deep text-amber"
-                  : "bg-panel text-paper-muted hover:bg-panel-deep hover:text-paper"
+                  ? "border-amber bg-amber/10 text-amber"
+                  : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
               }`}
             >
-              {t.label}
-              {!t.available && (
-                <span className="ml-2 border border-bronze/60 bg-panel-deep px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-wire">
-                  Phase 2
-                </span>
-              )}
+              {f.label}
+              <span
+                className={`border px-1.5 py-0.5 text-[9px] ${
+                  isActive
+                    ? "border-amber/60 bg-amber/10 text-amber"
+                    : "border-bronze/40 bg-panel-deep text-wire"
+                }`}
+              >
+                {counts[f.id]}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {tab === "all" || tab === "tokenized" ? (
-        SECTIONS.map((section, i) => {
-          const list = filteredAgents.filter(section.filter);
-          return (
-            <section key={section.title} className="mt-16">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <div className="label-amber">{section.eyebrow}</div>
-                  <h2 className="mt-2 font-display text-2xl font-bold text-paper">
-                    {section.title}
-                  </h2>
-                  <p className="mt-1 max-w-xl text-sm text-paper-muted">{section.body}</p>
-                </div>
-                <span className="font-mono text-xs uppercase tracking-widest text-wire">
-                  {list.length} agents
-                </span>
-              </div>
-              <div className="mt-6 space-y-2">
-                {list.length === 0 ? (
-                  <div className="border border-dashed border-bronze/60 p-8 text-center font-mono text-sm text-paper-muted">
-                    No agents match this filter in the index.
-                  </div>
-                ) : (
-                  list.map((a) => <AgentRow key={a.mint} agent={a} />)
-                )}
-              </div>
-              {i < SECTIONS.length - 1 && <div className="mt-10 rule-bronze" />}
-            </section>
-          );
-        })
-      ) : (
-        <div className="mt-12 panel-engraved p-10 text-center">
-          <div className="label-amber">Empty category</div>
-          <h2 className="mt-3 font-display text-2xl font-bold text-paper">
-            {CATEGORY_TABS.find((t) => t.id === tab)?.emptyHint}
-          </h2>
-          <p className="mt-3 max-w-md mx-auto text-paper-muted">
-            SPX402 is opening category-specific scoring next. Register now and
-            you&apos;ll be the first dossier in this lane the moment it opens.
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="label-amber">{active.label}</div>
+          <p className="mt-1 max-w-xl text-sm text-paper-muted">
+            {active.description}
           </p>
-          <Link
-            to="/register"
-            className="mt-6 inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-          >
-            Register your agent
-          </Link>
+        </div>
+        <span className="font-mono text-xs uppercase tracking-widest text-wire">
+          {filtered.length} agents
+        </span>
+      </div>
+
+      {showsLowGradeWarning && filtered.length > 0 && (
+        <div className="mt-4 flex items-start gap-3 border border-critical/40 bg-critical/5 p-4">
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-critical" />
+          <p className="font-mono text-xs text-critical/90">
+            These agents do not meet the SPX402 leaderboard quality bar.
+            Execution is limited, degraded, or not observable in the indexed
+            window. Treat all metrics as indicative only and verify on-chain
+            before any positioning decision.
+          </p>
         </div>
       )}
 
-      <div className="mt-20 panel-engraved p-8 text-center">
+      <div className="mt-6 space-y-2">
+        {filtered.length === 0 ? (
+          <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
+            No agents match this filter.
+          </div>
+        ) : (
+          filtered.map((a) => (
+            <div key={a.mint} className={isLowGrade(a) ? "opacity-90" : ""}>
+              <AgentRow agent={a} />
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="mt-12 grid gap-3 sm:grid-cols-3">
+        <Link
+          to="/leaderboard"
+          className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
+        >
+          <div className="label-amber">Leaderboard</div>
+          <div className="mt-2 font-display text-base font-semibold text-paper">
+            High-trust agents only →
+          </div>
+        </Link>
+        <Link
+          to="/flagged"
+          className="block border border-critical/40 bg-critical/5 p-5 transition-colors hover:bg-critical/10"
+        >
+          <div className="label-amber !text-critical">Flagged</div>
+          <div className="mt-2 font-display text-base font-semibold text-paper">
+            {flaggedCount} flagged {flaggedCount === 1 ? "agent" : "agents"} →
+          </div>
+        </Link>
+        <Link
+          to="/register"
+          className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
+        >
+          <div className="label-amber">Register</div>
+          <div className="mt-2 font-display text-base font-semibold text-paper">
+            Add your agent to the index →
+          </div>
+        </Link>
+      </div>
+
+      <div className="mt-16 panel-engraved p-8 text-center">
         <h2 className="font-display text-2xl font-bold text-paper">
           Don&apos;t see your agent?
         </h2>
@@ -209,9 +252,6 @@ function ExplorePage() {
         <div className="mx-auto mt-6 max-w-xl">
           <AgentSearchBar />
         </div>
-        <p className="mt-4 font-mono text-[11px] uppercase tracking-widest text-wire">
-          <Link to="/" className="text-amber hover:underline">Return to terminal</Link>
-        </p>
       </div>
     </div>
   );

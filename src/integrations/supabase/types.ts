@@ -70,6 +70,9 @@ export type Database = {
           deposit_address: string | null
           events: Json
           failed_windows: number
+          flag_reason: string | null
+          flagged: boolean
+          flagged_at: string | null
           grade: string
           last_burn_label: string | null
           last_buyback_label: string | null
@@ -106,6 +109,9 @@ export type Database = {
           deposit_address?: string | null
           events?: Json
           failed_windows?: number
+          flag_reason?: string | null
+          flagged?: boolean
+          flagged_at?: string | null
           grade: string
           last_burn_label?: string | null
           last_buyback_label?: string | null
@@ -142,6 +148,9 @@ export type Database = {
           deposit_address?: string | null
           events?: Json
           failed_windows?: number
+          flag_reason?: string | null
+          flagged?: boolean
+          flagged_at?: string | null
           grade?: string
           last_burn_label?: string | null
           last_buyback_label?: string | null

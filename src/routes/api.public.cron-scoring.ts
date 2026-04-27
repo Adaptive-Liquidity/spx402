@@ -33,6 +33,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             ...counters,
             operatorVerified: a.operator_verified ?? false,
             hasMetadata: Boolean(a.name && a.tagline),
+            totalBuybackSol: counters.totalBuybackSol,
           });
           const { error } = await supabaseAdmin
             .from("agents")
