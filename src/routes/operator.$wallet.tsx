@@ -263,6 +263,3 @@ function OperatorAgentCard({ agent }: { agent: OperatorAgentSummary }) {
     </Link>
   );
 }
-
-// Marker to keep tree-shaker honest about ShieldCheck import
-void ShieldCheck;
