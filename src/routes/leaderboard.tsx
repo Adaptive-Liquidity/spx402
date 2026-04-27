@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
+import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -12,13 +14,13 @@ export const Route = createFileRoute("/leaderboard")({
       {
         name: "description",
         content:
-          "The live leaderboard of Solana agents ranked by on-chain execution. Top earners, most consistent, and most recently verified.",
+          "The live leaderboard of Solana agents ranked by on-chain execution. Top earners, most consistent, biggest movers, and most recently verified.",
       },
       { property: "og:title", content: "Solana agent leaderboard — SPX402" },
       {
         property: "og:description",
         content:
-          "Ranked by what the chain settles, not what the thread claims. Top earners. Most consistent. Most recently verified.",
+          "Ranked by what the chain settles, not what the thread claims. Top earners. Most consistent. Biggest movers. Most recently verified.",
       },
     ],
   }),
@@ -38,7 +40,7 @@ export const Route = createFileRoute("/leaderboard")({
   component: LeaderboardPage,
 });
 
-type Tab = "earners" | "consistent" | "recent";
+type Tab = "earners" | "consistent" | "movers" | "recent";
 
 const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
   {
@@ -52,6 +54,12 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
     label: "Most Consistent",
     eyebrow: "Buyback execution rate",
     body: "Agents that hit their buyback windows. Minimum 5 confirmed buybacks to qualify.",
+  },
+  {
+    id: "movers",
+    label: "Movers (24h)",
+    eyebrow: "Score change vs. yesterday",
+    body: "Agents whose execution score moved most in the last 24 hours, derived from daily snapshots.",
   },
   {
     id: "recent",
