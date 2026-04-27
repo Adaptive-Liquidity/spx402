@@ -97,7 +97,7 @@ function RegisterPage() {
       signals: { source: "register_form" },
     };
 
-    const { error } = await supabase.from("candidate_agents").insert(row);
+    const { error } = await supabase.from("candidate_agents").insert([row]);
     if (error) {
       setStatus({
         kind: "err",
