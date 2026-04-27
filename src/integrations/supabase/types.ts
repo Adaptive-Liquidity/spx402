@@ -74,6 +74,7 @@ export type Database = {
           last_burn_label: string | null
           last_buyback_label: string | null
           last_indexed_seconds: number
+          metadata_uri: string | null
           mint: string
           name: string
           operator_verified: boolean
@@ -109,6 +110,7 @@ export type Database = {
           last_burn_label?: string | null
           last_buyback_label?: string | null
           last_indexed_seconds?: number
+          metadata_uri?: string | null
           mint: string
           name: string
           operator_verified?: boolean
@@ -144,6 +146,7 @@ export type Database = {
           last_burn_label?: string | null
           last_buyback_label?: string | null
           last_indexed_seconds?: number
+          metadata_uri?: string | null
           mint?: string
           name?: string
           operator_verified?: boolean
@@ -218,6 +221,51 @@ export type Database = {
           score_drop_threshold?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      candidate_agents: {
+        Row: {
+          check_attempts: number
+          created_at: string
+          discovered_via: string
+          id: string
+          last_checked_at: string | null
+          mint: string
+          notes: string | null
+          rejection_reason: string | null
+          signals: Json
+          status: string
+          submitted_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          check_attempts?: number
+          created_at?: string
+          discovered_via?: string
+          id?: string
+          last_checked_at?: string | null
+          mint: string
+          notes?: string | null
+          rejection_reason?: string | null
+          signals?: Json
+          status?: string
+          submitted_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          check_attempts?: number
+          created_at?: string
+          discovered_via?: string
+          id?: string
+          last_checked_at?: string | null
+          mint?: string
+          notes?: string | null
+          rejection_reason?: string | null
+          signals?: Json
+          status?: string
+          submitted_by?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
