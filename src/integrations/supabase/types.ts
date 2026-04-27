@@ -418,7 +418,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      enqueue_candidate_agent: { Args: { p_mint: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
