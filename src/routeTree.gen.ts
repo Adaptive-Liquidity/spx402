@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -51,6 +52,11 @@ const StatusRoute = StatusRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
@@ -287,6 +296,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/register'
     | '/signup'
     | '/status'
     | '/submit'
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/register'
     | '/signup'
     | '/status'
     | '/submit'
@@ -346,6 +357,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/register'
     | '/signup'
     | '/status'
     | '/submit'
@@ -377,6 +389,7 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
   PricingRoute: typeof PricingRoute
+  RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
@@ -404,6 +417,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -651,6 +671,7 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
   PricingRoute: PricingRoute,
+  RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
