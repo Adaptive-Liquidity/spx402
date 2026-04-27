@@ -117,7 +117,7 @@ type LoaderData =
 async function fetchCandidate(mint: string): Promise<CandidateRow | null> {
   const { data } = await supabase
     .from("candidate_agents")
-    .select("mint, status, check_attempts, signals, notes, rejection_reason, last_checked_at, discovered_via")
+    .select("mint, status, check_attempts, signals, rejection_reason, last_checked_at, discovered_via")
     .eq("mint", mint)
     .maybeSingle();
   return (data as CandidateRow | null) ?? null;
