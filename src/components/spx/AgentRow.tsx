@@ -47,6 +47,9 @@ export function AgentRow({ agent }: { agent: Agent }) {
               <div className="truncate font-mono text-[11px] text-wire">
                 {agent.name}
               </div>
+              <div className="mt-1 inline-block border border-bronze/40 bg-panel-deep px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-paper-muted">
+                {cat.label}
+              </div>
             </div>
           </div>
         </div>
@@ -62,6 +65,13 @@ export function AgentRow({ agent }: { agent: Agent }) {
           <div className="label-mono">Score</div>
           <div className="num-display mt-1.5 text-lg font-semibold text-paper">
             {agent.score ?? "—"}
+          </div>
+        </div>
+
+        <div className="col-span-6 sm:col-span-2">
+          <div className="label-mono">{middleLabel}</div>
+          <div className="num-display mt-1.5 text-lg font-semibold text-paper">
+            {middleValue}
           </div>
         </div>
 
