@@ -357,3 +357,66 @@ function LeaderboardPage() {
     </div>
   );
 }
+
+function MoverRow({ mover, rank }: { mover: ScoreMover; rank: number }) {
+  const positive = mover.scoreDelta > 0;
+  const Icon = positive ? ArrowUp : ArrowDown;
+  return (
+    <Link
+      to="/agent/$mint"
+      params={{ mint: mover.mint }}
+      className="flex flex-wrap items-center gap-4 panel-engraved p-4 transition-colors hover:bg-panel/60"
+    >
+      <span
+        className={`hidden w-8 font-mono text-[10px] uppercase tracking-widest sm:block ${
+          rank < 3 ? "text-amber" : "text-wire"
+        }`}
+      >
+        #{String(rank + 1).padStart(2, "0")}
+      </span>
+      <span
+        className={`flex h-8 w-8 items-center justify-center border ${
+          positive
+            ? "border-verified/50 bg-verified/10 text-verified"
+            : "border-critical/50 bg-critical/10 text-critical"
+        }`}
+      >
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-lg font-bold text-paper">
+            ${mover.symbol}
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
+            {mover.grade}
+          </span>
+        </div>
+        <div className="mt-1 truncate font-mono text-[11px] text-paper-muted">
+          {mover.name}
+        </div>
+      </div>
+      <div className="text-right">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
+          score
+        </div>
+        <div className="num-display text-base text-paper">
+          {mover.previousScore} → {mover.currentScore}
+        </div>
+      </div>
+      <div className="text-right">
+        <div
+          className={`num-display text-2xl font-bold ${
+            positive ? "text-verified" : "text-critical"
+          }`}
+        >
+          {positive ? "+" : ""}
+          {mover.scoreDelta}
+        </div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
+          conf {Math.round(mover.currentConfidence * 100)}%
+        </div>
+      </div>
+    </Link>
+  );
+}
