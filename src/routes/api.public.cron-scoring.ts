@@ -81,7 +81,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
           // registered_agent category as standing proof until a re-check
           // worker invalidates it.
           const registryProof = category === "registered_agent";
-          const result = score({
+          const result = computeRiskScore({
             ...counters,
             category,
             operatorVerified: a.operator_verified ?? false,
@@ -94,13 +94,44 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             totalX402Sol: counters.totalX402Sol,
             totalX402Usdc: counters.totalX402Usdc,
           });
+          // Wave 2 — independent confidence calculation. Counts ONLY evidence
+          // signals; never reads the score back. The UI uses confidence_score
+          // to decide outlined vs filled grade badges.
+          const successCount =
+            counters.totalBuybacksCount +
+            counters.totalBurnsCount +
+            counters.totalSwapCount +
+            counters.totalX402Count;
+          const failureCount =
+            counters.failedWindows + counters.failedNegativeCount;
+          const totalEvents =
+            counters.totalDepositsCount + successCount + failureCount;
+          const conf = computeConfidence({
+            category,
+            totalEvents,
+            successEvents: successCount,
+            failureEvents: failureCount,
+            distinctEventTypes: counters.distinctEventTypes,
+            observationWindowSeconds: counters.observationWindowSeconds,
+            lastEventSeconds: counters.lastIndexedSeconds,
+            failureDecoderCoverage: FAILURE_DECODER_COVERAGE[category] ?? 0,
+            identityResolutionStrength: identityStrength(
+              category,
+              a.operator_verified ?? false,
+            ),
+            unresolvedAnomalies: counters.failedNegativeCount,
+          });
           const { error } = await supabaseAdmin
             .from("agents")
             .update({
               score: result.total,
               grade: result.grade,
               verdict: result.verdict,
-              confidence: result.confidence,
+              confidence: confidenceLabel(conf.score),
+              confidence_score: conf.score,
+              confidence_breakdown: conf.breakdown as unknown as never,
+              methodology_version: RISK_SCORE_MODEL_VERSION,
+              confidence_model_version: CONFIDENCE_MODEL_VERSION,
               score_breakdown: result.breakdown as unknown as never,
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
