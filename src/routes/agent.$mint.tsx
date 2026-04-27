@@ -557,6 +557,16 @@ function Dossier({ agent }: { agent: Agent }) {
             <button className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
               <Share2 className="h-3.5 w-3.5" /> Share dossier
             </button>
+            {/* Wave 1c — machine-readable evidence bundle (Merkle-rooted). */}
+            <a
+              href={`/api/public/agent/${agent.mint}/evidence`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+              title="Canonical evidence JSON with Merkle root over the 30-day window"
+            >
+              Evidence bundle ↗
+            </a>
           </div>
         </div>
 
