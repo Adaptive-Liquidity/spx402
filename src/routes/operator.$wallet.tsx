@@ -4,7 +4,7 @@ import {
   relativeFromNow,
   type OperatorAgentSummary,
 } from "@/lib/live-data";
-import { ShieldCheck, AlertTriangle, ExternalLink } from "lucide-react";
+import { AlertTriangle, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/operator/$wallet")({
   head: ({ params }) => ({
