@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
-import { AGENTS, getAgent } from "@/lib/agents";
+import { fetchAllAgents } from "@/lib/agents-db";
+import type { Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { useEffect, useState } from "react";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
@@ -23,6 +24,8 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => fetchAllAgents(),
+  staleTime: 30_000,
   component: HomePage,
 });
 
