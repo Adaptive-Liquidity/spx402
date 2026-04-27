@@ -5,6 +5,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { verifyCandidate } from "@/lib/indexer/verifier.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { fetchAddressTxs } from "@/lib/indexer/helius.server";
+import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
+import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
 import type { Json } from "@/integrations/supabase/types";
 
 const MAX_PER_RUN = 10;
