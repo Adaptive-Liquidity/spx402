@@ -18,6 +18,10 @@ import {
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
+import {
+  decodePumpBuybackReversedTx,
+  decodeX402ReversedTx,
+} from "@/lib/indexer/decode-failure.server";
 
 export const Route = createFileRoute("/api/public/webhook-helius")({
   server: {
@@ -103,7 +107,44 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           }
         }
 
-        const allEvents = [...events, ...walletEvents];
+        // Wave 1b — per-tx failure decoders. These run alongside the
+        // success-path decoders so a single ingest pass can emit both
+        // success and failure rows for the same tx batch.
+        const failureEvents: DecodedEvent[] = [];
+        const executorIdentities = executorAgents.map((e) => ({
+          identifier: e.identifier,
+          wallet: e.wallet,
+        }));
+        for (const tx of txs) {
+          for (const ev of decodePumpBuybackReversedTx(tx, agents)) {
+            failureEvents.push({
+              mint: ev.mint,
+              type: ev.type,
+              severity: ev.severity,
+              signature: ev.signature,
+              slot: ev.slot,
+              occurredAt: ev.occurredAt,
+              amountSol: ev.amountSol,
+              amountToken: ev.amountToken,
+              raw: ev.raw,
+            });
+          }
+          for (const ev of decodeX402ReversedTx(tx, executorIdentities)) {
+            failureEvents.push({
+              mint: ev.identifier,
+              type: ev.type,
+              severity: ev.severity,
+              signature: ev.signature,
+              slot: ev.slot,
+              occurredAt: ev.occurredAt,
+              amountSol: ev.amountSol,
+              amountToken: ev.amountToken,
+              raw: ev.raw,
+            });
+          }
+        }
+
+        const allEvents = [...events, ...walletEvents, ...failureEvents];
 
         let inserted = 0;
         if (allEvents.length > 0) {
