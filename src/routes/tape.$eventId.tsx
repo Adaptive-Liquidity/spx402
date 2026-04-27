@@ -153,7 +153,7 @@ function TapeEventPage() {
         </pre>
       </div>
 
-      <div className="mt-10 border-t border-bronze/40 pt-6">
+      <div className="mt-10 border-t border-bronze/40 pt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
         <Link
           to="/agent/$mint"
           params={{ mint: r.mint }}
@@ -161,6 +161,23 @@ function TapeEventPage() {
         >
           Open agent dossier →
         </Link>
+        {/* Wave 1c — machine-readable evidence record for this event. */}
+        <a
+          href={`/api/public/evidence/${r.id}`}
+          target="_blank"
+          rel="noreferrer"
+          className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-amber hover:underline"
+        >
+          Evidence JSON ↗
+        </a>
+        <a
+          href={`/api/public/agent/${r.mint}/evidence`}
+          target="_blank"
+          rel="noreferrer"
+          className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-amber hover:underline"
+        >
+          Subject evidence bundle ↗
+        </a>
       </div>
     </div>
   );
