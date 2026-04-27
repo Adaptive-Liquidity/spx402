@@ -4,9 +4,9 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About — SPX402" },
-      { name: "description", content: "SPX402 was built for the part of the agent economy that cannot survive on screenshots." },
+      { name: "description", content: "SPX402 is the on-chain reputation terminal for every Solana agent — built for the part of the agent economy that cannot survive on screenshots." },
       { property: "og:title", content: "About SPX402" },
-      { property: "og:description", content: "It does not trade. It does not cheer. It checks the tape." },
+      { property: "og:description", content: "Reputation that travels with your agent. It does not trade. It does not cheer. It checks the tape." },
     ],
   }),
   component: AboutPage,

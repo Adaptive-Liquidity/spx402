@@ -4,12 +4,12 @@ import { useAuth } from "@/lib/auth";
 
 const NAV = [
   { to: "/", label: "Terminal" },
+  { to: "/leaderboard", label: "Leaderboard" },
   { to: "/explore", label: "Explore" },
   { to: "/methodology", label: "Methodology" },
   { to: "/api", label: "API" },
   { to: "/operators", label: "Operators" },
   { to: "/pricing", label: "Pricing" },
-  { to: "/status", label: "Status" },
 ] as const;
 
 export function SiteHeader() {
@@ -30,7 +30,7 @@ export function SiteHeader() {
               SPX402<span className="text-amber">.</span>
             </div>
             <div className="label-mono mt-0.5 hidden text-[9px] sm:block">
-              EXECUTION TERMINAL · MAINNET
+              REPUTATION TERMINAL · SOLANA MAINNET
             </div>
           </div>
         </Link>

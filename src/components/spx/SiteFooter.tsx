@@ -5,7 +5,9 @@ const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }>
     heading: "Product",
     links: [
       { to: "/", label: "Terminal" },
+      { to: "/leaderboard", label: "Leaderboard" },
       { to: "/explore", label: "Explore" },
+      { to: "/register", label: "Register agent" },
       { to: "/operators", label: "Operators" },
       { to: "/alerts", label: "Alerts" },
       { to: "/api", label: "API" },
@@ -55,7 +57,7 @@ export function SiteFooter() {
               </div>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-paper-muted">
-              The execution-grade terminal for tokenized AI agents.
+              The on-chain reputation terminal for every Solana agent.
               We only rate what we can prove.
             </p>
             <div className="mt-6 label-mono">
