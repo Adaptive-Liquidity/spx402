@@ -97,9 +97,10 @@ function healthFor(run: IndexerRunRow | null): Health {
 }
 
 function StatusPage() {
-  const { runs, stats } = Route.useLoaderData() as {
+  const { runs, stats, coverage } = Route.useLoaderData() as {
     runs: Record<string, IndexerRunRow | null>;
     stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
+    coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
   };
 
   const healths = COMPONENT_ROWS.map((c) => healthFor(runs[c.key] ?? null));
