@@ -234,8 +234,8 @@ function Dossier({ agent }: { agent: Agent }) {
           <span>CONFIDENCE <span className={agent.confidence === "high" ? "text-verified" : agent.confidence === "medium" ? "text-amber" : "text-critical"}>{agent.confidence.toUpperCase()}</span></span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-amber" />
-          DEMO DATA
+          <span className="h-1.5 w-1.5 rounded-full bg-verified pulse-amber" />
+          ON-CHAIN VERIFIED
         </div>
       </div>
 

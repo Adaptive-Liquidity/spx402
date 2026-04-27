@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
-import { AGENTS, getAgent } from "@/lib/agents";
+import { fetchAllAgents } from "@/lib/agents-db";
+import type { Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { useEffect, useState } from "react";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
@@ -23,6 +24,8 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => fetchAllAgents(),
+  staleTime: 30_000,
   component: HomePage,
 });
 
@@ -58,8 +61,7 @@ function BootSequence() {
   );
 }
 
-function TerminalSampleCard() {
-  const nova = getAgent("NOVA")!;
+function TerminalSampleCard({ agent }: { agent: Agent | null }) {
   return (
     <div className="panel-engraved relative overflow-hidden">
       <div className="flex items-center justify-between border-b border-bronze/50 bg-panel-deep/60 px-4 py-2.5">
@@ -69,62 +71,88 @@ function TerminalSampleCard() {
           <span className="h-2 w-2 rounded-full bg-verified" />
         </div>
         <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
-          spx402://terminal/live-sample
+          spx402://terminal/{agent ? "live-sample" : "awaiting-first-dossier"}
         </div>
         <div className="font-mono text-[10px] text-amber">● LIVE</div>
       </div>
       <div className="space-y-4 p-5">
         <BootSequence />
         <div className="rule-amber" />
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div>
-            <div className="label-mono">Agent</div>
-            <div className="mt-1 font-mono text-paper">{nova.name}</div>
-          </div>
-          <div>
-            <div className="label-mono">Mint</div>
-            <div className="mt-1 truncate font-mono text-paper">
-              {nova.mint.slice(0, 6)}…{nova.mint.slice(-4)}
+        {agent ? (
+          <>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <div className="label-mono">Agent</div>
+                <div className="mt-1 font-mono text-paper">{agent.name}</div>
+              </div>
+              <div>
+                <div className="label-mono">Mint</div>
+                <div className="mt-1 truncate font-mono text-paper">
+                  {agent.mint.slice(0, 6)}…{agent.mint.slice(-4)}
+                </div>
+              </div>
+              <div>
+                <div className="label-mono">Status</div>
+                <div className="mt-1 font-mono text-verified">TOKENIZED_AGENT_CONFIRMED</div>
+              </div>
+              <div>
+                <div className="label-mono">Operator</div>
+                <div className={`mt-1 font-mono ${agent.operatorVerified ? "text-verified" : "text-paper-muted"}`}>
+                  {agent.operatorVerified ? "VERIFIED" : "UNVERIFIED"}
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="label-mono">Status</div>
-            <div className="mt-1 font-mono text-verified">TOKENIZED_AGENT_CONFIRMED</div>
-          </div>
-          <div>
-            <div className="label-mono">Operator</div>
-            <div className="mt-1 font-mono text-verified">VERIFIED</div>
-          </div>
-        </div>
-        <div className="rule-bronze" />
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-xs">
-          <div className="flex justify-between"><span className="text-wire">DEPOSITS OBSERVED</span><span className="text-paper">847</span></div>
-          <div className="flex justify-between"><span className="text-wire">BUYBACKS</span><span className="text-paper">842</span></div>
-          <div className="flex justify-between"><span className="text-wire">BURNS</span><span className="text-paper">842</span></div>
-          <div className="flex justify-between"><span className="text-wire">FAILED WINDOWS</span><span className="text-amber">5</span></div>
-          <div className="col-span-2 flex justify-between"><span className="text-wire">LAST BUYBACK</span><span className="text-paper">14 minutes ago</span></div>
-        </div>
-        <div className="rule-amber" />
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="label-mono">Execution Grade</div>
-            <div className="mt-2"><ExecutionGradeBadge grade="SPX AA" size="lg" /></div>
-          </div>
-          <div className="text-right">
-            <div className="label-mono">Score</div>
-            <div className="num-display mt-1 text-4xl font-bold text-verified">87</div>
-          </div>
-        </div>
-        <div className="border-l-2 border-amber/60 pl-3 font-mono text-xs italic text-paper-muted">
-          “Operational. Minor gaps. Still awake.”
-        </div>
-        <Link
-          to="/agent/$mint"
-          params={{ mint: nova.mint }}
-          className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
-        >
-          Open full dossier <ArrowRight className="h-3 w-3" />
-        </Link>
+            <div className="rule-bronze" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-xs">
+              <div className="flex justify-between"><span className="text-wire">DEPOSITS OBSERVED</span><span className="text-paper">{agent.totalDepositsCount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-wire">BUYBACKS</span><span className="text-paper">{agent.totalBuybacksCount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-wire">BURNS</span><span className="text-paper">{agent.totalBurnsCount.toLocaleString()}</span></div>
+              <div className="flex justify-between"><span className="text-wire">FAILED WINDOWS</span><span className="text-amber">{agent.failedWindows}</span></div>
+              <div className="col-span-2 flex justify-between"><span className="text-wire">LAST BUYBACK</span><span className="text-paper">{agent.lastBuybackLabel}</span></div>
+            </div>
+            <div className="rule-amber" />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="label-mono">Execution Grade</div>
+                <div className="mt-2"><ExecutionGradeBadge grade={agent.grade} size="lg" /></div>
+              </div>
+              <div className="text-right">
+                <div className="label-mono">Score</div>
+                <div className="num-display mt-1 text-4xl font-bold text-verified">{agent.score ?? "—"}</div>
+              </div>
+            </div>
+            {agent.tagline && (
+              <div className="border-l-2 border-amber/60 pl-3 font-mono text-xs italic text-paper-muted">
+                "{agent.tagline}"
+              </div>
+            )}
+            <Link
+              to="/agent/$mint"
+              params={{ mint: agent.mint }}
+              className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
+            >
+              Open full dossier <ArrowRight className="h-3 w-3" />
+            </Link>
+          </>
+        ) : (
+          <>
+            <div className="space-y-2 font-mono text-xs">
+              <div className="flex justify-between"><span className="text-wire">REGISTRY SCAN</span><span className="text-amber">QUEUED</span></div>
+              <div className="flex justify-between"><span className="text-wire">PUMP.FUN STREAM</span><span className="text-verified">LISTENING</span></div>
+              <div className="flex justify-between"><span className="text-wire">CANDIDATES</span><span className="text-paper">awaiting first verified dossier</span></div>
+            </div>
+            <div className="rule-bronze" />
+            <p className="font-mono text-xs text-paper-muted">
+              No agent has yet passed the verification bar (on-chain earnings + at least one identity proof). Submit a mint or wait for the indexer to catch one in the wild.
+            </p>
+            <Link
+              to="/submit"
+              className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
+            >
+              Submit a mint <ArrowRight className="h-3 w-3" />
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
@@ -179,6 +207,10 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
+  const agents = Route.useLoaderData() as Agent[];
+  const featured = agents.slice(0, 3);
+  const heroAgent = agents[0] ?? null;
+  const totalBuybacks = agents.reduce((acc, a) => acc + a.totalBuybacksCount, 0);
   return (
     <div>
       {/* HERO */}
@@ -221,22 +253,22 @@ function HomePage() {
 
             <div className="mt-10 grid max-w-md grid-cols-3 gap-6">
               <div>
-                <div className="num-display text-2xl font-bold text-paper">5,142</div>
+                <div className="num-display text-2xl font-bold text-paper">{agents.length.toLocaleString()}</div>
                 <div className="label-mono mt-1">Agents indexed</div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">218k</div>
+                <div className="num-display text-2xl font-bold text-paper">{totalBuybacks.toLocaleString()}</div>
                 <div className="label-mono mt-1">Buybacks confirmed</div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">14s</div>
-                <div className="label-mono mt-1">Reconciliation</div>
+                <div className="num-display text-2xl font-bold text-paper">5m</div>
+                <div className="label-mono mt-1">Reconcile cadence</div>
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-5">
-            <TerminalSampleCard />
+            <TerminalSampleCard agent={heroAgent} />
           </div>
         </div>
       </section>
@@ -450,40 +482,53 @@ function HomePage() {
           <div>
             <div className="label-amber">Currently watched</div>
             <h2 className="mt-3 font-display text-3xl font-bold text-paper">
-              The tape is loud today.
+              {featured.length > 0 ? "The tape is loud today." : "The tape is quiet."}
             </h2>
           </div>
           <Link to="/explore" className="font-mono text-xs uppercase tracking-widest text-amber hover:underline">
             Explore →
           </Link>
         </div>
-        <div className="mt-8 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
-          {AGENTS.slice(0, 3).map((a) => (
-            <Link
-              key={a.mint}
-              to="/agent/$mint"
-              params={{ mint: a.mint }}
-              className="group bg-panel p-6 transition-colors hover:bg-panel-deep"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-display text-2xl font-bold text-paper">${a.symbol}</div>
-                  <div className="font-mono text-xs text-wire">{a.name}</div>
+        {featured.length === 0 ? (
+          <div className="mt-8 border border-dashed border-bronze/60 p-10 text-center">
+            <div className="font-mono text-sm text-paper-muted">
+              No verified agents in the index yet.
+            </div>
+            <p className="mt-3 mx-auto max-w-md font-mono text-xs text-wire">
+              SPX402 only lists agents that have been observed earning on-chain AND carry at least one identity proof. The discovery indexer is running. Submit a mint or wait for the next sweep.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
+            {featured.map((a) => (
+              <Link
+                key={a.mint}
+                to="/agent/$mint"
+                params={{ mint: a.mint }}
+                className="group bg-panel p-6 transition-colors hover:bg-panel-deep"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="font-display text-2xl font-bold text-paper">${a.symbol}</div>
+                    <div className="font-mono text-xs text-wire">{a.name}</div>
+                  </div>
+                  {a.operatorVerified && <ShieldCheck className="h-4 w-4 text-verified" />}
                 </div>
-                {a.operatorVerified && <ShieldCheck className="h-4 w-4 text-verified" />}
-              </div>
-              <div className="mt-6 flex items-center justify-between">
-                <ExecutionGradeBadge grade={a.grade} size="sm" />
-                <div className="num-display text-2xl font-bold text-amber">
-                  {a.score ?? "—"}
+                <div className="mt-6 flex items-center justify-between">
+                  <ExecutionGradeBadge grade={a.grade} size="sm" />
+                  <div className="num-display text-2xl font-bold text-amber">
+                    {a.score ?? "—"}
+                  </div>
                 </div>
-              </div>
-              <p className="mt-4 border-l border-amber/40 pl-3 font-mono text-xs italic text-paper-muted">
-                “{a.tagline}”
-              </p>
-            </Link>
-          ))}
-        </div>
+                {a.tagline && (
+                  <p className="mt-4 border-l border-amber/40 pl-3 font-mono text-xs italic text-paper-muted">
+                    "{a.tagline}"
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* FINAL CTA */}

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -28,6 +29,7 @@ import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
+import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
@@ -35,6 +37,11 @@ import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_a
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 
+const SubmitRoute = SubmitRouteImport.update({
+  id: '/submit',
+  path: '/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
   path: '/status',
@@ -130,6 +137,12 @@ const ApiPublicHeliusWebhookSetupRoute =
     path: '/public/helius-webhook-setup',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiPublicCronVerifyCandidatesRoute =
+  ApiPublicCronVerifyCandidatesRouteImport.update({
+    id: '/public/cron-verify-candidates',
+    path: '/public/cron-verify-candidates',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronScoringRoute = ApiPublicCronScoringRouteImport.update({
   id: '/public/cron-scoring',
   path: '/public/cron-scoring',
@@ -178,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/submit': typeof SubmitRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
@@ -187,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
@@ -204,6 +219,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/submit': typeof SubmitRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
@@ -213,6 +229,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
@@ -232,6 +249,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
+  '/submit': typeof SubmitRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
@@ -241,6 +259,7 @@ export interface FileRoutesById {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
+  '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
 }
@@ -260,6 +279,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signup'
     | '/status'
+    | '/submit'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
@@ -269,6 +289,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scoring'
+    | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
   fileRoutesByTo: FileRoutesByTo
@@ -286,6 +307,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signup'
     | '/status'
+    | '/submit'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
@@ -295,6 +317,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scoring'
+    | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
   id:
@@ -313,6 +336,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signup'
     | '/status'
+    | '/submit'
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
@@ -322,6 +346,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scoring'
+    | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
   fileRoutesById: FileRoutesById
@@ -341,11 +366,19 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
+  SubmitRoute: typeof SubmitRoute
   AgentMintRoute: typeof AgentMintRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/submit': {
+      id: '/submit'
+      path: '/submit'
+      fullPath: '/submit'
+      preLoaderRoute: typeof SubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/status': {
       id: '/status'
       path: '/status'
@@ -479,6 +512,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHeliusWebhookSetupRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-verify-candidates': {
+      id: '/api/public/cron-verify-candidates'
+      path: '/public/cron-verify-candidates'
+      fullPath: '/api/public/cron-verify-candidates'
+      preLoaderRoute: typeof ApiPublicCronVerifyCandidatesRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-scoring': {
       id: '/api/public/cron-scoring'
       path: '/public/cron-scoring'
@@ -559,6 +599,7 @@ interface ApiRouteChildren {
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
+  ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
 }
@@ -568,6 +609,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
+  ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
 }
@@ -589,6 +631,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
+  SubmitRoute: SubmitRoute,
   AgentMintRoute: AgentMintRoute,
 }
 export const routeTree = rootRouteImport
