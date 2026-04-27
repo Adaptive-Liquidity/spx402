@@ -574,6 +574,16 @@ function Dossier({ agent }: { agent: Agent }) {
             >
               Evidence bundle ↗
             </a>
+            {/* Wave 4 — embeddable widget for partner sites. */}
+            <a
+              href={`/embed/${agent.mint}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+              title="Iframe-friendly badge widget"
+            >
+              Embed widget ↗
+            </a>
           </div>
         </div>
 

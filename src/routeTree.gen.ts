@@ -31,10 +31,12 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
 import { Route as OperatorWalletRouteImport } from './routes/operator.$wallet'
+import { Route as EmbedSubjectRouteImport } from './routes/embed.$subject'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
+import { Route as ApiPublicVerifiedRouteImport } from './routes/api.public.verified'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
@@ -160,6 +162,11 @@ const OperatorWalletRoute = OperatorWalletRouteImport.update({
   path: '/operator/$wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmbedSubjectRoute = EmbedSubjectRouteImport.update({
+  id: '/embed/$subject',
+  path: '/embed/$subject',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -178,6 +185,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
   id: '/public/webhook-helius',
   path: '/public/webhook-helius',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiPublicVerifiedRoute = ApiPublicVerifiedRouteImport.update({
+  id: '/public/verified',
+  path: '/public/verified',
   getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicHeliusWebhookSetupRoute =
@@ -290,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
@@ -304,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
+  '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
@@ -332,6 +346,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
@@ -346,6 +361,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
+  '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
@@ -376,6 +392,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
@@ -390,6 +407,7 @@ export interface FileRoutesById {
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
+  '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
@@ -420,6 +438,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/embed/$subject'
     | '/operator/$wallet'
     | '/tape/$eventId'
     | '/dashboard/alerts'
@@ -434,6 +453,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
+    | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
@@ -462,6 +482,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/embed/$subject'
     | '/operator/$wallet'
     | '/tape/$eventId'
     | '/dashboard/alerts'
@@ -476,6 +497,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
+    | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
@@ -505,6 +527,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/embed/$subject'
     | '/operator/$wallet'
     | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
@@ -519,6 +542,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
+    | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
@@ -547,6 +571,7 @@ export interface RootRouteChildren {
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
   AgentMintRoute: typeof AgentMintRoute
+  EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
 }
 
@@ -706,6 +731,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OperatorWalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/embed/$subject': {
+      id: '/embed/$subject'
+      path: '/embed/$subject'
+      fullPath: '/embed/$subject'
+      preLoaderRoute: typeof EmbedSubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/docs': {
       id: '/api/docs'
       path: '/docs'
@@ -732,6 +764,13 @@ declare module '@tanstack/react-router' {
       path: '/public/webhook-helius'
       fullPath: '/api/public/webhook-helius'
       preLoaderRoute: typeof ApiPublicWebhookHeliusRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/verified': {
+      id: '/api/public/verified'
+      path: '/public/verified'
+      fullPath: '/api/public/verified'
+      preLoaderRoute: typeof ApiPublicVerifiedRouteImport
       parentRoute: typeof ApiRoute
     }
     '/api/public/helius-webhook-setup': {
@@ -883,6 +922,7 @@ interface ApiRouteChildren {
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
+  ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
   ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
@@ -900,6 +940,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
+  ApiPublicVerifiedRoute: ApiPublicVerifiedRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
   ApiPublicBadgeChar123mintChar125DotsvgRoute:
     ApiPublicBadgeChar123mintChar125DotsvgRoute,
@@ -941,6 +982,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
   AgentMintRoute: AgentMintRoute,
+  EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
 }
 export const routeTree = rootRouteImport
