@@ -20,7 +20,12 @@ export interface DecodedEvent {
     | "ANOMALY_DETECTED"
     | "OPERATOR_VERIFIED"
     | "SWAP_EXECUTED"
-    | "X402_PAYMENT_RECEIVED";
+    | "X402_PAYMENT_RECEIVED"
+    // Wave 1b — failure decoder negative-event taxonomy.
+    | "FAILED_BUYBACK_WINDOW"
+    | "PROMISED_BUYBACK_NOT_SETTLED"
+    | "X402_PAYMENT_REVERTED"
+    | "WINDOW_MISSED";
   severity: "info" | "warn" | "critical" | "success";
   signature: string;
   slot: number | null;

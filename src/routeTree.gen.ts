@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TapeRouteImport } from './routes/tape'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -27,6 +28,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
@@ -37,12 +39,18 @@ import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cr
 import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.cron-scan-x402'
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
+import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
 
+const TapeRoute = TapeRouteImport.update({
+  id: '/tape',
+  path: '/tape',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmitRoute = SubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
@@ -132,6 +140,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TapeEventIdRoute = TapeEventIdRouteImport.update({
+  id: '/$eventId',
+  path: '/$eventId',
+  getParentRoute: () => TapeRoute,
+} as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -185,6 +198,12 @@ const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
   path: '/public/cron-reconciler',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronFailureReconcilerRoute =
+  ApiPublicCronFailureReconcilerRouteImport.update({
+    id: '/public/cron-failure-reconciler',
+    path: '/public/cron-failure-reconciler',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronBackfillRoute = ApiPublicCronBackfillRouteImport.update({
   id: '/public/cron-backfill',
   path: '/public/cron-backfill',
@@ -233,13 +252,16 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
@@ -267,13 +289,16 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
@@ -303,13 +328,16 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
@@ -339,13 +367,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/submit'
+    | '/tape'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
     | '/api/public/cron-backfill'
+    | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
@@ -373,13 +404,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/submit'
+    | '/tape'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
     | '/api/public/cron-backfill'
+    | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
@@ -408,13 +442,16 @@ export interface FileRouteTypes {
     | '/signup'
     | '/status'
     | '/submit'
+    | '/tape'
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
     | '/api/public/cron-backfill'
+    | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
@@ -444,11 +481,19 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
+  TapeRoute: typeof TapeRouteWithChildren
   AgentMintRoute: typeof AgentMintRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tape': {
+      id: '/tape'
+      path: '/tape'
+      fullPath: '/tape'
+      preLoaderRoute: typeof TapeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submit': {
       id: '/submit'
       path: '/submit'
@@ -575,6 +620,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tape/$eventId': {
+      id: '/tape/$eventId'
+      path: '/$eventId'
+      fullPath: '/tape/$eventId'
+      preLoaderRoute: typeof TapeEventIdRouteImport
+      parentRoute: typeof TapeRoute
+    }
     '/api/docs': {
       id: '/api/docs'
       path: '/docs'
@@ -643,6 +695,13 @@ declare module '@tanstack/react-router' {
       path: '/public/cron-reconciler'
       fullPath: '/api/public/cron-reconciler'
       preLoaderRoute: typeof ApiPublicCronReconcilerRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/cron-failure-reconciler': {
+      id: '/api/public/cron-failure-reconciler'
+      path: '/public/cron-failure-reconciler'
+      fullPath: '/api/public/cron-failure-reconciler'
+      preLoaderRoute: typeof ApiPublicCronFailureReconcilerRouteImport
       parentRoute: typeof ApiRoute
     }
     '/api/public/cron-backfill': {
@@ -716,6 +775,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
+  ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
   ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
@@ -729,6 +789,7 @@ interface ApiRouteChildren {
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
+  ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
   ApiPublicCronScanX402Route: ApiPublicCronScanX402Route,
@@ -741,6 +802,16 @@ const ApiRouteChildren: ApiRouteChildren = {
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
+
+interface TapeRouteChildren {
+  TapeEventIdRoute: typeof TapeEventIdRoute
+}
+
+const TapeRouteChildren: TapeRouteChildren = {
+  TapeEventIdRoute: TapeEventIdRoute,
+}
+
+const TapeRouteWithChildren = TapeRoute._addFileChildren(TapeRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -761,6 +832,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
+  TapeRoute: TapeRouteWithChildren,
   AgentMintRoute: AgentMintRoute,
 }
 export const routeTree = rootRouteImport

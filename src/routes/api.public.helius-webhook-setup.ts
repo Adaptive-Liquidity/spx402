@@ -70,14 +70,23 @@ async function handle(
     url.searchParams.get("webhookUrl") ??
     `${url.origin}/api/public/webhook-helius`;
 
-  // Pull every agent mint + deposit address.
+  // Pull every observable address across all agent categories. The webhook
+  // must subscribe to every kind of address that any decoder cares about,
+  // otherwise the indexer is blind to that category.
+  //
+  // Wave 1b fix: previously we only subscribed mints + deposit addresses,
+  // which left the 130 verified registered_agent rows (executor_wallet kind)
+  // and every x402_executor row dark — Helius never delivered their txs.
+  // Now we additionally subscribe executor_wallet and core_asset.
   const { data: agents } = await supabaseAdmin
     .from("agents")
-    .select("mint, deposit_address");
+    .select("mint, deposit_address, executor_wallet, core_asset");
   const agentAddrs = new Set<string>();
   for (const a of agents ?? []) {
     if (a.mint) agentAddrs.add(a.mint);
     if (a.deposit_address) agentAddrs.add(a.deposit_address);
+    if (a.executor_wallet) agentAddrs.add(a.executor_wallet);
+    if (a.core_asset) agentAddrs.add(a.core_asset);
   }
   // Always watch Pump.fun program so we can attribute buybacks even before
   // an agent is registered.
