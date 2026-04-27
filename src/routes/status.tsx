@@ -88,6 +88,12 @@ const COMPONENT_ROWS: Array<{
     description:
       "Daily snapshot of every agent's score + confidence — drives /pulse and Movers (24h).",
   },
+  {
+    key: "registered_agent_diff",
+    name: "Registered-agent diff worker",
+    description:
+      "Hourly re-scan of MPL Agent Identity PDAs. Emits OPERATOR_CHANGED + CONFIG_CHANGED events when registered agents mutate on-chain.",
+  },
 ];
 
 type Health = "operational" | "degraded" | "no-data";

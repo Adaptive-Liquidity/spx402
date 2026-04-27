@@ -43,6 +43,7 @@ import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cr
 import { Route as ApiPublicCronScoreSnapshotRouteImport } from './routes/api.public.cron-score-snapshot'
 import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.cron-scan-x402'
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
+import { Route as ApiPublicCronRegisteredAgentDiffRouteImport } from './routes/api.public.cron-registered-agent-diff'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
 import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
@@ -226,6 +227,12 @@ const ApiPublicCronScanAgentRegistryRoute =
     path: '/public/cron-scan-agent-registry',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiPublicCronRegisteredAgentDiffRoute =
+  ApiPublicCronRegisteredAgentDiffRouteImport.update({
+    id: '/public/cron-registered-agent-diff',
+    path: '/public/cron-registered-agent-diff',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
   id: '/public/cron-reconciler',
   path: '/public/cron-reconciler',
@@ -311,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
@@ -355,6 +363,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
@@ -401,6 +410,7 @@ export interface FileRoutesById {
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
+  '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
+    | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
     | '/api/public/cron-score-snapshot'
@@ -491,6 +502,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
+    | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
     | '/api/public/cron-score-snapshot'
@@ -536,6 +548,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
+    | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
     | '/api/public/cron-score-snapshot'
@@ -815,6 +828,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronScanAgentRegistryRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-registered-agent-diff': {
+      id: '/api/public/cron-registered-agent-diff'
+      path: '/public/cron-registered-agent-diff'
+      fullPath: '/api/public/cron-registered-agent-diff'
+      preLoaderRoute: typeof ApiPublicCronRegisteredAgentDiffRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-reconciler': {
       id: '/api/public/cron-reconciler'
       path: '/public/cron-reconciler'
@@ -916,6 +936,7 @@ interface ApiRouteChildren {
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
+  ApiPublicCronRegisteredAgentDiffRoute: typeof ApiPublicCronRegisteredAgentDiffRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
   ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
   ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
@@ -934,6 +955,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
+  ApiPublicCronRegisteredAgentDiffRoute: ApiPublicCronRegisteredAgentDiffRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
   ApiPublicCronScanX402Route: ApiPublicCronScanX402Route,
   ApiPublicCronScoreSnapshotRoute: ApiPublicCronScoreSnapshotRoute,

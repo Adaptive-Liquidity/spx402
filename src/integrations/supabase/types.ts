@@ -114,6 +114,7 @@ export type Database = {
           flagged_at: string | null
           grade: string
           identifier_kind: string
+          identity_owner: string | null
           last_burn_label: string | null
           last_buyback_label: string | null
           last_indexed_seconds: number
@@ -161,6 +162,7 @@ export type Database = {
           flagged_at?: string | null
           grade: string
           identifier_kind?: string
+          identity_owner?: string | null
           last_burn_label?: string | null
           last_buyback_label?: string | null
           last_indexed_seconds?: number
@@ -208,6 +210,7 @@ export type Database = {
           flagged_at?: string | null
           grade?: string
           identifier_kind?: string
+          identity_owner?: string | null
           last_burn_label?: string | null
           last_buyback_label?: string | null
           last_indexed_seconds?: number
