@@ -2,11 +2,13 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { CheckCircle2, AlertTriangle, MinusCircle } from "lucide-react";
 import {
+  fetchEventCoverage,
   fetchIndexerStats24h,
   fetchLatestIndexerRuns,
   relativeFromNow,
   type IndexerRunRow,
 } from "@/lib/live-data";
+import { categoryLabel } from "@/lib/agents/categories";
 
 export const Route = createFileRoute("/status")({
   head: () => ({
