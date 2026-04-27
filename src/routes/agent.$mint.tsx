@@ -66,6 +66,14 @@ function eventDescFor(row: AgentEventRow): string {
       return "Indexer flagged this transaction for review.";
     case "OPERATOR_VERIFIED":
       return "Operator wallet signed an Ed25519 challenge for this agent.";
+    case "SWAP_EXECUTED":
+      return `DEX swap of ${row.amountSol.toFixed(4)} SOL net by the executor wallet.`;
+    case "X402_PAYMENT_RECEIVED":
+      return row.amountToken > 0
+        ? `${(row.amountToken / 1_000_000).toFixed(2)} USDC received via x402 micropayment.`
+        : `${row.amountSol.toFixed(4)} SOL received via x402 micropayment.`;
+    case "TASK_COMPLETED":
+      return "Agent completed a priced task attested on-chain.";
     default:
       return "Decoded program event.";
   }
