@@ -64,16 +64,20 @@ export type Database = {
           burn_confirmation_rate: number
           buyback_bps: number
           buyback_execution_rate: number
+          category: string
           confidence: string
           config_last_changed_label: string | null
+          core_asset: string | null
           created_at: string
           deposit_address: string | null
           events: Json
+          executor_wallet: string | null
           failed_windows: number
           flag_reason: string | null
           flagged: boolean
           flagged_at: string | null
           grade: string
+          identifier_kind: string
           last_burn_label: string | null
           last_buyback_label: string | null
           last_indexed_seconds: number
@@ -103,16 +107,20 @@ export type Database = {
           burn_confirmation_rate?: number
           buyback_bps?: number
           buyback_execution_rate?: number
+          category?: string
           confidence?: string
           config_last_changed_label?: string | null
+          core_asset?: string | null
           created_at?: string
           deposit_address?: string | null
           events?: Json
+          executor_wallet?: string | null
           failed_windows?: number
           flag_reason?: string | null
           flagged?: boolean
           flagged_at?: string | null
           grade: string
+          identifier_kind?: string
           last_burn_label?: string | null
           last_buyback_label?: string | null
           last_indexed_seconds?: number
@@ -142,16 +150,20 @@ export type Database = {
           burn_confirmation_rate?: number
           buyback_bps?: number
           buyback_execution_rate?: number
+          category?: string
           confidence?: string
           config_last_changed_label?: string | null
+          core_asset?: string | null
           created_at?: string
           deposit_address?: string | null
           events?: Json
+          executor_wallet?: string | null
           failed_windows?: number
           flag_reason?: string | null
           flagged?: boolean
           flagged_at?: string | null
           grade?: string
+          identifier_kind?: string
           last_burn_label?: string | null
           last_buyback_label?: string | null
           last_indexed_seconds?: number
@@ -235,10 +247,14 @@ export type Database = {
       }
       candidate_agents: {
         Row: {
+          category: string
           check_attempts: number
+          core_asset: string | null
           created_at: string
           discovered_via: string
+          executor_wallet: string | null
           id: string
+          identifier_kind: string
           last_checked_at: string | null
           mint: string
           notes: string | null
@@ -249,10 +265,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          category?: string
           check_attempts?: number
+          core_asset?: string | null
           created_at?: string
           discovered_via?: string
+          executor_wallet?: string | null
           id?: string
+          identifier_kind?: string
           last_checked_at?: string | null
           mint: string
           notes?: string | null
@@ -263,10 +283,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          category?: string
           check_attempts?: number
+          core_asset?: string | null
           created_at?: string
           discovered_via?: string
+          executor_wallet?: string | null
           id?: string
+          identifier_kind?: string
           last_checked_at?: string | null
           mint?: string
           notes?: string | null
