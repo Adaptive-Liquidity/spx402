@@ -19,7 +19,9 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
 
         const { data: agents } = await supabaseAdmin
           .from("agents")
-          .select("mint, operator_verified, name, tagline");
+          .select(
+            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset",
+          );
 
         if (!agents || agents.length === 0) {
           await heartbeat("scoring", true, Date.now() - started, "no agents");
@@ -29,11 +31,31 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         let scored = 0;
         for (const a of agents) {
           const counters = await aggregateCounters(a.mint);
+          const category = (a.category as
+            | "tokenized_buyback"
+            | "registered_agent"
+            | "x402_executor"
+            | "copy_trader"
+            | "task_executor"
+            | "general"
+            | null) ?? "tokenized_buyback";
+          // For registered agents, the AgentIdentity PDA was confirmed at
+          // verify-time; we treat presence in the agents table with the
+          // registered_agent category as standing proof until a re-check
+          // worker invalidates it.
+          const registryProof = category === "registered_agent";
           const result = score({
             ...counters,
+            category,
             operatorVerified: a.operator_verified ?? false,
             hasMetadata: Boolean(a.name && a.tagline),
             totalBuybackSol: counters.totalBuybackSol,
+            registryProof,
+            totalSwapCount: counters.totalSwapCount,
+            totalSwapSol: counters.totalSwapSol,
+            totalX402Count: counters.totalX402Count,
+            totalX402Sol: counters.totalX402Sol,
+            totalX402Usdc: counters.totalX402Usdc,
           });
           const { error } = await supabaseAdmin
             .from("agents")
