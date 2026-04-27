@@ -76,6 +76,12 @@ const COMPONENT_ROWS: Array<{
     name: "Reconciliation worker",
     description: "Asserts buyback windows produced a burn.",
   },
+  {
+    key: "failure_reconciler",
+    name: "Failure reconciler",
+    description:
+      "Detects FAILED_BUYBACK_WINDOW when deposits land without a timely buyback (10m cadence).",
+  },
 ];
 
 type Health = "operational" | "degraded" | "no-data";
