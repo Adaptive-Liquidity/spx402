@@ -25,7 +25,12 @@ export type EventType =
   | "OPERATOR_VERIFIED"
   | "SWAP_EXECUTED"
   | "X402_PAYMENT_RECEIVED"
-  | "TASK_COMPLETED";
+  | "TASK_COMPLETED"
+  // Wave 1b — failure decoder negative-event taxonomy.
+  | "FAILED_BUYBACK_WINDOW"
+  | "PROMISED_BUYBACK_NOT_SETTLED"
+  | "X402_PAYMENT_REVERTED"
+  | "WINDOW_MISSED";
 
 export type Severity = "info" | "warn" | "critical" | "success";
 
