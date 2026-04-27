@@ -405,7 +405,7 @@ function HomePage() {
                   {a.operatorVerified && <ShieldCheck className="h-4 w-4 text-verified" />}
                 </div>
                 <div className="mt-6 flex items-center justify-between">
-                  <ExecutionGradeBadge grade={a.grade} size="sm" />
+                  <ExecutionGradeBadge grade={a.grade} size="sm" confidenceScore={a.confidenceScore} />
                   <div className="num-display text-2xl font-bold text-amber">
                     {a.score ?? "—"}
                   </div>
