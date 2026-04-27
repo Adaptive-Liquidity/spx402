@@ -111,6 +111,8 @@ async function aggregateCounters(mint: string) {
   const deposits = rows.filter((r) => r.type === "DEPOSIT_RECEIVED");
   const buybacks = rows.filter((r) => r.type === "BUYBACK_EXECUTED");
   const burns = rows.filter((r) => r.type === "BURN_CONFIRMED");
+  const swaps = rows.filter((r) => r.type === "SWAP_EXECUTED");
+  const x402 = rows.filter((r) => r.type === "X402_PAYMENT_RECEIVED");
   const totalDepositsCount = deposits.length;
   const totalBuybacksCount = buybacks.length;
   const totalBurnsCount = burns.length;
@@ -121,6 +123,16 @@ async function aggregateCounters(mint: string) {
   const totalDepositedSol = deposits.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
   const totalBuybackSol = buybacks.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
   const totalBurnedTokens = burns.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
+
+  // Generalized swap counters (used for executor categories).
+  const totalSwapCount = swaps.length;
+  const totalSwapSol = swaps.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
+
+  // x402 receipt counters. amount_token holds USDC raw units when the
+  // receipt was USDC-denominated (see decode-x402.server.ts).
+  const totalX402Count = x402.length;
+  const totalX402Sol = x402.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
+  const totalX402Usdc = x402.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
 
   const buybackExecutionRate =
     totalDepositsCount === 0
@@ -147,6 +159,11 @@ async function aggregateCounters(mint: string) {
     buybackExecutionRate,
     burnConfirmationRate,
     lastIndexedSeconds,
+    totalSwapCount,
+    totalSwapSol,
+    totalX402Count,
+    totalX402Sol,
+    totalX402Usdc,
   };
 }
 
