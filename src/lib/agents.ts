@@ -3,6 +3,8 @@
 // All concrete data is loaded via src/lib/agents-db.ts.
 // This file holds ONLY shared TypeScript types — no demo data lives in the app.
 
+import type { AgentCategory, IdentifierKind } from "./agents/categories";
+
 export type Grade =
   | "SPX AAA"
   | "SPX AA"
@@ -20,7 +22,10 @@ export type EventType =
   | "CONFIG_CHANGED"
   | "FAILED_WINDOW"
   | "ANOMALY_DETECTED"
-  | "OPERATOR_VERIFIED";
+  | "OPERATOR_VERIFIED"
+  | "SWAP_EXECUTED"
+  | "X402_PAYMENT_RECEIVED"
+  | "TASK_COMPLETED";
 
 export type Severity = "info" | "warn" | "critical" | "success";
 
@@ -52,6 +57,14 @@ export interface AgentScoreBreakdown {
 
 export interface Agent {
   mint: string;
+  // The on-chain identifier we score. For tokenized agents this equals `mint`.
+  // For registered agents it's the MPL Core asset. For executor agents it's
+  // the wallet address.
+  identifier: string;
+  identifierKind: IdentifierKind;
+  category: AgentCategory;
+  executorWallet: string | null;
+  coreAsset: string | null;
   symbol: string;
   name: string;
   tagline: string;
