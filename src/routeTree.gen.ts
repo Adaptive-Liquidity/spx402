@@ -14,6 +14,7 @@ import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
@@ -29,6 +30,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
+import { Route as OperatorWalletRouteImport } from './routes/operator.$wallet'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
@@ -72,6 +74,11 @@ const SignupRoute = SignupRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PulseRoute = PulseRouteImport.update({
+  id: '/pulse',
+  path: '/pulse',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -147,6 +154,11 @@ const TapeEventIdRoute = TapeEventIdRouteImport.update({
   id: '/$eventId',
   path: '/$eventId',
   getParentRoute: () => TapeRoute,
+} as any)
+const OperatorWalletRoute = OperatorWalletRouteImport.update({
+  id: '/operator/$wallet',
+  path: '/operator/$wallet',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
@@ -269,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
@@ -277,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -309,6 +323,7 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
@@ -317,6 +332,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -351,6 +367,7 @@ export interface FileRoutesById {
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/status': typeof StatusRoute
@@ -359,6 +376,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/operator/$wallet': typeof OperatorWalletRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -393,6 +411,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/pulse'
     | '/register'
     | '/signup'
     | '/status'
@@ -401,6 +420,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/operator/$wallet'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -433,6 +453,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/pulse'
     | '/register'
     | '/signup'
     | '/status'
@@ -441,6 +462,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/operator/$wallet'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -474,6 +496,7 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/operators'
     | '/pricing'
+    | '/pulse'
     | '/register'
     | '/signup'
     | '/status'
@@ -482,6 +505,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
+    | '/operator/$wallet'
     | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
@@ -516,12 +540,14 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
   PricingRoute: typeof PricingRoute
+  PulseRoute: typeof PulseRoute
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
   AgentMintRoute: typeof AgentMintRoute
+  OperatorWalletRoute: typeof OperatorWalletRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -559,6 +585,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pulse': {
+      id: '/pulse'
+      path: '/pulse'
+      fullPath: '/pulse'
+      preLoaderRoute: typeof PulseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -665,6 +698,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tape/$eventId'
       preLoaderRoute: typeof TapeEventIdRouteImport
       parentRoute: typeof TapeRoute
+    }
+    '/operator/$wallet': {
+      id: '/operator/$wallet'
+      path: '/operator/$wallet'
+      fullPath: '/operator/$wallet'
+      preLoaderRoute: typeof OperatorWalletRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/docs': {
       id: '/api/docs'
@@ -894,12 +934,14 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
   PricingRoute: PricingRoute,
+  PulseRoute: PulseRoute,
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
   AgentMintRoute: AgentMintRoute,
+  OperatorWalletRoute: OperatorWalletRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
