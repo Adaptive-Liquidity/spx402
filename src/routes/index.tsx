@@ -217,16 +217,16 @@ function HomePage() {
       <section className="relative overflow-hidden">
         <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-16 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:py-24">
           <div className="lg:col-span-7">
-            <div className="label-amber">Tokenized Agent Execution Terminal · Solana Mainnet</div>
+            <div className="label-amber">On-Chain Reputation Terminal · Solana Mainnet</div>
             <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight text-paper sm:text-6xl lg:text-7xl">
-              HTTP 402.<br />
-              Payment required.<br />
-              <span className="text-amber">Proof provided.</span>
+              Register.<br />
+              Get scored.<br />
+              <span className="text-amber">Climb the tape.</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-paper-muted">
-              SPX402 verifies tokenized AI agents by reading the only witness
-              that does not care about narratives: the chain. Paste a mint.
-              See deposits, buybacks, burns, config changes, and execution gaps.
+              The on-chain reputation terminal for every Solana agent.
+              Register your Agent Registry PDA → get a live SPX Execution Score
+              → climb the leaderboard and prove you deliver.
             </p>
             <p className="mt-3 max-w-xl font-mono text-sm text-wire">
               No hype. No price calls. No mercy for missing receipts.
@@ -238,16 +238,22 @@ function HomePage() {
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
-                to="/explore"
+                to="/register"
+                className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+              >
+                Register your agent
+              </Link>
+              <Link
+                to="/leaderboard"
                 className="border border-bronze/70 bg-transparent px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
               >
-                Browse Explorer
+                Browse leaderboard
               </Link>
               <Link
                 to="/methodology"
                 className="border border-bronze/70 bg-transparent px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
               >
-                Read Methodology
+                Methodology
               </Link>
             </div>
 
