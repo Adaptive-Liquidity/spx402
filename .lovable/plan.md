@@ -404,6 +404,7 @@ After this lands, Wave 1c (Evidence API) and Wave 2 (score/confidence split) fol
 
 - ✅ **Wave 1a** — `LiveTapeHero` on `/`, `/tape`, `/tape/$eventId`, Supabase Realtime on `agent_events`.
 - ✅ **Wave 1b** — `decode-registered-agent` wired (executor + core_asset webhook subs), `decode-failure.server.ts` + `cron-failure-reconciler` (10m), negative-event taxonomy in `EventType` union, `/status` decoder coverage panel.
+- ✅ **Wave 1c** — Evidence Bundle API. `GET /api/public/evidence/:eventId` (per-event, with `raw_tx_hash`, score/grade/confidence at publish, `decoded_by`). `GET /api/public/agent/:subject/evidence` (30d window, per-leaf hashes, Merkle `evidence_root` for Wave 5 attestations). Canonical-JSON + sha256 helpers in `src/lib/evidence/hash.server.ts`. Tape permalink + dossier link out to JSON.
 - ✅ **Wave 2** — `src/lib/scoring/risk-score.ts` + `src/lib/scoring/confidence.ts` (pure). `agents.confidence_score`, `methodology_version`, `confidence_model_version`, `confidence_breakdown` columns. Outlined-vs-filled `ExecutionGradeBadge` driven by confidence; numeric chip on dossier.
-- ⏭ **Next: Wave 1c** — Evidence Bundle API (`/api/public/evidence/:event_id` + Merkle root over event window, used as `evidence_root` in attestations).
+- ⏭ **Next: Wave 3** — `agent_score_snapshots` table + daily cron, `/pulse` deltas feed, leaderboard "Movers (24h)", `/operator/$wallet` profiles. Once snapshots exist we backfill `score_impact` / `confidence_impact` deltas on per-event evidence records.
 

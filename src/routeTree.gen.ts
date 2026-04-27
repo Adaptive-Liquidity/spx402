@@ -44,7 +44,9 @@ import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.c
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
+import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
+import { Route as ApiPublicAgentSubjectEvidenceRouteImport } from './routes/api.public.agent.$subject.evidence'
 
 const TapeRoute = TapeRouteImport.update({
   id: '/tape',
@@ -227,10 +229,22 @@ const AuthenticatedDashboardAlertsRoute =
     path: '/alerts',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiPublicEvidenceEventIdRoute =
+  ApiPublicEvidenceEventIdRouteImport.update({
+    id: '/public/evidence/$eventId',
+    path: '/public/evidence/$eventId',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicBadgeChar123mintChar125DotsvgRoute =
   ApiPublicBadgeChar123mintChar125DotsvgRouteImport.update({
     id: '/public/badge/{$mint}.svg',
     path: '/public/badge/{$mint}.svg',
+    getParentRoute: () => ApiRoute,
+  } as any)
+const ApiPublicAgentSubjectEvidenceRoute =
+  ApiPublicAgentSubjectEvidenceRouteImport.update({
+    id: '/public/agent/$subject/evidence',
+    path: '/public/agent/$subject/evidence',
     getParentRoute: () => ApiRoute,
   } as any)
 
@@ -270,6 +284,8 @@ export interface FileRoutesByFullPath {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
+  '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -307,6 +323,8 @@ export interface FileRoutesByTo {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
+  '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -346,6 +364,8 @@ export interface FileRoutesById {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
+  '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -385,6 +405,8 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
     | '/api/public/badge/{$mint}.svg'
+    | '/api/public/evidence/$eventId'
+    | '/api/public/agent/$subject/evidence'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -422,6 +444,8 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
     | '/api/public/badge/{$mint}.svg'
+    | '/api/public/evidence/$eventId'
+    | '/api/public/agent/$subject/evidence'
   id:
     | '__root__'
     | '/'
@@ -460,6 +484,8 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
     | '/api/public/badge/{$mint}.svg'
+    | '/api/public/evidence/$eventId'
+    | '/api/public/agent/$subject/evidence'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -732,11 +758,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAlertsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/api/public/evidence/$eventId': {
+      id: '/api/public/evidence/$eventId'
+      path: '/public/evidence/$eventId'
+      fullPath: '/api/public/evidence/$eventId'
+      preLoaderRoute: typeof ApiPublicEvidenceEventIdRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/badge/{$mint}.svg': {
       id: '/api/public/badge/{$mint}.svg'
       path: '/public/badge/{$mint}.svg'
       fullPath: '/api/public/badge/{$mint}.svg'
       preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/agent/$subject/evidence': {
+      id: '/api/public/agent/$subject/evidence'
+      path: '/public/agent/$subject/evidence'
+      fullPath: '/api/public/agent/$subject/evidence'
+      preLoaderRoute: typeof ApiPublicAgentSubjectEvidenceRouteImport
       parentRoute: typeof ApiRoute
     }
   }
@@ -784,6 +824,8 @@ interface ApiRouteChildren {
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
   ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
+  ApiPublicAgentSubjectEvidenceRoute: typeof ApiPublicAgentSubjectEvidenceRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
@@ -799,6 +841,8 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
   ApiPublicBadgeChar123mintChar125DotsvgRoute:
     ApiPublicBadgeChar123mintChar125DotsvgRoute,
+  ApiPublicEvidenceEventIdRoute: ApiPublicEvidenceEventIdRoute,
+  ApiPublicAgentSubjectEvidenceRoute: ApiPublicAgentSubjectEvidenceRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
