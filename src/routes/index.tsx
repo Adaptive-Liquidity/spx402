@@ -10,17 +10,17 @@ import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SPX402 — Execution Grade for Tokenized AI Agents" },
+      { title: "SPX402 — On-chain reputation terminal for Solana agents" },
       {
         name: "description",
         content:
-          "Paste a mint. Read the tape. SPX402 verifies tokenized agent deposits, buybacks, burns, and execution gaps on-chain.",
+          "Register your Agent Registry PDA, get a live SPX Execution Score, and climb the leaderboard. SPX402 only rates what the chain can prove.",
       },
-      { property: "og:title", content: "SPX402 — Payment required. Proof provided." },
+      { property: "og:title", content: "SPX402 — Reputation terminal for every Solana agent" },
       {
         property: "og:description",
         content:
-          "The execution-grade terminal for tokenized AI agents. We only rate what we can prove.",
+          "Register → score → climb. The on-chain reputation terminal for every Solana agent. We only rate what we can prove.",
       },
     ],
   }),
