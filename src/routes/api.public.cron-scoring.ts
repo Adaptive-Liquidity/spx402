@@ -45,6 +45,9 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
+              total_deposited_sol: counters.totalDepositedSol,
+              total_buyback_sol: counters.totalBuybackSol,
+              total_burned_tokens: counters.totalBurnedTokens,
               failed_windows: counters.failedWindows,
               buyback_execution_rate: counters.buybackExecutionRate,
               burn_confirmation_rate: counters.burnConfirmationRate,
@@ -82,12 +85,19 @@ async function aggregateCounters(mint: string) {
   ]);
 
   const rows = events ?? [];
-  const totalDepositsCount = rows.filter((r) => r.type === "DEPOSIT_RECEIVED").length;
-  const totalBuybacksCount = rows.filter((r) => r.type === "BUYBACK_EXECUTED").length;
-  const totalBurnsCount = rows.filter((r) => r.type === "BURN_CONFIRMED").length;
+  const deposits = rows.filter((r) => r.type === "DEPOSIT_RECEIVED");
+  const buybacks = rows.filter((r) => r.type === "BUYBACK_EXECUTED");
+  const burns = rows.filter((r) => r.type === "BURN_CONFIRMED");
+  const totalDepositsCount = deposits.length;
+  const totalBuybacksCount = buybacks.length;
+  const totalBurnsCount = burns.length;
   const failedWindows = rows.filter(
     (r) => r.type === "FAILED_WINDOW" || r.type === "ANOMALY_DETECTED",
   ).length;
+
+  const totalDepositedSol = deposits.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
+  const totalBuybackSol = buybacks.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
+  const totalBurnedTokens = burns.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
 
   const buybackExecutionRate =
     totalDepositsCount === 0
@@ -107,6 +117,9 @@ async function aggregateCounters(mint: string) {
     totalDepositsCount,
     totalBuybacksCount,
     totalBurnsCount,
+    totalDepositedSol,
+    totalBuybackSol,
+    totalBurnedTokens,
     failedWindows,
     buybackExecutionRate,
     burnConfirmationRate,
