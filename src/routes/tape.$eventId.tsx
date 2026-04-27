@@ -8,7 +8,7 @@ import { categoryLabel } from "@/lib/agents/categories";
 
 export const Route = createFileRoute("/tape/$eventId")({
   head: ({ loaderData }) => {
-    const r = loaderData;
+    const r = loaderData as Awaited<ReturnType<typeof fetchTapeEventWithRaw>>;
     const subject = r?.agentSymbol ? `$${r.agentSymbol}` : "agent";
     const title = r ? `${r.type} · ${subject} — SPX402 Tape` : "Event — SPX402 Tape";
     return {
@@ -71,7 +71,9 @@ function severityTone(sev: string): string {
 }
 
 function TapeEventPage() {
-  const r = Route.useLoaderData();
+  const r = Route.useLoaderData() as NonNullable<
+    Awaited<ReturnType<typeof fetchTapeEventWithRaw>>
+  >;
   const subject = r.agentSymbol
     ? `$${r.agentSymbol}`
     : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`;
