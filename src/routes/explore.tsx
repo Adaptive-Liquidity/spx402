@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { fetchAllAgents } from "@/lib/agents-db";

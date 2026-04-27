@@ -39,6 +39,7 @@ import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.c
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
+import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
 
 const SubmitRoute = SubmitRouteImport.update({
   id: '/submit',
@@ -195,6 +196,12 @@ const AuthenticatedDashboardAlertsRoute =
     path: '/alerts',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiPublicBadgeChar123mintChar125DotsvgRoute =
+  ApiPublicBadgeChar123mintChar125DotsvgRouteImport.update({
+    id: '/public/badge/{$mint}.svg',
+    path: '/public/badge/{$mint}.svg',
+    getParentRoute: () => ApiRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -257,6 +265,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -290,6 +299,7 @@ export interface FileRoutesById {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
+    | '/api/public/badge/{$mint}.svg'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -354,6 +365,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
+    | '/api/public/badge/{$mint}.svg'
   id:
     | '__root__'
     | '/'
@@ -386,6 +398,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/webhook-helius'
+    | '/api/public/badge/{$mint}.svg'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -621,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAlertsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/api/public/badge/{$mint}.svg': {
+      id: '/api/public/badge/{$mint}.svg'
+      path: '/public/badge/{$mint}.svg'
+      fullPath: '/api/public/badge/{$mint}.svg'
+      preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
+      parentRoute: typeof ApiRoute
+    }
   }
 }
 
@@ -663,6 +683,7 @@ interface ApiRouteChildren {
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
+  ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
@@ -674,6 +695,8 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
+  ApiPublicBadgeChar123mintChar125DotsvgRoute:
+    ApiPublicBadgeChar123mintChar125DotsvgRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
