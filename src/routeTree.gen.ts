@@ -18,6 +18,7 @@ import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as ChangelogRouteImport } from './routes/changelog'
@@ -84,6 +85,11 @@ const LoginRoute = LoginRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlaggedRoute = FlaggedRouteImport.update({
+  id: '/flagged',
+  path: '/flagged',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
+  '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
@@ -243,6 +250,7 @@ export interface FileRoutesByTo {
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
+  '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
+  '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
     | '/changelog'
     | '/disclaimer'
     | '/explore'
+    | '/flagged'
     | '/leaderboard'
     | '/login'
     | '/methodology'
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/changelog'
     | '/disclaimer'
     | '/explore'
+    | '/flagged'
     | '/leaderboard'
     | '/login'
     | '/methodology'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/changelog'
     | '/disclaimer'
     | '/explore'
+    | '/flagged'
     | '/leaderboard'
     | '/login'
     | '/methodology'
@@ -410,6 +422,7 @@ export interface RootRouteChildren {
   ChangelogRoute: typeof ChangelogRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
+  FlaggedRoute: typeof FlaggedRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
@@ -485,6 +498,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flagged': {
+      id: '/flagged'
+      path: '/flagged'
+      fullPath: '/flagged'
+      preLoaderRoute: typeof FlaggedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -710,6 +730,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChangelogRoute: ChangelogRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
+  FlaggedRoute: FlaggedRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
