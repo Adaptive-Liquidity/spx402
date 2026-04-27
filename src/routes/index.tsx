@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { fetchAllAgents } from "@/lib/agents-db";
-import type { Agent } from "@/lib/agents";
+import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { useEffect, useState } from "react";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
@@ -207,7 +207,11 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
-  const agents = Route.useLoaderData() as Agent[];
+  const allAgents = Route.useLoaderData() as Agent[];
+  // Homepage tape, hero card, and featured grid only show leaderboard-quality
+  // agents. SPX D / SPX404 / flagged agents are excluded — they live on
+  // /explore and /flagged respectively.
+  const agents = allAgents.filter(qualifiesForLeaderboard);
   const featured = agents.slice(0, 3);
   const heroAgent = agents[0] ?? null;
   const totalBuybacks = agents.reduce((acc, a) => acc + a.totalBuybacksCount, 0);
