@@ -163,7 +163,44 @@ function LeaderboardPage() {
         )}
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
+      {/* Category filter chips — narrow leaderboard scope to one agent type */}
+      <div className="mt-10 flex flex-wrap gap-2">
+        {(["all", ...CATEGORIES.map((c) => c.id)] as CategoryFilter[]).map(
+          (id) => {
+            const isActive = catFilter === id;
+            const label =
+              id === "all"
+                ? "All Categories"
+                : CATEGORIES.find((c) => c.id === id)!.label;
+            const count = categoryCounts[id] ?? 0;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setCatFilter(id)}
+                className={`flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+                  isActive
+                    ? "border-amber bg-amber/10 text-amber"
+                    : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
+                }`}
+              >
+                {label}
+                <span
+                  className={`border px-1 py-0.5 text-[9px] ${
+                    isActive
+                      ? "border-amber/60 bg-amber/10 text-amber"
+                      : "border-bronze/40 bg-panel-deep text-wire"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          },
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
         {TABS.map((t) => {
           const isActive = tab === t.id;
           return (
