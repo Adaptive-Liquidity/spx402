@@ -40,26 +40,23 @@ function authHeaderMatches(req: Request, secret: string): boolean {
 }
 
 /**
- * Check cron auth: prefers CRON_SECRET, falls back to HELIUS_WEBHOOK_SECRET
- * during rollout. Returns true only if at least one is configured AND the
- * request presented a matching token.
+ * Check cron auth: requires CRON_SECRET. The legacy HELIUS_WEBHOOK_SECRET
+ * fallback was removed in the security-hardening pass (April 2026) — that
+ * value was hardcoded in a migration and is treated as compromised.
  */
 export function checkCronAuth(req: Request): boolean {
   const cronSecret = process.env.CRON_SECRET;
-  const legacy = process.env.HELIUS_WEBHOOK_SECRET;
-  if (cronSecret && authHeaderMatches(req, cronSecret)) return true;
-  if (legacy && authHeaderMatches(req, legacy)) return true;
-  return false;
+  if (!cronSecret) return false;
+  return authHeaderMatches(req, cronSecret);
 }
 
 /**
- * Check admin auth for the Helius webhook setup endpoint. Prefers
- * HELIUS_ADMIN_SECRET; falls back to HELIUS_WEBHOOK_SECRET during rollout.
+ * Check admin auth for the Helius webhook setup endpoint and the
+ * one-shot Vault seeder. Requires HELIUS_ADMIN_SECRET; legacy
+ * HELIUS_WEBHOOK_SECRET fallback removed for the same reason as above.
  */
 export function checkAdminAuth(req: Request): boolean {
   const adminSecret = process.env.HELIUS_ADMIN_SECRET;
-  const legacy = process.env.HELIUS_WEBHOOK_SECRET;
-  if (adminSecret && authHeaderMatches(req, adminSecret)) return true;
-  if (legacy && authHeaderMatches(req, legacy)) return true;
-  return false;
+  if (!adminSecret) return false;
+  return authHeaderMatches(req, adminSecret);
 }
