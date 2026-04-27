@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
+import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
