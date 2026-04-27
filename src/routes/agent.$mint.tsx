@@ -393,7 +393,13 @@ function AgentRoutePage() {
 }
 
 function Dossier({ agent }: { agent: Agent }) {
-  const [filter, setFilter] = useState<"all" | "buyback" | "burn" | "deposit" | "anomaly" | "config">("all");
+  const cat = categoryMeta(agent.category);
+  const isTokenized = agent.category === "tokenized_buyback";
+  const isExecutor = agent.identifierKind === "executor_wallet";
+  const isRegistered = agent.category === "registered_agent";
+
+  type FilterKey = "all" | "buyback" | "burn" | "deposit" | "anomaly" | "config" | "swap" | "x402";
+  const [filter, setFilter] = useState<FilterKey>("all");
   const filtered = agent.events.filter((e) => {
     if (filter === "all") return true;
     if (filter === "buyback") return e.type === "BUYBACK_EXECUTED";
@@ -401,8 +407,30 @@ function Dossier({ agent }: { agent: Agent }) {
     if (filter === "deposit") return e.type === "DEPOSIT_RECEIVED";
     if (filter === "anomaly") return e.type === "ANOMALY_DETECTED" || e.type === "FAILED_WINDOW";
     if (filter === "config") return e.type === "CONFIG_CHANGED";
+    if (filter === "swap") return e.type === "SWAP_EXECUTED";
+    if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
     return true;
   });
+
+  // Category-aware filter chips: only show what's meaningful for the agent type.
+  const filterKeys: FilterKey[] = isTokenized
+    ? ["all", "buyback", "burn", "deposit", "anomaly", "config"]
+    : isExecutor || isRegistered
+      ? ["all", "swap", "x402", "anomaly"]
+      : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
+
+  // Aggregate counts for non-tokenized metric cards.
+  const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
+  const x402Count = agent.events.filter((e) => e.type === "X402_PAYMENT_RECEIVED").length;
+  const swapSol = agent.events
+    .filter((e) => e.type === "SWAP_EXECUTED")
+    .reduce((s, e) => s + (e.amount ?? 0), 0);
+  const x402Sol = agent.events
+    .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
+    .reduce((s, e) => s + (e.amount ?? 0), 0);
+  const x402Usdc = agent.events
+    .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
+    .reduce((s, e) => s + (e.tokenAmount ?? 0), 0);
 
   const isSPX404 = agent.grade === "SPX404";
 
