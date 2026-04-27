@@ -482,40 +482,53 @@ function HomePage() {
           <div>
             <div className="label-amber">Currently watched</div>
             <h2 className="mt-3 font-display text-3xl font-bold text-paper">
-              The tape is loud today.
+              {featured.length > 0 ? "The tape is loud today." : "The tape is quiet."}
             </h2>
           </div>
           <Link to="/explore" className="font-mono text-xs uppercase tracking-widest text-amber hover:underline">
             Explore →
           </Link>
         </div>
-        <div className="mt-8 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
-          {AGENTS.slice(0, 3).map((a) => (
-            <Link
-              key={a.mint}
-              to="/agent/$mint"
-              params={{ mint: a.mint }}
-              className="group bg-panel p-6 transition-colors hover:bg-panel-deep"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="font-display text-2xl font-bold text-paper">${a.symbol}</div>
-                  <div className="font-mono text-xs text-wire">{a.name}</div>
+        {featured.length === 0 ? (
+          <div className="mt-8 border border-dashed border-bronze/60 p-10 text-center">
+            <div className="font-mono text-sm text-paper-muted">
+              No verified agents in the index yet.
+            </div>
+            <p className="mt-3 mx-auto max-w-md font-mono text-xs text-wire">
+              SPX402 only lists agents that have been observed earning on-chain AND carry at least one identity proof. The discovery indexer is running. Submit a mint or wait for the next sweep.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
+            {featured.map((a) => (
+              <Link
+                key={a.mint}
+                to="/agent/$mint"
+                params={{ mint: a.mint }}
+                className="group bg-panel p-6 transition-colors hover:bg-panel-deep"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="font-display text-2xl font-bold text-paper">${a.symbol}</div>
+                    <div className="font-mono text-xs text-wire">{a.name}</div>
+                  </div>
+                  {a.operatorVerified && <ShieldCheck className="h-4 w-4 text-verified" />}
                 </div>
-                {a.operatorVerified && <ShieldCheck className="h-4 w-4 text-verified" />}
-              </div>
-              <div className="mt-6 flex items-center justify-between">
-                <ExecutionGradeBadge grade={a.grade} size="sm" />
-                <div className="num-display text-2xl font-bold text-amber">
-                  {a.score ?? "—"}
+                <div className="mt-6 flex items-center justify-between">
+                  <ExecutionGradeBadge grade={a.grade} size="sm" />
+                  <div className="num-display text-2xl font-bold text-amber">
+                    {a.score ?? "—"}
+                  </div>
                 </div>
-              </div>
-              <p className="mt-4 border-l border-amber/40 pl-3 font-mono text-xs italic text-paper-muted">
-                “{a.tagline}”
-              </p>
-            </Link>
-          ))}
-        </div>
+                {a.tagline && (
+                  <p className="mt-4 border-l border-amber/40 pl-3 font-mono text-xs italic text-paper-muted">
+                    "{a.tagline}"
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* FINAL CTA */}
