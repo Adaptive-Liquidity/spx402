@@ -4,6 +4,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { verifyCandidate } from "@/lib/indexer/verifier.server";
+import type { Json } from "@/integrations/supabase/types";
 
 const MAX_PER_RUN = 10;
 const MAX_ATTEMPTS = 5;
