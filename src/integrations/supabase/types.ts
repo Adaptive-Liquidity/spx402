@@ -579,7 +579,6 @@ export type Database = {
       }
     }
     Functions: {
-      _spx_cron_bearer: { Args: never; Returns: string }
       enqueue_candidate_agent: { Args: { p_mint: string }; Returns: Json }
     }
     Enums: {
