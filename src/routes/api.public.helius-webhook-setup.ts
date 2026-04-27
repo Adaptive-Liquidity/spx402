@@ -16,6 +16,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { PUMPFUN_PROGRAM_ID } from "@/lib/indexer/helius.server";
+import { checkAdminAuth } from "@/lib/indexer/auth.server";
 
 const HELIUS_API_BASE = "https://api.helius.xyz/v0";
 
@@ -60,8 +61,7 @@ async function handle(
       error: "Missing HELIUS_API_KEY or HELIUS_WEBHOOK_SECRET in server env.",
     });
   }
-  const auth = request.headers.get("authorization") ?? "";
-  if (auth !== sharedSecret && auth !== `Bearer ${sharedSecret}`) {
+  if (!checkAdminAuth(request)) {
     return json(401, { ok: false, error: "unauthorized" });
   }
 
