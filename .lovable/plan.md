@@ -400,5 +400,10 @@ After this lands, Wave 1c (Evidence API) and Wave 2 (score/confidence split) fol
 
 ---
 
-**Approve this plan and I'll switch to default mode and begin Wave 1a + 1b.**
+## Wave status
+
+- ✅ **Wave 1a** — `LiveTapeHero` on `/`, `/tape`, `/tape/$eventId`, Supabase Realtime on `agent_events`.
+- ✅ **Wave 1b** — `decode-registered-agent` wired (executor + core_asset webhook subs), `decode-failure.server.ts` + `cron-failure-reconciler` (10m), negative-event taxonomy in `EventType` union, `/status` decoder coverage panel.
+- ✅ **Wave 2** — `src/lib/scoring/risk-score.ts` + `src/lib/scoring/confidence.ts` (pure). `agents.confidence_score`, `methodology_version`, `confidence_model_version`, `confidence_breakdown` columns. Outlined-vs-filled `ExecutionGradeBadge` driven by confidence; numeric chip on dossier.
+- ⏭ **Next: Wave 1c** — Evidence Bundle API (`/api/public/evidence/:event_id` + Merkle root over event window, used as `evidence_root` in attestations).
 
