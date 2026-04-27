@@ -76,14 +76,7 @@ export function AgentRow({ agent }: { agent: Agent }) {
         </div>
 
         <div className="col-span-6 sm:col-span-2">
-          <div className="label-mono">Buybacks</div>
-          <div className="num-display mt-1.5 text-lg font-semibold text-paper">
-            {agent.totalBuybacksCount.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="col-span-6 sm:col-span-2">
-          <div className="label-mono">Last buyback</div>
+          <div className="label-mono">{lastLabel}</div>
           <div className="mt-1.5 font-mono text-xs text-paper-muted">
             {agent.lastBuybackLabel}
           </div>
