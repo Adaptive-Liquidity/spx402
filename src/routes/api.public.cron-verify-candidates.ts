@@ -76,6 +76,55 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
                 notes: result.notes,
               })
               .eq("mint", c.mint);
+
+            // Backfill: for executor wallet candidates, immediately seed
+            // their agent_events with recent swap + x402 history so they
+            // show up on the leaderboard with real numbers on next scoring.
+            if (kind === "executor_wallet" && c.executor_wallet) {
+              try {
+                const wallet = c.executor_wallet;
+                const txs = await fetchAddressTxs(wallet);
+                const rows: Array<Record<string, unknown>> = [];
+                for (const tx of txs) {
+                  for (const ev of decodeSwapTx(tx, [wallet])) {
+                    rows.push({
+                      mint: c.mint,
+                      type: "SWAP_EXECUTED",
+                      severity: "info",
+                      signature: ev.signature,
+                      slot: ev.slot ?? undefined,
+                      occurred_at: ev.occurredAt,
+                      amount_sol: ev.amountSol,
+                      amount_token: ev.amountToken,
+                      raw: { ...ev.raw, wallet, backfill: true } as never,
+                    });
+                  }
+                  for (const ev of decodeX402Tx(tx, [wallet])) {
+                    rows.push({
+                      mint: c.mint,
+                      type: "X402_PAYMENT_RECEIVED",
+                      severity: "success",
+                      signature: ev.signature,
+                      slot: ev.slot ?? undefined,
+                      occurred_at: ev.occurredAt,
+                      amount_sol: ev.amountSol,
+                      amount_token: ev.amountToken,
+                      raw: { ...ev.raw, wallet, backfill: true } as never,
+                    });
+                  }
+                }
+                if (rows.length > 0) {
+                  await supabaseAdmin
+                    .from("agent_events")
+                    .upsert(rows as never, {
+                      onConflict: "signature",
+                      ignoreDuplicates: true,
+                    });
+                }
+              } catch {
+                /* backfill is best-effort; scoring picks up later */
+              }
+            }
             promoted += 1;
           } else if (attempts >= MAX_ATTEMPTS) {
             await supabaseAdmin
