@@ -37,7 +37,10 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
           )
           .eq("id", eventId)
           .maybeSingle();
-        if (error) return errorJson(500, "db_error", error.message);
+        if (error) {
+          console.error("[api.public.evidence] db_error:", error);
+          return errorJson(500, "internal_error");
+        }
         if (!ev) return errorJson(404, "event_not_found");
 
         const { data: agent } = await supabaseAdmin

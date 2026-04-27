@@ -71,7 +71,8 @@ export const Route = createFileRoute("/api/public/verified")({
 
         const { data, error } = await q;
         if (error) {
-          return jsonResponse({ error: "db_error", detail: error.message }, 500);
+          console.error("[api.public.verified] db_error:", error);
+          return jsonResponse({ error: "internal_error", detail: null }, 500);
         }
 
         const rows = data ?? [];
