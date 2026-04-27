@@ -67,13 +67,15 @@ export type Grade =
   | "SPX D"
   | "SPX404";
 
-export function score(inputs: ScoringInputs): {
+export interface ScoreResult {
   total: number;
   breakdown: ScoreBreakdown;
   grade: Grade;
   verdict: string;
   confidence: "high" | "medium" | "low";
-} {
+}
+
+export function score(inputs: ScoringInputs): ScoreResult {
   const category: AgentCategory = inputs.category ?? "tokenized_buyback";
 
   if (category === "registered_agent") {
