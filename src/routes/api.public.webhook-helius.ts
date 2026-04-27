@@ -16,6 +16,8 @@ import {
   type HeliusEnhancedTx,
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
+import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
+import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
 
 export const Route = createFileRoute("/api/public/webhook-helius")({
   server: {
