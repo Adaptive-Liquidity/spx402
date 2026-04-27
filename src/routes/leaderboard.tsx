@@ -117,6 +117,19 @@ function LeaderboardPage() {
   const agents = Route.useLoaderData();
   const [tab, setTab] = useState<Tab>("earners");
   const [catFilter, setCatFilter] = useState<CategoryFilter>("all");
+  const [movers, setMovers] = useState<ScoreMover[] | null>(null);
+  const [moversLoading, setMoversLoading] = useState(false);
+
+  // Lazy-load movers when the tab is first opened. Movers data lives in
+  // agent_score_snapshots and isn't part of the main agents fetch.
+  useEffect(() => {
+    if (tab !== "movers" || movers !== null) return;
+    setMoversLoading(true);
+    fetchScoreMovers(24, 30)
+      .then((m) => setMovers(m))
+      .catch(() => setMovers([]))
+      .finally(() => setMoversLoading(false));
+  }, [tab, movers]);
 
   const ranked = useMemo(
     () => rankAgents(agents, tab, catFilter),
