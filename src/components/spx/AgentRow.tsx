@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import type { Agent } from "@/lib/agents";
+import { categoryMeta } from "@/lib/agents/categories";
 import { ShieldCheck, AlertTriangle } from "lucide-react";
 
 export function AgentRow({ agent }: { agent: Agent }) {
