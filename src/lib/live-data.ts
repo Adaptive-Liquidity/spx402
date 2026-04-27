@@ -429,3 +429,430 @@ export async function fetchEventCoverage(): Promise<
     };
   });
 }
+
+// ---------- Wave 3: score snapshots, movers, pulse ----------
+
+export interface ScoreMover {
+  mint: string;
+  symbol: string;
+  name: string;
+  category: string;
+  grade: string;
+  currentScore: number | null;
+  previousScore: number | null;
+  scoreDelta: number;
+  currentConfidence: number;
+  previousConfidence: number;
+  confidenceDelta: number;
+  takenAt: string;
+}
+
+interface SnapshotRow {
+  mint: string;
+  score: number | null;
+  confidence_score: number | string | null;
+  grade: string | null;
+  taken_at: string;
+}
+
+// Movers (24h) — for each agent, compare the most recent snapshot at least
+// `windowHours` old to the current agents row. Returns agents with non-zero
+// score delta sorted by absolute delta.
+export async function fetchScoreMovers(
+  windowHours = 24,
+  limit = 25,
+): Promise<ScoreMover[]> {
+  const cutoff = new Date(
+    Date.now() - windowHours * 60 * 60 * 1000,
+  ).toISOString();
+
+  // Pull the newest snapshot per mint that is older than `cutoff`.
+  // We fetch a generous window so the per-mint reduction below sees enough rows.
+  const since = new Date(
+    Date.now() - (windowHours + 96) * 60 * 60 * 1000,
+  ).toISOString();
+  const { data: snaps } = await supabase
+    .from("agent_score_snapshots")
+    .select("mint, score, confidence_score, grade, taken_at")
+    .lte("taken_at", cutoff)
+    .gte("taken_at", since)
+    .order("taken_at", { ascending: false })
+    .limit(2000);
+
+  const baseline = new Map<string, SnapshotRow>();
+  for (const s of (snaps ?? []) as SnapshotRow[]) {
+    if (!baseline.has(s.mint)) baseline.set(s.mint, s);
+  }
+  if (baseline.size === 0) return [];
+
+  const mints = Array.from(baseline.keys());
+  const { data: agentRows } = await supabase
+    .from("agents")
+    .select(
+      "mint, symbol, name, category, grade, score, confidence_score",
+    )
+    .in("mint", mints);
+  if (!agentRows) return [];
+
+  const movers: ScoreMover[] = [];
+  for (const a of agentRows) {
+    const base = baseline.get(a.mint);
+    if (!base) continue;
+    const cur = a.score == null ? null : Number(a.score);
+    const prev = base.score == null ? null : Number(base.score);
+    if (cur == null || prev == null) continue;
+    const delta = cur - prev;
+    const curConf = numOrZero(a.confidence_score);
+    const prevConf = numOrZero(base.confidence_score);
+    if (delta === 0 && Math.abs(curConf - prevConf) < 0.02) continue;
+    movers.push({
+      mint: a.mint,
+      symbol: a.symbol,
+      name: a.name,
+      category: a.category ?? "tokenized_buyback",
+      grade: a.grade ?? "—",
+      currentScore: cur,
+      previousScore: prev,
+      scoreDelta: delta,
+      currentConfidence: curConf,
+      previousConfidence: prevConf,
+      confidenceDelta: curConf - prevConf,
+      takenAt: base.taken_at,
+    });
+  }
+
+  movers.sort((a, b) => Math.abs(b.scoreDelta) - Math.abs(a.scoreDelta));
+  return movers.slice(0, limit);
+}
+
+export interface PulseEntry {
+  id: string;
+  kind: "score_delta" | "failure_event" | "verified_event";
+  occurredAt: string;
+  mint: string;
+  symbol: string | null;
+  name: string | null;
+  category: string | null;
+  // For deltas
+  scoreDelta?: number;
+  fromScore?: number | null;
+  toScore?: number | null;
+  fromGrade?: string | null;
+  toGrade?: string | null;
+  // For events
+  eventType?: string;
+  severity?: string;
+  signature?: string;
+  amountSol?: number;
+}
+
+// /pulse feed — chronological merge of (a) the most recent score-delta
+// transitions per agent, and (b) recent failure / critical events. The two
+// streams are interleaved by occurredAt so the page reads as a live timeline.
+export async function fetchPulseFeed(limit = 60): Promise<PulseEntry[]> {
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Recent failure / warning / critical events (negative-event taxonomy
+  // from Wave 1b plus generic critical severity).
+  const NEGATIVE_TYPES = [
+    "FAILED_BUYBACK_WINDOW",
+    "PROMISED_BUYBACK_NOT_SETTLED",
+    "X402_PAYMENT_REVERTED",
+    "WINDOW_MISSED",
+    "FAILED_WINDOW",
+    "ANOMALY_DETECTED",
+  ];
+  const [failureRes, criticalRes] = await Promise.all([
+    supabase
+      .from("agent_events")
+      .select("id, mint, type, severity, signature, occurred_at, amount_sol")
+      .in("type", NEGATIVE_TYPES)
+      .gte("occurred_at", since)
+      .order("occurred_at", { ascending: false })
+      .limit(limit),
+    supabase
+      .from("agent_events")
+      .select("id, mint, type, severity, signature, occurred_at, amount_sol")
+      .eq("severity", "critical")
+      .gte("occurred_at", since)
+      .order("occurred_at", { ascending: false })
+      .limit(limit),
+  ]);
+
+  // Score-delta entries — derive from snapshot history (per-mint pair the two
+  // most recent snapshots and emit a delta entry if score changed).
+  const { data: snapRows } = await supabase
+    .from("agent_score_snapshots")
+    .select("id, mint, score, grade, taken_at")
+    .gte("taken_at", since)
+    .order("taken_at", { ascending: false })
+    .limit(2000);
+
+  const grouped = new Map<
+    string,
+    Array<{ id: string; score: number | null; grade: string | null; taken_at: string }>
+  >();
+  for (const r of snapRows ?? []) {
+    const arr = grouped.get(r.mint) ?? [];
+    arr.push({ id: r.id, score: r.score, grade: r.grade, taken_at: r.taken_at });
+    grouped.set(r.mint, arr);
+  }
+
+  // All mints we'll need to look up
+  const mintSet = new Set<string>();
+  for (const r of failureRes.data ?? []) mintSet.add(r.mint);
+  for (const r of criticalRes.data ?? []) mintSet.add(r.mint);
+  for (const m of grouped.keys()) mintSet.add(m);
+  const lookup = await loadAgentLookup(Array.from(mintSet));
+
+  const entries: PulseEntry[] = [];
+
+  // Failure events
+  const seenIds = new Set<string>();
+  const pushEvent = (
+    r: {
+      id: string;
+      mint: string;
+      type: string;
+      severity: string;
+      signature: string;
+      occurred_at: string;
+      amount_sol: number | string | null;
+    },
+    kind: "failure_event" | "verified_event",
+  ) => {
+    if (seenIds.has(r.id)) return;
+    seenIds.add(r.id);
+    const a = lookup.get(r.mint) ?? null;
+    entries.push({
+      id: `evt:${r.id}`,
+      kind,
+      occurredAt: r.occurred_at,
+      mint: r.mint,
+      symbol: a?.symbol ?? null,
+      name: a?.name ?? null,
+      category: a?.category ?? null,
+      eventType: r.type,
+      severity: r.severity,
+      signature: r.signature,
+      amountSol: numOrZero(r.amount_sol),
+    });
+  };
+  for (const r of failureRes.data ?? []) pushEvent(r, "failure_event");
+  for (const r of criticalRes.data ?? []) pushEvent(r, "verified_event");
+
+  // Score deltas — emit one entry per consecutive snapshot pair where score moved.
+  for (const [mint, arr] of grouped) {
+    // arr is desc by taken_at; we want pairs (newer, older).
+    for (let i = 0; i < arr.length - 1; i++) {
+      const newer = arr[i];
+      const older = arr[i + 1];
+      if (newer.score == null || older.score == null) continue;
+      const delta = Number(newer.score) - Number(older.score);
+      if (delta === 0) continue;
+      const a = lookup.get(mint) ?? null;
+      entries.push({
+        id: `snap:${newer.id}`,
+        kind: "score_delta",
+        occurredAt: newer.taken_at,
+        mint,
+        symbol: a?.symbol ?? null,
+        name: a?.name ?? null,
+        category: a?.category ?? null,
+        scoreDelta: delta,
+        fromScore: Number(older.score),
+        toScore: Number(newer.score),
+        fromGrade: older.grade,
+        toGrade: newer.grade,
+      });
+    }
+  }
+
+  entries.sort(
+    (a, b) =>
+      new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
+  );
+  return entries.slice(0, limit);
+}
+
+// ---------- Wave 3: operator profiles ----------
+
+export interface OperatorAgentSummary {
+  mint: string;
+  symbol: string;
+  name: string;
+  category: string;
+  grade: string;
+  score: number | null;
+  confidenceScore: number;
+  totalBuybackSol: number;
+  totalBuybacksCount: number;
+  failedWindows: number;
+  flagged: boolean;
+  lastIndexedSeconds: number;
+}
+
+export interface OperatorProfile {
+  wallet: string;
+  agents: OperatorAgentSummary[];
+  aggregate: {
+    agentCount: number;
+    totalBuybackSol: number;
+    totalEvents: number;
+    failureEvents: number;
+    successEvents: number;
+    avgScore: number | null;
+    avgConfidence: number;
+    bestGrade: string | null;
+    worstGrade: string | null;
+    flaggedCount: number;
+  };
+  recentEvents: AgentEventRow[];
+}
+
+const GRADE_RANK: Record<string, number> = {
+  "SPX A+": 9,
+  "SPX A": 8,
+  "SPX AA": 7,
+  "SPX BB": 6,
+  "SPX B": 5,
+  "SPX C": 4,
+  "SPX D": 3,
+  "SPX 404": 1,
+};
+
+export async function fetchOperatorProfile(
+  wallet: string,
+): Promise<OperatorProfile | null> {
+  if (!wallet) return null;
+
+  // Find agents owned/operated by this wallet. Match either the
+  // operator_wallet column or the executor_wallet column (both observed
+  // in the agents schema).
+  const { data: agents, error: agentsErr } = await supabase
+    .from("agents")
+    .select(
+      "mint, symbol, name, category, grade, score, confidence_score, total_buyback_sol, total_buybacks_count, failed_windows, flagged, last_indexed_seconds",
+    )
+    .or(
+      `operator_wallet.eq.${wallet},executor_wallet.eq.${wallet}`,
+    );
+  if (agentsErr || !agents || agents.length === 0) return null;
+
+  const agentSummaries: OperatorAgentSummary[] = agents.map((a) => ({
+    mint: a.mint,
+    symbol: a.symbol,
+    name: a.name,
+    category: a.category ?? "tokenized_buyback",
+    grade: a.grade ?? "—",
+    score: a.score == null ? null : Number(a.score),
+    confidenceScore: numOrZero(a.confidence_score),
+    totalBuybackSol: numOrZero(a.total_buyback_sol),
+    totalBuybacksCount: a.total_buybacks_count ?? 0,
+    failedWindows: a.failed_windows ?? 0,
+    flagged: Boolean(a.flagged),
+    lastIndexedSeconds: a.last_indexed_seconds ?? 0,
+  }));
+
+  // Aggregate stats across all operated agents.
+  const mints = agentSummaries.map((a) => a.mint);
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: eventRows } = await supabase
+    .from("agent_events")
+    .select(
+      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version",
+    )
+    .in("mint", mints)
+    .gte("occurred_at", since)
+    .order("occurred_at", { ascending: false })
+    .limit(200);
+
+  const events = (eventRows ?? []).map((r) => ({
+    id: r.id,
+    mint: r.mint,
+    type: r.type,
+    severity: r.severity,
+    signature: r.signature,
+    slot: r.slot == null ? null : Number(r.slot),
+    occurredAt: r.occurred_at,
+    amountSol: numOrZero(r.amount_sol),
+    amountToken: numOrZero(r.amount_token),
+    parserVersion: r.parser_version,
+  }));
+
+  let failureEvents = 0;
+  let successEvents = 0;
+  for (const e of events) {
+    if (e.severity === "critical" || e.severity === "warning") failureEvents++;
+    else if (e.severity === "success") successEvents++;
+  }
+
+  const scoredAgents = agentSummaries.filter((a) => a.score != null);
+  const avgScore =
+    scoredAgents.length === 0
+      ? null
+      : Math.round(
+          scoredAgents.reduce((acc, a) => acc + (a.score ?? 0), 0) /
+            scoredAgents.length,
+        );
+  const avgConfidence =
+    agentSummaries.length === 0
+      ? 0
+      : agentSummaries.reduce((acc, a) => acc + a.confidenceScore, 0) /
+        agentSummaries.length;
+
+  const grades = agentSummaries
+    .map((a) => a.grade)
+    .filter((g) => GRADE_RANK[g] != null);
+  let bestGrade: string | null = null;
+  let worstGrade: string | null = null;
+  if (grades.length > 0) {
+    bestGrade = grades.reduce((a, b) =>
+      GRADE_RANK[a] >= GRADE_RANK[b] ? a : b,
+    );
+    worstGrade = grades.reduce((a, b) =>
+      GRADE_RANK[a] <= GRADE_RANK[b] ? a : b,
+    );
+  }
+
+  return {
+    wallet,
+    agents: agentSummaries,
+    aggregate: {
+      agentCount: agentSummaries.length,
+      totalBuybackSol: agentSummaries.reduce(
+        (acc, a) => acc + a.totalBuybackSol,
+        0,
+      ),
+      totalEvents: events.length,
+      failureEvents,
+      successEvents,
+      avgScore,
+      avgConfidence,
+      bestGrade,
+      worstGrade,
+      flaggedCount: agentSummaries.filter((a) => a.flagged).length,
+    },
+    recentEvents: events.slice(0, 30),
+  };
+}
+
+// Discover the set of distinct operator wallets — drives an index page if needed.
+export async function fetchOperatorWallets(limit = 100): Promise<
+  Array<{ wallet: string; agentCount: number }>
+> {
+  const { data } = await supabase
+    .from("agents")
+    .select("operator_wallet, executor_wallet");
+  const counts = new Map<string, number>();
+  for (const r of data ?? []) {
+    const w = r.operator_wallet || r.executor_wallet;
+    if (!w) continue;
+    counts.set(w, (counts.get(w) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .map(([wallet, agentCount]) => ({ wallet, agentCount }))
+    .sort((a, b) => b.agentCount - a.agentCount)
+    .slice(0, limit);
+}
+
