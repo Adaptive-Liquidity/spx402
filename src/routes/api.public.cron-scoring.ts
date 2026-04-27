@@ -114,12 +114,6 @@ async function aggregateCounters(mint: string) {
   };
 }
 
-function checkCronAuth(req: Request): boolean {
-  const secret = process.env.HELIUS_WEBHOOK_SECRET; // reused as cron shared-secret
-  if (!secret) return false;
-  const auth = req.headers.get("authorization") ?? "";
-  return auth === secret || auth === `Bearer ${secret}`;
-}
 
 async function heartbeat(
   worker: string,
