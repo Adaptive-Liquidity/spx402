@@ -252,3 +252,180 @@ export function relativeFromNow(iso: string): string {
   const d = Math.floor(h / 24);
   return `${d}d ago`;
 }
+
+// ---------- tape (canonical evidence ledger) ----------
+//
+// The tape is the homepage Live Execution Tape and the /tape ledger view.
+// Every row carries enough context to render a permalink + one-line summary
+// without a follow-up fetch, which lets us stream new rows in via realtime.
+
+export interface TapeRow {
+  id: string;
+  mint: string;
+  type: string;
+  severity: string;
+  signature: string;
+  occurredAt: string;
+  amountSol: number;
+  amountToken: number;
+  parserVersion: string;
+  agentSymbol: string | null;
+  agentName: string | null;
+  agentCategory: string | null;
+}
+
+interface AgentLite {
+  symbol: string;
+  name: string;
+  category: string;
+}
+
+async function loadAgentLookup(
+  mints: string[],
+): Promise<Map<string, AgentLite>> {
+  if (mints.length === 0) return new Map();
+  const { data } = await supabase
+    .from("agents")
+    .select("mint, symbol, name, category")
+    .in("mint", Array.from(new Set(mints)));
+  const out = new Map<string, AgentLite>();
+  for (const r of data ?? []) {
+    out.set(r.mint, {
+      symbol: r.symbol,
+      name: r.name,
+      category: r.category ?? "tokenized_buyback",
+    });
+  }
+  return out;
+}
+
+interface FetchTapeOpts {
+  limit?: number;
+  category?: string | null;
+  severity?: string | null;
+  mint?: string | null;
+}
+
+export async function fetchTape(opts: FetchTapeOpts = {}): Promise<TapeRow[]> {
+  const limit = opts.limit ?? 50;
+  let query = supabase
+    .from("agent_events")
+    .select(
+      "id, mint, type, severity, signature, occurred_at, amount_sol, amount_token, parser_version",
+    )
+    .order("occurred_at", { ascending: false })
+    .limit(limit);
+  if (opts.severity) query = query.eq("severity", opts.severity);
+  if (opts.mint) query = query.eq("mint", opts.mint);
+  const { data, error } = await query;
+  if (error || !data) return [];
+
+  const lookup = await loadAgentLookup(data.map((r) => r.mint));
+
+  let rows: TapeRow[] = data.map((r) => {
+    const a = lookup.get(r.mint) ?? null;
+    return {
+      id: r.id,
+      mint: r.mint,
+      type: r.type,
+      severity: r.severity,
+      signature: r.signature,
+      occurredAt: r.occurred_at,
+      amountSol: numOrZero(r.amount_sol),
+      amountToken: numOrZero(r.amount_token),
+      parserVersion: r.parser_version,
+      agentSymbol: a?.symbol ?? null,
+      agentName: a?.name ?? null,
+      agentCategory: a?.category ?? null,
+    };
+  });
+
+  if (opts.category) {
+    rows = rows.filter((r) => r.agentCategory === opts.category);
+  }
+  return rows;
+}
+
+export async function fetchTapeEventWithRaw(eventId: string): Promise<
+  | (TapeRow & { slot: number | null; raw: Record<string, unknown> })
+  | null
+> {
+  const { data, error } = await supabase
+    .from("agent_events")
+    .select(
+      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version, raw",
+    )
+    .eq("id", eventId)
+    .maybeSingle();
+  if (error || !data) return null;
+  const lookup = await loadAgentLookup([data.mint]);
+  const a = lookup.get(data.mint) ?? null;
+  return {
+    id: data.id,
+    mint: data.mint,
+    type: data.type,
+    severity: data.severity,
+    signature: data.signature,
+    slot: data.slot == null ? null : Number(data.slot),
+    occurredAt: data.occurred_at,
+    amountSol: numOrZero(data.amount_sol),
+    amountToken: numOrZero(data.amount_token),
+    parserVersion: data.parser_version,
+    agentSymbol: a?.symbol ?? null,
+    agentName: a?.name ?? null,
+    agentCategory: a?.category ?? null,
+    raw: (data.raw as Record<string, unknown>) ?? {},
+  };
+}
+
+// Per-decoder coverage for the /status indexer health surface.
+// Returns recent observation count + timestamp for each (category, type)
+// pair. Lets the status page distinguish "no failures" from "decoder is
+// broken / dark category."
+export async function fetchEventCoverage(): Promise<
+  Array<{
+    category: string;
+    type: string;
+    count: number;
+    lastObservedAt: string | null;
+  }>
+> {
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [eventsRes, agentsRes] = await Promise.all([
+    supabase
+      .from("agent_events")
+      .select("mint, type, occurred_at")
+      .gte("occurred_at", since)
+      .order("occurred_at", { ascending: false })
+      .limit(1000),
+    supabase.from("agents").select("mint, category"),
+  ]);
+
+  const cat = new Map<string, string>();
+  for (const a of agentsRes.data ?? []) {
+    cat.set(a.mint, a.category ?? "tokenized_buyback");
+  }
+
+  const seen = new Map<string, { count: number; last: string | null }>();
+  for (const e of eventsRes.data ?? []) {
+    const c = cat.get(e.mint) ?? "tokenized_buyback";
+    const key = `${c}|${e.type}`;
+    const cur = seen.get(key);
+    if (!cur) {
+      seen.set(key, { count: 1, last: e.occurred_at });
+    } else {
+      cur.count++;
+      if (!cur.last || cur.last < e.occurred_at) cur.last = e.occurred_at;
+    }
+  }
+
+  return Array.from(seen.entries()).map(([k, v]) => {
+    const [category, type] = k.split("|");
+    return {
+      category,
+      type,
+      count: v.count,
+      lastObservedAt: v.last,
+    };
+  });
+}
