@@ -813,44 +813,46 @@ function Dossier({ agent }: { agent: Agent }) {
         </div>
       </div>
 
-      {/* PRICE CONTEXT */}
-      <Panel
-        className="mt-6"
-        eyebrow="Price context"
-        title="Market data shown for context only"
-        right={
-          <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
-            Excluded from Transparency Score
-          </span>
-        }
-      >
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={agent.priceSeries}>
-              <defs>
-                <linearGradient id="amberFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="oklch(0.78 0.16 75)" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="oklch(0.78 0.16 75)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid stroke="oklch(0.32 0.04 65)" strokeOpacity={0.3} vertical={false} />
-              <XAxis dataKey="t" stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} />
-              <YAxis stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} width={70} />
-              <Tooltip
-                contentStyle={{
-                  background: "var(--panel-deep)",
-                  border: "1px solid var(--bronze)",
-                  borderRadius: 0,
-                  fontFamily: "monospace",
-                  fontSize: 11,
-                }}
-                labelStyle={{ color: "var(--wire)" }}
-              />
-              <Area type="monotone" dataKey="v" stroke="var(--amber)" strokeWidth={2} fill="url(#amberFill)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Panel>
+      {/* PRICE CONTEXT — only meaningful for tokenized agents */}
+      {isTokenized && agent.priceSeries.length > 0 && (
+        <Panel
+          className="mt-6"
+          eyebrow="Price context"
+          title="Market data shown for context only"
+          right={
+            <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
+              Excluded from Transparency Score
+            </span>
+          }
+        >
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={agent.priceSeries}>
+                <defs>
+                  <linearGradient id="amberFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="oklch(0.78 0.16 75)" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="oklch(0.78 0.16 75)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="oklch(0.32 0.04 65)" strokeOpacity={0.3} vertical={false} />
+                <XAxis dataKey="t" stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} />
+                <YAxis stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} width={70} />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--panel-deep)",
+                    border: "1px solid var(--bronze)",
+                    borderRadius: 0,
+                    fontFamily: "monospace",
+                    fontSize: 11,
+                  }}
+                  labelStyle={{ color: "var(--wire)" }}
+                />
+                <Area type="monotone" dataKey="v" stroke="var(--amber)" strokeWidth={2} fill="url(#amberFill)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Panel>
+      )}
 
       {/* RAW TX TABLE */}
       <Panel className="mt-6" eyebrow="Raw transactions" title="Decoded events">
