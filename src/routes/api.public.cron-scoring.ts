@@ -19,7 +19,9 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
 
         const { data: agents } = await supabaseAdmin
           .from("agents")
-          .select("mint, operator_verified, name, tagline");
+          .select(
+            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset",
+          );
 
         if (!agents || agents.length === 0) {
           await heartbeat("scoring", true, Date.now() - started, "no agents");
@@ -29,11 +31,31 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         let scored = 0;
         for (const a of agents) {
           const counters = await aggregateCounters(a.mint);
+          const category = (a.category as
+            | "tokenized_buyback"
+            | "registered_agent"
+            | "x402_executor"
+            | "copy_trader"
+            | "task_executor"
+            | "general"
+            | null) ?? "tokenized_buyback";
+          // For registered agents, the AgentIdentity PDA was confirmed at
+          // verify-time; we treat presence in the agents table with the
+          // registered_agent category as standing proof until a re-check
+          // worker invalidates it.
+          const registryProof = category === "registered_agent";
           const result = score({
             ...counters,
+            category,
             operatorVerified: a.operator_verified ?? false,
             hasMetadata: Boolean(a.name && a.tagline),
             totalBuybackSol: counters.totalBuybackSol,
+            registryProof,
+            totalSwapCount: counters.totalSwapCount,
+            totalSwapSol: counters.totalSwapSol,
+            totalX402Count: counters.totalX402Count,
+            totalX402Sol: counters.totalX402Sol,
+            totalX402Usdc: counters.totalX402Usdc,
           });
           const { error } = await supabaseAdmin
             .from("agents")
@@ -89,6 +111,8 @@ async function aggregateCounters(mint: string) {
   const deposits = rows.filter((r) => r.type === "DEPOSIT_RECEIVED");
   const buybacks = rows.filter((r) => r.type === "BUYBACK_EXECUTED");
   const burns = rows.filter((r) => r.type === "BURN_CONFIRMED");
+  const swaps = rows.filter((r) => r.type === "SWAP_EXECUTED");
+  const x402 = rows.filter((r) => r.type === "X402_PAYMENT_RECEIVED");
   const totalDepositsCount = deposits.length;
   const totalBuybacksCount = buybacks.length;
   const totalBurnsCount = burns.length;
@@ -99,6 +123,16 @@ async function aggregateCounters(mint: string) {
   const totalDepositedSol = deposits.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
   const totalBuybackSol = buybacks.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
   const totalBurnedTokens = burns.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
+
+  // Generalized swap counters (used for executor categories).
+  const totalSwapCount = swaps.length;
+  const totalSwapSol = swaps.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
+
+  // x402 receipt counters. amount_token holds USDC raw units when the
+  // receipt was USDC-denominated (see decode-x402.server.ts).
+  const totalX402Count = x402.length;
+  const totalX402Sol = x402.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
+  const totalX402Usdc = x402.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
 
   const buybackExecutionRate =
     totalDepositsCount === 0
@@ -125,6 +159,11 @@ async function aggregateCounters(mint: string) {
     buybackExecutionRate,
     burnConfirmationRate,
     lastIndexedSeconds,
+    totalSwapCount,
+    totalSwapSol,
+    totalX402Count,
+    totalX402Sol,
+    totalX402Usdc,
   };
 }
 

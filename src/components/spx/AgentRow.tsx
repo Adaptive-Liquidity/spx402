@@ -1,9 +1,28 @@
 import { Link } from "@tanstack/react-router";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import type { Agent } from "@/lib/agents";
+import { categoryMeta } from "@/lib/agents/categories";
 import { ShieldCheck, AlertTriangle } from "lucide-react";
 
 export function AgentRow({ agent }: { agent: Agent }) {
+  const cat = categoryMeta(agent.category);
+  // For executor / registered categories, show swap or x402 throughput in
+  // the "buybacks" slot since buybacks are tokenized-only.
+  const isExecutor = agent.category === "x402_executor";
+  const isRegistered = agent.category === "registered_agent";
+  const middleLabel = isExecutor
+    ? "x402 receipts"
+    : isRegistered
+      ? "Swap activity"
+      : "Buybacks";
+  const middleValue = isExecutor || isRegistered
+    ? "—" // populated once x402 / swap counters land on Agent type (next wave)
+    : agent.totalBuybacksCount.toLocaleString();
+  const lastLabel = isExecutor
+    ? "Last receipt"
+    : isRegistered
+      ? "Last activity"
+      : "Last buyback";
   return (
     <Link
       to="/agent/$mint"
@@ -28,6 +47,9 @@ export function AgentRow({ agent }: { agent: Agent }) {
               <div className="truncate font-mono text-[11px] text-wire">
                 {agent.name}
               </div>
+              <div className="mt-1 inline-block border border-bronze/40 bg-panel-deep px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-paper-muted">
+                {cat.label}
+              </div>
             </div>
           </div>
         </div>
@@ -47,14 +69,14 @@ export function AgentRow({ agent }: { agent: Agent }) {
         </div>
 
         <div className="col-span-6 sm:col-span-2">
-          <div className="label-mono">Buybacks</div>
+          <div className="label-mono">{middleLabel}</div>
           <div className="num-display mt-1.5 text-lg font-semibold text-paper">
-            {agent.totalBuybacksCount.toLocaleString()}
+            {middleValue}
           </div>
         </div>
 
         <div className="col-span-6 sm:col-span-2">
-          <div className="label-mono">Last buyback</div>
+          <div className="label-mono">{lastLabel}</div>
           <div className="mt-1.5 font-mono text-xs text-paper-muted">
             {agent.lastBuybackLabel}
           </div>

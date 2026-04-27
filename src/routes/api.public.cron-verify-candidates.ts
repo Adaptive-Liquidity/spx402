@@ -21,7 +21,9 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
 
         const { data: queue } = await supabaseAdmin
           .from("candidate_agents")
-          .select("mint, check_attempts, signals, discovered_via")
+          .select(
+            "mint, check_attempts, signals, discovered_via, identifier_kind, category, executor_wallet, core_asset",
+          )
           .in("status", ["pending", "verifying"])
           .order("last_checked_at", { ascending: true, nullsFirst: true })
           .limit(MAX_PER_RUN);
@@ -31,8 +33,15 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
         let stillPending = 0;
 
         for (const c of queue ?? []) {
+          const kind =
+            (c.identifier_kind as
+              | "mint"
+              | "core_asset"
+              | "executor_wallet"
+              | null) ?? "mint";
           const result = await verifyCandidate(c.mint, {
             discoveredVia: c.discovered_via,
+            identifierKind: kind,
           });
           const attempts = (c.check_attempts ?? 0) + 1;
 
@@ -40,6 +49,10 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
             await supabaseAdmin.from("agents").upsert(
               {
                 mint: c.mint,
+                identifier_kind: kind,
+                category: c.category ?? "tokenized_buyback",
+                executor_wallet: c.executor_wallet ?? null,
+                core_asset: c.core_asset ?? null,
                 symbol: result.symbol ?? c.mint.slice(0, 4).toUpperCase(),
                 name: result.name ?? "Unnamed agent",
                 grade: "SPX404",

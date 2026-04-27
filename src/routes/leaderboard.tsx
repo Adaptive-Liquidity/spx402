@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
+import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
@@ -60,10 +61,19 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
   },
 ];
 
-function rankAgents(agents: Agent[], tab: Tab): Agent[] {
+type CategoryFilter = "all" | AgentCategory;
+
+function rankAgents(
+  agents: Agent[],
+  tab: Tab,
+  catFilter: CategoryFilter,
+): Agent[] {
   // Quality gate first: leaderboard surfaces never include SPX D, SPX404,
   // or flagged agents. Those live on /explore and /flagged respectively.
-  const qualified = agents.filter(qualifiesForLeaderboard);
+  let qualified = agents.filter(qualifiesForLeaderboard);
+  if (catFilter !== "all") {
+    qualified = qualified.filter((a) => a.category === catFilter);
+  }
 
   if (tab === "earners") {
     return [...qualified]
@@ -87,9 +97,23 @@ function rankAgents(agents: Agent[], tab: Tab): Agent[] {
 function LeaderboardPage() {
   const agents = Route.useLoaderData();
   const [tab, setTab] = useState<Tab>("earners");
+  const [catFilter, setCatFilter] = useState<CategoryFilter>("all");
 
-  const ranked = useMemo(() => rankAgents(agents, tab), [agents, tab]);
+  const ranked = useMemo(
+    () => rankAgents(agents, tab, catFilter),
+    [agents, tab, catFilter],
+  );
   const active = TABS.find((t) => t.id === tab)!;
+
+  // Per-category counts (qualified pool only) for the chip badges.
+  const categoryCounts = useMemo(() => {
+    const qualified = agents.filter(qualifiesForLeaderboard);
+    const counts: Record<string, number> = { all: qualified.length };
+    for (const c of CATEGORIES) {
+      counts[c.id] = qualified.filter((a) => a.category === c.id).length;
+    }
+    return counts;
+  }, [agents]);
 
   const topEarner = useMemo(
     () =>
@@ -139,7 +163,44 @@ function LeaderboardPage() {
         )}
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
+      {/* Category filter chips — narrow leaderboard scope to one agent type */}
+      <div className="mt-10 flex flex-wrap gap-2">
+        {(["all", ...CATEGORIES.map((c) => c.id)] as CategoryFilter[]).map(
+          (id) => {
+            const isActive = catFilter === id;
+            const label =
+              id === "all"
+                ? "All Categories"
+                : CATEGORIES.find((c) => c.id === id)!.label;
+            const count = categoryCounts[id] ?? 0;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setCatFilter(id)}
+                className={`flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+                  isActive
+                    ? "border-amber bg-amber/10 text-amber"
+                    : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
+                }`}
+              >
+                {label}
+                <span
+                  className={`border px-1 py-0.5 text-[9px] ${
+                    isActive
+                      ? "border-amber/60 bg-amber/10 text-amber"
+                      : "border-bronze/40 bg-panel-deep text-wire"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          },
+        )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
         {TABS.map((t) => {
           const isActive = tab === t.id;
           return (

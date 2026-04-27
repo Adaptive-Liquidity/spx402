@@ -13,12 +13,20 @@
 
 import { fetchAddressTxs, type HeliusEnhancedTx, touchesPumpFun, extractBurn } from "./helius.server";
 import { decodeTx } from "./decode.server";
+import { decodeSwapTx } from "./decode-swap.server";
+import { decodeX402Tx } from "./decode-x402.server";
+import type { IdentifierKind } from "@/lib/agents/categories";
 
 export interface VerificationSignals {
+  // Tokenized-agent signals.
   skills_md: boolean;
   invoice_pda: boolean;
   on_chain_earnings: boolean;
   agent_registry: boolean;
+  // Executor / registered signals (only populated for non-mint kinds).
+  swap_activity?: boolean;
+  x402_activity?: boolean;
+  registered_identity?: boolean;
 }
 
 export interface VerificationResult {
@@ -245,9 +253,30 @@ export async function checkAgentRegistry(mint: string): Promise<boolean> {
 // Orchestrator
 // ============================================================================
 
+export interface VerifyOpts {
+  discoveredVia?: string;
+  identifierKind?: IdentifierKind;
+}
+
 export async function verifyCandidate(
+  identifier: string,
+  opts: VerifyOpts = {},
+): Promise<VerificationResult> {
+  const kind = opts.identifierKind ?? "mint";
+
+  if (kind === "core_asset") {
+    return verifyRegisteredAgent(identifier, opts);
+  }
+  if (kind === "executor_wallet") {
+    return verifyExecutorWallet(identifier, opts);
+  }
+  // Default: tokenized mint flow.
+  return verifyTokenizedMint(identifier, opts);
+}
+
+async function verifyTokenizedMint(
   mint: string,
-  opts: { discoveredVia?: string } = {},
+  opts: VerifyOpts,
 ): Promise<VerificationResult> {
   const [skills, invoice, earnings, registry] = await Promise.all([
     checkSkillsMd(mint),
@@ -263,15 +292,11 @@ export async function verifyCandidate(
     agent_registry: registry,
   };
 
-  // Strict bar
   const identityProofs =
     Number(signals.skills_md) +
     Number(signals.invoice_pda) +
     Number(signals.agent_registry);
 
-  // Curated seeds bypass the identity gate (we vouched for them) but must
-  // still show real on-chain pump.fun activity. They also accept buyback-only
-  // earnings since pump.fun Tokenized Agents v1 makes burns optional.
   const isCuratedSeed = opts.discoveredVia === "curated_seed";
   const earningsForCurated =
     earnings.buybacksSeen >= 5 || (signals.on_chain_earnings as boolean);
@@ -280,6 +305,7 @@ export async function verifyCandidate(
     : signals.on_chain_earnings && identityProofs >= 1;
 
   const notes = [
+    `kind=mint`,
     `burns=${earnings.burnsSeen}`,
     `buybacks=${earnings.buybacksSeen}`,
     `skills=${signals.skills_md}`,
@@ -294,6 +320,83 @@ export async function verifyCandidate(
     metadataUri: skills.metadataUri,
     symbol: skills.symbol,
     name: skills.name,
+    notes,
+  };
+}
+
+// Registered agent: confirm an MPL Agent Identity PDA exists for this asset.
+// `identifier` is the MPL Core asset address.
+async function verifyRegisteredAgent(
+  asset: string,
+  _opts: VerifyOpts,
+): Promise<VerificationResult> {
+  // Reuse the program-account scan with a memcmp on the asset offset.
+  const registered = await checkAgentRegistry(asset);
+  // Best-effort metadata lookup (assets often have Metaplex-decodable JSON).
+  const skills = await checkSkillsMd(asset);
+
+  const signals: VerificationSignals = {
+    skills_md: skills.passed,
+    invoice_pda: false,
+    on_chain_earnings: false,
+    agent_registry: registered,
+    registered_identity: registered,
+  };
+
+  const passed = registered;
+  const notes = [
+    `kind=core_asset`,
+    `registered=${registered}`,
+    `skills=${signals.skills_md}`,
+  ].join(" ");
+
+  return {
+    signals,
+    passed,
+    metadataUri: skills.metadataUri,
+    symbol: skills.symbol,
+    name: skills.name,
+    notes,
+  };
+}
+
+// Executor wallet: confirm we observe either x402 receipts or DEX swap
+// activity in the recent indexed window. Conservative bar — must show at
+// least 3 swaps OR 1 x402 receipt to promote.
+async function verifyExecutorWallet(
+  wallet: string,
+  _opts: VerifyOpts,
+): Promise<VerificationResult> {
+  const txs = await fetchAddressTxs(wallet);
+  let swapCount = 0;
+  let x402Count = 0;
+  for (const tx of txs) {
+    if (decodeSwapTx(tx, [wallet]).length > 0) swapCount += 1;
+    if (decodeX402Tx(tx, [wallet]).length > 0) x402Count += 1;
+  }
+
+  const signals: VerificationSignals = {
+    skills_md: false,
+    invoice_pda: false,
+    on_chain_earnings: false,
+    agent_registry: false,
+    swap_activity: swapCount > 0,
+    x402_activity: x402Count > 0,
+  };
+
+  const passed = x402Count >= 1 || swapCount >= 3;
+  const notes = [
+    `kind=executor_wallet`,
+    `swaps=${swapCount}`,
+    `x402=${x402Count}`,
+  ].join(" ");
+
+  return {
+    signals,
+    passed,
+    metadataUri: null,
+    symbol: null,
+    name: null,
     notes,
   };
 }
