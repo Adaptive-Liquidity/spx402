@@ -207,6 +207,10 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
+  const agents = Route.useLoaderData() as Agent[];
+  const featured = agents.slice(0, 3);
+  const heroAgent = agents[0] ?? null;
+  const totalBuybacks = agents.reduce((acc, a) => acc + a.totalBuybacksCount, 0);
   return (
     <div>
       {/* HERO */}
@@ -249,22 +253,22 @@ function HomePage() {
 
             <div className="mt-10 grid max-w-md grid-cols-3 gap-6">
               <div>
-                <div className="num-display text-2xl font-bold text-paper">5,142</div>
+                <div className="num-display text-2xl font-bold text-paper">{agents.length.toLocaleString()}</div>
                 <div className="label-mono mt-1">Agents indexed</div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">218k</div>
+                <div className="num-display text-2xl font-bold text-paper">{totalBuybacks.toLocaleString()}</div>
                 <div className="label-mono mt-1">Buybacks confirmed</div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">14s</div>
-                <div className="label-mono mt-1">Reconciliation</div>
+                <div className="num-display text-2xl font-bold text-paper">5m</div>
+                <div className="label-mono mt-1">Reconcile cadence</div>
               </div>
             </div>
           </div>
 
           <div className="lg:col-span-5">
-            <TerminalSampleCard />
+            <TerminalSampleCard agent={heroAgent} />
           </div>
         </div>
       </section>
