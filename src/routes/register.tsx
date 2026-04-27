@@ -83,7 +83,7 @@ function RegisterPage() {
       category: AgentCategory;
       executor_wallet: string | null;
       core_asset: string | null;
-      signals: Record<string, unknown>;
+      signals: Record<string, string | number | boolean | null>;
     } = {
       mint: trimmed,
       submitted_by: user.id,
