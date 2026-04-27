@@ -4,9 +4,14 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
+import type { AgentCategory, IdentifierKind } from "./agents/categories";
 
 type AgentRow = {
   mint: string;
+  identifier_kind: string | null;
+  category: string | null;
+  executor_wallet: string | null;
+  core_asset: string | null;
   symbol: string;
   name: string;
   tagline: string | null;
@@ -43,8 +48,18 @@ const num = (v: number | string | null | undefined): number =>
   v == null ? 0 : typeof v === "number" ? v : Number(v);
 
 function rowToAgent(r: AgentRow): Agent {
+  // For tokenized agents (default), identifier equals mint. For registered /
+  // executor agents the mint column holds the on-chain identifier of that
+  // kind (core asset address or executor wallet) — see the migration notes.
+  const identifierKind = (r.identifier_kind as IdentifierKind) ?? "mint";
+  const category = (r.category as AgentCategory) ?? "tokenized_buyback";
   return {
     mint: r.mint,
+    identifier: r.mint,
+    identifierKind,
+    category,
+    executorWallet: r.executor_wallet ?? null,
+    coreAsset: r.core_asset ?? null,
     symbol: r.symbol,
     name: r.name,
     tagline: r.tagline ?? "",

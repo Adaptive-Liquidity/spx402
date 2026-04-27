@@ -335,7 +335,7 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
   );
 }
 
-const EVENT_ICON = {
+const EVENT_ICON: Record<string, typeof Activity> = {
   DEPOSIT_RECEIVED: ArrowDownToLine,
   BUYBACK_EXECUTED: Repeat,
   BURN_CONFIRMED: Flame,
@@ -343,7 +343,10 @@ const EVENT_ICON = {
   FAILED_WINDOW: AlertTriangle,
   ANOMALY_DETECTED: AlertTriangle,
   OPERATOR_VERIFIED: ShieldCheck,
-} as const;
+  SWAP_EXECUTED: Repeat,
+  X402_PAYMENT_RECEIVED: ArrowDownToLine,
+  TASK_COMPLETED: ShieldCheck,
+};
 
 function shortMint(m: string) {
   return `${m.slice(0, 6)}…${m.slice(-6)}`;
