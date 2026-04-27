@@ -18,7 +18,9 @@ export interface DecodedEvent {
     | "CONFIG_CHANGED"
     | "FAILED_WINDOW"
     | "ANOMALY_DETECTED"
-    | "OPERATOR_VERIFIED";
+    | "OPERATOR_VERIFIED"
+    | "SWAP_EXECUTED"
+    | "X402_PAYMENT_RECEIVED";
   severity: "info" | "warn" | "critical" | "success";
   signature: string;
   slot: number | null;

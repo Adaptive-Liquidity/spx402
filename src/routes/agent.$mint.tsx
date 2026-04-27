@@ -5,6 +5,7 @@ import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
 import { ComingSoon } from "@/components/spx/ComingSoon";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
+import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
 import { fetchAgentEvents, relativeFromNow, type AgentEventRow } from "@/lib/live-data";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +27,9 @@ const KNOWN_EVENT_TYPES: EventType[] = [
   "FAILED_WINDOW",
   "ANOMALY_DETECTED",
   "OPERATOR_VERIFIED",
+  "SWAP_EXECUTED",
+  "X402_PAYMENT_RECEIVED",
+  "TASK_COMPLETED",
 ];
 
 const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
@@ -39,6 +43,9 @@ function eventTitleFor(type: string): string {
     case "FAILED_WINDOW": return "Failed buyback window";
     case "ANOMALY_DETECTED": return "Anomaly detected";
     case "OPERATOR_VERIFIED": return "Operator verified";
+    case "SWAP_EXECUTED": return "DEX swap executed";
+    case "X402_PAYMENT_RECEIVED": return "x402 payment received";
+    case "TASK_COMPLETED": return "Task completed";
     default: return type;
   }
 }
@@ -59,6 +66,14 @@ function eventDescFor(row: AgentEventRow): string {
       return "Indexer flagged this transaction for review.";
     case "OPERATOR_VERIFIED":
       return "Operator wallet signed an Ed25519 challenge for this agent.";
+    case "SWAP_EXECUTED":
+      return `DEX swap of ${row.amountSol.toFixed(4)} SOL net by the executor wallet.`;
+    case "X402_PAYMENT_RECEIVED":
+      return row.amountToken > 0
+        ? `${(row.amountToken / 1_000_000).toFixed(2)} USDC received via x402 micropayment.`
+        : `${row.amountSol.toFixed(4)} SOL received via x402 micropayment.`;
+    case "TASK_COMPLETED":
+      return "Agent completed a priced task attested on-chain.";
     default:
       return "Decoded program event.";
   }
@@ -378,7 +393,13 @@ function AgentRoutePage() {
 }
 
 function Dossier({ agent }: { agent: Agent }) {
-  const [filter, setFilter] = useState<"all" | "buyback" | "burn" | "deposit" | "anomaly" | "config">("all");
+  const cat = categoryMeta(agent.category);
+  const isTokenized = agent.category === "tokenized_buyback";
+  const isExecutor = agent.identifierKind === "executor_wallet";
+  const isRegistered = agent.category === "registered_agent";
+
+  type FilterKey = "all" | "buyback" | "burn" | "deposit" | "anomaly" | "config" | "swap" | "x402";
+  const [filter, setFilter] = useState<FilterKey>("all");
   const filtered = agent.events.filter((e) => {
     if (filter === "all") return true;
     if (filter === "buyback") return e.type === "BUYBACK_EXECUTED";
@@ -386,8 +407,30 @@ function Dossier({ agent }: { agent: Agent }) {
     if (filter === "deposit") return e.type === "DEPOSIT_RECEIVED";
     if (filter === "anomaly") return e.type === "ANOMALY_DETECTED" || e.type === "FAILED_WINDOW";
     if (filter === "config") return e.type === "CONFIG_CHANGED";
+    if (filter === "swap") return e.type === "SWAP_EXECUTED";
+    if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
     return true;
   });
+
+  // Category-aware filter chips: only show what's meaningful for the agent type.
+  const filterKeys: FilterKey[] = isTokenized
+    ? ["all", "buyback", "burn", "deposit", "anomaly", "config"]
+    : isExecutor || isRegistered
+      ? ["all", "swap", "x402", "anomaly"]
+      : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
+
+  // Aggregate counts for non-tokenized metric cards.
+  const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
+  const x402Count = agent.events.filter((e) => e.type === "X402_PAYMENT_RECEIVED").length;
+  const swapSol = agent.events
+    .filter((e) => e.type === "SWAP_EXECUTED")
+    .reduce((s, e) => s + (e.amount ?? 0), 0);
+  const x402Sol = agent.events
+    .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
+    .reduce((s, e) => s + (e.amount ?? 0), 0);
+  const x402Usdc = agent.events
+    .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
+    .reduce((s, e) => s + (e.tokenAmount ?? 0), 0);
 
   const isSPX404 = agent.grade === "SPX404";
 
@@ -444,16 +487,32 @@ function Dossier({ agent }: { agent: Agent }) {
         <div className="panel-engraved relative lg:col-span-8 p-8">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
-              <div className="label-amber">Tokenized Agent {isSPX404 ? "· not found" : "confirmed"}</div>
+              <div className="label-amber">{cat.longLabel} {isSPX404 ? "· not found" : "confirmed"}</div>
               <h1 className="mt-3 font-display text-5xl font-bold text-paper">
-                ${agent.symbol}
+                {isTokenized ? `$${agent.symbol}` : agent.name}
               </h1>
-              <div className="mt-1 text-lg text-paper-muted">{agent.name}</div>
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs text-wire">MINT</span>
-                <span className="font-mono text-xs text-paper">{shortMint(agent.mint)}</span>
-                <CopyButton value={agent.mint} />
+              <div className="mt-1 text-lg text-paper-muted">
+                {isTokenized ? agent.name : `$${agent.symbol}`}
               </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="font-mono text-xs text-wire">{cat.identifierLabel.toUpperCase()}</span>
+                <span className="font-mono text-xs text-paper">{shortMint(agent.identifier)}</span>
+                <CopyButton value={agent.identifier} />
+              </div>
+              {isExecutor && agent.executorWallet && agent.executorWallet !== agent.identifier && (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs text-wire">EXECUTOR</span>
+                  <span className="font-mono text-xs text-paper">{shortMint(agent.executorWallet)}</span>
+                  <CopyButton value={agent.executorWallet} />
+                </div>
+              )}
+              {isRegistered && agent.coreAsset && agent.coreAsset !== agent.identifier && (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs text-wire">MPL ASSET</span>
+                  <span className="font-mono text-xs text-paper">{shortMint(agent.coreAsset)}</span>
+                  <CopyButton value={agent.coreAsset} />
+                </div>
+              )}
             </div>
             <div className="flex flex-col items-end gap-3">
               <ExecutionGradeBadge grade={agent.grade} size="lg" />
@@ -546,11 +605,9 @@ function Dossier({ agent }: { agent: Agent }) {
         <div className="flex flex-wrap items-center gap-3">
           <span className="label-mono">Category</span>
           <span className="border border-amber/60 bg-amber/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-amber">
-            Tokenized Buyback
+            {cat.longLabel}
           </span>
-          <span className="font-mono text-[11px] text-wire">
-            Default for currently indexed agents · operators can re-categorize
-          </span>
+          <span className="font-mono text-[11px] text-wire">{cat.blurb}</span>
         </div>
         {!agent.operatorVerified && (
           <Link
@@ -562,22 +619,37 @@ function Dossier({ agent }: { agent: Agent }) {
         )}
       </div>
 
-      {/* METRIC CARDS */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <MetricCard label="Total Deposits" value={agent.totalDepositsCount.toLocaleString()} />
-        <MetricCard label="Buybacks Confirmed" value={agent.totalBuybacksCount.toLocaleString()} tone="verified" />
-        <MetricCard label="Burns Confirmed" value={agent.totalBurnsCount.toLocaleString()} tone="verified" />
-        <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
-        <MetricCard label="Buyback Rate" value={`${(agent.buybackExecutionRate * 100).toFixed(1)}`} suffix="%" />
-        <MetricCard label="Burn Confirm Rate" value={`${(agent.burnConfirmationRate * 100).toFixed(1)}`} suffix="%" />
-      </div>
+      {/* METRIC CARDS — category aware */}
+      {isTokenized ? (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <MetricCard label="Total Deposits" value={agent.totalDepositsCount.toLocaleString()} />
+          <MetricCard label="Buybacks Confirmed" value={agent.totalBuybacksCount.toLocaleString()} tone="verified" />
+          <MetricCard label="Burns Confirmed" value={agent.totalBurnsCount.toLocaleString()} tone="verified" />
+          <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
+          <MetricCard label="Buyback Rate" value={`${(agent.buybackExecutionRate * 100).toFixed(1)}`} suffix="%" />
+          <MetricCard label="Burn Confirm Rate" value={`${(agent.burnConfirmationRate * 100).toFixed(1)}`} suffix="%" />
+        </div>
+      ) : (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <MetricCard label="Swaps Executed" value={swapCount.toLocaleString()} tone="verified" />
+          <MetricCard label="Swap Volume" value={swapSol.toFixed(3)} suffix="SOL" />
+          <MetricCard label="x402 Receipts" value={x402Count.toLocaleString()} tone={x402Count > 0 ? "verified" : "amber"} />
+          <MetricCard label="x402 Revenue" value={x402Usdc > 0 ? (x402Usdc / 1_000_000).toFixed(2) : x402Sol.toFixed(3)} suffix={x402Usdc > 0 ? "USDC" : "SOL"} />
+          <MetricCard
+            label={isRegistered ? "MPL Registered" : "Identity"}
+            value={isRegistered ? "YES" : agent.operatorVerified ? "VERIFIED" : "—"}
+            tone={isRegistered || agent.operatorVerified ? "verified" : "amber"}
+          />
+          <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
+        </div>
+      )}
 
       {/* SECONDARY STATS */}
       <div className="mt-6 grid gap-6 lg:grid-cols-12">
         <Panel className="lg:col-span-8" eyebrow="Proof Timeline" title="On-chain execution log"
           right={
             <div className="flex flex-wrap gap-1">
-              {(["all","buyback","burn","deposit","anomaly","config"] as const).map((f) => (
+              {filterKeys.map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
@@ -687,22 +759,55 @@ function Dossier({ agent }: { agent: Agent }) {
 
           <Panel eyebrow="Configuration" title="Agent parameters">
             <dl className="space-y-3 font-mono text-xs">
-              <div className="flex justify-between border-b border-bronze/30 pb-2">
-                <dt className="text-wire">BUYBACK_BPS</dt>
-                <dd className="text-paper">{agent.buybackBps}</dd>
-              </div>
-              <div className="flex justify-between border-b border-bronze/30 pb-2">
-                <dt className="text-wire">LAST CONFIG CHANGE</dt>
-                <dd className="text-paper">{agent.configLastChangedLabel}</dd>
-              </div>
-              <div className="flex justify-between border-b border-bronze/30 pb-2">
-                <dt className="text-wire">LAST BUYBACK</dt>
-                <dd className="text-paper">{agent.lastBuybackLabel}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-wire">LAST BURN</dt>
-                <dd className="text-paper">{agent.lastBurnLabel}</dd>
-              </div>
+              {isTokenized ? (
+                <>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">BUYBACK_BPS</dt>
+                    <dd className="text-paper">{agent.buybackBps}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">LAST CONFIG CHANGE</dt>
+                    <dd className="text-paper">{agent.configLastChangedLabel}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">LAST BUYBACK</dt>
+                    <dd className="text-paper">{agent.lastBuybackLabel}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-wire">LAST BURN</dt>
+                    <dd className="text-paper">{agent.lastBurnLabel}</dd>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">CATEGORY</dt>
+                    <dd className="text-paper">{cat.label}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">IDENTIFIER KIND</dt>
+                    <dd className="text-paper">{agent.identifierKind}</dd>
+                  </div>
+                  {agent.executorWallet && (
+                    <div className="flex justify-between border-b border-bronze/30 pb-2">
+                      <dt className="text-wire">EXECUTOR</dt>
+                      <dd className="text-paper">{shortMint(agent.executorWallet)}</dd>
+                    </div>
+                  )}
+                  {agent.coreAsset && (
+                    <div className="flex justify-between border-b border-bronze/30 pb-2">
+                      <dt className="text-wire">MPL ASSET</dt>
+                      <dd className="text-paper">{shortMint(agent.coreAsset)}</dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-wire">DECODER</dt>
+                    <dd className={cat.decoderLive ? "text-verified" : "text-amber"}>
+                      {cat.decoderLive ? "LIVE" : "PENDING"}
+                    </dd>
+                  </div>
+                </>
+              )}
             </dl>
           </Panel>
         </div>
