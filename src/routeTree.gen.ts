@@ -37,6 +37,7 @@ import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cr
 import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.cron-scan-x402'
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
+import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
@@ -185,6 +186,12 @@ const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
   path: '/public/cron-reconciler',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronFailureReconcilerRoute =
+  ApiPublicCronFailureReconcilerRouteImport.update({
+    id: '/public/cron-failure-reconciler',
+    path: '/public/cron-failure-reconciler',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronBackfillRoute = ApiPublicCronBackfillRouteImport.update({
   id: '/public/cron-backfill',
   path: '/public/cron-backfill',
@@ -240,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
@@ -274,6 +282,7 @@ export interface FileRoutesByTo {
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
@@ -310,6 +319,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
+  '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
     | '/api/public/cron-backfill'
+    | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
@@ -380,6 +391,7 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
     | '/api/public/cron-backfill'
+    | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
@@ -415,6 +427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
     | '/api/public/cron-backfill'
+    | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
@@ -645,6 +658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronReconcilerRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-failure-reconciler': {
+      id: '/api/public/cron-failure-reconciler'
+      path: '/public/cron-failure-reconciler'
+      fullPath: '/api/public/cron-failure-reconciler'
+      preLoaderRoute: typeof ApiPublicCronFailureReconcilerRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-backfill': {
       id: '/api/public/cron-backfill'
       path: '/public/cron-backfill'
@@ -716,6 +736,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
+  ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
   ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
@@ -729,6 +750,7 @@ interface ApiRouteChildren {
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
+  ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
   ApiPublicCronScanX402Route: ApiPublicCronScanX402Route,
