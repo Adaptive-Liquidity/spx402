@@ -146,10 +146,10 @@ function TerminalSampleCard({ agent }: { agent: Agent | null }) {
               No agent has yet passed the verification bar (on-chain earnings + at least one identity proof). Submit a mint or wait for the indexer to catch one in the wild.
             </p>
             <Link
-              to="/submit"
+              to="/register"
               className="flex items-center justify-between border border-bronze/60 bg-panel-deep/60 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber/10"
             >
-              Submit a mint <ArrowRight className="h-3 w-3" />
+              Register an agent <ArrowRight className="h-3 w-3" />
             </Link>
           </>
         )}
