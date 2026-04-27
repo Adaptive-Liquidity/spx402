@@ -65,7 +65,10 @@ export const Route = createFileRoute("/api/public/agent/$subject/evidence")({
           .order("occurred_at", { ascending: true })
           .order("id", { ascending: true })
           .limit(MAX_LEAVES);
-        if (error) return errorJson(500, "db_error", error.message);
+        if (error) {
+          console.error("[api.public.agent.evidence] db_error:", error);
+          return errorJson(500, "internal_error");
+        }
 
         const rows = events ?? [];
 

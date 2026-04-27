@@ -22,7 +22,8 @@ export const Route = createFileRoute("/api/public/cron-score-snapshot")({
             "mint, score, confidence_score, grade, methodology_version, confidence_model_version",
           );
         if (error) {
-          return Response.json({ ok: false, error: error.message }, { status: 500 });
+          console.error("[cron-score-snapshot] db_error:", error);
+          return Response.json({ ok: false, error: "internal_error" }, { status: 500 });
         }
         if (!agents || agents.length === 0) {
           await heartbeat("score_snapshot", true, Date.now() - started, "no agents");
