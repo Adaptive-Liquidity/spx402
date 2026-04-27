@@ -75,14 +75,14 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
               if (!a) continue;
               walletEvents.push({
                 mint: a.identifier,
-                type: "BUYBACK_EXECUTED" as DecodedEvent["type"], // re-used severity slot; scoring branch reads category
+                type: "SWAP_EXECUTED",
                 severity: "info",
                 signature: ev.signature,
                 slot: ev.slot,
                 occurredAt: ev.occurredAt,
                 amountSol: ev.amountSol,
                 amountToken: ev.amountToken,
-                raw: { ...ev.raw, kind: "SWAP_EXECUTED", wallet: ev.executorWallet },
+                raw: { ...ev.raw, wallet: ev.executorWallet },
               });
             }
             for (const ev of decodeX402Tx(tx, executorWallets)) {
@@ -90,14 +90,14 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
               if (!a) continue;
               walletEvents.push({
                 mint: a.identifier,
-                type: "DEPOSIT_RECEIVED" as DecodedEvent["type"], // re-used; scoring reads raw.kind
+                type: "X402_PAYMENT_RECEIVED",
                 severity: "success",
                 signature: ev.signature,
                 slot: ev.slot,
                 occurredAt: ev.occurredAt,
                 amountSol: ev.amountSol,
                 amountToken: ev.amountToken,
-                raw: { ...ev.raw, kind: "X402_PAYMENT_RECEIVED", wallet: ev.executorWallet },
+                raw: { ...ev.raw, wallet: ev.executorWallet },
               });
             }
           }
