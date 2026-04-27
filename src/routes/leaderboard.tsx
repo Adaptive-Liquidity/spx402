@@ -97,9 +97,23 @@ function rankAgents(
 function LeaderboardPage() {
   const agents = Route.useLoaderData();
   const [tab, setTab] = useState<Tab>("earners");
+  const [catFilter, setCatFilter] = useState<CategoryFilter>("all");
 
-  const ranked = useMemo(() => rankAgents(agents, tab), [agents, tab]);
+  const ranked = useMemo(
+    () => rankAgents(agents, tab, catFilter),
+    [agents, tab, catFilter],
+  );
   const active = TABS.find((t) => t.id === tab)!;
+
+  // Per-category counts (qualified pool only) for the chip badges.
+  const categoryCounts = useMemo(() => {
+    const qualified = agents.filter(qualifiesForLeaderboard);
+    const counts: Record<string, number> = { all: qualified.length };
+    for (const c of CATEGORIES) {
+      counts[c.id] = qualified.filter((a) => a.category === c.id).length;
+    }
+    return counts;
+  }, [agents]);
 
   const topEarner = useMemo(
     () =>
