@@ -148,9 +148,10 @@ export async function fetchLatestIndexerRuns(): Promise<
   const out: Record<string, IndexerRunRow | null> = {};
   for (const w of KNOWN_WORKERS) out[w] = null;
 
+  // Reads the sanitized view — internal `notes` are server-only.
   const { data, error } = await supabase
-    .from("indexer_runs")
-    .select("id, worker, ok, ran_at, duration_ms, notes")
+    .from("indexer_runs_public" as never)
+    .select("id, worker, ok, ran_at, duration_ms")
     .order("ran_at", { ascending: false })
     .limit(200);
   if (error || !data) return out;
