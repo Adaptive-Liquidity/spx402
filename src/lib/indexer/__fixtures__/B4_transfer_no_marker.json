@@ -1,0 +1,18 @@
+{
+  "_fixture": {
+    "id": "B4_transfer_no_marker",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "executorWallets": [],
+      "amountSol": 0,
+      "amountToken": 0
+    },
+    "notes": "Plain transfer to an executor wallet, no x402 marker (negative case).",
+    "status": "SKIPPED",
+    "skipReason": "Zero x402 executors are indexed in production."
+  }
+}

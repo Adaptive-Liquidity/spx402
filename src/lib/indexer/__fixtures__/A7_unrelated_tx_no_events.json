@@ -1,0 +1,19 @@
+{
+  "_fixture": {
+    "id": "A7_unrelated_tx_no_events",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "agents": [],
+      "amountSol": 0,
+      "amountToken": 0,
+      "depositCount": 1
+    },
+    "notes": "Arbitrary mainnet tx touching no tracked agent.",
+    "status": "SKIPPED",
+    "skipReason": "Awaiting verbatim capture of a control transaction."
+  }
+}

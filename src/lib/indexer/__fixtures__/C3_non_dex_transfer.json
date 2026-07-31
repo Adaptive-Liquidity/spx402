@@ -1,0 +1,18 @@
+{
+  "_fixture": {
+    "id": "C3_non_dex_transfer",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "executorWallets": [],
+      "amountSol": 0,
+      "source": "JUPITER"
+    },
+    "notes": "Non-DEX system transfer involving a tracked wallet (negative case).",
+    "status": "SKIPPED",
+    "skipReason": "No executor wallets are indexed yet."
+  }
+}

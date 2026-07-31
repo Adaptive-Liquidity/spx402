@@ -1,0 +1,19 @@
+{
+  "_fixture": {
+    "id": "A1_deposit_native_sol",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "agents": [],
+      "amountSol": 0,
+      "amountToken": 0,
+      "depositCount": 1
+    },
+    "notes": "Native SOL deposit into a tracked deposit address.",
+    "status": "SKIPPED",
+    "skipReason": "No tracked tokenized agent currently has a non-null deposit_address, so no real deposit tx exists to capture."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "_fixture": {
+    "id": "A2_buyback_pumpfun",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "agents": [],
+      "amountSol": 0,
+      "amountToken": 0,
+      "depositCount": 1
+    },
+    "notes": "Pump.fun fee-routed buyback for a tracked mint.",
+    "status": "SKIPPED",
+    "skipReason": "Awaiting verbatim capture from a live indexed agent's tx history."
+  }
+}
