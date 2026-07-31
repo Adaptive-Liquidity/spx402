@@ -156,7 +156,13 @@ export async function fetchLatestIndexerRuns(): Promise<
     .limit(200);
   if (error || !data) return out;
 
-  for (const r of data) {
+  for (const r of data as unknown as Array<{
+    id: string;
+    worker: string;
+    ok: boolean;
+    ran_at: string;
+    duration_ms: number;
+  }>) {
     if (out[r.worker] == null) {
       out[r.worker] = {
         id: r.id,
@@ -164,7 +170,7 @@ export async function fetchLatestIndexerRuns(): Promise<
         ok: r.ok,
         ranAt: r.ran_at,
         durationMs: r.duration_ms,
-        notes: r.notes,
+        notes: null,
       };
     }
   }
