@@ -33,14 +33,14 @@ function base(overrides: Partial<ScoringInputs> = {}): ScoringInputs {
  * Build a tokenized (non fee-buyback) input that lands on an exact total.
  *
  * Fixed contributions: failedTx = 5 (failedWindows 10, still under the
- * SPX D override at >10), recency = 10, metadata = 5, operator = 5 → 30.
+ * SPX D override at >10), recency = 10, metadata = 5, operator = 5 → 25.
  * Variable: burnConfirmation (0..20) + buybackExecution (0..25) +
- * depositConsistency (0..20) → total range 30..95.
+ * depositConsistency (0..20) → total range 25..90.
  */
 function tokenizedAtTotal(target: number): ScoringInputs {
-  let remaining = target - 30;
+  let remaining = target - 25;
   if (remaining < 0 || remaining > 65) {
-    throw new Error(`target ${target} outside constructible range 30..95`);
+    throw new Error(`target ${target} outside constructible range 25..90`);
   }
   const burnPts = Math.min(remaining, 20);
   remaining -= burnPts;
@@ -310,8 +310,8 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
     expect(r).toMatchInlineSnapshot(`
       {
         "breakdown": {
-          "buybackExecution": 19,
           "burnConfirmation": 17,
+          "buybackExecution": 19,
           "depositConsistency": 16,
           "failedTx": 13,
           "metadata": 5,
@@ -342,15 +342,15 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
     expect(r).toMatchInlineSnapshot(`
       {
         "breakdown": {
-          "buybackExecution": 13,
           "burnConfirmation": 10,
+          "buybackExecution": 13,
           "depositConsistency": 20,
           "failedTx": 15,
           "metadata": 5,
           "operator": 0,
           "recency": 9,
         },
-        "confidence": "high",
+        "confidence": "medium",
         "grade": "SPX A",
         "total": 72,
         "verdict": "Verified Metaplex agent with moderate activity in the indexed window.",
@@ -374,8 +374,8 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
     expect(r).toMatchInlineSnapshot(`
       {
         "breakdown": {
-          "buybackExecution": 8,
           "burnConfirmation": 8,
+          "buybackExecution": 8,
           "depositConsistency": 10,
           "failedTx": 14,
           "metadata": 5,
@@ -383,9 +383,9 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
           "recency": 8,
         },
         "confidence": "high",
-        "grade": "SPX BBB",
+        "grade": "SPX BB",
         "total": 58,
-        "verdict": "Live x402 executor with moderate receipt volume (50 receipts).",
+        "verdict": "x402 receipts observed (50) — volume still building.",
       }
     `);
   });
