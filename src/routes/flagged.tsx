@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentRow } from "@/components/spx/AgentRow";
+import type { Agent } from "@/lib/agents";
 import { fetchAllAgents } from "@/lib/agents-db";
 import { AlertTriangle } from "lucide-react";
 
@@ -93,7 +94,7 @@ function FlaggedPage() {
               </div>
             </div>
           ) : (
-            flagged.map((a) => (
+            flagged.map((a: Agent) => (
               <div key={a.mint} className="space-y-2">
                 <AgentRow agent={a} />
                 {a.flagReason && (

@@ -532,6 +532,30 @@ export type Database = {
         }
         Relationships: []
       }
+      indexer_runs_public: {
+        Row: {
+          duration_ms: number | null
+          id: string | null
+          ok: boolean | null
+          ran_at: string | null
+          worker: string | null
+        }
+        Insert: {
+          duration_ms?: number | null
+          id?: string | null
+          ok?: boolean | null
+          ran_at?: string | null
+          worker?: string | null
+        }
+        Update: {
+          duration_ms?: number | null
+          id?: string | null
+          ok?: boolean | null
+          ran_at?: string | null
+          worker?: string | null
+        }
+        Relationships: []
+      }
       my_profile: {
         Row: {
           avatar_url: string | null

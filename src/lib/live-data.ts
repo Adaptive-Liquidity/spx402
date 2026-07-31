@@ -148,14 +148,21 @@ export async function fetchLatestIndexerRuns(): Promise<
   const out: Record<string, IndexerRunRow | null> = {};
   for (const w of KNOWN_WORKERS) out[w] = null;
 
+  // Reads the sanitized view — internal `notes` are server-only.
   const { data, error } = await supabase
-    .from("indexer_runs")
-    .select("id, worker, ok, ran_at, duration_ms, notes")
+    .from("indexer_runs_public" as never)
+    .select("id, worker, ok, ran_at, duration_ms")
     .order("ran_at", { ascending: false })
     .limit(200);
   if (error || !data) return out;
 
-  for (const r of data) {
+  for (const r of data as unknown as Array<{
+    id: string;
+    worker: string;
+    ok: boolean;
+    ran_at: string;
+    duration_ms: number;
+  }>) {
     if (out[r.worker] == null) {
       out[r.worker] = {
         id: r.id,
@@ -163,7 +170,7 @@ export async function fetchLatestIndexerRuns(): Promise<
         ok: r.ok,
         ranAt: r.ran_at,
         durationMs: r.duration_ms,
-        notes: r.notes,
+        notes: null,
       };
     }
   }
