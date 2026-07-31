@@ -147,7 +147,7 @@ function LeaderboardPage() {
     const qualified = agents.filter(qualifiesForLeaderboard);
     const counts: Record<string, number> = { all: qualified.length };
     for (const c of CATEGORIES) {
-      counts[c.id] = qualified.filter((a) => a.category === c.id).length;
+      counts[c.id] = qualified.filter((a: Agent) => a.category === c.id).length;
     }
     return counts;
   }, [agents]);

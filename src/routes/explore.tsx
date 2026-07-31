@@ -89,7 +89,7 @@ function ExplorePage() {
 
   // Flagged agents never appear on /explore — they live on /flagged only.
   const visible = useMemo(
-    () => allAgents.filter((a) => !a.flagged),
+    () => allAgents.filter((a: Agent) => !a.flagged),
     [allAgents],
   );
 
