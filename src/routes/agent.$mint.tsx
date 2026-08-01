@@ -799,7 +799,19 @@ function Dossier({ agent }: { agent: Agent }) {
                       <span className={e.confidence === "high" ? "text-verified" : "text-amber"}>
                         {e.confidence} confidence
                       </span>
+                      {e.facilitatorId ? (
+                        <>
+                          <span>·</span>
+                          <span
+                            className="border border-verified/50 px-1.5 py-0.5 text-verified"
+                            title="Tier A detection — settled by a registry facilitator"
+                          >
+                            via {e.facilitatorId}
+                          </span>
+                        </>
+                      ) : null}
                     </div>
+
                   </li>
                 );
               })}
