@@ -5,7 +5,8 @@ import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
-import { fetchTape, type TapeRow } from "@/lib/live-data";
+import { ProofChainX402 } from "@/components/spx/ProofChainX402";
+import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -26,11 +27,12 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async () => {
-    const [agents, tape] = await Promise.all([
+    const [agents, tape, stats] = await Promise.all([
       fetchAllAgents(),
       fetchTape({ limit: 18 }),
+      fetchHomeStats(),
     ]);
-    return { agents, tape };
+    return { agents, tape, stats };
   },
   staleTime: 30_000,
   component: HomePage,
@@ -53,7 +55,12 @@ const CATCHES = [
   "Suspicious wash-like windows",
   "Unverified operators",
   "Metadata drift",
+  "Wash-concentrated receipt flow",
+  "Facilitator config drift",
+  "Delivery without settlement",
+  "Probe/organic divergence",
 ];
+
 
 const AUDIENCES = [
   {
