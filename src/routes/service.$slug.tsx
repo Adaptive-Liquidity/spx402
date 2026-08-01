@@ -12,8 +12,12 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
+import { ChainBadge } from "@/components/spx/ChainBadge";
+import { SettleRateSparkline } from "@/components/spx/SettleRateSparkline";
+import { ServiceTranscriptTable } from "@/components/spx/ServiceTranscriptTable";
 import { relativeFromNow } from "@/lib/live-data";
 import {
+  fetchAgentSubjectForPayee,
   fetchProbeRuns,
   fetchServiceById,
   fetchServiceBySlug,
@@ -23,8 +27,10 @@ import {
   type SettleRatePoint,
   type X402ServiceRow,
 } from "@/lib/prober-data";
+import { getProberPublicConfig, type ProberPublicConfig } from "@/lib/system.functions";
 
-import { outcomeLabel, outcomeTone, PROBE_USER_AGENT } from "@/lib/prober/outcomes";
+import { PROBE_USER_AGENT } from "@/lib/prober/outcomes";
+
 
 export const Route = createFileRoute("/service/$slug")({
   head: ({ loaderData }) => {
