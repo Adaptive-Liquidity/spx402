@@ -545,6 +545,23 @@ function Dossier({ agent }: { agent: Agent }) {
               )}
             </div>
             <div className="flex flex-col items-end gap-3">
+              {/* Chain badge — SPX402 indexes Solana and Base as separate
+                  lanes and never merges identities across them. */}
+              <span
+                className={`inline-flex items-center gap-1.5 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest ${
+                  agent.chain === "base"
+                    ? "border-[#0052ff]/70 bg-[#0052ff]/10 text-[#7aa2ff]"
+                    : "border-bronze/70 bg-panel-deep/60 text-paper-muted"
+                }`}
+                title={`Indexed on the ${agent.chain} settlement lane`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    agent.chain === "base" ? "bg-[#0052ff]" : "bg-amber"
+                  }`}
+                />
+                {agent.chain}
+              </span>
               <ExecutionGradeBadge
                 grade={agent.grade}
                 size="lg"
