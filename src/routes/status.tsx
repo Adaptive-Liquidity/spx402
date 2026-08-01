@@ -97,6 +97,18 @@ const COMPONENT_ROWS: Array<{
       "Daily snapshot of every agent's score + confidence — drives /pulse and Movers (24h).",
   },
   {
+    key: "x402_scan",
+    name: "x402 settlement scanner · Solana",
+    description:
+      "Sweeps registry facilitator fee-payers on Solana for x402 settlements (Tier A) and queues new executor candidates.",
+  },
+  {
+    key: "evm_x402_scan",
+    name: "x402 settlement scanner · Base (EVM)",
+    description:
+      "Cursor-resumable eth_getLogs scan of EIP-3009 / Permit2 settlements on Base. Tier A (registry sender) is scored; Tier B is discovery-only.",
+  },
+  {
     key: "registered_agent_diff",
     name: "Registered-agent diff worker",
     description:
