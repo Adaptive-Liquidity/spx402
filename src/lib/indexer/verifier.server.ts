@@ -406,6 +406,46 @@ async function verifyExecutorWallet(
   };
 }
 
+// Base (EVM) executor wallet. Promotion bar: ≥1 Tier A settlement already
+// recorded in agent_events for this payee. We query the DB, never an EVM RPC —
+// the indexer is the witness, and Tier B (non-registry EIP-3009) can never
+// appear in agent_events by construction.
+async function verifyEvmExecutorWallet(
+  address: string,
+): Promise<VerificationResult> {
+  const wallet = address.toLowerCase();
+  let tierA = 0;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count } = await supabaseAdmin
+      .from("agent_events")
+      .select("id", { count: "exact", head: true })
+      .eq("chain", "base")
+      .eq("type", "X402_PAYMENT_RECEIVED")
+      .contains("raw", { detectionMethod: "facilitator_sender" })
+      .or(`raw->>payerWallet.eq.${wallet},mint.eq.${wallet}`);
+    tierA = count ?? 0;
+  } catch {
+    tierA = 0;
+  }
+
+  return {
+    signals: {
+      skills_md: false,
+      invoice_pda: false,
+      on_chain_earnings: false,
+      agent_registry: false,
+      swap_activity: false,
+      x402_activity: tierA > 0,
+    },
+    passed: tierA >= 1,
+    metadataUri: null,
+    symbol: null,
+    name: null,
+    notes: `kind=executor_wallet chain=base tierA_settlements=${tierA}`,
+  };
+}
+
 // Re-export helper to decode any txs we fetched while verifying — useful for
 // kicking off the first agent_events backfill when we promote.
 export { decodeTx };
