@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           amount_sol: number
           amount_token: number
+          chain: string
           created_at: string
           id: string
           mint: string
@@ -32,6 +33,7 @@ export type Database = {
         Insert: {
           amount_sol?: number
           amount_token?: number
+          chain?: string
           created_at?: string
           id?: string
           mint: string
@@ -46,6 +48,7 @@ export type Database = {
         Update: {
           amount_sol?: number
           amount_token?: number
+          chain?: string
           created_at?: string
           id?: string
           mint?: string
@@ -98,6 +101,7 @@ export type Database = {
           buyback_bps: number
           buyback_execution_rate: number
           category: string
+          chain: string
           confidence: string
           confidence_breakdown: Json
           confidence_model_version: string
@@ -146,6 +150,7 @@ export type Database = {
           buyback_bps?: number
           buyback_execution_rate?: number
           category?: string
+          chain?: string
           confidence?: string
           confidence_breakdown?: Json
           confidence_model_version?: string
@@ -194,6 +199,7 @@ export type Database = {
           buyback_bps?: number
           buyback_execution_rate?: number
           category?: string
+          chain?: string
           confidence?: string
           confidence_breakdown?: Json
           confidence_model_version?: string
@@ -296,6 +302,7 @@ export type Database = {
       candidate_agents: {
         Row: {
           category: string
+          chain: string
           check_attempts: number
           core_asset: string | null
           created_at: string
@@ -314,6 +321,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          chain?: string
           check_attempts?: number
           core_asset?: string | null
           created_at?: string
@@ -332,6 +340,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          chain?: string
           check_attempts?: number
           core_asset?: string | null
           created_at?: string
@@ -440,6 +449,24 @@ export type Database = {
           ok?: boolean
           ran_at?: string
           worker?: string
+        }
+        Relationships: []
+      }
+      indexer_state: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
