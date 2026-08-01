@@ -123,57 +123,28 @@ function safeHost(url: string): string {
   }
 }
 
-function toneClass(outcome: string): string {
-  switch (outcomeTone(outcome)) {
-    case "verified":
-      return "text-verified border-verified/60 bg-verified/10";
-    case "critical":
-      return "text-critical border-critical/60 bg-critical/10";
-    case "amber":
-      return "text-amber border-amber/60 bg-amber/10";
-    default:
-      return "text-paper-muted border-bronze/60 bg-panel-deep";
-  }
-}
-
-function Sparkline({ series }: { series: SettleRatePoint[] }) {
-  const withData = series.filter((p) => p.rate != null);
-  if (withData.length === 0) {
-    return (
-      <div className="font-mono text-xs text-wire">
-        No paid probes in the last 30 days — no settle-rate to plot.
-      </div>
-    );
-  }
-  return (
-    <div className="flex h-16 items-end gap-[2px]">
-      {series.map((p) => (
-        <div
-          key={p.day}
-          title={
-            p.rate == null
-              ? `${p.day}: no probe`
-              : `${p.day}: ${(p.rate * 100).toFixed(0)}% (${p.settled}/${p.attempts})`
-          }
-          className={`w-full ${p.rate == null ? "bg-bronze/25" : p.rate >= 0.9 ? "bg-verified/70" : p.rate >= 0.5 ? "bg-amber/70" : "bg-critical/70"}`}
-          style={{ height: `${p.rate == null ? 6 : Math.max(8, p.rate * 100)}%` }}
-        />
-      ))}
-    </div>
-  );
+function truncWallet(w: string | null): string {
+  if (!w) return "not published";
+  return w.length > 14 ? `${w.slice(0, 6)}…${w.slice(-6)}` : w;
 }
 
 function ServicePage() {
-  const { service, runs, series } = Route.useLoaderData() as {
+  const { service, runs, series, subject, prober } = Route.useLoaderData() as {
     service: X402ServiceRow;
     runs: ProbeRunRow[];
     series: SettleRatePoint[];
+    subject: string | null;
+    prober: ProberPublicConfig;
   };
 
   const settlementRuns = runs.filter((r) => r.probeKind === "settlement");
   const settled = settlementRuns.filter((r) => r.outcome === "settled").length;
   const challengeRuns = runs.filter((r) => r.probeKind === "challenge");
   const validChallenges = challengeRuns.filter((r) => r.challengeValid).length;
+  const driftRuns = runs.filter((r) => r.outcome === "config_drift");
+  const proberWallet =
+    service.chain === "base" ? prober.baseWallet : prober.solanaWallet;
+
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-16">
