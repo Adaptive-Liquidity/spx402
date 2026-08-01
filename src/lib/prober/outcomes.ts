@@ -505,6 +505,20 @@ export function serviceSlug(rawUrl: string): string {
   return slug.slice(0, 120);
 }
 
+/**
+ * Base slug for an address-only service (no endpoint known yet).
+ * Mirrors public.x402_service_base_slug() in the database.
+ */
+export function payeeSlug(payTo: string): string {
+  const cleaned = `payee~${payTo}`
+    .replace(/[^a-z0-9.~_-]/gi, "-")
+    .toLowerCase()
+    .replace(/-+/g, "-")
+    .replace(/^[-.~]+|[-.~]+$/g, "");
+  return cleaned.slice(0, 120);
+}
+
+
 /** Human label for an outcome, used across the UI. */
 export function outcomeLabel(outcome: string): string {
   switch (outcome) {
