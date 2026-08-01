@@ -14,7 +14,7 @@ import { categoryLabel } from "@/lib/agents/categories";
 
 // Kept in lockstep with FACILITATOR_REGISTRY_VERSION in
 // src/lib/indexer/facilitators.server.ts (server-only, so not importable here).
-const FACILITATOR_REGISTRY_VERSION = "v0.2.0";
+const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
 export const Route = createFileRoute("/status")({
   head: () => ({

@@ -68,7 +68,7 @@ function expectedMethod(env: FixtureEnvelope): "facilitator_fee_payer" | "memo_m
 
 describe("B — x402 decoder", () => {
   it("registry seed ships inactive and address-less until fixture-verified", () => {
-    expect(FACILITATOR_REGISTRY_VERSION).toBe("v0.2.0");
+    expect(FACILITATOR_REGISTRY_VERSION).toBe("v0.3.0");
     for (const f of FACILITATOR_SEED) {
       if (f.active) {
         expect(f.address).not.toBe("");
@@ -119,7 +119,7 @@ describe("B — x402 decoder", () => {
         expect(events[0].confidence).toBe("high");
         expect(events[0].facilitatorId).toBe(env.expected.facilitatorId);
         expect(events[0].payerWallet).toBe(env.expected.payerWallet);
-        expect(events[0].raw.parserVersion).toBe("v0.2.0");
+        expect(events[0].raw.parserVersion).toBe("v0.3.0");
       }
     },
   );
