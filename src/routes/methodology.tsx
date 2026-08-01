@@ -169,11 +169,23 @@ const BLIND_SPOTS = [
   "Off-chain revenue, service quality, and operator intent are unknowable to SPX402.",
   "Webhook delivery latency may delay event ingestion. Reconciliation runs every 60 seconds.",
   "x402 endpoints behind aggregators may be undercounted until the aggregator publishes settlement metadata.",
+  "x402 settlements are undercounted while the facilitator registry is empty: without a published, fixture-verified fee-payer, only transactions carrying an explicit protocol marker (Tier B) are detected.",
   "Cross-chain components are not yet indexed. Solana is the only ingest source today.",
 ];
 
 const SCHEMA_CHANGELOG = [
   {
+    version: "spx-parser-v0.2.0",
+    date: "2026-08-01",
+    body: "Tiered x402 detection. Tier A matches the transaction fee-payer against the facilitator registry (high confidence, no memo required); Tier B falls back to protocol markers (medium confidence). Settlement events now record facilitator_id, detection_method, and the payer wallet.",
+  },
+  {
+    version: "spx-facilitators-v0.2.0",
+    date: "2026-08-01",
+    body: "Facilitator registry introduced. An address activates only when the operator publishes it and a captured settlement fixture proves detection — enforced in the database by an activation guard.",
+  },
+  {
+
     version: "spx-score-v0.3.0",
     date: "2026-04-27",
     body: "Decoupled risk score and confidence into independent pure functions. Removed grade_factor from confidence inputs.",
