@@ -1,0 +1,20 @@
+{
+  "_fixture": {
+    "id": "E2_permit2_witness_settlement",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "v1.0.0-evm",
+    "chain": "base",
+    "expected": {
+      "tier": "A",
+      "detectionMethod": "facilitator_sender",
+      "confidence": "high",
+      "call": "permitWitnessTransferFrom"
+    },
+    "notes": "Permit2 permitWitnessTransferFrom settlement moving Base USDC, submitted by a REGISTRY facilitator. Pins the Permit2 selector.",
+    "status": "SKIPPED",
+    "skipReason": "Depends on E1: no Base facilitator is active, so no registry-sender Permit2 settlement can be attributed. The Permit2 selector is derived from the canonical ABI at build time and stays UNPINNED until this fixture is captured."
+  }
+}
