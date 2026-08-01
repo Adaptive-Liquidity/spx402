@@ -5,7 +5,7 @@
     "signature": "5C4AUZEZeYPpwpjRsZWpmG3cxBhdiq5NtdHmt8YPUaXUpnwnELfbZHgUc9g9GNghHopmzsr4ZB8Q1kTWUq9YB2JF",
     "slot": 436459331,
     "capturedBy": "scripts/capture-fixture.ts",
-    "parserVersionIntroduced": "spx-decoder-v1",
+    "parserVersionIntroduced": "v0.2.0",
     "expected": {
       "executorWallets": [
         "7G73PLhKvAPBGTzG5ESAE4coE7QrVeTTKfhTxQZbyGgC"
