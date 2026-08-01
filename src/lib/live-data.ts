@@ -83,17 +83,32 @@ export async function fetchRecentTickerEvents(limit = 20): Promise<
 > {
   const { data, error } = await supabase
     .from("agent_events")
-    .select("id, mint, type, severity, amount_sol, occurred_at")
-    .in("severity", ["success", "critical"])
+    .select("id, mint, type, severity, amount_sol, amount_token, chain, raw, occurred_at")
+    .in("severity", ["success", "critical", "warn"])
     .order("occurred_at", { ascending: false })
     .limit(limit);
   if (error || !data) return [];
-  return data.map((r) => ({
-    id: r.id,
-    severity: r.severity,
-    line: tickerLine(r.type, r.mint, numOrZero(r.amount_sol)),
-  }));
+  return data
+    .filter((r) => {
+      // Only high-confidence x402 settlements reach the tape. A memo-marker
+      // match is evidence, but not the kind we broadcast.
+      if (r.type !== "X402_PAYMENT_RECEIVED") return true;
+      return detectionMethodFromRaw(r.raw) === "facilitator_fee_payer";
+    })
+    .map((r) => ({
+      id: r.id,
+      severity: r.severity,
+      line: tickerLine({
+        type: r.type,
+        mint: r.mint,
+        sol: numOrZero(r.amount_sol),
+        token: numOrZero(r.amount_token),
+        chain: r.chain ?? "solana",
+        facilitatorId: facilitatorIdFromRaw(r.raw),
+      }),
+    }));
 }
+
 
 // Leaderboard-flavored ticker lines (top earners) — woven in alongside event lines.
 export async function fetchLeaderboardTickerLines(limit = 5): Promise<string[]> {
@@ -114,37 +129,61 @@ function shortMint(m: string) {
   return m.length > 12 ? `${m.slice(0, 4)}…${m.slice(-4)}` : m;
 }
 
-function tickerLine(type: string, mint: string, sol: number): string {
+interface TickerLineInput {
+  type: string;
+  mint: string;
+  sol: number;
+  token?: number;
+  chain?: string;
+  facilitatorId?: string | null;
+}
+
+function chainTag(chain?: string): string {
+  return chain === "base" ? "[BASE]" : "[SOL]";
+}
+
+function tickerLine(input: TickerLineInput): string {
+  const { type, mint, sol } = input;
   const m = shortMint(mint);
+  const tag = chainTag(input.chain);
+  const via = input.facilitatorId ? ` via ${input.facilitatorId}` : "";
   switch (type) {
     case "BUYBACK_EXECUTED":
-      return `BUYBACK · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} BUYBACK · ${m} · ${sol.toFixed(2)} SOL`;
     case "BURN_CONFIRMED":
-      return `BURN · ${m} · confirmed on-chain`;
+      return `${tag} BURN · ${m} · confirmed on-chain`;
     case "DEPOSIT_RECEIVED":
-      return `DEPOSIT · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} DEPOSIT · ${m} · ${sol.toFixed(2)} SOL`;
     case "FAILED_WINDOW":
-      return `FAILED WINDOW · ${m} · reconciler flagged`;
+      return `${tag} FAILED WINDOW · ${m} · reconciler flagged`;
     case "FAILED_BUYBACK_WINDOW":
-      return `FAILED BUYBACK · ${m} · deposit unsettled`;
+      return `${tag} FAILED BUYBACK · ${m} · deposit unsettled`;
     case "PROMISED_BUYBACK_NOT_SETTLED":
-      return `BUYBACK REVERTED · ${m}`;
+      return `${tag} BUYBACK REVERTED · ${m}`;
     case "X402_PAYMENT_REVERTED":
-      return `x402 REVERTED · ${m}`;
-    case "X402_PAYMENT_RECEIVED":
-      return `x402 PAID · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} X402 REVERTED · ${m}${via}`;
+    case "X402_PAYMENT_RECEIVED": {
+      const usdc = input.token ?? 0;
+      const amount = usdc > 0 ? `${usdc.toFixed(2)} USDC` : `${sol.toFixed(2)} SOL`;
+      return `${tag} X402 SETTLED ${amount} · ${m}${via}`;
+    }
+    case "WASH_PATTERN_SUSPECTED":
+      return `${tag} WASH PATTERN SUSPECTED · ${m} · receipt flow concentrated`;
+    case "CONFIG_DRIFT":
+      return `${tag} CONFIG DRIFT · ${m} · advertised wallet differs from settlement`;
     case "SWAP_EXECUTED":
-      return `SWAP · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} SWAP · ${m} · ${sol.toFixed(2)} SOL`;
     case "CONFIG_CHANGED":
-      return `CONFIG CHANGED · ${m}`;
+      return `${tag} CONFIG CHANGED · ${m}`;
     case "ANOMALY_DETECTED":
-      return `ANOMALY · ${m} · review queued`;
+      return `${tag} ANOMALY · ${m} · review queued`;
     case "OPERATOR_VERIFIED":
-      return `OPERATOR VERIFIED · ${m}`;
+      return `${tag} OPERATOR VERIFIED · ${m}`;
     default:
-      return `${type} · ${m}`;
+      return `${tag} ${type} · ${m}`;
   }
 }
+
 
 // ---------- indexer_runs ----------
 
@@ -926,4 +965,124 @@ export async function fetchFacilitators(): Promise<FacilitatorRow[]> {
     fixtureId: r.fixture_id,
     active: r.active,
   }));
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Homepage hero stats. Every number traces to a live table; a cold table
+// renders a zero, never a placeholder.
+// ─────────────────────────────────────────────────────────────────────
+export interface HomeStats {
+  agentsIndexed: number;
+  settlementsSolana: number;
+  settlementsBase: number;
+  servicesProbed: number;
+  activeFacilitators: number;
+}
+
+const EMPTY_HOME_STATS: HomeStats = {
+  agentsIndexed: 0,
+  settlementsSolana: 0,
+  settlementsBase: 0,
+  servicesProbed: 0,
+  activeFacilitators: 0,
+};
+
+export async function fetchHomeStats(): Promise<HomeStats> {
+  try {
+    const settlementTypes = ["X402_PAYMENT_RECEIVED", "BUYBACK_EXECUTED", "BURN_CONFIRMED"];
+    const [agentsRes, solRes, baseRes, servicesRes, facilitatorsRes] = await Promise.all([
+      supabase.from("agents").select("mint", { count: "exact", head: true }),
+      supabase
+        .from("agent_events")
+        .select("id", { count: "exact", head: true })
+        .eq("chain", "solana")
+        .in("type", settlementTypes),
+      supabase
+        .from("agent_events")
+        .select("id", { count: "exact", head: true })
+        .eq("chain", "base")
+        .in("type", settlementTypes),
+      supabase
+        .from("x402_service" as never)
+        .select("id", { count: "exact", head: true })
+        .not("last_probe_at", "is", null),
+      supabase
+        .from("facilitators")
+        .select("id", { count: "exact", head: true })
+        .eq("active", true),
+    ]);
+    return {
+      agentsIndexed: agentsRes.count ?? 0,
+      settlementsSolana: solRes.count ?? 0,
+      settlementsBase: baseRes.count ?? 0,
+      servicesProbed: servicesRes.count ?? 0,
+      activeFacilitators: facilitatorsRes.count ?? 0,
+    };
+  } catch {
+    return EMPTY_HOME_STATS;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Payer diversity (scoring methodology v0.3.0 counts counterparties, not
+// transactions). Computed from settlement events that carry payer
+// attribution; receipts decoded before parser v0.2.0 have none.
+// ─────────────────────────────────────────────────────────────────────
+export interface PayerDiversity {
+  settlements: number;
+  attributed: number;
+  legacyUnattributed: number;
+  uniquePayers: number;
+  topPayerShare: number | null;
+  highConfidenceShare: number | null;
+}
+
+export const EMPTY_PAYER_DIVERSITY: PayerDiversity = {
+  settlements: 0,
+  attributed: 0,
+  legacyUnattributed: 0,
+  uniquePayers: 0,
+  topPayerShare: null,
+  highConfidenceShare: null,
+};
+
+function payerFromRaw(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v =
+    (raw as Record<string, unknown>)["payerWallet"] ??
+    (raw as Record<string, unknown>)["payer_wallet"];
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
+
+export async function fetchPayerDiversity(mint: string): Promise<PayerDiversity> {
+  if (!mint) return EMPTY_PAYER_DIVERSITY;
+  const { data, error } = await supabase
+    .from("agent_events")
+    .select("id, raw")
+    .eq("mint", mint)
+    .eq("type", "X402_PAYMENT_RECEIVED")
+    .order("occurred_at", { ascending: false })
+    .limit(1000);
+  if (error || !data || data.length === 0) return EMPTY_PAYER_DIVERSITY;
+
+  const counts = new Map<string, number>();
+  let attributed = 0;
+  let highConfidence = 0;
+  for (const row of data) {
+    if (detectionMethodFromRaw(row.raw) === "facilitator_fee_payer") highConfidence += 1;
+    const payer = payerFromRaw(row.raw);
+    if (!payer) continue;
+    attributed += 1;
+    counts.set(payer, (counts.get(payer) ?? 0) + 1);
+  }
+
+  const top = Math.max(0, ...Array.from(counts.values()));
+  return {
+    settlements: data.length,
+    attributed,
+    legacyUnattributed: data.length - attributed,
+    uniquePayers: counts.size,
+    topPayerShare: attributed === 0 ? null : top / attributed,
+    highConfidenceShare: data.length === 0 ? null : highConfidence / data.length,
+  };
 }

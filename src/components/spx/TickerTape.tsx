@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchLeaderboardTickerLines, fetchRecentTickerEvents } from "@/lib/live-data";
+import { fetchProberTickerLines } from "@/lib/prober-data";
 
 const FALLBACK_LINES = [
   "SPX402 · pre-launch · indexer warming up",
@@ -15,14 +16,15 @@ export function TickerTape() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const [events, leaders] = await Promise.all([
+      const [events, leaders, probes] = await Promise.all([
         fetchRecentTickerEvents(20),
         fetchLeaderboardTickerLines(5),
+        fetchProberTickerLines(5),
       ]);
       if (cancelled) return;
       const combined: string[] = [];
       // Interleave: leader, then 3 events, repeat — keeps reputation salient.
-      const eventLines = events.map((e) => e.line);
+      const eventLines = [...events.map((e) => e.line), ...probes];
       let li = 0;
       let ei = 0;
       while (li < leaders.length || ei < eventLines.length) {
@@ -37,6 +39,7 @@ export function TickerTape() {
       cancelled = true;
     };
   }, []);
+
 
   const stream = [...lines, ...lines, ...lines];
   return (

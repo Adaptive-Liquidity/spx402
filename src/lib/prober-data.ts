@@ -280,3 +280,62 @@ export async function fetchProberOverview(): Promise<ProberOverview> {
     configDrift30d: outcomeCounts["config_drift"] ?? 0,
   };
 }
+
+/**
+ * Ticker lines from the prober. Only outcomes a reader should see on the
+ * tape: a payment that settled but delivered nothing is the headline.
+ */
+export async function fetchProberTickerLines(limit = 5): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("probe_run" as never)
+    .select("outcome, chain, paid_amount_usd, settle_ms, ran_at")
+    .in("outcome", ["settled_no_delivery", "config_drift", "settled"])
+    .order("ran_at", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return (data as unknown as Array<{
+    outcome: string;
+    chain: string | null;
+    paid_amount_usd: number | string | null;
+    settle_ms: number | null;
+  }>).map((r) => {
+    const tag = r.chain === "base" ? "[BASE]" : "[SOL]";
+    const secs = r.settle_ms == null ? null : (r.settle_ms / 1000).toFixed(1);
+    switch (r.outcome) {
+      case "settled_no_delivery":
+        return `${tag} PROBE · payment accepted, content did not arrive`;
+      case "config_drift":
+        return `${tag} PROBE · advertised wallet differs from settlement wallet`;
+      default:
+        return `${tag} PROBE · settled${secs ? ` in ${secs}s` : ""}`;
+    }
+  });
+}
+
+/** Wallets SPX402 has actually probed — powers the "Probed" filter. */
+export async function fetchProbedPayees(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("x402_service" as never)
+    .select("pay_to, last_probe_at")
+    .not("pay_to", "is", null)
+    .not("last_probe_at", "is", null);
+  if (error || !data) return [];
+  const rows = data as unknown as Array<{ pay_to: string | null }>;
+  return Array.from(
+    new Set(rows.map((r) => r.pay_to).filter((v): v is string => Boolean(v))),
+  );
+}
+
+/** Dossier link target for a service payee, when SPX402 indexes that subject. */
+export async function fetchAgentSubjectForPayee(
+  payTo: string | null,
+): Promise<string | null> {
+  if (!payTo) return null;
+  const { data } = await supabase
+    .from("agents")
+    .select("mint")
+    .or(`mint.eq.${payTo},executor_wallet.eq.${payTo},operator_wallet.eq.${payTo}`)
+    .limit(1);
+  const rows = (data ?? []) as Array<{ mint: string }>;
+  return rows.length > 0 ? rows[0].mint : null;
+}

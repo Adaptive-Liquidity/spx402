@@ -5,7 +5,8 @@ import { fetchAllAgents } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
-import { fetchTape, type TapeRow } from "@/lib/live-data";
+import { ProofChainX402 } from "@/components/spx/ProofChainX402";
+import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -26,11 +27,12 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async () => {
-    const [agents, tape] = await Promise.all([
+    const [agents, tape, stats] = await Promise.all([
       fetchAllAgents(),
       fetchTape({ limit: 18 }),
+      fetchHomeStats(),
     ]);
-    return { agents, tape };
+    return { agents, tape, stats };
   },
   staleTime: 30_000,
   component: HomePage,
@@ -53,7 +55,12 @@ const CATCHES = [
   "Suspicious wash-like windows",
   "Unverified operators",
   "Metadata drift",
+  "Wash-concentrated receipt flow",
+  "Facilitator config drift",
+  "Delivery without settlement",
+  "Probe/organic divergence",
 ];
+
 
 const AUDIENCES = [
   {
@@ -85,17 +92,18 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
-  const { agents: allAgents, tape } = Route.useLoaderData() as {
+  const { agents: allAgents, tape, stats } = Route.useLoaderData() as {
     agents: Agent[];
     tape: TapeRow[];
+    stats: HomeStats;
   };
   // Homepage tape, hero card, and featured grid only show leaderboard-quality
   // agents. SPX D / SPX404 / flagged agents are excluded — they live on
   // /explore and /flagged respectively.
   const agents = allAgents.filter(qualifiesForLeaderboard);
   const featured = agents.slice(0, 3);
-  const totalBuybacks = agents.reduce((acc, a) => acc + a.totalBuybacksCount, 0);
   return (
+
     <div>
       {/* HERO */}
       <section className="relative overflow-hidden">
@@ -141,20 +149,37 @@ function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-10 grid max-w-md grid-cols-3 gap-6">
+            <div className="mt-10 grid max-w-xl grid-cols-2 gap-6 sm:grid-cols-4">
               <div>
-                <div className="num-display text-2xl font-bold text-paper">{agents.length.toLocaleString()}</div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {stats.agentsIndexed.toLocaleString()}
+                </div>
                 <div className="label-mono mt-1">Agents indexed</div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">{totalBuybacks.toLocaleString()}</div>
-                <div className="label-mono mt-1">Buybacks confirmed</div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {(stats.settlementsSolana + stats.settlementsBase).toLocaleString()}
+                </div>
+                <div className="label-mono mt-1">Settlements verified</div>
+                <div className="mt-1 font-mono text-[10px] text-wire">
+                  SOL {stats.settlementsSolana.toLocaleString()} · BASE{" "}
+                  {stats.settlementsBase.toLocaleString()}
+                </div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">5m</div>
-                <div className="label-mono mt-1">Reconcile cadence</div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {stats.servicesProbed.toLocaleString()}
+                </div>
+                <div className="label-mono mt-1">Services probed</div>
+              </div>
+              <div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {stats.activeFacilitators.toLocaleString()}
+                </div>
+                <div className="label-mono mt-1">Active facilitators</div>
               </div>
             </div>
+
           </div>
 
           <div className="lg:col-span-5">
@@ -205,6 +230,25 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* X402 PROOF CHAIN */}
+      <section className="mx-auto max-w-[1400px] px-4 pb-20 lg:px-8">
+        <div className="label-amber">The x402 Chain</div>
+        <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
+          Two chains. One question.{" "}
+          <span className="text-paper-muted">Did it settle.</span>
+        </h2>
+        <p className="mt-5 max-w-2xl text-paper-muted">
+          Agents that sell work settle over x402 on Solana and Base. SPX402
+          follows the same trail there: a challenge, a payment, a facilitator,
+          a delivery.
+        </p>
+        <div className="mt-10">
+          <ProofChainX402 />
+        </div>
+      </section>
+
+
 
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 bg-panel-deep">
