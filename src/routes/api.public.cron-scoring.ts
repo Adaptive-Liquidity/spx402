@@ -314,10 +314,19 @@ async function aggregateCounters(
     totalX402Count,
     totalX402Sol,
     totalX402Usdc,
+    x402UniquePayers,
+    x402TopPayerShare,
+    x402HighConfShare,
+    x402SelfPaymentCount: selfPaymentCount,
+    x402WashFilteredSol: washFilteredSol,
+    x402WashFilteredUsdc: washFilteredUsdc,
+    x402HasLegacyUnattributed: hasLegacyUnattributed,
+    x402TopPayer: topPayer,
     failedNegativeCount,
     distinctEventTypes,
     observationWindowSeconds,
   };
+
 }
 
 
