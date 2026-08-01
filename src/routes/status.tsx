@@ -31,14 +31,16 @@ export const Route = createFileRoute("/status")({
     ],
   }),
   loader: async () => {
-    const [runs, stats, coverage, facilitators] = await Promise.all([
+    const [runs, stats, coverage, facilitators, prober] = await Promise.all([
       fetchLatestIndexerRuns(),
       fetchIndexerStats24h(),
       fetchEventCoverage(),
       fetchFacilitators(),
+      fetchProberOverview(),
     ]);
-    return { runs, stats, coverage, facilitators };
+    return { runs, stats, coverage, facilitators, prober };
   },
+
 
   staleTime: 15_000,
   component: StatusPage,
