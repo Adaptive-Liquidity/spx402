@@ -96,11 +96,15 @@ function rowToAgentEvent(row: AgentEventRow): AgentEvent {
     amount: row.amountSol || undefined,
     tokenAmount: row.amountToken || undefined,
     slot: row.slot ?? 0,
-    confidence: "high",
+    // Tier B (protocol-marker) x402 detection is self-asserted evidence, so it
+    // is surfaced as medium confidence on the event row.
+    confidence: row.detectionMethod === "memo_marker" ? "medium" : "high",
+    facilitatorId: row.facilitatorId,
     occurredAt: relativeFromNow(row.occurredAt),
     iso: row.occurredAt,
   };
 }
+
 
 // Live agent_events are authoritative once present. The seeded jsonb is only
 // shown when no live events have been indexed for this agent yet.
