@@ -42,6 +42,23 @@ export interface ScoringInputs {
   totalX402Count?: number;
   totalX402Sol?: number;
   totalX402Usdc?: number;
+  // Wash-resistance aggregates (scoring v0.3.0). Derived from
+  // agent_events.raw payerWallet / confidence by the scoring worker.
+  /** distinct non-null payerWallet count */
+  x402UniquePayers?: number;
+  /** max per-payer event count / total events, 0..1 */
+  x402TopPayerShare?: number;
+  /** share of receipts detected at facilitator (high) confidence, 0..1 */
+  x402HighConfShare?: number;
+  /** receipts whose payer is the operator or executor wallet itself */
+  x402SelfPaymentCount?: number;
+  /** SOL sum excluding self-payment events */
+  x402WashFilteredSol?: number;
+  /** USDC raw-unit sum excluding self-payment events */
+  x402WashFilteredUsdc?: number;
+  /** true when some receipts predate payer attribution (parser < v0.2.0) */
+  x402HasLegacyUnattributed?: boolean;
+
   // Generalized swap counters (DEX swaps emitted for executor wallets).
   totalSwapCount?: number;
   totalSwapSol?: number;
