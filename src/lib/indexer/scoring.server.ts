@@ -390,6 +390,24 @@ function recencyScore(lastIndexedSeconds: number, window: "short" | "long"): num
   );
 }
 
+// Grade ordering, best → worst. `minGrade` returns the worse of two grades,
+// used to apply hard caps (e.g. the x402 self-payment cap at SPX BB).
+const GRADE_ORDER: Grade[] = [
+  "SPX AAA",
+  "SPX AA",
+  "SPX A",
+  "SPX BBB",
+  "SPX BB",
+  "SPX B",
+  "SPX D",
+  "SPX404",
+];
+
+function minGrade(a: Grade, b: Grade): Grade {
+  return GRADE_ORDER.indexOf(a) >= GRADE_ORDER.indexOf(b) ? a : b;
+}
+
+
 function gradeFromTotal(total: number): Grade {
   if (total >= 90) return "SPX AAA";
   if (total >= 80) return "SPX AA";
