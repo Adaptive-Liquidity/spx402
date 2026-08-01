@@ -30,6 +30,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
+import { Route as ServiceSlugRouteImport } from './routes/service.$slug'
 import { Route as OperatorWalletRouteImport } from './routes/operator.$wallet'
 import { Route as EmbedSubjectRouteImport } from './routes/embed.$subject'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
@@ -162,6 +163,11 @@ const TapeEventIdRoute = TapeEventIdRouteImport.update({
   id: '/$eventId',
   path: '/$eventId',
   getParentRoute: () => TapeRoute,
+} as any)
+const ServiceSlugRoute = ServiceSlugRouteImport.update({
+  id: '/service/$slug',
+  path: '/service/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const OperatorWalletRoute = OperatorWalletRouteImport.update({
   id: '/operator/$wallet',
@@ -344,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -394,6 +401,7 @@ export interface FileRoutesByTo {
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -446,6 +454,7 @@ export interface FileRoutesById {
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -498,6 +507,7 @@ export interface FileRouteTypes {
     | '/api/docs'
     | '/embed/$subject'
     | '/operator/$wallet'
+    | '/service/$slug'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -548,6 +558,7 @@ export interface FileRouteTypes {
     | '/api/docs'
     | '/embed/$subject'
     | '/operator/$wallet'
+    | '/service/$slug'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -599,6 +610,7 @@ export interface FileRouteTypes {
     | '/api/docs'
     | '/embed/$subject'
     | '/operator/$wallet'
+    | '/service/$slug'
     | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
@@ -649,6 +661,7 @@ export interface RootRouteChildren {
   AgentMintRoute: typeof AgentMintRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
+  ServiceSlugRoute: typeof ServiceSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -799,6 +812,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tape/$eventId'
       preLoaderRoute: typeof TapeEventIdRouteImport
       parentRoute: typeof TapeRoute
+    }
+    '/service/$slug': {
+      id: '/service/$slug'
+      path: '/service/$slug'
+      fullPath: '/service/$slug'
+      preLoaderRoute: typeof ServiceSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/operator/$wallet': {
       id: '/operator/$wallet'
@@ -1114,6 +1134,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentMintRoute: AgentMintRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
+  ServiceSlugRoute: ServiceSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
