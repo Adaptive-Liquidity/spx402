@@ -149,20 +149,37 @@ function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-10 grid max-w-md grid-cols-3 gap-6">
+            <div className="mt-10 grid max-w-xl grid-cols-2 gap-6 sm:grid-cols-4">
               <div>
-                <div className="num-display text-2xl font-bold text-paper">{agents.length.toLocaleString()}</div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {stats.agentsIndexed.toLocaleString()}
+                </div>
                 <div className="label-mono mt-1">Agents indexed</div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">{totalBuybacks.toLocaleString()}</div>
-                <div className="label-mono mt-1">Buybacks confirmed</div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {(stats.settlementsSolana + stats.settlementsBase).toLocaleString()}
+                </div>
+                <div className="label-mono mt-1">Settlements verified</div>
+                <div className="mt-1 font-mono text-[10px] text-wire">
+                  SOL {stats.settlementsSolana.toLocaleString()} · BASE{" "}
+                  {stats.settlementsBase.toLocaleString()}
+                </div>
               </div>
               <div>
-                <div className="num-display text-2xl font-bold text-paper">5m</div>
-                <div className="label-mono mt-1">Reconcile cadence</div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {stats.servicesProbed.toLocaleString()}
+                </div>
+                <div className="label-mono mt-1">Services probed</div>
+              </div>
+              <div>
+                <div className="num-display text-2xl font-bold text-paper">
+                  {stats.activeFacilitators.toLocaleString()}
+                </div>
+                <div className="label-mono mt-1">Active facilitators</div>
               </div>
             </div>
+
           </div>
 
           <div className="lg:col-span-5">
