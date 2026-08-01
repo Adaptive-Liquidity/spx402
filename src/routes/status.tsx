@@ -3,12 +3,18 @@ import { Panel } from "@/components/spx/Panel";
 import { CheckCircle2, AlertTriangle, MinusCircle } from "lucide-react";
 import {
   fetchEventCoverage,
+  fetchFacilitators,
   fetchIndexerStats24h,
   fetchLatestIndexerRuns,
   relativeFromNow,
+  type FacilitatorRow,
   type IndexerRunRow,
 } from "@/lib/live-data";
 import { categoryLabel } from "@/lib/agents/categories";
+
+// Kept in lockstep with FACILITATOR_REGISTRY_VERSION in
+// src/lib/indexer/facilitators.server.ts (server-only, so not importable here).
+const FACILITATOR_REGISTRY_VERSION = "v0.2.0";
 
 export const Route = createFileRoute("/status")({
   head: () => ({
@@ -22,13 +28,15 @@ export const Route = createFileRoute("/status")({
     ],
   }),
   loader: async () => {
-    const [runs, stats, coverage] = await Promise.all([
+    const [runs, stats, coverage, facilitators] = await Promise.all([
       fetchLatestIndexerRuns(),
       fetchIndexerStats24h(),
       fetchEventCoverage(),
+      fetchFacilitators(),
     ]);
-    return { runs, stats, coverage };
+    return { runs, stats, coverage, facilitators };
   },
+
   staleTime: 15_000,
   component: StatusPage,
   errorComponent: ({ error, reset }) => {
