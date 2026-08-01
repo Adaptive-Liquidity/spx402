@@ -1,83 +1,60 @@
+# Activate the PayAI Solana facilitator (x402 Tier A)
 
-# Scoring v0.3.0 — Wash-Resistant x402
+Goal: flip x402 Tier A detection from "truthfully inactive" to live, backed by two real captured settlement fixtures.
 
-Implements `SPX402_Wash_Resistant_x402_Scoring_Spec.md` exactly. Only the x402 branch changes; the tokenized and registered branches are frozen.
+## 1. Registry seed
 
-## Verified current state
+`src/lib/indexer/facilitators.server.ts` — update the `payai-solana` row:
+- `address: "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4"`
+- `sourceUrl: "https://docs.payai.network/x402/reference"`
+- `fixtureId: "x402-facilitator-settlement-01"`
+- `active: true`
+- Replace the "no published address" comment with the provenance note (PayAI docs `extra.feePayer`, cross-checked against QuickNode's x402-rails guide and the operator's `/supported` endpoint).
 
-- `scoreX402` in `src/lib/indexer/scoring.server.ts` weights raw receipt count (`totalX402Count`), aggregate SOL/USDC, and a `count >= 20 && recency < 24h` confidence bucket — no payer awareness.
-- `decode-x402.server.ts` already writes `payerWallet`, `detectionMethod`, `facilitatorId`, and event-level `confidence` into `agent_events.raw` (parser v0.2.0), so the aggregates this spec needs are already on disk.
-- The scoring worker (`api.public.cron-scoring.ts`) aggregates `agent_events` per mint but selects only `type, severity, amount_sol, amount_token, occurred_at` — `raw` is not read yet.
-- Golden snapshots are inline (`toMatchInlineSnapshot`) inside `scoring.golden.test.ts`; there is one x402 canonical snapshot plus x402 grade/confidence assertions.
+The registry-seed test already asserts that any active row has a non-empty address and a non-null `fixtureId`, so this stays gated.
 
-## 1. New aggregates (scoring worker)
+## 2. Capture the two fixtures
 
-In `aggregateCounters`, add `raw` to the x402 event selection and compute, over `X402_PAYMENT_RECEIVED` rows:
+Write a one-off local capture flow (not committed as a permanent script):
+1. `getSignaturesForAddress` for the fee payer via Helius RPC.
+2. Pull enhanced transactions in batches; select
+   - **(a)** one with an inbound USDC `transfer_checked`/token transfer to a non-facilitator third-party wallet, and
+   - **(b)** one with an inbound native SOL transfer to a third-party wallet.
+3. Run `scripts/capture-fixture.ts --id x402-facilitator-settlement-01 --signature <usdc sig>` and `--id x402-facilitator-settlement-02 --signature <sol sig>`, with `--expect` populated from the actual tx: `executorWallets` (the recipient), `amountToken`/`amountSol`, `facilitatorId: "payai-solana"`, `facilitatorAddress`, `facilitatorSourceUrl`, `payerWallet`.
 
-- `uniquePayers` — distinct non-null `raw.payerWallet`
-- `topPayerShare` — max per-payer count / total x402 events (0 when no attributed payers)
-- `highConfShare` — `raw.confidence === 'high'` / total
-- `selfPaymentCount` — payer equals the agent's `operator_wallet` or `executor_wallet`
-- `washFilteredUsdc` / `washFilteredSol` — sums excluding self-payment events
-- `hasLegacyUnattributed` — true when any x402 row has null `payerWallet`
+Note on naming: the loader requires the file name, envelope `id`, and test id to match, so B2/B3 become the new ids rather than keeping the old filenames.
 
-Null-payer rows count toward totals and shares' denominators, never toward `uniquePayers`. These flow through `computeRiskScore` into `ScoringInputs` as optional fields (absent ⇒ current behaviour for non-x402 callers).
+## 3. Wire tests
 
-## 2. `scoreX402` v0.3.0
+`src/lib/indexer/__tests__/decode-x402.test.ts`:
+- Point the B2 case at `x402-facilitator-settlement-01` and the B3 case at `x402-facilitator-settlement-02`.
+- Both now take the tier-A branch: `detectionMethod === "facilitator_fee_payer"`, `confidence === "high"`, `facilitatorId === "payai-solana"`, `parserVersion === "v0.2.0"`.
+- Keep B3's asymmetry assertion: same tx with **no** registry yields zero events (proving detection comes from the fee payer, not a marker). If the captured SOL tx happens to also carry an x402 marker, I will pick a different signature rather than weaken the assertion.
+- Delete the two stub envelopes that are being replaced.
 
-Replace internals with the spec formula verbatim:
+## 4. Database row + guard proof
 
-- `weightedCount = highConfCount + 0.5 * mediumConfCount` (derived from `highConfShare` × total)
-- `diversityFactor = clamp(1 - topPayerShare, 0.2, 1)`
-- `effectiveCount/Usdc/Sol = value * diversityFactor`, volume computed on wash-filtered sums
-- `depositConsistency` = `min(uniquePayers,25)/25 * 20` (counterparties, not receipts)
-- `buybackExecution` / `burnConfirmation` = same caps as v0.2.0 but on effective values
-- `selfPaymentCount > 0` ⇒ grade capped at `SPX BB` via a new `minGrade` helper
-- `count === 0` ⇒ `SPX404` preserved
+- Insert into `public.facilitators`: id `payai-solana`, chain `solana`, address as above, scheme `exact`, `source_url`, `fixture_id = 'x402-facilitator-settlement-01'`, `active = true`.
+- Verify the activation guard by attempting an `active = true` insert with a null `fixture_id` and confirming it raises; then confirm the good row persists.
 
-`scoreTokenized` and `scoreRegistered` are untouched.
+## 5. Discovery script
 
-## 3. Confidence buckets (x402 only)
+New `scripts/discover-facilitators.ts` (dry-run, local only):
+- Hardcoded base URL list starting with `https://facilitator.payai.network`.
+- `GET {base}/supported`, filter `kinds` where `network`/`kind` starts with `solana`, print `extra.feePayer`, scheme, and a proposed **inactive** registry row (JSON) plus the capture command needed to activate it.
+- Never writes files, never touches the DB, never activates.
 
-`high` requires `uniquePayers >= 8` AND `highConfShare >= 0.5` AND `lastIndexedSeconds < 24h`; else `medium` at `count >= 5`; else `low`.
+## 6. Docs
 
-## 4. Verdicts
+`src/routes/methodology.tsx` — in the x402 detection section, state that facilitator addresses are taken from operator documentation and cross-checked against each operator's `/supported` endpoint, and that a row only goes active once a settlement fixture is captured.
 
-Diversity-naming strings per spec, including the concentrated-flow verdict when `diversityFactor` hits the floor.
+## 7. Verification and report
 
-## 5. `WASH_PATTERN_SUSPECTED` anomaly
+- `bunx vitest run` — report pass/skip counts and confirm B2/B3 now pass.
+- Trigger `spx-scan-x402` and read the `indexer_runs` heartbeat note, expecting `facilitators=1`.
+- Check `/status`'s Facilitator Registry panel shows 1 active.
 
-- New `EventType` in `src/lib/agents.ts` plus dossier label/icon/filter mapping (renders under the existing `anomaly` filter).
-- Emitted by the scoring cron when `totalEvents >= 10 && topPayerShare >= 0.8`. Severity `warn`, or `critical` when `selfPaymentCount >= 3`.
-- Dedupe: one per `(mint, type, UTC date)` — checked before insert; synthetic signature encodes mint+date so re-runs are idempotent.
-- `raw` = `{ topPayerShare, topPayer (truncated), uniquePayers, totalEvents }`.
-- Dossier copy: "Receipt flow is concentrated. The tape has developed a limp."
-- Heartbeat notes gain `wash_events_emitted=N`.
+## Technical notes / risks
 
-## 6. Tests first
-
-Add the five synthetic goldens to `scoring.golden.test.ts` before changing `scoreX402`:
-
-1. `wash-loop` vs `honest-service` — inequality asserted in both directions on `depositConsistency` and `buybackExecution`
-2. `self-payment-cap` — would-be SPX A capped to SPX BB
-3. `single-customer-floor` — 30 receipts / 1 payer, diversity floor 0.2, anomaly trigger shape asserted
-4. `legacy-unattributed` — null payers in totals, out of `uniquePayers`
-5. `confidence-bucket` — 8 unique payers, `highConfShare` 0.4 ⇒ not `high`
-
-Then regenerate only the x402 inline snapshots. If any tokenized/registered snapshot moves, I stop and report rather than regenerate.
-
-## 7. Surfaces (same deploy)
-
-- **Dossier** (`agent.$mint.tsx`): for x402 agents, a stat row with `Unique payers` and `Top payer share`, read from the persisted confidence/score breakdown fields.
-- **/methodology**: v0.3.0 entry — diversity discount, self-payment cap, confidence gate, with the rationale "A service with one customer may be excellent. It has not proven a market."
-- **Leaderboard**: no change.
-
-## Technical notes
-
-- Version constants bump to `spx-score-v0.3.0` (already the current `RISK_SCORE_MODEL_VERSION` string — I'll confirm and keep it consistent rather than double-bumping).
-- Persisting `uniquePayers` / `topPayerShare` for the dossier requires storing them; I'll put them inside the existing `score_breakdown` JSON column (no migration) unless you prefer real columns.
-- Commit message exactly: `scoring v0.3.0: wash-resistant x402 weighting — count counterparties, not transactions`.
-
-## Report on completion
-
-Test pass/skip counts, the x402 snapshot diff summary, and explicit confirmation the other two branches' snapshots are byte-identical.
+- Capture requires `HELIUS_API_KEY` in the sandbox. If it is not readable from the build environment, I will stop and ask rather than fabricate a transaction — envelope-only stubs stay `SKIPPED` in that case.
+- If the fee payer's recent history has no qualifying inbound SOL transfer to a third party, I will page further back through signatures before considering B3 uncapturable.

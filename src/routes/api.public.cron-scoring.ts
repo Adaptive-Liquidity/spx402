@@ -5,11 +5,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  score,
-  shouldEmitWashAnomaly,
-  washAnomalySeverity,
-} from "@/lib/indexer/scoring.server";
+import { score } from "@/lib/indexer/scoring.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
 import {
   computeRiskScore,
@@ -61,7 +57,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const { data: agents } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset, operator_wallet",
+            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset",
           );
 
         if (!agents || agents.length === 0) {
@@ -70,12 +66,8 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         }
 
         let scored = 0;
-        let washEventsEmitted = 0;
         for (const a of agents) {
-          const counters = await aggregateCounters(a.mint, [
-            a.operator_wallet ?? "",
-            a.executor_wallet ?? "",
-          ]);
+          const counters = await aggregateCounters(a.mint);
           const category = (a.category as
             | "tokenized_buyback"
             | "registered_agent"
@@ -101,35 +93,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             totalX402Count: counters.totalX402Count,
             totalX402Sol: counters.totalX402Sol,
             totalX402Usdc: counters.totalX402Usdc,
-            // Wash-resistance aggregates (scoring v0.3.0).
-            x402UniquePayers: counters.x402UniquePayers,
-            x402TopPayerShare: counters.x402TopPayerShare,
-            x402HighConfShare: counters.x402HighConfShare,
-            x402SelfPaymentCount: counters.x402SelfPaymentCount,
-            x402WashFilteredSol: counters.x402WashFilteredSol,
-            x402WashFilteredUsdc: counters.x402WashFilteredUsdc,
-            x402HasLegacyUnattributed: counters.x402HasLegacyUnattributed,
           });
-
-          // Wash-pattern anomaly — the homepage's "suspicious wash-like
-          // windows" promise, made real for the x402 category.
-          if (
-            category === "x402_executor" &&
-            shouldEmitWashAnomaly(
-              counters.totalX402Count,
-              counters.x402TopPayerShare,
-            )
-          ) {
-            const emitted = await emitWashAnomaly(a.mint, {
-              topPayerShare: counters.x402TopPayerShare,
-              topPayer: counters.x402TopPayer,
-              uniquePayers: counters.x402UniquePayers,
-              totalEvents: counters.totalX402Count,
-              selfPaymentCount: counters.x402SelfPaymentCount,
-            });
-            if (emitted) washEventsEmitted++;
-          }
-
           // Wave 2 — independent confidence calculation. Counts ONLY evidence
           // signals; never reads the score back. The UI uses confidence_score
           // to decide outlined vs filled grade badges.
@@ -168,20 +132,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               confidence_breakdown: conf.breakdown as unknown as never,
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
-              // Wash-resistance stats ride along in score_breakdown so the
-              // dossier can render them without a schema change.
-              score_breakdown: (category === "x402_executor"
-                ? {
-                    ...result.breakdown,
-                    x402UniquePayers: counters.x402UniquePayers,
-                    x402TopPayerShare: counters.x402TopPayerShare,
-                    x402HighConfShare: counters.x402HighConfShare,
-                    x402SelfPaymentCount: counters.x402SelfPaymentCount,
-                    x402HasLegacyUnattributed:
-                      counters.x402HasLegacyUnattributed,
-                  }
-                : result.breakdown) as unknown as never,
-
+              score_breakdown: result.breakdown as unknown as never,
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
@@ -199,28 +150,20 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         }
 
         const duration = Date.now() - started;
-        await heartbeat(
-          "scoring",
-          true,
-          duration,
-          `scored=${scored} wash_events_emitted=${washEventsEmitted}`,
-        );
+        await heartbeat("scoring", true, duration, `scored=${scored}`);
         return Response.json({ ok: true, scored, duration_ms: duration });
       },
     },
   },
 });
 
-async function aggregateCounters(
-  mint: string,
-  selfWallets: string[] = [],
-) {
+async function aggregateCounters(mint: string) {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [{ data: events }, { data: latest }, { data: first }] = await Promise.all([
     supabaseAdmin
       .from("agent_events")
-      .select("type, severity, amount_sol, amount_token, occurred_at, raw")
+      .select("type, severity, amount_sol, amount_token, occurred_at")
       .eq("mint", mint)
       .gte("occurred_at", since),
     supabaseAdmin
@@ -240,7 +183,6 @@ async function aggregateCounters(
       .limit(1)
       .maybeSingle(),
   ]);
-
 
   const rows = events ?? [];
   const deposits = rows.filter((r) => r.type === "DEPOSIT_RECEIVED");
@@ -280,56 +222,6 @@ async function aggregateCounters(
   const totalX402Sol = x402.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
   const totalX402Usdc = x402.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
 
-  // ── Wash-resistance aggregates (scoring v0.3.0) ──────────────────
-  // Count counterparties, not transactions. Parsed out of agent_events.raw,
-  // which the v0.2.0 facilitator decoder populates with payerWallet,
-  // detectionMethod and confidence.
-  const selfSet = new Set(selfWallets.filter(Boolean));
-  const payerCounts = new Map<string, number>();
-  let highConfCount = 0;
-  let selfPaymentCount = 0;
-  let washFilteredSol = 0;
-  let washFilteredUsdc = 0;
-  let hasLegacyUnattributed = false;
-  let topPayer: string | null = null;
-
-  for (const r of x402) {
-    const raw = (r.raw ?? {}) as Record<string, unknown>;
-    const payer =
-      typeof raw.payerWallet === "string" && raw.payerWallet.length > 0
-        ? raw.payerWallet
-        : null;
-    if (raw.confidence === "high") highConfCount++;
-    // Legacy rows predate payer attribution: they count toward totals but
-    // never toward uniquePayers.
-    if (!payer) {
-      hasLegacyUnattributed = true;
-    } else {
-      payerCounts.set(payer, (payerCounts.get(payer) ?? 0) + 1);
-    }
-    const isSelf = payer !== null && selfSet.has(payer);
-    if (isSelf) {
-      selfPaymentCount++;
-    } else {
-      washFilteredSol += Number(r.amount_sol ?? 0);
-      washFilteredUsdc += Number(r.amount_token ?? 0);
-    }
-  }
-
-  let topPayerCount = 0;
-  for (const [payer, n] of payerCounts) {
-    if (n > topPayerCount) {
-      topPayerCount = n;
-      topPayer = payer;
-    }
-  }
-  const x402UniquePayers = payerCounts.size;
-  const x402TopPayerShare =
-    totalX402Count === 0 ? 0 : topPayerCount / totalX402Count;
-  const x402HighConfShare =
-    totalX402Count === 0 ? 0 : highConfCount / totalX402Count;
-
-
   const buybackExecutionRate =
     totalDepositsCount === 0
       ? 0
@@ -368,68 +260,12 @@ async function aggregateCounters(
     totalX402Count,
     totalX402Sol,
     totalX402Usdc,
-    x402UniquePayers,
-    x402TopPayerShare,
-    x402HighConfShare,
-    x402SelfPaymentCount: selfPaymentCount,
-    x402WashFilteredSol: washFilteredSol,
-    x402WashFilteredUsdc: washFilteredUsdc,
-    x402HasLegacyUnattributed: hasLegacyUnattributed,
-    x402TopPayer: topPayer,
     failedNegativeCount,
     distinctEventTypes,
     observationWindowSeconds,
   };
-
 }
 
-
-// Emit WASH_PATTERN_SUSPECTED, deduped one per agent per UTC day.
-// The synthetic signature encodes (mint, date) so re-runs of the 5-min cron
-// are idempotent even under a race.
-async function emitWashAnomaly(
-  mint: string,
-  stats: {
-    topPayerShare: number;
-    topPayer: string | null;
-    uniquePayers: number;
-    totalEvents: number;
-    selfPaymentCount: number;
-  },
-): Promise<boolean> {
-  const day = new Date().toISOString().slice(0, 10);
-  const signature = `spx-wash:${mint}:${day}`;
-
-  const { data: existing } = await supabaseAdmin
-    .from("agent_events")
-    .select("id")
-    .eq("mint", mint)
-    .eq("type", "WASH_PATTERN_SUSPECTED")
-    .eq("signature", signature)
-    .limit(1)
-    .maybeSingle();
-  if (existing) return false;
-
-  const topPayer = stats.topPayer
-    ? `${stats.topPayer.slice(0, 4)}…${stats.topPayer.slice(-4)}`
-    : null;
-
-  const { error } = await supabaseAdmin.from("agent_events").insert({
-    mint,
-    type: "WASH_PATTERN_SUSPECTED",
-    severity: washAnomalySeverity(stats.selfPaymentCount),
-    signature,
-    occurred_at: new Date().toISOString(),
-    parser_version: RISK_SCORE_MODEL_VERSION,
-    raw: {
-      topPayerShare: stats.topPayerShare,
-      topPayer,
-      uniquePayers: stats.uniquePayers,
-      totalEvents: stats.totalEvents,
-    } as unknown as never,
-  });
-  return !error;
-}
 
 async function heartbeat(
   worker: string,

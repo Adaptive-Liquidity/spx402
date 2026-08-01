@@ -30,10 +30,7 @@ export type EventType =
   | "FAILED_BUYBACK_WINDOW"
   | "PROMISED_BUYBACK_NOT_SETTLED"
   | "X402_PAYMENT_REVERTED"
-  | "WINDOW_MISSED"
-  // Scoring v0.3.0 — wash-resistant x402 weighting.
-  | "WASH_PATTERN_SUSPECTED";
-
+  | "WINDOW_MISSED";
 
 export type Severity = "info" | "warn" | "critical" | "success";
 

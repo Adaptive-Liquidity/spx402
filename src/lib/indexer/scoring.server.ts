@@ -42,23 +42,6 @@ export interface ScoringInputs {
   totalX402Count?: number;
   totalX402Sol?: number;
   totalX402Usdc?: number;
-  // Wash-resistance aggregates (scoring v0.3.0). Derived from
-  // agent_events.raw payerWallet / confidence by the scoring worker.
-  /** distinct non-null payerWallet count */
-  x402UniquePayers?: number;
-  /** max per-payer event count / total events, 0..1 */
-  x402TopPayerShare?: number;
-  /** share of receipts detected at facilitator (high) confidence, 0..1 */
-  x402HighConfShare?: number;
-  /** receipts whose payer is the operator or executor wallet itself */
-  x402SelfPaymentCount?: number;
-  /** SOL sum excluding self-payment events */
-  x402WashFilteredSol?: number;
-  /** USDC raw-unit sum excluding self-payment events */
-  x402WashFilteredUsdc?: number;
-  /** true when some receipts predate payer attribution (parser < v0.2.0) */
-  x402HasLegacyUnattributed?: boolean;
-
   // Generalized swap counters (DEX swaps emitted for executor wallets).
   totalSwapCount?: number;
   totalSwapSol?: number;
@@ -243,59 +226,38 @@ function verdictForRegistered(total: number, i: ScoringInputs): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Branch 3: x402_executor — scoring v0.3.0 (wash-resistant)
+// Branch 3: x402_executor
 // ─────────────────────────────────────────────────────────────────────
-// Core principle: count counterparties, not transactions.
-//
-// v0.2.0 weighted raw receipt count + aggregate volume. Both are trivially
-// farmable: fund one wallet, pay your own endpoint in a loop, outrank honest
-// executors. v0.3.0 weights by payer diversity, discounts memo-tier
-// (medium-confidence) receipts by half, filters self-payments out of volume,
-// and hard-caps the grade at SPX BB when any self-payment is observed.
+// Score philosophy: payment volume + recurrence dominate. We treat USDC
+// receipts as ~$1 each and SOL receipts at face SOL value (no FX call to
+// keep the worker cheap). This is deliberately simple — refine when
+// volume warrants.
 function scoreX402(inputs: ScoringInputs): ScoreResult {
   const count = inputs.totalX402Count ?? 0;
-  const uniquePayers = inputs.x402UniquePayers ?? 0;
-  const topPayerShare = clamp(inputs.x402TopPayerShare ?? 0, 0, 1);
-  const highConfShare = clamp(inputs.x402HighConfShare ?? 0, 0, 1);
-  const selfPaymentCount = inputs.x402SelfPaymentCount ?? 0;
-  const washFilteredSol = inputs.x402WashFilteredSol ?? inputs.totalX402Sol ?? 0;
-  const washFilteredUsdc =
-    inputs.x402WashFilteredUsdc ?? inputs.totalX402Usdc ?? 0;
-
-  // Confidence weight: facilitator-detected settlements count full,
-  // memo-tier medium-confidence events count half.
-  const highConfCount = count * highConfShare;
-  const mediumConfCount = count - highConfCount;
-  const weightedCount = highConfCount + 0.5 * mediumConfCount;
-
-  // Wash discount: 1.0 when perfectly diverse, floored at 0.2 so
-  // single-customer-but-legit services aren't zeroed — they just can't
-  // reach top grades on volume alone.
-  const diversityFactor = clamp(1 - topPayerShare, 0.2, 1);
-
-  const effectiveCount = weightedCount * diversityFactor;
-  const effectiveSol = washFilteredSol * diversityFactor;
-  const effectiveUsdc = washFilteredUsdc * diversityFactor;
-  const effectiveUsdcValue = effectiveUsdc / 1_000_000;
+  const sol = inputs.totalX402Sol ?? 0;
+  const usdc = inputs.totalX402Usdc ?? 0;
+  // Composite "value" for grading. USDC is in raw token units (6 decimals).
+  const usdcValue = usdc / 1_000_000;
 
   const breakdown: ScoreBreakdown = {
-    // Recurrence: unique PAYERS, not receipts. 25 distinct payers = max.
+    // depositConsistency = payment recurrence (count, capped at 100).
     depositConsistency: clamp(
-      Math.round((Math.min(uniquePayers, 25) / 25) * 20),
+      Math.round((Math.min(count, 100) / 100) * 20),
       0,
       20,
     ),
-    // Volume: wash-filtered, diversity-discounted (same caps as v0.2.0).
+    // buybackExecution = aggregate receipt volume in SOL-equivalent
+    // (capped at 10 SOL or $200 USDC).
     buybackExecution: clamp(
-      Math.round((Math.min(effectiveSol + effectiveUsdcValue / 200, 10) / 10) * 25),
+      Math.round((Math.min(sol + usdcValue / 200, 10) / 10) * 25),
       0,
       25,
     ),
-    // USDC-share bonus, computed on wash-filtered USDC only.
-    burnConfirmation:
-      effectiveUsdcValue > 0
-        ? clamp(Math.round((Math.min(effectiveUsdcValue, 100) / 100) * 20), 0, 20)
-        : 0,
+    // burnConfirmation = USDC-share bonus. Stable-denominated revenue is
+    // a stronger trust signal than volatile SOL flow.
+    burnConfirmation: usdcValue > 0
+      ? clamp(Math.round((Math.min(usdcValue, 100) / 100) * 20), 0, 20)
+      : 0,
     failedTx: clamp(15 - Math.min(inputs.failedWindows, 15), 0, 15),
     recency: recencyScore(inputs.lastIndexedSeconds, "short"),
     metadata: inputs.hasMetadata ? 5 : 0,
@@ -303,63 +265,29 @@ function scoreX402(inputs: ScoringInputs): ScoreResult {
   };
   const total = sumBreakdown(breakdown);
 
-  let grade: Grade = count === 0 ? "SPX404" : gradeFromTotal(total);
-  // HARD PENALTY — self-dealing. A cap, not a zero: one self-payment can be
-  // an operator testing their own endpoint. Repeated self-payment with high
-  // topPayerShare is what the diversityFactor eats.
-  if (count > 0 && selfPaymentCount > 0) {
-    grade = minGrade(grade, "SPX BB");
-  }
-
-  // A wallet can no longer reach high confidence on volume from one payer.
-  const confidence: "high" | "medium" | "low" =
-    uniquePayers >= 8 &&
-    highConfShare >= 0.5 &&
-    inputs.lastIndexedSeconds < 60 * 60 * 24
-      ? "high"
-      : count >= 5
-        ? "medium"
-        : "low";
-
+  const grade: Grade = count === 0 ? "SPX404" : gradeFromTotal(total);
   return {
     total,
     breakdown,
     grade,
-    verdict: verdictForX402({
-      total,
-      count,
-      uniquePayers,
-      topPayerShare,
-      usdcValue: effectiveUsdcValue,
-      effectiveCount,
-    }),
-    confidence,
+    verdict: verdictForX402(total, count, usdcValue),
+    confidence:
+      count >= 20 && inputs.lastIndexedSeconds < 60 * 60 * 24
+        ? "high"
+        : count >= 5
+          ? "medium"
+          : "low",
   };
 }
 
-function verdictForX402(a: {
-  total: number;
-  count: number;
-  uniquePayers: number;
-  topPayerShare: number;
-  usdcValue: number;
-  effectiveCount: number;
-}): string {
-  if (a.count === 0) return "No x402 payment receipts observed yet.";
-  if (a.topPayerShare >= 0.8) {
-    return "Receipt volume concentrated in few payers — diversity below methodology floor. Grade discounted per v0.3.0.";
-  }
-  const payers = `${a.uniquePayers} unique payer${a.uniquePayers === 1 ? "" : "s"}`;
-  const usdc = a.usdcValue > 0 ? `, ~$${a.usdcValue.toFixed(2)} USDC routed` : "";
-  if (a.total >= 80) {
-    return `Active x402 executor — ${a.count} receipts from ${payers}${usdc}.`;
-  }
-  if (a.total >= 60) {
-    return `Live x402 executor — ${a.count} receipts from ${payers}${usdc}.`;
-  }
-  return `x402 receipts observed (${a.count}) from ${payers} — payer diversity still building.`;
+function verdictForX402(total: number, count: number, usdcValue: number): string {
+  if (count === 0) return "No x402 payment receipts observed yet.";
+  if (total >= 80)
+    return `Active x402 executor — ${count} receipts indexed${usdcValue > 0 ? `, ~$${usdcValue.toFixed(2)} USDC routed` : ""}.`;
+  if (total >= 60)
+    return `Live x402 executor with moderate receipt volume (${count} receipts).`;
+  return `x402 receipts observed (${count}) — volume still building.`;
 }
-
 
 // ─────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -390,24 +318,6 @@ function recencyScore(lastIndexedSeconds: number, window: "short" | "long"): num
   );
 }
 
-// Grade ordering, best → worst. `minGrade` returns the worse of two grades,
-// used to apply hard caps (e.g. the x402 self-payment cap at SPX BB).
-const GRADE_ORDER: Grade[] = [
-  "SPX AAA",
-  "SPX AA",
-  "SPX A",
-  "SPX BBB",
-  "SPX BB",
-  "SPX B",
-  "SPX D",
-  "SPX404",
-];
-
-function minGrade(a: Grade, b: Grade): Grade {
-  return GRADE_ORDER.indexOf(a) >= GRADE_ORDER.indexOf(b) ? a : b;
-}
-
-
 function gradeFromTotal(total: number): Grade {
   if (total >= 90) return "SPX AAA";
   if (total >= 80) return "SPX AA";
@@ -423,24 +333,4 @@ function confidenceFor(i: ScoringInputs): "high" | "medium" | "low" {
   if (activity >= 20 && i.lastIndexedSeconds < 60 * 60 * 24) return "high";
   if (activity >= 5) return "medium";
   return "low";
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// Wash-pattern anomaly predicate (scoring v0.3.0). Pure — the scoring
-// worker uses these to decide whether to emit WASH_PATTERN_SUSPECTED.
-// ─────────────────────────────────────────────────────────────────────
-export const WASH_MIN_EVENTS = 10;
-export const WASH_TOP_PAYER_SHARE = 0.8;
-
-export function shouldEmitWashAnomaly(
-  totalEvents: number,
-  topPayerShare: number,
-): boolean {
-  return totalEvents >= WASH_MIN_EVENTS && topPayerShare >= WASH_TOP_PAYER_SHARE;
-}
-
-export function washAnomalySeverity(
-  selfPaymentCount: number,
-): "warn" | "critical" {
-  return selfPaymentCount >= 3 ? "critical" : "warn";
 }
