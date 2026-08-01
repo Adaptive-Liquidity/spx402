@@ -792,7 +792,7 @@ export async function fetchOperatorProfile(
   const { data: eventRows } = await supabase
     .from("agent_events")
     .select(
-      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version",
+      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version, raw",
     )
     .in("mint", mints)
     .gte("occurred_at", since)
@@ -810,6 +810,9 @@ export async function fetchOperatorProfile(
     amountSol: numOrZero(r.amount_sol),
     amountToken: numOrZero(r.amount_token),
     parserVersion: r.parser_version,
+    facilitatorId: facilitatorIdFromRaw(r.raw),
+    detectionMethod: detectionMethodFromRaw(r.raw),
+
   }));
 
   let failureEvents = 0;
