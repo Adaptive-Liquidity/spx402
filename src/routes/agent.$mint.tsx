@@ -1086,7 +1086,10 @@ function Dossier({
       )}
 
       {/* RAW TX TABLE */}
+      {probeService && <ProbeStrip service={probeService} series={probeSeries} />}
+
       <Panel className="mt-6" eyebrow="Raw transactions" title="Decoded events">
+
         <div className="overflow-x-auto">
           <table className="w-full font-mono text-xs">
             <thead>
