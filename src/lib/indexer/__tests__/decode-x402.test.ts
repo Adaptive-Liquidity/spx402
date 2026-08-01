@@ -106,7 +106,7 @@ describe("B — x402 decoder", () => {
   });
 
   fixtureTest(
-    "B2_x402_usdc_receipt",
+    "x402-facilitator-settlement-01",
     "USDC settlement via facilitator fee-payer → tier A, high confidence",
     (tx, env) => {
       const registry = registryFor(tx, env);
@@ -125,8 +125,8 @@ describe("B — x402 decoder", () => {
   );
 
   fixtureTest(
-    "B3_x402_memo_marker",
-    "SOL settlement without a memo, detected by facilitator fee-payer",
+    "x402-facilitator-settlement-02",
+    "settlement with no marker anywhere, detected by facilitator fee-payer",
     (tx, env) => {
       const registry = registryFor(tx, env);
       const events = decodeX402Tx(tx, wallets(env.expected), { registry });
@@ -142,6 +142,7 @@ describe("B — x402 decoder", () => {
       }
     },
   );
+
 
   fixtureTest(
     "B4_transfer_no_marker",
