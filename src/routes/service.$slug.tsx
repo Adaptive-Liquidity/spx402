@@ -4,17 +4,26 @@
 // order, with latency, outcome, and the transaction it paid with. Probe data
 // is evidence for readers, not an input to any score.
 
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { relativeFromNow } from "@/lib/live-data";
 import {
   fetchProbeRuns,
+  fetchServiceById,
   fetchServiceBySlug,
+  isUuid,
   settleRateSeries,
   type ProbeRunRow,
   type SettleRatePoint,
   type X402ServiceRow,
 } from "@/lib/prober-data";
+
 import { outcomeLabel, outcomeTone, PROBE_USER_AGENT } from "@/lib/prober/outcomes";
 
 export const Route = createFileRoute("/service/$slug")({
