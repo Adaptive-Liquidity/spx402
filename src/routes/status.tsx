@@ -323,7 +323,132 @@ function StatusPage() {
         </Panel>
       </section>
 
+      {/* ACTIVE PROBER — the lane is visible whether or not it is spending.
+          A disabled prober with honest zeros beats an invisible one. */}
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Active prober <span className="text-paper-muted">· mystery shopper</span>
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-paper-muted">
+          SPX402 buys from x402 services to measure what passive indexing cannot
+          see: whether a challenge is well-formed, whether payment actually
+          settles, and whether anything is delivered. Every probe announces
+          itself as{" "}
+          <code className="font-mono text-xs text-paper">SPX402-Probe/1.0</code>.
+          Probe results are <strong className="text-paper">not scored</strong>.
+        </p>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <Panel eyebrow="Coverage" title="Service registry">
+            <dl className="space-y-3">
+              {[
+                { l: "Services known", v: prober.totalServices.toLocaleString() },
+                {
+                  l: "Probeable (endpoint known)",
+                  v: prober.probeableServices.toLocaleString(),
+                },
+                {
+                  l: "Address-only (no endpoint yet)",
+                  v: prober.addressOnlyServices.toLocaleString(),
+                },
+                { l: "Probes (30d)", v: prober.runs30d.toLocaleString() },
+                {
+                  l: "Config drift detected (30d)",
+                  v: prober.configDrift30d.toLocaleString(),
+                },
+                {
+                  l: "Last probe",
+                  v: prober.lastProbeAt
+                    ? relativeFromNow(prober.lastProbeAt)
+                    : "never",
+                },
+              ].map((s) => (
+                <div
+                  key={s.l}
+                  className="flex items-baseline justify-between border-b border-bronze/30 pb-2"
+                >
+                  <dt className="text-sm text-paper-muted">{s.l}</dt>
+                  <dd className="num-display text-lg font-semibold text-paper">
+                    {s.v}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Panel>
+
+          <Panel eyebrow="Spend" title="Budget and caps">
+            <dl className="space-y-3">
+              {[
+                {
+                  l: "Spent today (UTC)",
+                  v: `$${prober.spentTodayUsd.toFixed(4)}`,
+                },
+                {
+                  l: "Daily budget",
+                  v: `$${PROBE_CAPS.dailyBudgetUsd.toFixed(2)}`,
+                },
+                {
+                  l: "Per-probe cap",
+                  v: `$${PROBE_CAPS.perProbeUsd.toFixed(2)}`,
+                },
+                { l: "Paid probes (30d)", v: prober.paidProbes.toLocaleString() },
+                {
+                  l: "Total paid (30d)",
+                  v: `$${prober.spentAllTimeUsd.toFixed(4)}`,
+                },
+              ].map((s) => (
+                <div
+                  key={s.l}
+                  className="flex items-baseline justify-between border-b border-bronze/30 pb-2"
+                >
+                  <dt className="text-sm text-paper-muted">{s.l}</dt>
+                  <dd className="num-display text-lg font-semibold text-paper">
+                    {s.v}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <div className="mt-4 font-mono text-[11px] uppercase tracking-widest text-wire">
+              {prober.spentTodayUsd >= PROBE_CAPS.dailyBudgetUsd
+                ? "PROBER_BUDGET_HALT — paid probes suspended until 00:00 UTC"
+                : "Budget breaker armed"}
+            </div>
+          </Panel>
+        </div>
+
+        <div className="mt-6 border border-bronze/50 bg-panel p-5">
+          <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
+            Outcomes · last 30 days
+          </div>
+          {prober.runs30d === 0 ? (
+            <p className="mt-3 text-sm text-paper-muted">
+              No probes recorded yet. The lane is scheduled and visible; it stays
+              at zero until the prober is enabled and funded — see{" "}
+              <Link to="/methodology" className="text-amber hover:underline">
+                Active verification
+              </Link>
+              .
+            </p>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-3">
+              {Object.entries(prober.outcomeCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([outcome, count]) => (
+                  <span
+                    key={outcome}
+                    className="border border-bronze/50 px-3 py-1.5 font-mono text-xs text-paper"
+                  >
+                    {outcomeLabel(outcome)}{" "}
+                    <span className="text-amber">{count}</span>
+                  </span>
+                ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* DECODER COVERAGE — surfaces dark categories. A category that has
+
           registered agents but zero observations for an event type is the
           single best signal that a decoder is missing or broken. */}
       <section className="mt-12">
