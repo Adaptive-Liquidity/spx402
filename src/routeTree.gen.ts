@@ -46,9 +46,11 @@ import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.c
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronRegisteredAgentDiffRouteImport } from './routes/api.public.cron-registered-agent-diff'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
+import { Route as ApiPublicCronProbeServicesRouteImport } from './routes/api.public.cron-probe-services'
 import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as ApiPublicAdminSeedVaultRouteImport } from './routes/api.public.admin-seed-vault'
+import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
@@ -246,6 +248,12 @@ const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
   path: '/public/cron-reconciler',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronProbeServicesRoute =
+  ApiPublicCronProbeServicesRouteImport.update({
+    id: '/public/cron-probe-services',
+    path: '/public/cron-probe-services',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronFailureReconcilerRoute =
   ApiPublicCronFailureReconcilerRouteImport.update({
     id: '/public/cron-failure-reconciler',
@@ -262,6 +270,12 @@ const ApiPublicAdminSeedVaultRoute = ApiPublicAdminSeedVaultRouteImport.update({
   path: '/public/admin-seed-vault',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicAdminAddServiceRoute =
+  ApiPublicAdminAddServiceRouteImport.update({
+    id: '/public/admin-add-service',
+    path: '/public/admin-add-service',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
     id: '/watchlist',
@@ -328,9 +342,11 @@ export interface FileRoutesByFullPath {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
+  '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
@@ -375,9 +391,11 @@ export interface FileRoutesByTo {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
+  '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
@@ -424,9 +442,11 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
+  '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
@@ -473,9 +493,11 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
+    | '/api/public/cron-probe-services'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
@@ -520,9 +542,11 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
+    | '/api/public/cron-probe-services'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
@@ -568,9 +592,11 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
+    | '/api/public/cron-probe-services'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
@@ -874,6 +900,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronReconcilerRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-probe-services': {
+      id: '/api/public/cron-probe-services'
+      path: '/public/cron-probe-services'
+      fullPath: '/api/public/cron-probe-services'
+      preLoaderRoute: typeof ApiPublicCronProbeServicesRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-failure-reconciler': {
       id: '/api/public/cron-failure-reconciler'
       path: '/public/cron-failure-reconciler'
@@ -893,6 +926,13 @@ declare module '@tanstack/react-router' {
       path: '/public/admin-seed-vault'
       fullPath: '/api/public/admin-seed-vault'
       preLoaderRoute: typeof ApiPublicAdminSeedVaultRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/admin-add-service': {
+      id: '/api/public/admin-add-service'
+      path: '/public/admin-add-service'
+      fullPath: '/api/public/admin-add-service'
+      preLoaderRoute: typeof ApiPublicAdminAddServiceRouteImport
       parentRoute: typeof ApiRoute
     }
     '/_authenticated/dashboard/watchlist': {
@@ -972,9 +1012,11 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
   ApiPublicAdminSeedVaultRoute: typeof ApiPublicAdminSeedVaultRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
+  ApiPublicCronProbeServicesRoute: typeof ApiPublicCronProbeServicesRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronRegisteredAgentDiffRoute: typeof ApiPublicCronRegisteredAgentDiffRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
@@ -993,9 +1035,11 @@ interface ApiRouteChildren {
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicAdminSeedVaultRoute: ApiPublicAdminSeedVaultRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
+  ApiPublicCronProbeServicesRoute: ApiPublicCronProbeServicesRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronRegisteredAgentDiffRoute: ApiPublicCronRegisteredAgentDiffRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
