@@ -313,8 +313,8 @@ describe("F9 — wash-resistant x402 (v0.3.0)", () => {
       base({
         category: "x402_executor",
         totalX402Count: 100,
-        totalX402Usdc: 100_000_000,
-        x402WashFilteredUsdc: 100_000_000,
+        totalX402Sol: 10,
+        x402WashFilteredSol: 10,
         x402UniquePayers: 1,
         x402TopPayerShare: 1,
         x402HighConfShare: 1,
@@ -325,8 +325,8 @@ describe("F9 — wash-resistant x402 (v0.3.0)", () => {
       base({
         category: "x402_executor",
         totalX402Count: 20,
-        totalX402Usdc: 20_000_000,
-        x402WashFilteredUsdc: 20_000_000,
+        totalX402Sol: 10,
+        x402WashFilteredSol: 10,
         x402UniquePayers: 20,
         x402TopPayerShare: 0.1,
         x402HighConfShare: 1,
@@ -514,6 +514,11 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
         totalX402Count: 50,
         totalX402Sol: 3,
         totalX402Usdc: 40_000_000, // 40 USDC (6 decimals)
+        x402WashFilteredSol: 3,
+        x402WashFilteredUsdc: 40_000_000,
+        x402UniquePayers: 18,
+        x402TopPayerShare: 0.15,
+        x402HighConfShare: 0.8,
         failedWindows: 1,
         lastIndexedSeconds: 60 * 60,
         hasMetadata: true,
@@ -523,18 +528,18 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
     expect(r).toMatchInlineSnapshot(`
       {
         "breakdown": {
-          "burnConfirmation": 8,
-          "buybackExecution": 8,
-          "depositConsistency": 10,
+          "burnConfirmation": 7,
+          "buybackExecution": 7,
+          "depositConsistency": 14,
           "failedTx": 14,
           "metadata": 5,
           "operator": 5,
           "recency": 8,
         },
         "confidence": "high",
-        "grade": "SPX BB",
-        "total": 58,
-        "verdict": "x402 receipts observed (50) — volume still building.",
+        "grade": "SPX BBB",
+        "total": 60,
+        "verdict": "Live x402 executor — 50 receipts from 18 unique payers, ~$34.00 USDC routed.",
       }
     `);
   });
