@@ -83,17 +83,32 @@ export async function fetchRecentTickerEvents(limit = 20): Promise<
 > {
   const { data, error } = await supabase
     .from("agent_events")
-    .select("id, mint, type, severity, amount_sol, occurred_at")
-    .in("severity", ["success", "critical"])
+    .select("id, mint, type, severity, amount_sol, amount_token, chain, raw, occurred_at")
+    .in("severity", ["success", "critical", "warn"])
     .order("occurred_at", { ascending: false })
     .limit(limit);
   if (error || !data) return [];
-  return data.map((r) => ({
-    id: r.id,
-    severity: r.severity,
-    line: tickerLine(r.type, r.mint, numOrZero(r.amount_sol)),
-  }));
+  return data
+    .filter((r) => {
+      // Only high-confidence x402 settlements reach the tape. A memo-marker
+      // match is evidence, but not the kind we broadcast.
+      if (r.type !== "X402_PAYMENT_RECEIVED") return true;
+      return detectionMethodFromRaw(r.raw) === "facilitator_fee_payer";
+    })
+    .map((r) => ({
+      id: r.id,
+      severity: r.severity,
+      line: tickerLine({
+        type: r.type,
+        mint: r.mint,
+        sol: numOrZero(r.amount_sol),
+        token: numOrZero(r.amount_token),
+        chain: r.chain ?? "solana",
+        facilitatorId: facilitatorIdFromRaw(r.raw),
+      }),
+    }));
 }
+
 
 // Leaderboard-flavored ticker lines (top earners) — woven in alongside event lines.
 export async function fetchLeaderboardTickerLines(limit = 5): Promise<string[]> {
