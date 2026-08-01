@@ -422,8 +422,8 @@ async function verifyEvmExecutorWallet(
       .select("id", { count: "exact", head: true })
       .eq("chain", "base")
       .eq("type", "X402_PAYMENT_RECEIVED")
-      .contains("raw", { detectionMethod: "facilitator_sender" })
-      .or(`raw->>payerWallet.eq.${wallet},mint.eq.${wallet}`);
+      .eq("mint", wallet)
+      .contains("raw", { detectionMethod: "facilitator_sender" });
     tierA = count ?? 0;
   } catch {
     tierA = 0;
