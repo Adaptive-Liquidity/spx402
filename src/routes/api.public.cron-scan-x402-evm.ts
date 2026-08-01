@@ -135,7 +135,7 @@ export const Route = createFileRoute("/api/public/cron-scan-x402-evm")({
                 amount_sol: 0,
                 amount_token: ev.amountToken,
                 parser_version: EVM_X402_PARSER_VERSION,
-                raw: ev.raw,
+                raw: ev.raw as Record<string, string | number | boolean | null>,
               },
               { onConflict: "signature", ignoreDuplicates: true },
             );
