@@ -3,12 +3,18 @@ import { Panel } from "@/components/spx/Panel";
 import { CheckCircle2, AlertTriangle, MinusCircle } from "lucide-react";
 import {
   fetchEventCoverage,
+  fetchFacilitators,
   fetchIndexerStats24h,
   fetchLatestIndexerRuns,
   relativeFromNow,
+  type FacilitatorRow,
   type IndexerRunRow,
 } from "@/lib/live-data";
 import { categoryLabel } from "@/lib/agents/categories";
+
+// Kept in lockstep with FACILITATOR_REGISTRY_VERSION in
+// src/lib/indexer/facilitators.server.ts (server-only, so not importable here).
+const FACILITATOR_REGISTRY_VERSION = "v0.2.0";
 
 export const Route = createFileRoute("/status")({
   head: () => ({
@@ -22,13 +28,15 @@ export const Route = createFileRoute("/status")({
     ],
   }),
   loader: async () => {
-    const [runs, stats, coverage] = await Promise.all([
+    const [runs, stats, coverage, facilitators] = await Promise.all([
       fetchLatestIndexerRuns(),
       fetchIndexerStats24h(),
       fetchEventCoverage(),
+      fetchFacilitators(),
     ]);
-    return { runs, stats, coverage };
+    return { runs, stats, coverage, facilitators };
   },
+
   staleTime: 15_000,
   component: StatusPage,
   errorComponent: ({ error, reset }) => {
@@ -109,11 +117,14 @@ function healthFor(run: IndexerRunRow | null): Health {
 }
 
 function StatusPage() {
-  const { runs, stats, coverage } = Route.useLoaderData() as {
+  const { runs, stats, coverage, facilitators } = Route.useLoaderData() as {
     runs: Record<string, IndexerRunRow | null>;
     stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
     coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
+    facilitators: FacilitatorRow[];
   };
+  const activeFacilitators = facilitators.filter((f) => f.active);
+
 
   const healths = COMPONENT_ROWS.map((c) => healthFor(runs[c.key] ?? null));
   const degraded = healths.filter((h) => h === "degraded").length;
@@ -336,6 +347,74 @@ function StatusPage() {
             ))}
         </div>
       </section>
+
+      {/* FACILITATOR REGISTRY — Tier A x402 detection depends entirely on this
+          list. An empty registry is a truthful state, not a bug: no operator
+          has published a Solana settlement fee-payer we could verify. */}
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Facilitator registry{" "}
+          <span className="font-mono text-sm text-paper-muted">
+            · {FACILITATOR_REGISTRY_VERSION}
+          </span>
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-paper-muted">
+          Tier A x402 detection recognises a settlement when the transaction
+          fee-payer is a known facilitator. An address is only activated once
+          the operator publishes it <em>and</em> a captured fixture proves
+          detection. Addresses are never inferred from chain traffic.
+        </p>
+        <div className="mt-4 inline-flex items-center gap-2 border border-bronze/60 bg-panel-deep px-4 py-2 font-mono text-xs uppercase tracking-widest text-paper-muted">
+          <span className="text-amber">{activeFacilitators.length}</span>
+          active · {facilitators.length} tracked
+        </div>
+        <div className="mt-6 overflow-hidden border border-bronze/50">
+          {facilitators.length === 0 ? (
+            <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
+              No facilitator addresses registered. Tier A detection is
+              inactive; x402 settlements are detected via Tier B (memo /
+              protocol markers) only, at medium confidence.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
+                <div className="col-span-4">Facilitator</div>
+                <div className="col-span-2">Chain</div>
+                <div className="col-span-4">Fee-payer</div>
+                <div className="col-span-2 text-right">State</div>
+              </div>
+              {facilitators.map((f, i) => (
+                <div
+                  key={`${f.chain}:${f.id}`}
+                  className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
+                    i % 2 ? "bg-panel" : "bg-background"
+                  }`}
+                >
+                  <div className="col-span-4 font-mono text-xs text-paper">
+                    {f.name}
+                  </div>
+                  <div className="col-span-2 font-mono text-xs text-paper-muted">
+                    {f.chain}
+                  </div>
+                  <div className="col-span-4 font-mono text-xs text-amber">
+                    {f.address
+                      ? `${f.address.slice(0, 6)}…${f.address.slice(-6)}`
+                      : "—"}
+                  </div>
+                  <div
+                    className={`col-span-2 text-right font-mono text-[10px] uppercase tracking-widest ${
+                      f.active ? "text-verified" : "text-wire"
+                    }`}
+                  >
+                    {f.active ? `active · ${f.fixtureId ?? "?"}` : "unverified"}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      </section>
+
       <section className="mt-12 panel-engraved p-6">
         <div className="label-amber">Known parser limitations</div>
         <ul className="mt-3 space-y-2 text-sm text-paper-muted">

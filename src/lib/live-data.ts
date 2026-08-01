@@ -21,10 +21,31 @@ export interface AgentEventRow {
   amountSol: number;
   amountToken: number;
   parserVersion: string;
+  // Tiered x402 detection provenance (parser v0.2.0+). Null for every event
+  // detected without a registry facilitator in the fee-payer slot.
+  facilitatorId: string | null;
+  detectionMethod: string | null;
 }
+
 
 const numOrZero = (v: number | string | null | undefined): number =>
   v == null ? 0 : typeof v === "number" ? v : Number(v);
+
+// Tiered-detection provenance lives in agent_events.raw (written by the x402
+// decoder, parser v0.2.0+). Missing on every pre-v0.2.0 row — hence nullable.
+export function facilitatorIdFromRaw(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v = (raw as Record<string, unknown>)["facilitator_id"] ??
+    (raw as Record<string, unknown>)["facilitatorId"];
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
+
+export function detectionMethodFromRaw(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v = (raw as Record<string, unknown>)["detection_method"] ??
+    (raw as Record<string, unknown>)["detectionMethod"];
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
 
 export async function fetchAgentEvents(
   mint: string,
@@ -34,7 +55,7 @@ export async function fetchAgentEvents(
   const { data, error } = await supabase
     .from("agent_events")
     .select(
-      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version",
+      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version, raw",
     )
     .eq("mint", mint)
     .order("occurred_at", { ascending: false })
@@ -51,8 +72,11 @@ export async function fetchAgentEvents(
     amountSol: numOrZero(r.amount_sol),
     amountToken: numOrZero(r.amount_token),
     parserVersion: r.parser_version,
+    facilitatorId: facilitatorIdFromRaw(r.raw),
+    detectionMethod: detectionMethodFromRaw(r.raw),
   }));
 }
+
 
 export async function fetchRecentTickerEvents(limit = 20): Promise<
   Array<{ id: string; line: string; severity: string }>
@@ -768,7 +792,7 @@ export async function fetchOperatorProfile(
   const { data: eventRows } = await supabase
     .from("agent_events")
     .select(
-      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version",
+      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version, raw",
     )
     .in("mint", mints)
     .gte("occurred_at", since)
@@ -786,6 +810,9 @@ export async function fetchOperatorProfile(
     amountSol: numOrZero(r.amount_sol),
     amountToken: numOrZero(r.amount_token),
     parserVersion: r.parser_version,
+    facilitatorId: facilitatorIdFromRaw(r.raw),
+    detectionMethod: detectionMethodFromRaw(r.raw),
+
   }));
 
   let failureEvents = 0;
@@ -864,3 +891,35 @@ export async function fetchOperatorWallets(limit = 100): Promise<
     .slice(0, limit);
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Facilitator registry (x402 tiered detection). Publicly readable so the
+// /status and /methodology surfaces can state exactly which settlement
+// fee-payers SPX402 recognises today — and prove it when the list is empty.
+// ─────────────────────────────────────────────────────────────────────
+export interface FacilitatorRow {
+  id: string;
+  name: string;
+  chain: string;
+  address: string;
+  sourceUrl: string | null;
+  fixtureId: string | null;
+  active: boolean;
+}
+
+export async function fetchFacilitators(): Promise<FacilitatorRow[]> {
+  const { data, error } = await supabase
+    .from("facilitators")
+    .select("id, name, chain, address, source_url, fixture_id, active")
+    .order("chain", { ascending: true })
+    .order("id", { ascending: true });
+  if (error || !data) return [];
+  return data.map((r) => ({
+    id: r.id,
+    name: r.name,
+    chain: r.chain,
+    address: r.address,
+    sourceUrl: r.source_url,
+    fixtureId: r.fixture_id,
+    active: r.active,
+  }));
+}

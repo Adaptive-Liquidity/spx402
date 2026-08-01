@@ -380,6 +380,42 @@ export type Database = {
         }
         Relationships: []
       }
+      facilitators: {
+        Row: {
+          active: boolean
+          address: string
+          chain: string
+          first_seen_at: string
+          fixture_id: string | null
+          id: string
+          name: string
+          scheme: string
+          source_url: string | null
+        }
+        Insert: {
+          active?: boolean
+          address: string
+          chain: string
+          first_seen_at?: string
+          fixture_id?: string | null
+          id: string
+          name: string
+          scheme?: string
+          source_url?: string | null
+        }
+        Update: {
+          active?: boolean
+          address?: string
+          chain?: string
+          first_seen_at?: string
+          fixture_id?: string | null
+          id?: string
+          name?: string
+          scheme?: string
+          source_url?: string | null
+        }
+        Relationships: []
+      }
       indexer_runs: {
         Row: {
           duration_ms: number

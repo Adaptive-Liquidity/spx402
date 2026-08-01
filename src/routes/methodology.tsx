@@ -135,21 +135,57 @@ const GRADES = [
 const PARSER_VERSIONS = [
   { name: "Score model", value: "spx-score-v0.3.0" },
   { name: "Confidence model", value: "spx-confidence-v0.2.0" },
-  { name: "Parser", value: "spx-parser-v0.1.7" },
+  { name: "Parser", value: "spx-parser-v0.2.0" },
+  { name: "Facilitator registry", value: "spx-facilitators-v0.2.0" },
   { name: "Evidence schema", value: "spx.evidence.v1" },
   { name: "Verified-list schema", value: "spx.verified.v1" },
 ];
+
+// How an x402 settlement gets recognised. Ordered by strength of evidence.
+const X402_DETECTION_TIERS = [
+  {
+    tier: "Tier A",
+    name: "Facilitator fee-payer",
+    confidence: "high",
+    body: "The transaction fee-payer is an address in the SPX402 facilitator registry. Facilitators sponsor gas for x402 settlements, so their fee-payer slot is the strongest available proof that a transfer is a protocol settlement rather than an ordinary transfer. No memo required.",
+  },
+  {
+    tier: "Tier B",
+    name: "Protocol marker",
+    confidence: "medium",
+    body: "No registry facilitator is present, but the transaction carries an x402 memo or description marker. Markers are self-asserted by the payer or server, so these settlements are recorded at medium confidence and are capped in the confidence model.",
+  },
+  {
+    tier: "Not detected",
+    name: "Bare transfer",
+    confidence: "—",
+    body: "A transfer to an executor wallet with neither a registry fee-payer nor a protocol marker is not counted as an x402 settlement. SPX402 undercounts rather than guesses.",
+  },
+];
+
 
 const BLIND_SPOTS = [
   "Custom buyback routes outside known IDLs may surface as low-confidence events.",
   "Off-chain revenue, service quality, and operator intent are unknowable to SPX402.",
   "Webhook delivery latency may delay event ingestion. Reconciliation runs every 60 seconds.",
   "x402 endpoints behind aggregators may be undercounted until the aggregator publishes settlement metadata.",
+  "x402 settlements are undercounted while the facilitator registry is empty: without a published, fixture-verified fee-payer, only transactions carrying an explicit protocol marker (Tier B) are detected.",
   "Cross-chain components are not yet indexed. Solana is the only ingest source today.",
 ];
 
 const SCHEMA_CHANGELOG = [
   {
+    version: "spx-parser-v0.2.0",
+    date: "2026-08-01",
+    body: "Tiered x402 detection. Tier A matches the transaction fee-payer against the facilitator registry (high confidence, no memo required); Tier B falls back to protocol markers (medium confidence). Settlement events now record facilitator_id, detection_method, and the payer wallet.",
+  },
+  {
+    version: "spx-facilitators-v0.2.0",
+    date: "2026-08-01",
+    body: "Facilitator registry introduced. An address activates only when the operator publishes it and a captured settlement fixture proves detection — enforced in the database by an activation guard.",
+  },
+  {
+
     version: "spx-score-v0.3.0",
     date: "2026-04-27",
     body: "Decoupled risk score and confidence into independent pure functions. Removed grade_factor from confidence inputs.",
@@ -325,6 +361,62 @@ function MethodologyPage() {
           ))}
         </div>
       </section>
+
+      {/* X402 DETECTION TIERS */}
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          How SPX402 detects x402 settlements
+        </h2>
+        <p className="mt-2 max-w-3xl text-paper-muted">
+          x402 settlements do not carry a single canonical on-chain signature.
+          SPX402 therefore uses tiered detection and records which tier fired on
+          every event, so any consumer can re-derive the strength of the
+          evidence rather than trusting a boolean.
+        </p>
+        <div className="mt-6 overflow-hidden border border-bronze/50">
+          <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel px-5 py-2 text-[10px] uppercase tracking-widest text-paper-muted">
+            <div className="col-span-2">Tier</div>
+            <div className="col-span-3">Signal</div>
+            <div className="col-span-2">Confidence</div>
+            <div className="col-span-5">Rule</div>
+          </div>
+          {X402_DETECTION_TIERS.map((t, i) => (
+            <div
+              key={t.tier}
+              className={`grid grid-cols-12 items-baseline gap-4 px-5 py-3 ${i % 2 ? "bg-panel" : "bg-background"}`}
+            >
+              <div className="col-span-2 font-mono text-xs text-amber">{t.tier}</div>
+              <div className="col-span-3 font-mono text-xs text-paper">{t.name}</div>
+              <div
+                className={`col-span-2 font-mono text-xs ${
+                  t.confidence === "high"
+                    ? "text-verified"
+                    : t.confidence === "medium"
+                      ? "text-amber"
+                      : "text-wire"
+                }`}
+              >
+                {t.confidence}
+              </div>
+              <div className="col-span-5 text-sm text-paper-muted">{t.body}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 max-w-3xl text-sm text-paper-muted">
+          The facilitator registry is published on the{" "}
+          <a href="/status" className="text-amber underline underline-offset-4">
+            status page
+          </a>
+          , including addresses that are tracked but not yet active. An address
+          becomes active only when its operator publishes it and a captured
+          settlement fixture proves detection against it. SPX402 does not infer
+          facilitator addresses from observed chain traffic, so the registry may
+          legitimately be empty — in which case Tier A is dormant and x402
+          coverage is understated rather than fabricated.
+        </p>
+      </section>
+
+
 
       {/* WHAT WE REFUSE TO MEASURE */}
       <section className="mt-12">

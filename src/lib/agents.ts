@@ -46,6 +46,9 @@ export interface AgentEvent {
   tokenAmount?: number;
   slot: number;
   confidence: "high" | "medium" | "low";
+  /** Registry facilitator whose fee-payer proved this settlement (Tier A). */
+  facilitatorId?: string | null;
+
   occurredAt: string; // relative label
   iso: string;
 }

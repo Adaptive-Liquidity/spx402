@@ -1,60 +1,68 @@
 ## Goal
 
-Implement `SPX402_Decoder_Fixture_Suite_Design` exactly: test infrastructure, the full synthetic scoring golden suite, fixture-driven decoder tests structured so verbatim captures drop in, the local capture tool, and CI. No decoder logic changes.
+Move x402 settlement detection from "text marker required" to tiered structural detection keyed on a curated, fixture-gated facilitator registry, with methodology and status surfaces updated in the same change.
 
-## 1. Tooling
+## 1. New file: `src/lib/indexer/facilitators.server.ts`
 
-- `bun add -d vitest` (Vitest + the already-present `vite-tsconfig-paths`).
-- `package.json`: add exactly one script — `"test": "vitest run"`. No other script touched.
-- `vitest.config.ts` at root: node environment, `tsconfigPaths()` so `@/` resolves, include `src/**/__tests__/**/*.test.ts`.
+Exactly as written in the patch doc:
+- `Facilitator` type (`id, name, chain, address, scheme, sourceUrl, fixtureId, active`), `FacilitatorChain = "solana" | "base"`.
+- `FACILITATOR_SEED` with `cdp-solana` and `payai-solana`, both `active: false`, empty `address`, `fixtureId: null`.
+- `FACILITATOR_REGISTRY_VERSION = "v0.2.0"`.
+- `getActiveFacilitators(chain)` — static seed merged with `facilitators` DB rows where `active = true`, DB wins on key, 5-minute isolate cache, DB failure falls back to seed silently.
+- `facilitatorForFeePayer(registry, feePayer)`, `facilitatorAddressList(registry)`, `HeliusEnhancedTx` re-export.
 
-## 2. Directories
+## 2. Replace `src/lib/indexer/decode-x402.server.ts`
 
-```text
-src/lib/indexer/__tests__/
-  scoring.golden.test.ts        (section F — full, passing now)
-  decode-tokenized.test.ts      (A1–A8)
-  decode-x402.test.ts           (B1–B6)
-  decode-swap.test.ts           (C1–C3)
-  decode-registered-agent.test.ts (D1–D2)
-  verifier.test.ts              (E1–E4, fetch stubbed at boundary)
-  fixtures.ts                   (loader + envelope types + skip handling)
-src/lib/indexer/__fixtures__/
-  <id>.json                     (one file per case)
-```
+Full replacement per doc, `X402_PARSER_VERSION = "v0.2.0"`:
+- Tier A `facilitator_fee_payer` (confidence `high`) when `tx.feePayer` is in the registry.
+- Tier B `memo_marker` (confidence `medium`) — existing `X402_PATTERNS` over description/source/memo instructions, evaluated only when tier A misses.
+- Sender map → best-guess `payerWallet` excluding executor and facilitator; skip the facilitator's own inbound flows.
+- Emits `detectionMethod`, `confidence`, `facilitatorId`, `payerWallet` and mirrors them plus `parserVersion` into `raw`.
+- Signature stays `decodeX402Tx(tx, wallets, opts?)` so `verifier.server.ts` compiles and behaves identically on memo-tier txs. `verifier.server.ts` is not touched.
 
-`fixtures.ts` exports `loadFixture(id)` and `describeFixture(id, fn)`. The envelope is mandatory and typed:
-`{ _fixture: { id, capturedAt, signature, slot, capturedBy, parserVersionIntroduced, expected, notes, status? }, tx }`.
-A fixture whose envelope has `status: "SKIPPED"` with a `skipReason` and no `tx` causes the test to register as `test.skip` with the reason printed — never a silent pass, never a fabricated `tx`.
+## 3. `src/routes/api.public.cron-scan-x402.ts`
 
-## 3. Section F — synthetic scoring goldens (built fully, no captures)
+- Load registry once per invocation; sweep signatures for the Memo programs **and** every active facilitator fee-payer address.
+- Exclude facilitator addresses from `collectReceivers` candidates.
+- Pass `{ registry }` into `decodeX402Tx`.
+- Track recipients as `Map<wallet, detectionMethod>`; tag `discovered_via` as `x402_facilitator_scan` for tier A, `x402_scan` otherwise.
+- New `persistSettlementIfKnownAgent(ev)`: on `agents.executor_wallet` hit, insert `agent_events` row (`X402_PAYMENT_RECEIVED`, `info`, signature, occurred_at, amounts, confidence, raw) with signature-based conflict-ignore idempotency.
+- Heartbeat notes gain `facilitators=N`.
 
-Against `src/lib/indexer/scoring.server.ts` (unchanged):
+## 4. Migration: `facilitators` table
 
-- Grade boundary sweep at totals 89/90, 79/80, 69/70, 59/60, 49/50, 39/40 — inputs constructed to land on each exact total, asserting the grade flips at the documented threshold.
-- SPX404 per branch: tokenized (all counters zero), x402 (`count === 0`), registered (`!registryProof && swapCount === 0`).
-- Fee-buyback auto-detect: `deposits=0, buybacks=3` flips the branch; `buybacks=2` does not (asserted via the differing breakdown/verdict).
-- Recency window edges: `lastIndexedSeconds` exactly at 6h (short window) and 7d (long window), plus one second either side.
-- Regression pin: a canonical synthetic input per branch → full `ScoreResult` object via `toMatchInlineSnapshot`, so any scoring change forces a reviewable diff.
+Exactly as written — table with `unique (chain, address)`, RLS enabled, public-read policy for `anon`/`authenticated`, writes service-role only, plus `_facilitator_activation_guard()` trigger rejecting `active = true` without `address` + `fixture_id`. GRANTs added alongside (SELECT to anon/authenticated, ALL to service_role) so the public-read policy actually works through the Data API.
 
-## 4. Sections A–E — test bodies now, captures dropped in later
+## 5. Fixtures B1–B6
 
-Each case gets its test written against the real decoder with the doc's assertions (`decodeTx`, `decodeX402Tx`, `decodeSwapTx`, `diffRegisteredAgent`, verifier with `fetch` stubbed). Fixture files are created as envelope-only SKIPPED stubs carrying `expected` and `skipReason` until a real capture lands. Assertions are written to the doc's strictness and will not be softened.
+Build the six cases in `src/lib/indexer/__tests__/decode-x402.test.ts` against the existing envelope loader:
+- B1 SOL settlement, B2 USDC facilitator fee-payer settlement (no memo), B3 SOL facilitator fee-payer settlement (no memo) — tier A, `confidence: high`, `facilitatorId` set, `payerWallet` captured.
+- B4 plain transfer, no marker, non-facilitator fee-payer → zero events.
+- B5 x402 marker but wrong recipient → zero events for the tracked wallet.
+- B6 reverted tx → zero events.
 
-Capture attempt: if `HELIUS_API_KEY` is reachable in this environment, I will run the capture script against the tx history of the two live indexed agents and fill whichever of A1–A8 / C1–C3 real transactions actually exist. Anything not found on-chain stays SKIPPED with a reason. B1–B6 (x402 facilitator cases) and D1–D2 are expected to remain SKIPPED going into the second doc's patch, which ships them as its acceptance criteria.
+Note on IDs: the fixture-suite doc labelled B2/B3 as `x402_usdc_receipt` / `x402_memo_marker`, while this patch calls B2/B3 the facilitator-tier proofs. I'll keep the existing envelope IDs and add the facilitator-tier assertions the patch requires, so no existing fixture is deleted or weakened.
 
-## 5. `scripts/capture-fixture.ts`
+Capture flow, in order: pull a facilitator address from the operator's official docs (CDP `docs.cdp.coinbase.com/x402`; PayAI's repo/docs) → capture a real settlement tx via `scripts/capture-fixture.ts` → only then insert the row with `active = true` and its `fixture_id`. If no published address plus real settlement can be verified, the registry stays empty/inactive and B2/B3 stay SKIPPED with the reason in the envelope. No invented addresses, no fabricated tx JSON.
 
-Local-only Bun script per section 6: `--signature`, `--id`, `--expect` (JSON), optional `--notes`. Reads `HELIUS_API_KEY` from `process.env` (never hardcoded, never in CI), fetches the Enhanced Transactions API, writes `src/lib/indexer/__fixtures__/<id>.json` with the verbatim `tx` under the `_fixture` envelope, then runs the relevant test once.
+## 6. `/methodology`
 
-## 6. CI
+New subsection "How SPX402 detects x402 settlements": tier A (facilitator fee-payer, high confidence, structural), tier B (memo marker, medium confidence, self-labeling), registry version `v0.2.0`, and the note that the facilitator registry is publicly readable and auditable, with the fixture-gate rule stated.
 
-`.github/workflows/fixtures.yml` verbatim from the doc: `name: decoder-fixtures`, `on: [push]`, ubuntu-latest, checkout@v4, setup-node@v4 (node 22, npm cache), `npm ci`, `npm test`. No secrets.
+## 7. `/status`
 
-## 7. Out of scope for this prompt
+Add a registry panel: `FACILITATOR_REGISTRY_VERSION`, active facilitator count, and fixture count (rows with a non-null `fixture_id`).
 
-No decoder behavior changes, no `PARSER_VERSION` constant additions, no `/status` fixture-coverage panel, no methodology governance copy, and nothing from the facilitator patch doc — those are governance/second-prompt items.
+## 8. Dossier chip
 
-## Deliverable report
+Event rows render a `via {facilitatorId}` chip when `raw.facilitatorId` is present.
 
-Full `vitest run` output with pass/skip counts and an explicit list of fixture IDs still needing real captures.
+## Out of scope (explicit)
+
+- No scoring-weight changes; `scoreX402` math untouched. `detectionMethod`/`confidence`/`payerWallet` are collected only.
+- `verifier.server.ts` untouched.
+- No existing fixture weakened or removed.
+
+## Verification
+
+Run the full fixture suite and report pass/skip/fail counts, list active facilitators with their fixture IDs, and prove the activation guard by attempting a manual `active = true` insert without `fixture_id` and showing the rejection.
