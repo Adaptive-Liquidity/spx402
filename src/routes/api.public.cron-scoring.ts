@@ -157,13 +157,16 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
   },
 });
 
-async function aggregateCounters(mint: string) {
+async function aggregateCounters(
+  mint: string,
+  selfWallets: string[] = [],
+) {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [{ data: events }, { data: latest }, { data: first }] = await Promise.all([
     supabaseAdmin
       .from("agent_events")
-      .select("type, severity, amount_sol, amount_token, occurred_at")
+      .select("type, severity, amount_sol, amount_token, occurred_at, raw")
       .eq("mint", mint)
       .gte("occurred_at", since),
     supabaseAdmin
@@ -183,6 +186,7 @@ async function aggregateCounters(mint: string) {
       .limit(1)
       .maybeSingle(),
   ]);
+
 
   const rows = events ?? [];
   const deposits = rows.filter((r) => r.type === "DEPOSIT_RECEIVED");
