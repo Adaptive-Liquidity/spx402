@@ -64,10 +64,19 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
           return json(500, { ok: false, error: "missing HELIUS_API_KEY" });
         }
 
-        // 1. Pull recent signatures for both Memo programs.
+        // 1. Pull recent signatures for BOTH discovery surfaces:
+        //      a. SPL Memo programs (legacy, catches self-labeling flows)
+        //      b. every ACTIVE facilitator fee-payer wallet (structural detection)
+        const registry = await getActiveFacilitators("solana");
+        const facAddresses = facilitatorAddressList(registry);
+
         const sigSet = new Set<string>();
         for (const programId of MEMO_PROGRAMS) {
           const sigs = await getRecentSignatures(heliusKey, programId);
+          for (const s of sigs) sigSet.add(s);
+        }
+        for (const addr of facAddresses) {
+          const sigs = await getRecentSignatures(heliusKey, addr);
           for (const s of sigs) sigSet.add(s);
         }
         if (sigSet.size === 0) {
@@ -75,24 +84,36 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
             "x402_scan",
             true,
             Date.now() - startedAt,
-            "no memo signatures returned",
+            `facilitators=${facAddresses.length} no signatures returned`,
           );
           return json(200, { ok: true, scanned: 0, queued: 0 });
         }
 
         // 2. Fetch enhanced txs in batches and run them through the x402 decoder.
         const sigs = Array.from(sigSet);
-        const recipients = new Set<string>();
+        const recipients = new Map<string, X402DetectionMethod>();
         let parsed = 0;
+        let persisted = 0;
         for (let i = 0; i < sigs.length; i += ENHANCED_BATCH) {
           const batch = sigs.slice(i, i + ENHANCED_BATCH);
           const txs = await fetchEnhancedTxs(batch);
           parsed += txs.length;
           for (const tx of txs) {
-            const candidates = collectReceivers(tx);
+            const candidates = collectReceivers(tx).filter(
+              (w) => !facAddresses.includes(w),
+            );
             if (candidates.length === 0) continue;
-            const events = decodeX402Tx(tx, candidates);
-            for (const ev of events) recipients.add(ev.executorWallet);
+            const events = decodeX402Tx(tx, candidates, { registry });
+            for (const ev of events) {
+              // Facilitator-tier detection wins the tag when both fire.
+              const prev = recipients.get(ev.executorWallet);
+              if (prev !== "facilitator_fee_payer") {
+                recipients.set(ev.executorWallet, ev.detectionMethod);
+              }
+              // Also persist settlements for wallets we ALREADY track —
+              // discovery shouldn't be the only path events reach agent_events.
+              if (await persistSettlementIfKnownAgent(ev)) persisted += 1;
+            }
           }
         }
 
@@ -101,13 +122,13 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
             "x402_scan",
             true,
             Date.now() - startedAt,
-            `parsed=${parsed} no x402 receipts`,
+            `facilitators=${facAddresses.length} parsed=${parsed} no x402 receipts`,
           );
           return json(200, { ok: true, scanned: parsed, queued: 0 });
         }
 
         // 3. Skip wallets we already know about (as agents or candidates).
-        const recipientList = Array.from(recipients);
+        const recipientList = Array.from(recipients.keys());
         const [{ data: agentsByExec }, { data: agentsByMint }, { data: existingCands }] =
           await Promise.all([
             supabaseAdmin
@@ -137,13 +158,17 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
                 identifier_kind: "executor_wallet",
                 category: "x402_executor",
                 executor_wallet: wallet,
-                discovered_via: "x402_scan",
+                discovered_via:
+                  recipients.get(wallet) === "facilitator_fee_payer"
+                    ? "x402_facilitator_scan"
+                    : "x402_scan",
                 status: "pending",
               })),
             )
             .select("mint");
           if (!error && inserted) queued = inserted.length;
         }
+
 
         const duration = Date.now() - startedAt;
         await heartbeat(
