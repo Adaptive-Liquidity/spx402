@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { CheckCircle2, AlertTriangle, MinusCircle } from "lucide-react";
 import {
@@ -10,7 +10,10 @@ import {
   type FacilitatorRow,
   type IndexerRunRow,
 } from "@/lib/live-data";
+import { fetchProberOverview, type ProberOverview } from "@/lib/prober-data";
+import { outcomeLabel, PROBE_CAPS } from "@/lib/prober/outcomes";
 import { categoryLabel } from "@/lib/agents/categories";
+
 
 // Kept in lockstep with FACILITATOR_REGISTRY_VERSION in
 // src/lib/indexer/facilitators.server.ts (server-only, so not importable here).
