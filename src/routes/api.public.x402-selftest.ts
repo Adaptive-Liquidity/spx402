@@ -99,32 +99,25 @@ export const Route = createFileRoute("/api/public/x402-selftest")({
         }
 
         try {
-          const { verify, settle } = await import("x402/verify");
-          const { exact } = await import("x402/schemes");
-          void exact;
+          const { useFacilitator } = await import("x402/verify");
 
-          const facilitator = { url: t.facilitator as `${string}://${string}` };
+          const { verify, settle } = useFacilitator({
+            url: t.facilitator as `${string}://${string}`,
+          });
           const decoded = JSON.parse(atob(paymentHeader)) as Record<string, unknown>;
 
-          const verification = await verify(
-            decoded as never,
-            accepts[0] as never,
-            facilitator,
-          );
-          if (!(verification as { isValid?: boolean }).isValid) {
+          const verification = await verify(decoded as never, accepts[0] as never);
+          if (!verification.isValid) {
             return json(402, {
               ok: false,
               error: "payment verification failed",
-              detail: (verification as { invalidReason?: string }).invalidReason ?? null,
+              detail: verification.invalidReason ?? null,
             });
           }
 
-          const settlement = await settle(
-            decoded as never,
-            accepts[0] as never,
-            facilitator,
-          );
-          const txn = (settlement as { transaction?: string }).transaction ?? null;
+          const settlement = await settle(decoded as never, accepts[0] as never);
+          const txn = settlement.transaction ?? null;
+
 
           return new Response(
             JSON.stringify(
