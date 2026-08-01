@@ -57,7 +57,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const { data: agents } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset",
+            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset, operator_wallet",
           );
 
         if (!agents || agents.length === 0) {
@@ -66,8 +66,12 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         }
 
         let scored = 0;
+        let washEventsEmitted = 0;
         for (const a of agents) {
-          const counters = await aggregateCounters(a.mint);
+          const counters = await aggregateCounters(a.mint, [
+            a.operator_wallet ?? "",
+            a.executor_wallet ?? "",
+          ]);
           const category = (a.category as
             | "tokenized_buyback"
             | "registered_agent"
@@ -93,7 +97,35 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             totalX402Count: counters.totalX402Count,
             totalX402Sol: counters.totalX402Sol,
             totalX402Usdc: counters.totalX402Usdc,
+            // Wash-resistance aggregates (scoring v0.3.0).
+            x402UniquePayers: counters.x402UniquePayers,
+            x402TopPayerShare: counters.x402TopPayerShare,
+            x402HighConfShare: counters.x402HighConfShare,
+            x402SelfPaymentCount: counters.x402SelfPaymentCount,
+            x402WashFilteredSol: counters.x402WashFilteredSol,
+            x402WashFilteredUsdc: counters.x402WashFilteredUsdc,
+            x402HasLegacyUnattributed: counters.x402HasLegacyUnattributed,
           });
+
+          // Wash-pattern anomaly — the homepage's "suspicious wash-like
+          // windows" promise, made real for the x402 category.
+          if (
+            category === "x402_executor" &&
+            shouldEmitWashAnomaly(
+              counters.totalX402Count,
+              counters.x402TopPayerShare,
+            )
+          ) {
+            const emitted = await emitWashAnomaly(a.mint, {
+              topPayerShare: counters.x402TopPayerShare,
+              topPayer: counters.x402TopPayer,
+              uniquePayers: counters.x402UniquePayers,
+              totalEvents: counters.totalX402Count,
+              selfPaymentCount: counters.x402SelfPaymentCount,
+            });
+            if (emitted) washEventsEmitted++;
+          }
+
           // Wave 2 — independent confidence calculation. Counts ONLY evidence
           // signals; never reads the score back. The UI uses confidence_score
           // to decide outlined vs filled grade badges.
