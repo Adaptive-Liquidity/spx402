@@ -328,11 +328,15 @@ export async function recordProbe(record: ProbeRecord): Promise<void> {
   });
 
   const now = new Date().toISOString();
-  const patch: Record<string, string | number | null> = { last_probe_at: now };
-  if (record.probeKind === "challenge") patch["last_challenge_probe_at"] = now;
-  else patch["last_settlement_probe_at"] = now;
+  await supabaseAdmin
+    .from("x402_service")
+    .update(
+      record.probeKind === "challenge"
+        ? { last_probe_at: now, last_challenge_probe_at: now }
+        : { last_probe_at: now, last_settlement_probe_at: now },
+    )
+    .eq("id", record.serviceId);
 
-  await supabaseAdmin.from("x402_service").update(patch).eq("id", record.serviceId);
 }
 
 /** Persist what a valid challenge told us about the service's own config. */
