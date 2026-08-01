@@ -166,7 +166,9 @@ const KNOWN_WORKERS = [
   "score_snapshot",
   "x402_scan",
   "evm_x402_scan",
+  "prober",
 ] as const;
+
 
 export async function fetchLatestIndexerRuns(): Promise<
   Record<string, IndexerRunRow | null>

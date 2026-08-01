@@ -1,70 +1,53 @@
-## Goal
+## Active Prober Lane ("mystery shopper")
 
-Add the Base (EVM) settlement lane for x402 alongside the existing Solana lane, exactly per the spec. Detection ships live; nothing is scored from an unproven facilitator. `scoring.server.ts` is not touched.
+SPX402 becomes an x402 *buyer* so it can measure what passive indexing can't: whether an endpoint challenges correctly, settles after payment, and delivers after settling. Probe data is collected and displayed only — **never scored** in this wave.
 
-## Prerequisite
+Lane ships with `PROBER_ENABLED=false`: all code live, challenge probes runnable, settlement probes gated until `PROBER_SOLANA_KEY` / `PROBER_BASE_KEY` are added and funded. `/status` shows the lane as "armed, unfunded" rather than faking activity.
 
-`BASE_RPC_URL` is a new backend secret (Alchemy / QuickNode / public Base RPC). I'll request it via the secure secret form at the start of implementation. Without it the lane builds and tests pass on fixtures, but the cron reports `no_rpc` in its heartbeat rather than pretending to scan.
+### 1. Migration (first, alone)
+- `x402_service` and `probe_run` exactly as specced, plus a `slug` column on `x402_service` (unique, encoded host+path, e.g. `api.example.com~v1~weather`) to address the service page.
+- Public read on both (transparency is the point), service-role writes only. Index `probe_run(service_id, ran_at desc)`.
 
-## Step 1 — Migration (first, standalone)
+### 2. Service enumeration
+Confirmed current state: `agent_events` holds **zero** x402 rows, but `candidate_agents` holds **22** payees discovered via `x402_facilitator_scan`. So the settlement-lane seed reads both sources — Tier A payees in `agent_events` *and* x402 candidate payees — and inserts them `probe_tier='address-only'` with no URL. Plus a manual admin insert path, and a one-off directory-import script (not a cron).
 
-- `chain text not null default 'solana'` added to `agents`, `candidate_agents`, `agent_events`.
-- New `indexer_state (key pk, value, updated_at)` — service-role grants only, RLS on, no public policies.
-- Insert the two Base facilitator rows **exactly as written** (`cdp-base`, `payai-base`), empty address, `active: false`, `on conflict do nothing`. The existing `_facilitator_activation_guard` trigger keeps rejecting activation without address + fixture_id — verified after the migration by attempting a fixtureless activation and confirming it raises.
-- Addresses stay empty in the migration. Any address arrives later only from the operator's `/supported` endpoint or official docs, then only after a captured fixture.
+### 3. `src/lib/prober/` server module
+- **Challenge probe** (free): GET with UA `SPX402-Probe/1.0 (+https://spx402.com/methodology)`, parse `PAYMENT-REQUIRED` v2 header or v1 JSON body, validate scheme/network/asset/amount/payTo/facilitator, cross-check payTo against the dossier wallet, emit `CONFIG_DRIFT` on mismatch.
+- **Settlement probe**: official x402 client SDKs only — `x402-fetch` + `viem` for Base, the Solana x402 client for the PayAI-style flow. No hand-rolled signing.
+- **Outcome ladder** as a pure classifier function: `no_402 | timeout | malformed_challenge | challenge_valid | over_cap | payment_rejected | settled_no_delivery | delivery_unverified | settled`. Records `verify_ms`, `settle_ms`, `tx_signature`, `delivered`.
 
-## Step 2 — `src/lib/indexer/evm.server.ts`
+### 4. Self-probe validation (before any scheduling)
+1. Build `/api/public/x402-selftest` — a real x402-paywalled endpoint at $0.001 settling to an SPX treasury wallet. SPX402 becomes its own first probed service, dogfooded in public.
+2. Point the prober at it, confirm the full ladder end-to-end.
+3. Then one probe against a live third-party service to prove the signing path works against a foreign implementation.
 
-Base RPC helpers, server-only, `BASE_RPC_URL` read inside functions (never module scope, never committed):
-- `getLogs({ address, topics, fromBlock, toBlock })` with 2,000-block chunking.
-- `getTransactionByHash(hash)` → `{ from, to, input, blockNumber, hash }`.
-- `getBlockNumber()`; `getBlockTimestamp(n)` with a per-run cache.
-- Cursor read/write against `indexer_state` (`key='evm_x402_cursor'`).
-- README/docs note that `BASE_RPC_URL` is required and secret-managed (no `.env` commit).
+Both steps require funded keys, so they are **deferred** to the flip-the-flag session. Until then the self-test endpoint ships and is reachable, and the settlement path is covered by synthetic tests only.
 
-## Step 3 — `src/lib/indexer/decode-x402-evm.server.ts`
+### 5. Cron + safety
+`api.public.cron-probe-services`, every 15 min, batch cap 50/run, queue drains across runs. Head tier: challenge hourly, settlement every 6h. Tail: challenge hourly, settlement weekly-sampled.
+- Per-probe cap $0.05 → skip and log `over_cap`.
+- Daily budget $10 → `PROBER_BUDGET_HALT` anomaly, lane halts, surfaced on `/status`.
+- Wallet-drain tripwire: balance drop >20% without matching `probe_run` rows → critical anomaly.
+- No retries. A failed probe is data.
+- Heartbeat `prober`: `challenge_probes= settlement_probes= settled= failed= spend_usd= queue_depth=`.
 
-- `EVM_X402_PARSER_VERSION = "v1.0.0-evm"`, `EvmX402Event` and `decodeEvmX402Tx` with the exact signatures from the spec.
-- Tier A `facilitator_sender`: sender ∈ `base:` registry AND calldata targets Base USDC `transferWithAuthorization` (EIP-3009) or Permit2 `permitWitnessTransferFrom` → confidence `high`, `facilitatorId` set. Scored.
-- Tier B `eip3009_pattern`: valid EIP-3009 call, sender ∉ registry → confidence `low`, `facilitatorId: null`. **Discovery only** — a hard type/route boundary means Tier B events are never returned to the persistence path.
-- EVM addresses normalized lowercase. `facilitatorForSender(registry, txFrom)` added to `facilitators.server.ts` (`base:` prefix, lowercase compare).
-- Selectors and the `AuthorizationUsed` topic hash are pinned from captured fixtures E1/E2. If capture isn't possible this session, they ship as SKIPPED fixture stubs with explicit reasons per fixture governance — never hand-derived and asserted as verified.
+### 6. Loop closure
+After a 200, poll `agent_events` for 90s looking for the prober's own settlement via the facilitator lanes. Miss → RPC/facilitator fallback lookup, and the indexer gap is recorded as a reconciliation signal. The prober audits SPX402's own lanes.
 
-## Step 4 — `src/routes/api.public.cron-scan-x402-evm.ts` (15 min)
+### 7. `PROBE_DIVERGENCE`
+Pure function, unit-tested: warn when probe settle-rate − organic settle-rate > 0.25 over ≥14 days. Synthetic unit tests for **every** outcome-ladder value.
 
-Cursor-resumable, secret-gated like the other crons:
-1. Cursor from `indexer_state`, default `latest - 5000` on first run.
-2. Chunked `eth_getLogs` for `AuthorizationUsed` on Base USDC.
-3. Per log → `getTransactionByHash` → `decodeEvmX402Tx`.
-4. Tier A → `agent_events` for known agents (`type: 'X402_PAYMENT_RECEIVED'`, `signature = txHash`, idempotent on signature, `chain: 'base'`, detection fields + parser version in `raw`); unknown payees → `candidate_agents` (`identifier_kind: 'executor_wallet'`, `category: 'x402_executor'`, `chain: 'base'`, `discovered_via: 'x402_evm_scan'`).
-5. Tier B counted only; any single unknown sender over 50 settlements in a run is named in heartbeat notes as a `discover-facilitators` candidate.
-6. Cursor advances **only on a fully successful run**; heartbeat `evm_x402_scan` with `blocks= logs= tierA= tierB= persisted= queued=`.
+### 8. Surfaces (same deploy)
+- Dossier: "Last probed: …" line + 30-day settle-rate sparkline for matched services.
+- `/service/$slug`: full public probe transcript.
+- `/methodology`: "Active verification" section — tiers, prober wallet addresses, spend caps, divergence signal, and the explicit "probe data is not yet scored" statement.
+- `/status`: prober lane heartbeat, daily spend, budget-breaker state, disabled-state notice.
 
-## Step 5 — Verifier EVM branch
+### Hard rules honored
+- `scoring.server.ts` untouched; snapshots byte-identical (verified by re-running the fixture suite).
+- Prober self-identifies. No covert probing.
+- Every payment reconstructible from `probe_run` + on-chain data.
+- Keys are server-only secrets, never client, never in fixtures.
 
-`verifyEvmExecutorWallet(address)` in `verifier.server.ts`: routed when `identifier_kind === 'executor_wallet'` and the address is `0x`-prefixed. Bar is ≥1 Tier A settlement for that payee **in `agent_events`** — a DB query only. No live EVM RPC in the verifier; the indexer is the witness.
-
-## Step 6 — Fixtures E1–E4
-
-`scripts/capture-fixture.ts` gains `--chain base` (verbatim `eth_getTransactionByHash` + `eth_getTransactionReceipt`, same `_fixture` envelope). New `decode-x402-evm.test.ts`:
-- E1 CDP/PayAI facilitator `transferWithAuthorization` → Tier A high, payer/payee/amount, `facilitatorId`.
-- E2 Permit2 `permitWitnessTransferFrom` via registry facilitator → Tier A.
-- E3 (critical guard) non-registry EIP-3009 → Tier B only, low, and an explicit assertion that the persistence path yields zero `agent_events` rows and zero score impact.
-- E4 plain USDC `transfer` → zero events.
-Any fixture that can't be captured ships SKIPPED with a stated reason; no fabricated payloads.
-
-## Step 7 — Surfaces (same deploy)
-
-- **Dossier:** chain badge (Solana / Base); EVM event rows render `via {facilitator}` identically.
-- **`/methodology`:** EVM detection-tier subsection — the two tiers, why there is no memo tier on EVM, why Tier B never scores.
-- **`/status`:** both lane heartbeats, EVM cursor block, registry counts per chain. If no Base facilitator is fixture-verified, the page states report-only mode plainly.
-
-## Hard rules honored
-
-- `src/lib/indexer/scoring.server.ts` is not opened or edited; I'll diff score snapshots before/after and confirm byte-identical.
-- If no Base facilitator address can be fixture-verified this session, the lane ships **report-only**: detection live, Base registry empty, zero scored Base agents, honest `/status`.
-- Non-goals respected: no cross-chain identity linking, no chains beyond Base, no payer scoring.
-
-## Final report
-
-Fixture status per E1–E4, cursor behavior across a forced mid-run failure, both heartbeats, and confirmation that scoring snapshots are unchanged.
+### Deliverable at end of this wave
+Probe counts by outcome (challenge-only until funded), budget-breaker test result via synthetic spend injection, confirmation that snapshots are unchanged, and an explicit statement that the self-probe loop-closure proof is pending key funding.

@@ -30,11 +30,13 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
+import { Route as ServiceSlugRouteImport } from './routes/service.$slug'
 import { Route as OperatorWalletRouteImport } from './routes/operator.$wallet'
 import { Route as EmbedSubjectRouteImport } from './routes/embed.$subject'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as ApiPublicX402SelftestRouteImport } from './routes/api.public.x402-selftest'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
 import { Route as ApiPublicVerifiedRouteImport } from './routes/api.public.verified'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
@@ -46,9 +48,11 @@ import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.c
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronRegisteredAgentDiffRouteImport } from './routes/api.public.cron-registered-agent-diff'
 import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public.cron-reconciler'
+import { Route as ApiPublicCronProbeServicesRouteImport } from './routes/api.public.cron-probe-services'
 import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as ApiPublicAdminSeedVaultRouteImport } from './routes/api.public.admin-seed-vault'
+import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
@@ -160,6 +164,11 @@ const TapeEventIdRoute = TapeEventIdRouteImport.update({
   path: '/$eventId',
   getParentRoute: () => TapeRoute,
 } as any)
+const ServiceSlugRoute = ServiceSlugRouteImport.update({
+  id: '/service/$slug',
+  path: '/service/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OperatorWalletRoute = OperatorWalletRouteImport.update({
   id: '/operator/$wallet',
   path: '/operator/$wallet',
@@ -184,6 +193,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ApiPublicX402SelftestRoute = ApiPublicX402SelftestRouteImport.update({
+  id: '/public/x402-selftest',
+  path: '/public/x402-selftest',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
   id: '/public/webhook-helius',
@@ -246,6 +260,12 @@ const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
   path: '/public/cron-reconciler',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronProbeServicesRoute =
+  ApiPublicCronProbeServicesRouteImport.update({
+    id: '/public/cron-probe-services',
+    path: '/public/cron-probe-services',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronFailureReconcilerRoute =
   ApiPublicCronFailureReconcilerRouteImport.update({
     id: '/public/cron-failure-reconciler',
@@ -262,6 +282,12 @@ const ApiPublicAdminSeedVaultRoute = ApiPublicAdminSeedVaultRouteImport.update({
   path: '/public/admin-seed-vault',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicAdminAddServiceRoute =
+  ApiPublicAdminAddServiceRouteImport.update({
+    id: '/public/admin-add-service',
+    path: '/public/admin-add-service',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
     id: '/watchlist',
@@ -324,13 +350,16 @@ export interface FileRoutesByFullPath {
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
+  '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
@@ -342,6 +371,7 @@ export interface FileRoutesByFullPath {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
@@ -371,13 +401,16 @@ export interface FileRoutesByTo {
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
+  '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
@@ -389,6 +422,7 @@ export interface FileRoutesByTo {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
@@ -420,13 +454,16 @@ export interface FileRoutesById {
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
+  '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
   '/api/public/cron-reconciler': typeof ApiPublicCronReconcilerRoute
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
@@ -438,6 +475,7 @@ export interface FileRoutesById {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
+  '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
@@ -469,13 +507,16 @@ export interface FileRouteTypes {
     | '/api/docs'
     | '/embed/$subject'
     | '/operator/$wallet'
+    | '/service/$slug'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
+    | '/api/public/cron-probe-services'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
@@ -487,6 +528,7 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
+    | '/api/public/x402-selftest'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/agent/$subject/evidence'
@@ -516,13 +558,16 @@ export interface FileRouteTypes {
     | '/api/docs'
     | '/embed/$subject'
     | '/operator/$wallet'
+    | '/service/$slug'
     | '/tape/$eventId'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
+    | '/api/public/cron-probe-services'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
@@ -534,6 +579,7 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
+    | '/api/public/x402-selftest'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/agent/$subject/evidence'
@@ -564,13 +610,16 @@ export interface FileRouteTypes {
     | '/api/docs'
     | '/embed/$subject'
     | '/operator/$wallet'
+    | '/service/$slug'
     | '/tape/$eventId'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
+    | '/api/public/cron-probe-services'
     | '/api/public/cron-reconciler'
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
@@ -582,6 +631,7 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
+    | '/api/public/x402-selftest'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/agent/$subject/evidence'
@@ -611,6 +661,7 @@ export interface RootRouteChildren {
   AgentMintRoute: typeof AgentMintRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
+  ServiceSlugRoute: typeof ServiceSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -762,6 +813,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TapeEventIdRouteImport
       parentRoute: typeof TapeRoute
     }
+    '/service/$slug': {
+      id: '/service/$slug'
+      path: '/service/$slug'
+      fullPath: '/service/$slug'
+      preLoaderRoute: typeof ServiceSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/operator/$wallet': {
       id: '/operator/$wallet'
       path: '/operator/$wallet'
@@ -796,6 +854,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/x402-selftest': {
+      id: '/api/public/x402-selftest'
+      path: '/public/x402-selftest'
+      fullPath: '/api/public/x402-selftest'
+      preLoaderRoute: typeof ApiPublicX402SelftestRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/webhook-helius': {
       id: '/api/public/webhook-helius'
@@ -874,6 +939,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronReconcilerRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-probe-services': {
+      id: '/api/public/cron-probe-services'
+      path: '/public/cron-probe-services'
+      fullPath: '/api/public/cron-probe-services'
+      preLoaderRoute: typeof ApiPublicCronProbeServicesRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-failure-reconciler': {
       id: '/api/public/cron-failure-reconciler'
       path: '/public/cron-failure-reconciler'
@@ -893,6 +965,13 @@ declare module '@tanstack/react-router' {
       path: '/public/admin-seed-vault'
       fullPath: '/api/public/admin-seed-vault'
       preLoaderRoute: typeof ApiPublicAdminSeedVaultRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/admin-add-service': {
+      id: '/api/public/admin-add-service'
+      path: '/public/admin-add-service'
+      fullPath: '/api/public/admin-add-service'
+      preLoaderRoute: typeof ApiPublicAdminAddServiceRouteImport
       parentRoute: typeof ApiRoute
     }
     '/_authenticated/dashboard/watchlist': {
@@ -972,9 +1051,11 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
   ApiPublicAdminSeedVaultRoute: typeof ApiPublicAdminSeedVaultRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
+  ApiPublicCronProbeServicesRoute: typeof ApiPublicCronProbeServicesRoute
   ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
   ApiPublicCronRegisteredAgentDiffRoute: typeof ApiPublicCronRegisteredAgentDiffRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
@@ -986,6 +1067,7 @@ interface ApiRouteChildren {
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
+  ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
   ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
   ApiPublicAgentSubjectEvidenceRoute: typeof ApiPublicAgentSubjectEvidenceRoute
@@ -993,9 +1075,11 @@ interface ApiRouteChildren {
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicAdminSeedVaultRoute: ApiPublicAdminSeedVaultRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
+  ApiPublicCronProbeServicesRoute: ApiPublicCronProbeServicesRoute,
   ApiPublicCronReconcilerRoute: ApiPublicCronReconcilerRoute,
   ApiPublicCronRegisteredAgentDiffRoute: ApiPublicCronRegisteredAgentDiffRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
@@ -1007,6 +1091,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicVerifiedRoute: ApiPublicVerifiedRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
+  ApiPublicX402SelftestRoute: ApiPublicX402SelftestRoute,
   ApiPublicBadgeChar123mintChar125DotsvgRoute:
     ApiPublicBadgeChar123mintChar125DotsvgRoute,
   ApiPublicEvidenceEventIdRoute: ApiPublicEvidenceEventIdRoute,
@@ -1049,16 +1134,8 @@ const rootRouteChildren: RootRouteChildren = {
   AgentMintRoute: AgentMintRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
+  ServiceSlugRoute: ServiceSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

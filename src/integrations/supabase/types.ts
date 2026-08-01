@@ -506,6 +506,71 @@ export type Database = {
         }
         Relationships: []
       }
+      probe_run: {
+        Row: {
+          chain: string
+          challenge_json: Json | null
+          challenge_valid: boolean | null
+          delivered: boolean | null
+          http_status: number | null
+          id: string
+          notes: string | null
+          outcome: string
+          paid_amount_usd: number | null
+          probe_kind: string
+          prober_wallet: string | null
+          ran_at: string
+          service_id: string
+          settle_ms: number | null
+          tx_signature: string | null
+          verify_ms: number | null
+        }
+        Insert: {
+          chain?: string
+          challenge_json?: Json | null
+          challenge_valid?: boolean | null
+          delivered?: boolean | null
+          http_status?: number | null
+          id?: string
+          notes?: string | null
+          outcome: string
+          paid_amount_usd?: number | null
+          probe_kind: string
+          prober_wallet?: string | null
+          ran_at?: string
+          service_id: string
+          settle_ms?: number | null
+          tx_signature?: string | null
+          verify_ms?: number | null
+        }
+        Update: {
+          chain?: string
+          challenge_json?: Json | null
+          challenge_valid?: boolean | null
+          delivered?: boolean | null
+          http_status?: number | null
+          id?: string
+          notes?: string | null
+          outcome?: string
+          paid_amount_usd?: number | null
+          probe_kind?: string
+          prober_wallet?: string | null
+          ran_at?: string
+          service_id?: string
+          settle_ms?: number | null
+          tx_signature?: string | null
+          verify_ms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "probe_run_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "x402_service"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -554,6 +619,60 @@ export type Database = {
           label?: string | null
           mint?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      x402_service: {
+        Row: {
+          active: boolean
+          advertised_amount_usd: number | null
+          advertised_asset: string | null
+          chain: string
+          discovered_via: string
+          facilitator: string | null
+          first_seen_at: string
+          id: string
+          last_challenge_probe_at: string | null
+          last_probe_at: string | null
+          last_settlement_probe_at: string | null
+          pay_to: string | null
+          probe_tier: string
+          slug: string | null
+          url: string | null
+        }
+        Insert: {
+          active?: boolean
+          advertised_amount_usd?: number | null
+          advertised_asset?: string | null
+          chain?: string
+          discovered_via: string
+          facilitator?: string | null
+          first_seen_at?: string
+          id?: string
+          last_challenge_probe_at?: string | null
+          last_probe_at?: string | null
+          last_settlement_probe_at?: string | null
+          pay_to?: string | null
+          probe_tier?: string
+          slug?: string | null
+          url?: string | null
+        }
+        Update: {
+          active?: boolean
+          advertised_amount_usd?: number | null
+          advertised_asset?: string | null
+          chain?: string
+          discovered_via?: string
+          facilitator?: string | null
+          first_seen_at?: string
+          id?: string
+          last_challenge_probe_at?: string | null
+          last_probe_at?: string | null
+          last_settlement_probe_at?: string | null
+          pay_to?: string | null
+          probe_tier?: string
+          slug?: string | null
+          url?: string | null
         }
         Relationships: []
       }

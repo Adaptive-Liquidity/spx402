@@ -8,6 +8,14 @@ import { type Agent, type AgentEvent, type EventType, type Severity } from "@/li
 import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
 import { fetchAgentEvents, relativeFromNow, type AgentEventRow } from "@/lib/live-data";
+import {
+  fetchProbeRuns,
+  fetchServiceByPayee,
+  settleRateSeries,
+  type SettleRatePoint,
+  type X402ServiceRow,
+} from "@/lib/prober-data";
+
 import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/lib/auth";
@@ -129,8 +137,16 @@ type CandidateRow = {
 };
 
 type LoaderData =
-  | { kind: "agent"; agent: Agent }
+  | {
+      kind: "agent";
+      agent: Agent;
+      // Active-verification join. Present only when this agent's wallet is a
+      // known x402 payee. Displayed, never scored.
+      probeService: X402ServiceRow | null;
+      probeSeries: SettleRatePoint[];
+    }
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
+
 
 async function fetchCandidate(mint: string): Promise<CandidateRow | null> {
   // Reads from the public view that exposes only safe columns. Internal
@@ -198,7 +214,22 @@ export const Route = createFileRoute("/agent/$mint")({
     if (agent) {
       const liveEvents = await fetchAgentEvents(agent.mint, 100);
       const merged = mergeEvents(liveEvents, agent.events);
-      return { kind: "agent", agent: { ...agent, events: merged } };
+      // Join the active-verification lane by payee wallet. An agent that is
+      // itself an x402 seller may have a probe transcript.
+      const payee =
+        agent.executorWallet ??
+        (agent.identifierKind === "executor_wallet" ? agent.identifier : null);
+      const probeService = payee ? await fetchServiceByPayee(payee) : null;
+      const probeSeries = probeService
+        ? settleRateSeries(await fetchProbeRuns(probeService.id, 200))
+        : [];
+      return {
+        kind: "agent",
+        agent: { ...agent, events: merged },
+        probeService,
+        probeSeries,
+      };
+
     }
     // Not in agents table — auto-enqueue if it's a plausible mint and show
     // the verifying state instead of a dead-end 404.
@@ -407,15 +438,92 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
   );
 }
 
+/** Active-verification strip. Renders only when a probe transcript exists. */
+function ProbeStrip({
+  service,
+  series,
+}: {
+  service: X402ServiceRow;
+  series: SettleRatePoint[];
+}) {
+  const withData = series.filter((p) => p.rate != null);
+  const attempts = withData.reduce((s, p) => s + p.attempts, 0);
+  const settled = withData.reduce((s, p) => s + p.settled, 0);
+  return (
+    <Panel
+      className="mt-6"
+      eyebrow="Active verification"
+      title="Probed as a paying customer"
+    >
+      <div className="flex flex-wrap items-center gap-6">
+        <div className="font-mono text-xs text-paper-muted">
+          Last probed{" "}
+          <span className="text-paper">
+            {service.lastProbeAt ? relativeFromNow(service.lastProbeAt) : "never"}
+          </span>
+          {attempts > 0 && (
+            <>
+              {" · "}30d settle rate{" "}
+              <span className="text-paper">
+                {((settled / attempts) * 100).toFixed(0)}% ({settled}/{attempts})
+              </span>
+            </>
+          )}
+        </div>
+        <div className="flex h-10 flex-1 items-end gap-[2px]">
+          {series.map((p) => (
+            <div
+              key={p.day}
+              title={
+                p.rate == null
+                  ? `${p.day}: no probe`
+                  : `${p.day}: ${(p.rate * 100).toFixed(0)}%`
+              }
+              className={`w-full ${p.rate == null ? "bg-bronze/25" : p.rate >= 0.9 ? "bg-verified/70" : p.rate >= 0.5 ? "bg-amber/70" : "bg-critical/70"}`}
+              style={{ height: `${p.rate == null ? 8 : Math.max(10, p.rate * 100)}%` }}
+            />
+          ))}
+        </div>
+        <Link
+          to="/service/$slug"
+          params={{ slug: service.slug }}
+          className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
+          Probe transcript
+        </Link>
+      </div>
+      <p className="mt-3 font-mono text-[11px] text-wire">
+        Measured by the SPX402 prober buying from this service. Probe data is
+        published as evidence and is not part of the score.
+      </p>
+    </Panel>
+  );
+}
+
 function AgentRoutePage() {
   const data = Route.useLoaderData() as LoaderData;
   if (data.kind === "verifying") {
     return <VerifyingState mint={data.mint} candidate={data.candidate} />;
   }
-  return <Dossier agent={data.agent} />;
+  return (
+    <Dossier
+      agent={data.agent}
+      probeService={data.probeService}
+      probeSeries={data.probeSeries}
+    />
+  );
 }
 
-function Dossier({ agent }: { agent: Agent }) {
+function Dossier({
+  agent,
+  probeService,
+  probeSeries,
+}: {
+  agent: Agent;
+  probeService: X402ServiceRow | null;
+  probeSeries: SettleRatePoint[];
+}) {
+
   const cat = categoryMeta(agent.category);
   const isTokenized = agent.category === "tokenized_buyback";
   const isExecutor = agent.identifierKind === "executor_wallet";
@@ -978,7 +1086,10 @@ function Dossier({ agent }: { agent: Agent }) {
       )}
 
       {/* RAW TX TABLE */}
+      {probeService && <ProbeStrip service={probeService} series={probeSeries} />}
+
       <Panel className="mt-6" eyebrow="Raw transactions" title="Decoded events">
+
         <div className="overflow-x-auto">
           <table className="w-full font-mono text-xs">
             <thead>
