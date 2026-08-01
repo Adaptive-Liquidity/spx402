@@ -114,7 +114,14 @@ const COMPONENT_ROWS: Array<{
     description:
       "Hourly re-scan of MPL Agent Identity PDAs. Emits OPERATOR_CHANGED + CONFIG_CHANGED events when registered agents mutate on-chain.",
   },
+  {
+    key: "prober",
+    name: "Active prober · mystery shopper",
+    description:
+      "Buys from x402 services to measure challenge validity, settlement rate and delivery. Identifies itself by User-Agent. Probe data is displayed, never scored.",
+  },
 ];
+
 
 type Health = "operational" | "degraded" | "no-data";
 
