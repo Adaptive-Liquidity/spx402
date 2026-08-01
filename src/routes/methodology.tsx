@@ -165,14 +165,39 @@ const X402_DETECTION_TIERS = [
 ];
 
 
+// Base / EVM lane. Deliberately asymmetric with Solana: Tier B on EVM is
+// discovery-only and can never produce a scored event.
+const X402_EVM_DETECTION_TIERS = [
+  {
+    tier: "Tier A",
+    name: "Facilitator sender",
+    confidence: "high",
+    body: "The transaction sender (tx.from) is a Base address in the SPX402 facilitator registry, and the call is an EIP-3009 transferWithAuthorization or a Permit2 permitWitnessTransferFrom moving a settlement token. Scored.",
+  },
+  {
+    tier: "Tier B",
+    name: "EIP-3009 pattern",
+    confidence: "low",
+    body: "An EIP-3009 or Permit2 settlement shape from a sender outside the registry. Used for candidate discovery only: it is never written to the event ledger and can never influence a score. Most EIP-3009 traffic on Base is ordinary gasless payment, not x402.",
+  },
+  {
+    tier: "Not detected",
+    name: "Bare ERC-20 transfer",
+    confidence: "—",
+    body: "A plain transfer() with no authorization primitive is not a settlement candidate at all.",
+  },
+];
+
 const BLIND_SPOTS = [
   "Custom buyback routes outside known IDLs may surface as low-confidence events.",
   "Off-chain revenue, service quality, and operator intent are unknowable to SPX402.",
   "Webhook delivery latency may delay event ingestion. Reconciliation runs every 60 seconds.",
   "x402 endpoints behind aggregators may be undercounted until the aggregator publishes settlement metadata.",
   "x402 settlements are undercounted for facilitators outside the registry: only operators that publish a fee-payer (cross-checked against their /supported endpoint and proven by a captured fixture) get Tier A detection; everything else relies on explicit protocol markers (Tier B).",
-  "Cross-chain components are not yet indexed. Solana is the only ingest source today.",
+  "Base (EVM) x402 detection is live but the Base facilitator registry is empty, so the Base lane currently scores zero agents and reports discovery counts only.",
+  "Solana and Base are indexed as independent lanes. SPX402 performs no cross-chain identity linking: a Solana subject and a Base subject are never merged, even if the same operator controls both.",
 ];
+
 
 const SCHEMA_CHANGELOG = [
   {
