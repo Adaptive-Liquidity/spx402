@@ -456,7 +456,59 @@ function MethodologyPage() {
           coverage is understated rather than fabricated.
         </p>
 
+        {/* EVM / BASE SUBSECTION */}
+        <h3 className="mt-10 font-display text-xl font-bold text-paper">
+          Base (EVM) detection tiers
+        </h3>
+        <p className="mt-2 max-w-3xl text-sm text-paper-muted">
+          Base settles x402 through EIP-3009{" "}
+          <span className="font-mono text-paper">transferWithAuthorization</span>{" "}
+          and Permit2{" "}
+          <span className="font-mono text-paper">permitWitnessTransferFrom</span>,
+          not memos. Because those primitives are also used by ordinary gasless
+          payment flows, the Base lane is deliberately stricter than Solana:
+          only a registry sender produces a scored event. Everything else is
+          discovery.
+        </p>
+        <div className="mt-6 overflow-hidden border border-bronze/50">
+          <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel px-5 py-2 text-[10px] uppercase tracking-widest text-paper-muted">
+            <div className="col-span-2">Tier</div>
+            <div className="col-span-3">Signal</div>
+            <div className="col-span-2">Confidence</div>
+            <div className="col-span-5">Rule</div>
+          </div>
+          {X402_EVM_DETECTION_TIERS.map((t, i) => (
+            <div
+              key={t.tier}
+              className={`grid grid-cols-12 items-baseline gap-4 px-5 py-3 ${i % 2 ? "bg-panel" : "bg-background"}`}
+            >
+              <div className="col-span-2 font-mono text-xs text-amber">{t.tier}</div>
+              <div className="col-span-3 font-mono text-xs text-paper">{t.name}</div>
+              <div
+                className={`col-span-2 font-mono text-xs ${
+                  t.confidence === "high"
+                    ? "text-verified"
+                    : t.confidence === "low"
+                      ? "text-wire"
+                      : "text-wire"
+                }`}
+              >
+                {t.confidence}
+              </div>
+              <div className="col-span-5 text-sm text-paper-muted">{t.body}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 max-w-3xl text-sm text-paper-muted">
+          The Base lane is currently in <span className="text-amber">report-only</span>{" "}
+          mode: detection runs on every scanned block, but no Base facilitator
+          sender has been published and fixture-verified, so the Base registry
+          is empty and zero Base agents are scored. Solana and Base are scanned
+          by independent cursors and are never merged into a single identity.
+        </p>
+
       </section>
+
 
 
 
