@@ -21,7 +21,12 @@ export interface AgentEventRow {
   amountSol: number;
   amountToken: number;
   parserVersion: string;
+  // Tiered x402 detection provenance (parser v0.2.0+). Null for every event
+  // detected without a registry facilitator in the fee-payer slot.
+  facilitatorId: string | null;
+  detectionMethod: string | null;
 }
+
 
 const numOrZero = (v: number | string | null | undefined): number =>
   v == null ? 0 : typeof v === "number" ? v : Number(v);
