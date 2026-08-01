@@ -268,6 +268,11 @@ export async function verifyCandidate(
     return verifyRegisteredAgent(identifier, opts);
   }
   if (kind === "executor_wallet") {
+    // EVM executor wallets are 0x-prefixed. The Base lane's witness is the
+    // indexer, not a live RPC call — see verifyEvmExecutorWallet.
+    if (/^0x[0-9a-fA-F]{40}$/.test(identifier)) {
+      return verifyEvmExecutorWallet(identifier);
+    }
     return verifyExecutorWallet(identifier, opts);
   }
   // Default: tokenized mint flow.
