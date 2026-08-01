@@ -231,6 +231,25 @@ function HomePage() {
         </div>
       </section>
 
+      {/* X402 PROOF CHAIN */}
+      <section className="mx-auto max-w-[1400px] px-4 pb-20 lg:px-8">
+        <div className="label-amber">The x402 Chain</div>
+        <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
+          Two chains. One question.{" "}
+          <span className="text-paper-muted">Did it settle.</span>
+        </h2>
+        <p className="mt-5 max-w-2xl text-paper-muted">
+          Agents that sell work settle over x402 on Solana and Base. SPX402
+          follows the same trail there: a challenge, a payment, a facilitator,
+          a delivery.
+        </p>
+        <div className="mt-10">
+          <ProofChainX402 />
+        </div>
+      </section>
+
+
+
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 bg-panel-deep">
         <div className="mx-auto max-w-[1400px] px-4 py-20 lg:px-8">
