@@ -157,6 +157,8 @@ type LoaderData =
       probeSeries: SettleRatePoint[];
       probeLastRun: ProbeRunRow | null;
       diversity: PayerDiversity;
+    }
+
 
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
 
