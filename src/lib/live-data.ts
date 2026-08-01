@@ -966,3 +966,123 @@ export async function fetchFacilitators(): Promise<FacilitatorRow[]> {
     active: r.active,
   }));
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Homepage hero stats. Every number traces to a live table; a cold table
+// renders a zero, never a placeholder.
+// ─────────────────────────────────────────────────────────────────────
+export interface HomeStats {
+  agentsIndexed: number;
+  settlementsSolana: number;
+  settlementsBase: number;
+  servicesProbed: number;
+  activeFacilitators: number;
+}
+
+const EMPTY_HOME_STATS: HomeStats = {
+  agentsIndexed: 0,
+  settlementsSolana: 0,
+  settlementsBase: 0,
+  servicesProbed: 0,
+  activeFacilitators: 0,
+};
+
+export async function fetchHomeStats(): Promise<HomeStats> {
+  try {
+    const settlementTypes = ["X402_PAYMENT_RECEIVED", "BUYBACK_EXECUTED", "BURN_CONFIRMED"];
+    const [agentsRes, solRes, baseRes, servicesRes, facilitatorsRes] = await Promise.all([
+      supabase.from("agents").select("mint", { count: "exact", head: true }),
+      supabase
+        .from("agent_events")
+        .select("id", { count: "exact", head: true })
+        .eq("chain", "solana")
+        .in("type", settlementTypes),
+      supabase
+        .from("agent_events")
+        .select("id", { count: "exact", head: true })
+        .eq("chain", "base")
+        .in("type", settlementTypes),
+      supabase
+        .from("x402_service" as never)
+        .select("id", { count: "exact", head: true })
+        .not("last_probe_at", "is", null),
+      supabase
+        .from("facilitators")
+        .select("id", { count: "exact", head: true })
+        .eq("active", true),
+    ]);
+    return {
+      agentsIndexed: agentsRes.count ?? 0,
+      settlementsSolana: solRes.count ?? 0,
+      settlementsBase: baseRes.count ?? 0,
+      servicesProbed: servicesRes.count ?? 0,
+      activeFacilitators: facilitatorsRes.count ?? 0,
+    };
+  } catch {
+    return EMPTY_HOME_STATS;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Payer diversity (scoring methodology v0.3.0 counts counterparties, not
+// transactions). Computed from settlement events that carry payer
+// attribution; receipts decoded before parser v0.2.0 have none.
+// ─────────────────────────────────────────────────────────────────────
+export interface PayerDiversity {
+  settlements: number;
+  attributed: number;
+  legacyUnattributed: number;
+  uniquePayers: number;
+  topPayerShare: number | null;
+  highConfidenceShare: number | null;
+}
+
+export const EMPTY_PAYER_DIVERSITY: PayerDiversity = {
+  settlements: 0,
+  attributed: 0,
+  legacyUnattributed: 0,
+  uniquePayers: 0,
+  topPayerShare: null,
+  highConfidenceShare: null,
+};
+
+function payerFromRaw(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v =
+    (raw as Record<string, unknown>)["payerWallet"] ??
+    (raw as Record<string, unknown>)["payer_wallet"];
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
+
+export async function fetchPayerDiversity(mint: string): Promise<PayerDiversity> {
+  if (!mint) return EMPTY_PAYER_DIVERSITY;
+  const { data, error } = await supabase
+    .from("agent_events")
+    .select("id, raw")
+    .eq("mint", mint)
+    .eq("type", "X402_PAYMENT_RECEIVED")
+    .order("occurred_at", { ascending: false })
+    .limit(1000);
+  if (error || !data || data.length === 0) return EMPTY_PAYER_DIVERSITY;
+
+  const counts = new Map<string, number>();
+  let attributed = 0;
+  let highConfidence = 0;
+  for (const row of data) {
+    if (detectionMethodFromRaw(row.raw) === "facilitator_fee_payer") highConfidence += 1;
+    const payer = payerFromRaw(row.raw);
+    if (!payer) continue;
+    attributed += 1;
+    counts.set(payer, (counts.get(payer) ?? 0) + 1);
+  }
+
+  const top = Math.max(0, ...Array.from(counts.values()));
+  return {
+    settlements: data.length,
+    attributed,
+    legacyUnattributed: data.length - attributed,
+    uniquePayers: counts.size,
+    topPayerShare: attributed === 0 ? null : top / attributed,
+    highConfidenceShare: data.length === 0 ? null : highConfidence / data.length,
+  };
+}
