@@ -164,7 +164,20 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               confidence_breakdown: conf.breakdown as unknown as never,
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
-              score_breakdown: result.breakdown as unknown as never,
+              // Wash-resistance stats ride along in score_breakdown so the
+              // dossier can render them without a schema change.
+              score_breakdown: (category === "x402_executor"
+                ? {
+                    ...result.breakdown,
+                    x402UniquePayers: counters.x402UniquePayers,
+                    x402TopPayerShare: counters.x402TopPayerShare,
+                    x402HighConfShare: counters.x402HighConfShare,
+                    x402SelfPaymentCount: counters.x402SelfPaymentCount,
+                    x402HasLegacyUnattributed:
+                      counters.x402HasLegacyUnattributed,
+                  }
+                : result.breakdown) as unknown as never,
+
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
