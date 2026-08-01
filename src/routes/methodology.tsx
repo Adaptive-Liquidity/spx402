@@ -509,7 +509,112 @@ function MethodologyPage() {
 
       </section>
 
+      {/* ACTIVE VERIFICATION — the prober lane. */}
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Active verification
+        </h2>
+        <p className="mt-3 max-w-3xl text-paper-muted">
+          Passive indexing can only see payments that happened. It cannot see a
+          service that advertises a price and never settles, returns a
+          malformed challenge, takes payment and delivers nothing, or points its{" "}
+          <code className="font-mono text-xs text-paper">payTo</code> at a wallet
+          that does not match its dossier. To measure those, SPX402 acts as a
+          paying customer: it requests the resource, validates the challenge,
+          pays the advertised amount, and records what came back.
+        </p>
 
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="panel-engraved p-5">
+            <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
+              What a probe measures
+            </div>
+            <ul className="mt-3 space-y-1.5 text-sm text-paper-muted">
+              <li>Challenge validity — is the 402 body well-formed and priced?</li>
+              <li>
+                Config drift — does <code className="font-mono text-xs">payTo</code>{" "}
+                match the wallet in the dossier?
+              </li>
+              <li>Settlement rate — does the payment actually settle?</li>
+              <li>Verify and settle latency, in milliseconds.</li>
+              <li>Delivery — did the paid response contain a resource?</li>
+            </ul>
+          </div>
+          <div className="panel-engraved p-5">
+            <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
+              Rules the prober operates under
+            </div>
+            <ul className="mt-3 space-y-1.5 text-sm text-paper-muted">
+              <li>
+                No covert probing. Every request carries{" "}
+                <code className="font-mono text-xs text-paper">
+                  User-Agent: SPX402-Probe/1.0
+                </code>
+                .
+              </li>
+              <li>Hard caps: $0.05 per probe, $10 per UTC day, no retries.</li>
+              <li>
+                A budget breaker (<code className="font-mono text-xs">PROBER_BUDGET_HALT</code>)
+                and a wallet-drain tripwire suspend paid probes automatically.
+              </li>
+              <li>
+                Every payment the prober makes is reconstructible from published
+                probe rows plus on-chain data — the prober is audited by the
+                same pipeline it feeds.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-5 border border-amber/60 bg-amber/10 p-5">
+          <div className="font-mono text-[11px] uppercase tracking-widest text-amber">
+            Probe data is not yet scored
+          </div>
+          <p className="mt-2 text-sm text-paper">
+            In this release, active-verification results are{" "}
+            <strong>collected and displayed only</strong>. No probe outcome
+            contributes to an SPX Execution Score, grade, or confidence value.
+            Scores computed before this lane existed are byte-identical to
+            scores computed after it.
+          </p>
+        </div>
+
+        <div className="mt-5 panel-engraved p-5">
+          <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
+            Prober wallets
+          </div>
+          <p className="mt-2 text-sm text-paper-muted">
+            Every payment SPX402 makes is attributable to a published wallet, so
+            operators can distinguish probe traffic from organic demand. The
+            prober is currently <strong className="text-paper">disabled and unfunded</strong>;
+            its Solana and Base addresses will be published here, and on{" "}
+            <Link to="/status" className="text-amber hover:underline">
+              /status
+            </Link>
+            , before the first paid probe is executed.
+          </p>
+          <dl className="mt-3 space-y-1.5 font-mono text-xs">
+            <div className="flex justify-between border-b border-bronze/30 pb-1.5">
+              <dt className="uppercase tracking-widest text-wire">Solana</dt>
+              <dd className="text-paper-muted">not yet provisioned</dd>
+            </div>
+            <div className="flex justify-between border-b border-bronze/30 pb-1.5">
+              <dt className="uppercase tracking-widest text-wire">Base</dt>
+              <dd className="text-paper-muted">not yet provisioned</dd>
+            </div>
+          </dl>
+        </div>
+
+        <p className="mt-4 max-w-3xl text-sm text-paper-muted">
+          A future release may introduce a{" "}
+          <code className="font-mono text-xs text-paper">PROBE_DIVERGENCE</code>{" "}
+          signal — flagged when a service's settle rate for SPX402 probes
+          exceeds its organic settle rate by more than 25 points over at least
+          14 days, which is what selective service looks like from the outside.
+          The predicate is implemented and unit-tested today; it is not wired to
+          scoring.
+        </p>
+      </section>
 
 
       {/* WHAT WE REFUSE TO MEASURE */}
