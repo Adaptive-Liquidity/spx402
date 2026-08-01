@@ -51,12 +51,11 @@ export async function fetchAgentEvents(
   mint: string,
   limit = 50,
 ): Promise<AgentEventRow[]> {
-
   if (!mint) return [];
   const { data, error } = await supabase
     .from("agent_events")
     .select(
-      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version",
+      "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, parser_version, raw",
     )
     .eq("mint", mint)
     .order("occurred_at", { ascending: false })
@@ -73,8 +72,11 @@ export async function fetchAgentEvents(
     amountSol: numOrZero(r.amount_sol),
     amountToken: numOrZero(r.amount_token),
     parserVersion: r.parser_version,
+    facilitatorId: facilitatorIdFromRaw(r.raw),
+    detectionMethod: detectionMethodFromRaw(r.raw),
   }));
 }
+
 
 export async function fetchRecentTickerEvents(limit = 20): Promise<
   Array<{ id: string; line: string; severity: string }>
