@@ -1,47 +1,57 @@
-// x402 micropayment receipt decoder.
-// Server-only.
+// x402 settlement decoder. Server-only.
+// PARSER_VERSION: v0.2.0
 //
-// x402 is the Linux Foundation HTTP-402 micropayment protocol on Solana.
-// Coinbase + Solana + Stripe + Visa back it. Every payment lands as a
-// SOL or USDC transfer to a recipient wallet, often with an "x402"-shaped
-// memo or instruction.
+// Detection tiers (Solana lane):
+//   A. facilitator_fee_payer — tx fee-payer is a registry facilitator AND a
+//      counterparty receives SOL/USDC. Confidence: high.
+//      This is the protocol's structural signature: the facilitator submits
+//      the client's partially-signed transfer and pays the fee.
+//   B. memo_marker — legacy heuristic (x402-shaped description/source/memo).
+//      Confidence: medium. Catches self-labeling implementations.
 //
-// We use a conservative heuristic to keep false positives low:
-//   - Recipient is a known executor wallet AND
-//   - The tx description / source / memo references "x402" / "402"
-//   - OR the tx contains a Memo program instruction whose payload looks
-//     like an x402 receipt header (`x402`, `x402-receipt`, `x402:`).
-//
-// False negatives are acceptable — anything we miss can be picked up by a
-// later sweeper improvement. False positives would inflate scores, which
-// is the bigger trust risk.
+// False negatives remain acceptable; false positives inflate grades.
+// Every event carries detectionMethod + confidence into agent_events.raw
+// so scoring and dossiers can distinguish provenance.
 
 import { lamportsToSol, type HeliusEnhancedTx } from "./helius.server";
+import { facilitatorForFeePayer, type Facilitator } from "./facilitators.server";
 
-// SPL Memo program ID (v1 + v2 both work; we match either).
+export const X402_PARSER_VERSION = "v0.2.0";
+
 const MEMO_PROGRAMS = new Set([
   "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr", // v1
-  "Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo",
+  "Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo", // v2
 ]);
 
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 
 const X402_PATTERNS = /(^|[^a-z])x402([^0-9]|$)|x402-receipt|x402:|"x402"/i;
 
+export type X402DetectionMethod = "facilitator_fee_payer" | "memo_marker";
+
 export interface X402Event {
   executorWallet: string;
   signature: string;
   slot: number | null;
   occurredAt: string;
-  amountSol: number;   // SOL value of receipt (for SOL receipts)
-  amountToken: number; // token amount for USDC receipts (raw units)
+  amountSol: number;
+  amountToken: number; // USDC raw units (6dp)
   source: string;
+  detectionMethod: X402DetectionMethod;
+  confidence: "high" | "medium";
+  facilitatorId: string | null;
+  payerWallet: string | null; // buyer side — the credit-bureau endgame
   raw: Record<string, unknown>;
+}
+
+export interface DecodeX402Opts {
+  registry?: Map<string, Facilitator>; // preloaded via getActiveFacilitators()
 }
 
 export function decodeX402Tx(
   tx: HeliusEnhancedTx,
   executorWallets: string[],
+  opts: DecodeX402Opts = {},
 ): X402Event[] {
   const out: X402Event[] = [];
   const sig = tx.signature ?? "";
@@ -52,31 +62,64 @@ export function decodeX402Tx(
     ? new Date(tx.timestamp * 1000).toISOString()
     : new Date().toISOString();
 
-  // 1. Check for x402 marker in description / source / memo.
-  const desc = (tx.description ?? "").toLowerCase();
-  const source = (tx.source ?? "").toLowerCase();
-  let hasMarker = X402_PATTERNS.test(desc) || X402_PATTERNS.test(source);
+  // ── Tier A: facilitator fee-payer ────────────────────────────────
+  const facilitator = opts.registry
+    ? facilitatorForFeePayer(opts.registry, tx.feePayer)
+    : null;
 
-  if (!hasMarker) {
-    // Look for a Memo instruction with x402-shaped payload.
-    for (const ix of tx.instructions ?? []) {
-      if (!ix.programId || !MEMO_PROGRAMS.has(ix.programId)) continue;
-      const memo = (ix.parsed?.info?.memo as string | undefined) ?? "";
-      if (memo && X402_PATTERNS.test(memo)) {
-        hasMarker = true;
-        break;
+  // ── Tier B: memo/description marker (legacy) ─────────────────────
+  let hasMarker = false;
+  if (!facilitator) {
+    const desc = (tx.description ?? "").toLowerCase();
+    const source = (tx.source ?? "").toLowerCase();
+    hasMarker = X402_PATTERNS.test(desc) || X402_PATTERNS.test(source);
+    if (!hasMarker) {
+      for (const ix of tx.instructions ?? []) {
+        if (!ix.programId || !MEMO_PROGRAMS.has(ix.programId)) continue;
+        const memo = (ix.parsed?.info?.memo as string | undefined) ?? "";
+        if (memo && X402_PATTERNS.test(memo)) {
+          hasMarker = true;
+          break;
+        }
       }
     }
   }
-  if (!hasMarker) return out;
+  if (!facilitator && !hasMarker) return out;
+
+  const method: X402DetectionMethod = facilitator
+    ? "facilitator_fee_payer"
+    : "memo_marker";
+  const confidence: "high" | "medium" = facilitator ? "high" : "medium";
+
+  // Buyer = the counterparty sending funds to the executor. For facilitator
+  // settlements this is the transfer source; for memo-tier it's the tx
+  // fee-payer (best effort).
+  const senders = new Map<string, number>(); // wallet → lamports+usdc sent
+  for (const t of tx.nativeTransfers ?? []) {
+    if (t.fromUserAccount && (t.amount ?? 0) > 0) {
+      senders.set(
+        t.fromUserAccount,
+        (senders.get(t.fromUserAccount) ?? 0) + (t.amount ?? 0),
+      );
+    }
+  }
+  for (const t of tx.tokenTransfers ?? []) {
+    if (t.mint === USDC_MINT && t.fromUserAccount && (t.tokenAmount ?? 0) > 0) {
+      senders.set(
+        t.fromUserAccount,
+        (senders.get(t.fromUserAccount) ?? 0) + 1, // presence flag; value tracked receiver-side
+      );
+    }
+  }
 
   for (const wallet of executorWallets) {
-    // SOL receipt
+    // Guard: never score the facilitator's own inbound flows (fee sweeps).
+    if (facilitator && wallet === facilitator.address) continue;
+
     let lamportsIn = 0;
     for (const t of tx.nativeTransfers ?? []) {
       if (t.toUserAccount === wallet) lamportsIn += t.amount ?? 0;
     }
-    // USDC receipt
     let usdcIn = 0;
     for (const t of tx.tokenTransfers ?? []) {
       if (t.mint === USDC_MINT && t.toUserAccount === wallet) {
@@ -84,6 +127,20 @@ export function decodeX402Tx(
       }
     }
     if (lamportsIn === 0 && usdcIn === 0) continue;
+
+    // Pick the most plausible payer: the sender that isn't the executor,
+    // isn't the facilitator, and moved the most value.
+    let payer: string | null = null;
+    let best = 0;
+    for (const [sender, weight] of senders) {
+      if (sender === wallet) continue;
+      if (facilitator && sender === facilitator.address) continue;
+      if (weight > best) {
+        best = weight;
+        payer = sender;
+      }
+    }
+
     out.push({
       executorWallet: wallet,
       signature: sig,
@@ -92,7 +149,19 @@ export function decodeX402Tx(
       amountSol: lamportsToSol(lamportsIn),
       amountToken: usdcIn,
       source: tx.source ?? "x402",
-      raw: { source: tx.source ?? null, description: tx.description ?? null },
+      detectionMethod: method,
+      confidence,
+      facilitatorId: facilitator?.id ?? null,
+      payerWallet: payer,
+      raw: {
+        source: tx.source ?? null,
+        description: tx.description ?? null,
+        feePayer: tx.feePayer ?? null,
+        detectionMethod: method,
+        facilitatorId: facilitator?.id ?? null,
+        payerWallet: payer,
+        parserVersion: X402_PARSER_VERSION,
+      },
     });
   }
   return out;
