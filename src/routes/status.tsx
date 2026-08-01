@@ -141,11 +141,13 @@ function healthFor(run: IndexerRunRow | null): Health {
 }
 
 function StatusPage() {
-  const { runs, stats, coverage, facilitators } = Route.useLoaderData() as {
+  const { runs, stats, coverage, facilitators, prober } = Route.useLoaderData() as {
     runs: Record<string, IndexerRunRow | null>;
     stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
     coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
     facilitators: FacilitatorRow[];
+    prober: ProberOverview;
+
   };
   const activeFacilitators = facilitators.filter((f) => f.active);
 
