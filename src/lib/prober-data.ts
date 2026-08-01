@@ -325,3 +325,17 @@ export async function fetchProbedPayees(): Promise<string[]> {
     new Set(rows.map((r) => r.pay_to).filter((v): v is string => Boolean(v))),
   );
 }
+
+/** Dossier link target for a service payee, when SPX402 indexes that subject. */
+export async function fetchAgentSubjectForPayee(
+  payTo: string | null,
+): Promise<string | null> {
+  if (!payTo) return null;
+  const { data } = await supabase
+    .from("agents")
+    .select("mint")
+    .or(`mint.eq.${payTo},executor_wallet.eq.${payTo},operator_wallet.eq.${payTo}`)
+    .limit(1);
+  const rows = (data ?? []) as Array<{ mint: string }>;
+  return rows.length > 0 ? rows[0].mint : null;
+}
