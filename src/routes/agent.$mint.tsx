@@ -584,7 +584,11 @@ function Dossier({
         <div className="panel-engraved relative lg:col-span-8 p-8">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
-              <div className="label-amber">{cat.longLabel} {isSPX404 ? "· not found" : "confirmed"}</div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="label-amber">{cat.longLabel} {isSPX404 ? "· not found" : "confirmed"}</div>
+                <ChainBadge chain={agent.chain ?? "solana"} size="sm" />
+              </div>
+
               <h1 className="mt-3 font-display text-5xl font-bold text-paper">
                 {isTokenized ? `$${agent.symbol}` : agent.name}
               </h1>
