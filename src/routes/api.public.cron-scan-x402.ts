@@ -21,7 +21,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
-import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
+import {
+  decodeX402Tx,
+  type X402DetectionMethod,
+  type X402Event,
+} from "@/lib/indexer/decode-x402.server";
+import {
+  getActiveFacilitators,
+  facilitatorAddressList,
+} from "@/lib/indexer/facilitators.server";
 import {
   fetchEnhancedTxs,
   type HeliusEnhancedTx,
