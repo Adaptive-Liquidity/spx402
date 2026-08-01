@@ -41,6 +41,7 @@ import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.pu
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
 import { Route as ApiPublicCronScoreSnapshotRouteImport } from './routes/api.public.cron-score-snapshot'
+import { Route as ApiPublicCronScanX402EvmRouteImport } from './routes/api.public.cron-scan-x402-evm'
 import { Route as ApiPublicCronScanX402RouteImport } from './routes/api.public.cron-scan-x402'
 import { Route as ApiPublicCronScanAgentRegistryRouteImport } from './routes/api.public.cron-scan-agent-registry'
 import { Route as ApiPublicCronRegisteredAgentDiffRouteImport } from './routes/api.public.cron-registered-agent-diff'
@@ -217,6 +218,12 @@ const ApiPublicCronScoreSnapshotRoute =
     path: '/public/cron-score-snapshot',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiPublicCronScanX402EvmRoute =
+  ApiPublicCronScanX402EvmRouteImport.update({
+    id: '/public/cron-scan-x402-evm',
+    path: '/public/cron-scan-x402-evm',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronScanX402Route = ApiPublicCronScanX402RouteImport.update({
   id: '/public/cron-scan-x402',
   path: '/public/cron-scan-x402',
@@ -328,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
+  '/api/public/cron-scan-x402-evm': typeof ApiPublicCronScanX402EvmRoute
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
@@ -374,6 +382,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
+  '/api/public/cron-scan-x402-evm': typeof ApiPublicCronScanX402EvmRoute
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
@@ -422,6 +431,7 @@ export interface FileRoutesById {
   '/api/public/cron-registered-agent-diff': typeof ApiPublicCronRegisteredAgentDiffRoute
   '/api/public/cron-scan-agent-registry': typeof ApiPublicCronScanAgentRegistryRoute
   '/api/public/cron-scan-x402': typeof ApiPublicCronScanX402Route
+  '/api/public/cron-scan-x402-evm': typeof ApiPublicCronScanX402EvmRoute
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
+    | '/api/public/cron-scan-x402-evm'
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
+    | '/api/public/cron-scan-x402-evm'
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
@@ -563,6 +575,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-registered-agent-diff'
     | '/api/public/cron-scan-agent-registry'
     | '/api/public/cron-scan-x402'
+    | '/api/public/cron-scan-x402-evm'
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
@@ -826,6 +839,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronScoreSnapshotRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-scan-x402-evm': {
+      id: '/api/public/cron-scan-x402-evm'
+      path: '/public/cron-scan-x402-evm'
+      fullPath: '/api/public/cron-scan-x402-evm'
+      preLoaderRoute: typeof ApiPublicCronScanX402EvmRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-scan-x402': {
       id: '/api/public/cron-scan-x402'
       path: '/public/cron-scan-x402'
@@ -959,6 +979,7 @@ interface ApiRouteChildren {
   ApiPublicCronRegisteredAgentDiffRoute: typeof ApiPublicCronRegisteredAgentDiffRoute
   ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
   ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
+  ApiPublicCronScanX402EvmRoute: typeof ApiPublicCronScanX402EvmRoute
   ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
@@ -979,6 +1000,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronRegisteredAgentDiffRoute: ApiPublicCronRegisteredAgentDiffRoute,
   ApiPublicCronScanAgentRegistryRoute: ApiPublicCronScanAgentRegistryRoute,
   ApiPublicCronScanX402Route: ApiPublicCronScanX402Route,
+  ApiPublicCronScanX402EvmRoute: ApiPublicCronScanX402EvmRoute,
   ApiPublicCronScoreSnapshotRoute: ApiPublicCronScoreSnapshotRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,

@@ -53,11 +53,33 @@ export const FACILITATOR_SEED: Facilitator[] = [
   },
 
 
-  // EVM lane placeholder — Base facilitator sender addresses go here when the
-  // EVM ingestion lane ships. Detection code is chain-aware from day one.
+  // ── EVM lane (Base). Addresses are populated ONLY from each operator's
+  // ── /supported endpoint or official docs, then fixture-verified before
+  // ── active=true. Shipping address-less and inactive is the honest state.
+  {
+    id: "cdp-base",
+    name: "Coinbase CDP Facilitator (Base)",
+    chain: "base",
+    address: "", // POPULATE from https://docs.cdp.coinbase.com/x402 + fixture E1
+    scheme: "exact",
+    sourceUrl: "https://docs.cdp.coinbase.com/x402",
+    fixtureId: null,
+    active: false,
+  },
+  {
+    id: "payai-base",
+    name: "PayAI Facilitator (Base)",
+    chain: "base",
+    address: "", // POPULATE from facilitator.payai.network/supported + fixture E1
+    scheme: "exact",
+    sourceUrl: "https://docs.payai.network/x402/reference",
+    fixtureId: null,
+    active: false,
+  },
 ];
 
-export const FACILITATOR_REGISTRY_VERSION = "v0.2.0";
+
+export const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
 // ── Runtime registry: static seed merged with DB overrides. Cached per
 // ── isolate with a short TTL; cron routes re-fetch each invocation anyway.
@@ -99,7 +121,9 @@ export async function getActiveFacilitators(
 }
 
 function key(chain: string, address: string): string {
-  return `${chain}:${address}`;
+  // EVM addresses are case-insensitive; Solana base58 is not.
+  const addr = chain === "solana" ? address : address.toLowerCase();
+  return `${chain}:${addr}`;
 }
 function chainOf(f: Facilitator): string {
   return f.chain;
@@ -127,6 +151,18 @@ export function facilitatorAddressList(
   registry: Map<string, Facilitator>,
 ): string[] {
   return Array.from(registry.values()).map((f) => f.address);
+}
+
+/**
+ * EVM equivalent of `facilitatorForFeePayer`: the settlement signer on EVM is
+ * the transaction sender. Addresses are compared lowercase.
+ */
+export function facilitatorForSender(
+  registry: Map<string, Facilitator>,
+  txFrom: string | undefined,
+): Facilitator | null {
+  if (!txFrom) return null;
+  return registry.get(`base:${txFrom.toLowerCase()}`) ?? null;
 }
 
 // Re-export for tests.

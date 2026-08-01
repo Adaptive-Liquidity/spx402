@@ -268,6 +268,11 @@ export async function verifyCandidate(
     return verifyRegisteredAgent(identifier, opts);
   }
   if (kind === "executor_wallet") {
+    // EVM executor wallets are 0x-prefixed. The Base lane's witness is the
+    // indexer, not a live RPC call — see verifyEvmExecutorWallet.
+    if (/^0x[0-9a-fA-F]{40}$/.test(identifier)) {
+      return verifyEvmExecutorWallet(identifier);
+    }
     return verifyExecutorWallet(identifier, opts);
   }
   // Default: tokenized mint flow.
@@ -398,6 +403,46 @@ async function verifyExecutorWallet(
     symbol: null,
     name: null,
     notes,
+  };
+}
+
+// Base (EVM) executor wallet. Promotion bar: ≥1 Tier A settlement already
+// recorded in agent_events for this payee. We query the DB, never an EVM RPC —
+// the indexer is the witness, and Tier B (non-registry EIP-3009) can never
+// appear in agent_events by construction.
+async function verifyEvmExecutorWallet(
+  address: string,
+): Promise<VerificationResult> {
+  const wallet = address.toLowerCase();
+  let tierA = 0;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count } = await supabaseAdmin
+      .from("agent_events")
+      .select("id", { count: "exact", head: true })
+      .eq("chain", "base")
+      .eq("type", "X402_PAYMENT_RECEIVED")
+      .eq("mint", wallet)
+      .contains("raw", { detectionMethod: "facilitator_sender" });
+    tierA = count ?? 0;
+  } catch {
+    tierA = 0;
+  }
+
+  return {
+    signals: {
+      skills_md: false,
+      invoice_pda: false,
+      on_chain_earnings: false,
+      agent_registry: false,
+      swap_activity: false,
+      x402_activity: tierA > 0,
+    },
+    passed: tierA >= 1,
+    metadataUri: null,
+    symbol: null,
+    name: null,
+    notes: `kind=executor_wallet chain=base tierA_settlements=${tierA}`,
   };
 }
 

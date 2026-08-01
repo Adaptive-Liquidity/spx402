@@ -1,0 +1,20 @@
+{
+  "_fixture": {
+    "id": "E1_facilitator_transfer_with_authorization",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "v1.0.0-evm",
+    "chain": "base",
+    "expected": {
+      "tier": "A",
+      "detectionMethod": "facilitator_sender",
+      "confidence": "high",
+      "facilitatorIdSet": true
+    },
+    "notes": "Base USDC transferWithAuthorization submitted by a REGISTRY facilitator. Pins the EIP-3009 selector and the AuthorizationUsed topic hash against a real settlement.",
+    "status": "SKIPPED",
+    "skipReason": "No Base facilitator sender address is published-and-verified yet. cdp-base and payai-base are registered address-less and INACTIVE; the lane ships report-only. Capture once an operator publishes a Base sender: bun scripts/capture-fixture.ts --chain base --id E1_facilitator_transfer_with_authorization --signature 0x..."
+  }
+}

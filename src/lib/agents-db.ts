@@ -60,6 +60,7 @@ function rowToAgent(r: AgentRow): Agent {
     mint: r.mint,
     identifier: r.mint,
     identifierKind,
+    chain: ((r as unknown as { chain?: string | null }).chain ?? "solana") as Agent["chain"],
     category,
     executorWallet: r.executor_wallet ?? null,
     coreAsset: r.core_asset ?? null,

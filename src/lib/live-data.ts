@@ -164,6 +164,8 @@ const KNOWN_WORKERS = [
   "reconciler",
   "failure_reconciler",
   "score_snapshot",
+  "x402_scan",
+  "evm_x402_scan",
 ] as const;
 
 export async function fetchLatestIndexerRuns(): Promise<

@@ -30,3 +30,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local indexer secrets — BASE_RPC_URL, HELIUS_API_KEY etc. belong in
+# backend secrets, never in a committed file.
+.env.local
+.env.*.local

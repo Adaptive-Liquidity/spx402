@@ -70,6 +70,8 @@ export interface Agent {
   // the wallet address.
   identifier: string;
   identifierKind: IdentifierKind;
+  /** Settlement chain this subject is indexed on. Lanes are never merged. */
+  chain: "solana" | "base";
   category: AgentCategory;
   executorWallet: string | null;
   coreAsset: string | null;
