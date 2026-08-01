@@ -900,6 +900,10 @@ function Dossier({ agent }: { agent: Agent }) {
               ) : (
                 <>
                   <div className="flex justify-between border-b border-bronze/30 pb-2">
+                    <dt className="text-wire">CHAIN</dt>
+                    <dd className="text-paper">{agent.chain}</dd>
+                  </div>
+                  <div className="flex justify-between border-b border-bronze/30 pb-2">
                     <dt className="text-wire">CATEGORY</dt>
                     <dd className="text-paper">{cat.label}</dd>
                   </div>
