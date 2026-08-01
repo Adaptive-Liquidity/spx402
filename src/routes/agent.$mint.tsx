@@ -30,6 +30,7 @@ const KNOWN_EVENT_TYPES: EventType[] = [
   "SWAP_EXECUTED",
   "X402_PAYMENT_RECEIVED",
   "TASK_COMPLETED",
+  "WASH_PATTERN_SUSPECTED",
 ];
 
 const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
@@ -46,6 +47,7 @@ function eventTitleFor(type: string): string {
     case "SWAP_EXECUTED": return "DEX swap executed";
     case "X402_PAYMENT_RECEIVED": return "x402 payment received";
     case "TASK_COMPLETED": return "Task completed";
+    case "WASH_PATTERN_SUSPECTED": return "Wash pattern suspected";
     default: return type;
   }
 }
@@ -74,6 +76,8 @@ function eventDescFor(row: AgentEventRow): string {
         : `${row.amountSol.toFixed(4)} SOL received via x402 micropayment.`;
     case "TASK_COMPLETED":
       return "Agent completed a priced task attested on-chain.";
+    case "WASH_PATTERN_SUSPECTED":
+      return "Receipt flow is concentrated. The tape has developed a limp.";
     default:
       return "Decoded program event.";
   }
@@ -384,6 +388,7 @@ const EVENT_ICON: Record<string, typeof Activity> = {
   SWAP_EXECUTED: Repeat,
   X402_PAYMENT_RECEIVED: ArrowDownToLine,
   TASK_COMPLETED: ShieldCheck,
+  WASH_PATTERN_SUSPECTED: AlertTriangle,
 };
 
 function shortMint(m: string) {
@@ -428,7 +433,12 @@ function Dossier({ agent }: { agent: Agent }) {
     if (filter === "buyback") return e.type === "BUYBACK_EXECUTED";
     if (filter === "burn") return e.type === "BURN_CONFIRMED";
     if (filter === "deposit") return e.type === "DEPOSIT_RECEIVED";
-    if (filter === "anomaly") return e.type === "ANOMALY_DETECTED" || e.type === "FAILED_WINDOW";
+    if (filter === "anomaly")
+      return (
+        e.type === "ANOMALY_DETECTED" ||
+        e.type === "FAILED_WINDOW" ||
+        e.type === "WASH_PATTERN_SUSPECTED"
+      );
     if (filter === "config") return e.type === "CONFIG_CHANGED";
     if (filter === "swap") return e.type === "SWAP_EXECUTED";
     if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
@@ -454,6 +464,14 @@ function Dossier({ agent }: { agent: Agent }) {
   const x402Usdc = agent.events
     .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
     .reduce((s, e) => s + (e.tokenAmount ?? 0), 0);
+
+  // Wash-resistance stats (scoring v0.3.0) ride along in score_breakdown.
+  const washStats = agent.scoreBreakdown as unknown as {
+    x402UniquePayers?: number;
+    x402TopPayerShare?: number;
+    x402HasLegacyUnattributed?: boolean;
+  };
+  const isX402 = agent.category === "x402_executor";
 
   const isSPX404 = agent.grade === "SPX404";
 
@@ -731,6 +749,28 @@ function Dossier({ agent }: { agent: Agent }) {
             tone={isRegistered || agent.operatorVerified ? "verified" : "amber"}
           />
           <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
+        </div>
+      )}
+
+      {/* Wash-resistance row (scoring v0.3.0) — counterparties, not receipts. */}
+      {isX402 && (
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <MetricCard
+            label="Unique Payers"
+            value={(washStats.x402UniquePayers ?? 0).toLocaleString()}
+            tone={(washStats.x402UniquePayers ?? 0) >= 8 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="Top Payer Share"
+            value={`${Math.round((washStats.x402TopPayerShare ?? 0) * 100)}%`}
+            suffix="of receipts"
+            tone={(washStats.x402TopPayerShare ?? 0) >= 0.8 ? "critical" : "verified"}
+          />
+          {washStats.x402HasLegacyUnattributed && (
+            <div className="col-span-2 flex items-center border border-bronze/50 bg-panel-deep/60 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-wire sm:col-span-1">
+              Some receipts predate payer attribution
+            </div>
+          )}
         </div>
       )}
 

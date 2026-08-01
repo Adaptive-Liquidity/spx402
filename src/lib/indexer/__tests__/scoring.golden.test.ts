@@ -9,6 +9,8 @@ import {
   score,
   type ScoringInputs,
   type ScoreResult,
+  shouldEmitWashAnomaly,
+  washAnomalySeverity,
 } from "@/lib/indexer/scoring.server";
 
 const SIX_HOURS = 60 * 60 * 6;
@@ -280,15 +282,162 @@ describe("F6 — confidence buckets", () => {
   it("tokenized: sparse activity → low", () => {
     expect(score(base({ totalDepositsCount: 1 })).confidence).toBe("low");
   });
-  it("x402: 20 receipts and fresh → high, 5 → medium, 1 → low", () => {
-    const c = (n: number, secs = 60) =>
+  it("x402 v0.3.0: high needs 8+ unique payers, highConfShare>=0.5 and <24h", () => {
+    const c = (o: Partial<ScoringInputs>) =>
       score(
-        base({ category: "x402_executor", totalX402Count: n, lastIndexedSeconds: secs }),
+        base({
+          category: "x402_executor",
+          totalX402Count: 20,
+          lastIndexedSeconds: 60,
+          x402UniquePayers: 12,
+          x402HighConfShare: 1,
+          ...o,
+        }),
       ).confidence;
-    expect(c(20)).toBe("high");
-    expect(c(5)).toBe("medium");
-    expect(c(1)).toBe("low");
+    expect(c({})).toBe("high");
+    // volume alone from few payers can no longer reach high
+    expect(c({ x402UniquePayers: 2 })).toBe("medium");
+    expect(c({ x402HighConfShare: 0.4 })).toBe("medium");
+    expect(c({ lastIndexedSeconds: 60 * 60 * 25 })).toBe("medium");
+    expect(c({ totalX402Count: 1, x402UniquePayers: 1 })).toBe("low");
   });
+});
+
+// ─────────────────────────────────────────────────────────────────────
+// F9 — scoring v0.3.0 wash-resistance goldens.
+// Core principle: count counterparties, not transactions.
+// ─────────────────────────────────────────────────────────────────────
+describe("F9 — wash-resistant x402 (v0.3.0)", () => {
+  it("wash-loop scores materially below honest-service", () => {
+    const washLoop = score(
+      base({
+        category: "x402_executor",
+        totalX402Count: 100,
+        totalX402Sol: 10,
+        x402WashFilteredSol: 10,
+        x402UniquePayers: 1,
+        x402TopPayerShare: 1,
+        x402HighConfShare: 1,
+        lastIndexedSeconds: 60,
+      }),
+    );
+    const honest = score(
+      base({
+        category: "x402_executor",
+        totalX402Count: 20,
+        totalX402Sol: 10,
+        x402WashFilteredSol: 10,
+        x402UniquePayers: 20,
+        x402TopPayerShare: 0.1,
+        x402HighConfShare: 1,
+        lastIndexedSeconds: 60,
+      }),
+    );
+
+    // both directions of the inequality, on both weighted components
+    expect(washLoop.breakdown.depositConsistency).toBeLessThan(
+      honest.breakdown.depositConsistency,
+    );
+    expect(honest.breakdown.depositConsistency).toBeGreaterThan(
+      washLoop.breakdown.depositConsistency,
+    );
+    expect(washLoop.breakdown.buybackExecution).toBeLessThan(
+      honest.breakdown.buybackExecution,
+    );
+    expect(honest.breakdown.buybackExecution).toBeGreaterThan(
+      washLoop.breakdown.buybackExecution,
+    );
+    expect(washLoop.total).toBeLessThan(honest.total);
+  });
+
+  it("self-payment caps the grade at SPX BB", () => {
+    const inputs = base({
+      category: "x402_executor",
+      totalX402Count: 40,
+      totalX402Usdc: 200_000_000,
+      x402WashFilteredUsdc: 200_000_000,
+      x402UniquePayers: 25,
+      x402TopPayerShare: 0.1,
+      x402HighConfShare: 1,
+      lastIndexedSeconds: 0,
+      hasMetadata: true,
+      operatorVerified: true,
+    });
+    const clean = score(inputs);
+    expect(clean.total).toBeGreaterThanOrEqual(70);
+    expect(clean.grade).not.toBe("SPX BB");
+
+    const dirty = score({ ...inputs, x402SelfPaymentCount: 1 });
+    expect(dirty.grade).toBe("SPX BB");
+    // the cap does not rewrite the numeric total
+    expect(dirty.total).toBe(clean.total);
+  });
+
+  it("single-customer floor: diversityFactor bottoms out at 0.2, no zeroing", () => {
+    const r = score(
+      base({
+        category: "x402_executor",
+        totalX402Count: 30,
+        totalX402Sol: 10,
+        x402WashFilteredSol: 10,
+        x402UniquePayers: 1,
+        x402TopPayerShare: 1,
+        x402HighConfShare: 1,
+        x402SelfPaymentCount: 0,
+        lastIndexedSeconds: 60,
+      }),
+    );
+    // 10 SOL * 0.2 = 2 SOL effective → 5/25 on the volume component
+    expect(r.breakdown.buybackExecution).toBe(5);
+    expect(r.breakdown.depositConsistency).toBe(1);
+    expect(r.verdict).toBe(
+      "Receipt volume concentrated in few payers — diversity below methodology floor. Grade discounted per v0.3.0.",
+    );
+    // anomaly trigger predicate: totalEvents >= 10 AND topPayerShare >= 0.8
+    expect(shouldEmitWashAnomaly(30, 1)).toBe(true);
+    expect(washAnomalySeverity(0)).toBe("warn");
+    expect(washAnomalySeverity(3)).toBe("critical");
+    expect(shouldEmitWashAnomaly(9, 1)).toBe(false);
+    expect(shouldEmitWashAnomaly(30, 0.79)).toBe(false);
+  });
+
+  it("legacy-unattributed receipts count toward totals, not uniquePayers", () => {
+    // 20 receipts, only 4 payer-attributed (16 legacy nulls)
+    const r = score(
+      base({
+        category: "x402_executor",
+        totalX402Count: 20,
+        totalX402Sol: 4,
+        x402WashFilteredSol: 4,
+        x402UniquePayers: 4,
+        x402TopPayerShare: 0.25,
+        x402HighConfShare: 0.2,
+        x402HasLegacyUnattributed: true,
+        lastIndexedSeconds: 60,
+      }),
+    );
+    // recurrence reflects the 4 known payers, not the 20 receipts
+    expect(r.breakdown.depositConsistency).toBe(3);
+    // totals still drive volume
+    expect(r.breakdown.buybackExecution).toBeGreaterThan(0);
+    expect(r.confidence).toBe("medium");
+  });
+
+  it("confidence bucket: 8 unique payers but highConfShare 0.4 → not high", () => {
+    const r = score(
+      base({
+        category: "x402_executor",
+        totalX402Count: 30,
+        x402UniquePayers: 8,
+        x402HighConfShare: 0.4,
+        x402TopPayerShare: 0.2,
+        lastIndexedSeconds: 60,
+      }),
+    );
+    expect(r.confidence).not.toBe("high");
+    expect(r.confidence).toBe("medium");
+  });
+
 });
 
 describe("F7 — full ScoreResult regression pin (one per branch)", () => {
@@ -365,6 +514,11 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
         totalX402Count: 50,
         totalX402Sol: 3,
         totalX402Usdc: 40_000_000, // 40 USDC (6 decimals)
+        x402WashFilteredSol: 3,
+        x402WashFilteredUsdc: 40_000_000,
+        x402UniquePayers: 18,
+        x402TopPayerShare: 0.15,
+        x402HighConfShare: 0.8,
         failedWindows: 1,
         lastIndexedSeconds: 60 * 60,
         hasMetadata: true,
@@ -374,18 +528,18 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
     expect(r).toMatchInlineSnapshot(`
       {
         "breakdown": {
-          "burnConfirmation": 8,
-          "buybackExecution": 8,
-          "depositConsistency": 10,
+          "burnConfirmation": 7,
+          "buybackExecution": 7,
+          "depositConsistency": 14,
           "failedTx": 14,
           "metadata": 5,
           "operator": 5,
           "recency": 8,
         },
         "confidence": "high",
-        "grade": "SPX BB",
-        "total": 58,
-        "verdict": "x402 receipts observed (50) — volume still building.",
+        "grade": "SPX BBB",
+        "total": 60,
+        "verdict": "Live x402 executor — 50 receipts from 18 unique payers, ~$34.00 USDC routed.",
       }
     `);
   });
