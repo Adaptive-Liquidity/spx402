@@ -31,10 +31,27 @@ export interface AgentEventRow {
 const numOrZero = (v: number | string | null | undefined): number =>
   v == null ? 0 : typeof v === "number" ? v : Number(v);
 
+// Tiered-detection provenance lives in agent_events.raw (written by the x402
+// decoder, parser v0.2.0+). Missing on every pre-v0.2.0 row — hence nullable.
+export function facilitatorIdFromRaw(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v = (raw as Record<string, unknown>)["facilitator_id"] ??
+    (raw as Record<string, unknown>)["facilitatorId"];
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
+
+export function detectionMethodFromRaw(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const v = (raw as Record<string, unknown>)["detection_method"] ??
+    (raw as Record<string, unknown>)["detectionMethod"];
+  return typeof v === "string" && v.length > 0 ? v : null;
+}
+
 export async function fetchAgentEvents(
   mint: string,
   limit = 50,
 ): Promise<AgentEventRow[]> {
+
   if (!mint) return [];
   const { data, error } = await supabase
     .from("agent_events")
