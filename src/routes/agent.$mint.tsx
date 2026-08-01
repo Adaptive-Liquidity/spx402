@@ -1051,8 +1051,22 @@ function Dossier({
         </Panel>
       )}
 
+      {probeService && (
+        <ProbeStatusPanel
+          service={probeService}
+          series={probeSeries}
+          lastRun={probeLastRun}
+        />
+      )}
+
+      {diversity.uniquePayers > 0 && (
+        <Panel className="mt-6" eyebrow="Demand" title="Who is paying">
+          <PayerDiversityStat diversity={diversity} />
+        </Panel>
+      )}
+
       {/* RAW TX TABLE */}
-      {probeService && <ProbeStrip service={probeService} series={probeSeries} />}
+
 
       <Panel className="mt-6" eyebrow="Raw transactions" title="Decoded events">
 
