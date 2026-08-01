@@ -70,9 +70,14 @@ export const Route = createFileRoute("/service/$slug")({
     }
     const service = await fetchServiceBySlug(params.slug);
     if (!service) throw notFound();
-    const runs = await fetchProbeRuns(service.id, 200);
-    return { service, runs, series: settleRateSeries(runs) };
+    const [runs, subject, prober] = await Promise.all([
+      fetchProbeRuns(service.id, 200),
+      fetchAgentSubjectForPayee(service.payTo),
+      getProberPublicConfig(),
+    ]);
+    return { service, runs, subject, prober, series: settleRateSeries(runs) };
   },
+
 
   staleTime: 60_000,
   component: ServicePage,
