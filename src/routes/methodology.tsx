@@ -362,6 +362,62 @@ function MethodologyPage() {
         </div>
       </section>
 
+      {/* X402 DETECTION TIERS */}
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          How SPX402 detects x402 settlements
+        </h2>
+        <p className="mt-2 max-w-3xl text-paper-muted">
+          x402 settlements do not carry a single canonical on-chain signature.
+          SPX402 therefore uses tiered detection and records which tier fired on
+          every event, so any consumer can re-derive the strength of the
+          evidence rather than trusting a boolean.
+        </p>
+        <div className="mt-6 overflow-hidden border border-bronze/50">
+          <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel px-5 py-2 text-[10px] uppercase tracking-widest text-paper-muted">
+            <div className="col-span-2">Tier</div>
+            <div className="col-span-3">Signal</div>
+            <div className="col-span-2">Confidence</div>
+            <div className="col-span-5">Rule</div>
+          </div>
+          {X402_DETECTION_TIERS.map((t, i) => (
+            <div
+              key={t.tier}
+              className={`grid grid-cols-12 items-baseline gap-4 px-5 py-3 ${i % 2 ? "bg-panel" : "bg-background"}`}
+            >
+              <div className="col-span-2 font-mono text-xs text-amber">{t.tier}</div>
+              <div className="col-span-3 font-mono text-xs text-paper">{t.name}</div>
+              <div
+                className={`col-span-2 font-mono text-xs ${
+                  t.confidence === "high"
+                    ? "text-verified"
+                    : t.confidence === "medium"
+                      ? "text-amber"
+                      : "text-wire"
+                }`}
+              >
+                {t.confidence}
+              </div>
+              <div className="col-span-5 text-sm text-paper-muted">{t.body}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 max-w-3xl text-sm text-paper-muted">
+          The facilitator registry is published on the{" "}
+          <a href="/status" className="text-amber underline underline-offset-4">
+            status page
+          </a>
+          , including addresses that are tracked but not yet active. An address
+          becomes active only when its operator publishes it and a captured
+          settlement fixture proves detection against it. SPX402 does not infer
+          facilitator addresses from observed chain traffic, so the registry may
+          legitimately be empty — in which case Tier A is dormant and x402
+          coverage is understated rather than fabricated.
+        </p>
+      </section>
+
+
+
       {/* WHAT WE REFUSE TO MEASURE */}
       <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-paper">What SPX402 refuses to measure</h2>
