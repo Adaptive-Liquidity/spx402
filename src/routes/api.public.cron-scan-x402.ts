@@ -175,13 +175,15 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
           "x402_scan",
           true,
           duration,
-          `signatures=${sigSet.size} parsed=${parsed} recipients=${recipients.size} queued=${queued}`,
+          `facilitators=${facAddresses.length} signatures=${sigSet.size} parsed=${parsed} recipients=${recipients.size} persisted=${persisted} queued=${queued}`,
         );
         return json(200, {
           ok: true,
+          facilitators: facAddresses.length,
           signatures: sigSet.size,
           parsed,
           recipients: recipients.size,
+          persisted,
           queued,
           duration_ms: duration,
         });
@@ -189,6 +191,37 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
     },
   },
 });
+
+// Persist a settlement for a wallet we already track as an agent. Signature is
+// unique on agent_events, so webhook/cron overlap is idempotent by conflict.
+async function persistSettlementIfKnownAgent(ev: X402Event): Promise<boolean> {
+  try {
+    const { data: agent } = await supabaseAdmin
+      .from("agents")
+      .select("mint")
+      .eq("executor_wallet", ev.executorWallet)
+      .maybeSingle();
+    if (!agent) return false;
+    const { error } = await supabaseAdmin.from("agent_events").upsert(
+      {
+        mint: agent.mint,
+        type: "X402_PAYMENT_RECEIVED",
+        severity: "info",
+        signature: ev.signature,
+        slot: ev.slot,
+        occurred_at: ev.occurredAt,
+        amount_sol: ev.amountSol,
+        amount_token: ev.amountToken,
+        raw: { ...ev.raw, confidence: ev.confidence },
+      },
+      { onConflict: "signature", ignoreDuplicates: true },
+    );
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 
 async function getRecentSignatures(
   apiKey: string,
