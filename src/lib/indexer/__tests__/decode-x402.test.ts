@@ -119,7 +119,7 @@ describe("B — x402 decoder", () => {
         expect(events[0].confidence).toBe("high");
         expect(events[0].facilitatorId).toBe(env.expected.facilitatorId);
         expect(events[0].payerWallet).toBe(env.expected.payerWallet);
-        expect(events[0].raw.parserVersion).toBe("v0.3.0");
+        expect(events[0].raw.parserVersion).toBe("v0.2.0");
       }
     },
   );
