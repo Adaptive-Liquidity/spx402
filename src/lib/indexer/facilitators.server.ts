@@ -40,12 +40,16 @@ export const FACILITATOR_SEED: Facilitator[] = [
     id: "payai-solana",
     name: "PayAI Facilitator (Solana)",
     chain: "solana",
-    address: "", // POPULATE from PayAI's official docs/repo — verify with fixture
+    // POPULATE from PayAI's official docs — as of 2026-08-01 neither
+    // docs.payai.network nor facilitator.payai.network publishes the Solana
+    // settlement fee-payer. Left empty deliberately: never infer from chain.
+    address: "",
     scheme: "exact",
-    sourceUrl: "", // fill with the publishing source
+    sourceUrl: "https://docs.payai.network/x402/facilitators/introduction",
     fixtureId: null,
     active: false,
   },
+
   // EVM lane placeholder — Base facilitator sender addresses go here when the
   // EVM ingestion lane ships. Detection code is chain-aware from day one.
 ];
