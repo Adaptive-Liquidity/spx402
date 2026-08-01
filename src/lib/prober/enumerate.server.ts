@@ -107,9 +107,13 @@ export async function seedServicesFromLanes(): Promise<SeedResult> {
         discovered_via: s.discoveredVia,
         probe_tier: "address-only",
         active: true,
+        // Base slug only — the DB trigger freezes it and resolves
+        // collisions with -2, -3, ... so permalinks stay unambiguous.
+        slug: payeeSlug(s.payTo),
       })),
     );
   }
+
 
   return {
     fromSettlements,
