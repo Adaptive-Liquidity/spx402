@@ -117,11 +117,14 @@ function healthFor(run: IndexerRunRow | null): Health {
 }
 
 function StatusPage() {
-  const { runs, stats, coverage } = Route.useLoaderData() as {
+  const { runs, stats, coverage, facilitators } = Route.useLoaderData() as {
     runs: Record<string, IndexerRunRow | null>;
     stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
     coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
+    facilitators: FacilitatorRow[];
   };
+  const activeFacilitators = facilitators.filter((f) => f.active);
+
 
   const healths = COMPONENT_ROWS.map((c) => healthFor(runs[c.key] ?? null));
   const degraded = healths.filter((h) => h === "degraded").length;
