@@ -5,7 +5,11 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { score } from "@/lib/indexer/scoring.server";
+import {
+  score,
+  shouldEmitWashAnomaly,
+  washAnomalySeverity,
+} from "@/lib/indexer/scoring.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
 import {
   computeRiskScore,
@@ -195,7 +199,12 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         }
 
         const duration = Date.now() - started;
-        await heartbeat("scoring", true, duration, `scored=${scored}`);
+        await heartbeat(
+          "scoring",
+          true,
+          duration,
+          `scored=${scored} wash_events_emitted=${washEventsEmitted}`,
+        );
         return Response.json({ ok: true, scored, duration_ms: duration });
       },
     },
@@ -374,6 +383,53 @@ async function aggregateCounters(
 
 }
 
+
+// Emit WASH_PATTERN_SUSPECTED, deduped one per agent per UTC day.
+// The synthetic signature encodes (mint, date) so re-runs of the 5-min cron
+// are idempotent even under a race.
+async function emitWashAnomaly(
+  mint: string,
+  stats: {
+    topPayerShare: number;
+    topPayer: string | null;
+    uniquePayers: number;
+    totalEvents: number;
+    selfPaymentCount: number;
+  },
+): Promise<boolean> {
+  const day = new Date().toISOString().slice(0, 10);
+  const signature = `spx-wash:${mint}:${day}`;
+
+  const { data: existing } = await supabaseAdmin
+    .from("agent_events")
+    .select("id")
+    .eq("mint", mint)
+    .eq("type", "WASH_PATTERN_SUSPECTED")
+    .eq("signature", signature)
+    .limit(1)
+    .maybeSingle();
+  if (existing) return false;
+
+  const topPayer = stats.topPayer
+    ? `${stats.topPayer.slice(0, 4)}…${stats.topPayer.slice(-4)}`
+    : null;
+
+  const { error } = await supabaseAdmin.from("agent_events").insert({
+    mint,
+    type: "WASH_PATTERN_SUSPECTED",
+    severity: washAnomalySeverity(stats.selfPaymentCount),
+    signature,
+    occurred_at: new Date().toISOString(),
+    parser_version: RISK_SCORE_MODEL_VERSION,
+    raw: {
+      topPayerShare: stats.topPayerShare,
+      topPayer,
+      uniquePayers: stats.uniquePayers,
+      totalEvents: stats.totalEvents,
+    } as unknown as never,
+  });
+  return !error;
+}
 
 async function heartbeat(
   worker: string,
