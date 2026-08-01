@@ -136,7 +136,8 @@ const PARSER_VERSIONS = [
   { name: "Score model", value: "spx-score-v0.3.0" },
   { name: "Confidence model", value: "spx-confidence-v0.2.0" },
   { name: "Parser", value: "spx-parser-v0.2.0" },
-  { name: "Facilitator registry", value: "spx-facilitators-v0.2.0" },
+  { name: "EVM parser (Base)", value: "spx-parser-v1.0.0-evm" },
+  { name: "Facilitator registry", value: "spx-facilitators-v0.3.0" },
   { name: "Evidence schema", value: "spx.evidence.v1" },
   { name: "Verified-list schema", value: "spx.verified.v1" },
 ];
