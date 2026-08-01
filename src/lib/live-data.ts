@@ -129,37 +129,61 @@ function shortMint(m: string) {
   return m.length > 12 ? `${m.slice(0, 4)}…${m.slice(-4)}` : m;
 }
 
-function tickerLine(type: string, mint: string, sol: number): string {
+interface TickerLineInput {
+  type: string;
+  mint: string;
+  sol: number;
+  token?: number;
+  chain?: string;
+  facilitatorId?: string | null;
+}
+
+function chainTag(chain?: string): string {
+  return chain === "base" ? "[BASE]" : "[SOL]";
+}
+
+function tickerLine(input: TickerLineInput): string {
+  const { type, mint, sol } = input;
   const m = shortMint(mint);
+  const tag = chainTag(input.chain);
+  const via = input.facilitatorId ? ` via ${input.facilitatorId}` : "";
   switch (type) {
     case "BUYBACK_EXECUTED":
-      return `BUYBACK · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} BUYBACK · ${m} · ${sol.toFixed(2)} SOL`;
     case "BURN_CONFIRMED":
-      return `BURN · ${m} · confirmed on-chain`;
+      return `${tag} BURN · ${m} · confirmed on-chain`;
     case "DEPOSIT_RECEIVED":
-      return `DEPOSIT · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} DEPOSIT · ${m} · ${sol.toFixed(2)} SOL`;
     case "FAILED_WINDOW":
-      return `FAILED WINDOW · ${m} · reconciler flagged`;
+      return `${tag} FAILED WINDOW · ${m} · reconciler flagged`;
     case "FAILED_BUYBACK_WINDOW":
-      return `FAILED BUYBACK · ${m} · deposit unsettled`;
+      return `${tag} FAILED BUYBACK · ${m} · deposit unsettled`;
     case "PROMISED_BUYBACK_NOT_SETTLED":
-      return `BUYBACK REVERTED · ${m}`;
+      return `${tag} BUYBACK REVERTED · ${m}`;
     case "X402_PAYMENT_REVERTED":
-      return `x402 REVERTED · ${m}`;
-    case "X402_PAYMENT_RECEIVED":
-      return `x402 PAID · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} X402 REVERTED · ${m}${via}`;
+    case "X402_PAYMENT_RECEIVED": {
+      const usdc = input.token ?? 0;
+      const amount = usdc > 0 ? `${usdc.toFixed(2)} USDC` : `${sol.toFixed(2)} SOL`;
+      return `${tag} X402 SETTLED ${amount} · ${m}${via}`;
+    }
+    case "WASH_PATTERN_SUSPECTED":
+      return `${tag} WASH PATTERN SUSPECTED · ${m} · receipt flow concentrated`;
+    case "CONFIG_DRIFT":
+      return `${tag} CONFIG DRIFT · ${m} · advertised wallet differs from settlement`;
     case "SWAP_EXECUTED":
-      return `SWAP · ${m} · ${sol.toFixed(2)} SOL`;
+      return `${tag} SWAP · ${m} · ${sol.toFixed(2)} SOL`;
     case "CONFIG_CHANGED":
-      return `CONFIG CHANGED · ${m}`;
+      return `${tag} CONFIG CHANGED · ${m}`;
     case "ANOMALY_DETECTED":
-      return `ANOMALY · ${m} · review queued`;
+      return `${tag} ANOMALY · ${m} · review queued`;
     case "OPERATOR_VERIFIED":
-      return `OPERATOR VERIFIED · ${m}`;
+      return `${tag} OPERATOR VERIFIED · ${m}`;
     default:
-      return `${type} · ${m}`;
+      return `${tag} ${type} · ${m}`;
   }
 }
+
 
 // ---------- indexer_runs ----------
 
