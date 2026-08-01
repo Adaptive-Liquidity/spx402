@@ -175,6 +175,11 @@ const BLIND_SPOTS = [
 
 const SCHEMA_CHANGELOG = [
   {
+    version: "spx-score-v0.3.0 — wash-resistant x402",
+    date: "2026-08-01",
+    body: "x402 grades now count counterparties, not transactions. Recurrence is scored on unique payer wallets; volume is discounted by a diversity factor (1 − top-payer share, floored at 0.2); memo-tier receipts count half; self-payments are stripped from volume and cap the grade at SPX BB. Concentrated receipt flow emits WASH_PATTERN_SUSPECTED. A service with one customer may be excellent. It has not proven a market.",
+  },
+  {
     version: "spx-parser-v0.2.0",
     date: "2026-08-01",
     body: "Tiered x402 detection. Tier A matches the transaction fee-payer against the facilitator registry (high confidence, no memo required); Tier B falls back to protocol markers (medium confidence). Settlement events now record facilitator_id, detection_method, and the payer wallet.",
@@ -311,6 +316,62 @@ function MethodologyPage() {
               </li>
             ))}
           </ul>
+        </Panel>
+      </section>
+
+      {/* WASH RESISTANCE — scoring v0.3.0 */}
+      <section className="mt-12">
+        <Panel
+          eyebrow="Wash resistance · spx-score-v0.3.0"
+          title="Why x402 grades count counterparties, not transactions"
+        >
+          <p className="text-sm text-paper-muted">
+            Raw receipt count and aggregate volume are trivially farmable: an
+            operator funds one wallet, pays its own endpoint in a loop, and
+            outranks honest executors. Since v0.3.0 the x402 branch scores
+            payer diversity instead.
+          </p>
+          <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+            <li className="border-l-2 border-amber/60 pl-3">
+              <div className="font-display text-sm font-semibold text-paper">Diversity discount</div>
+              <p className="mt-1 text-sm text-paper-muted">
+                Volume is multiplied by <span className="font-mono text-paper">1 − top-payer share</span>,
+                clamped to 0.2–1.0. The floor means a single-customer service is
+                discounted, never zeroed — it just cannot reach top grades on
+                volume alone.
+              </p>
+            </li>
+            <li className="border-l-2 border-amber/60 pl-3">
+              <div className="font-display text-sm font-semibold text-paper">Self-payment cap</div>
+              <p className="mt-1 text-sm text-paper-muted">
+                Any receipt whose payer is the operator or executor wallet is
+                stripped from volume and caps the grade at{" "}
+                <span className="font-mono text-paper">SPX BB</span>. A cap, not a
+                zero: one self-payment can be an operator testing their own endpoint.
+              </p>
+            </li>
+            <li className="border-l-2 border-amber/60 pl-3">
+              <div className="font-display text-sm font-semibold text-paper">Confidence gate</div>
+              <p className="mt-1 text-sm text-paper-muted">
+                High confidence on an x402 subject requires at least 8 unique
+                payers, at least half the receipts detected at facilitator tier,
+                and activity within 24 hours.
+              </p>
+            </li>
+            <li className="border-l-2 border-amber/60 pl-3">
+              <div className="font-display text-sm font-semibold text-paper">Wash anomaly</div>
+              <p className="mt-1 text-sm text-paper-muted">
+                Ten or more receipts with 80%+ of them from a single payer emits{" "}
+                <span className="font-mono text-paper">WASH_PATTERN_SUSPECTED</span>{" "}
+                once per subject per day. Receipt flow is concentrated. The tape
+                has developed a limp.
+              </p>
+            </li>
+          </ul>
+          <div className="mt-6 rule-bronze" />
+          <p className="mt-5 text-sm text-paper">
+            A service with one customer may be excellent. It has not proven a market.
+          </p>
         </Panel>
       </section>
 
