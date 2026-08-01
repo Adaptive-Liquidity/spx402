@@ -214,7 +214,22 @@ export const Route = createFileRoute("/agent/$mint")({
     if (agent) {
       const liveEvents = await fetchAgentEvents(agent.mint, 100);
       const merged = mergeEvents(liveEvents, agent.events);
-      return { kind: "agent", agent: { ...agent, events: merged } };
+      // Join the active-verification lane by payee wallet. An agent that is
+      // itself an x402 seller may have a probe transcript.
+      const payee =
+        agent.executorWallet ??
+        (agent.identifierKind === "executor_wallet" ? agent.identifier : null);
+      const probeService = payee ? await fetchServiceByPayee(payee) : null;
+      const probeSeries = probeService
+        ? settleRateSeries(await fetchProbeRuns(probeService.id, 200))
+        : [];
+      return {
+        kind: "agent",
+        agent: { ...agent, events: merged },
+        probeService,
+        probeSeries,
+      };
+
     }
     // Not in agents table — auto-enqueue if it's a plausible mint and show
     // the verifying state instead of a dead-end 404.
