@@ -121,7 +121,9 @@ export async function getActiveFacilitators(
 }
 
 function key(chain: string, address: string): string {
-  return `${chain}:${address}`;
+  // EVM addresses are case-insensitive; Solana base58 is not.
+  const addr = chain === "solana" ? address : address.toLowerCase();
+  return `${chain}:${addr}`;
 }
 function chainOf(f: Facilitator): string {
   return f.chain;
