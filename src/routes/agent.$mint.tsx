@@ -7,14 +7,25 @@ import { ComingSoon } from "@/components/spx/ComingSoon";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
 import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
-import { fetchAgentEvents, relativeFromNow, type AgentEventRow } from "@/lib/live-data";
+import {
+  fetchAgentEvents,
+  fetchPayerDiversity,
+  relativeFromNow,
+  type AgentEventRow,
+  type PayerDiversity,
+} from "@/lib/live-data";
+import { ChainBadge } from "@/components/spx/ChainBadge";
+import { PayerDiversityStat } from "@/components/spx/PayerDiversityStat";
+import { ProbeStatusPanel } from "@/components/spx/ProbeStatusPanel";
 import {
   fetchProbeRuns,
   fetchServiceByPayee,
   settleRateSeries,
+  type ProbeRunRow,
   type SettleRatePoint,
   type X402ServiceRow,
 } from "@/lib/prober-data";
+
 
 import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
