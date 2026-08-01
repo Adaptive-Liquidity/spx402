@@ -12,7 +12,7 @@
 // where to knock. Only rows with a URL are probeable.
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { serviceSlug } from "./outcomes";
+import { payeeSlug, serviceSlug } from "./outcomes";
 
 export interface SeedResult {
   fromSettlements: number;
