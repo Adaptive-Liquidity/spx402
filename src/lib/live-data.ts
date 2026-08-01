@@ -891,3 +891,35 @@ export async function fetchOperatorWallets(limit = 100): Promise<
     .slice(0, limit);
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Facilitator registry (x402 tiered detection). Publicly readable so the
+// /status and /methodology surfaces can state exactly which settlement
+// fee-payers SPX402 recognises today — and prove it when the list is empty.
+// ─────────────────────────────────────────────────────────────────────
+export interface FacilitatorRow {
+  id: string;
+  name: string;
+  chain: string;
+  address: string;
+  sourceUrl: string | null;
+  fixtureId: string | null;
+  active: boolean;
+}
+
+export async function fetchFacilitators(): Promise<FacilitatorRow[]> {
+  const { data, error } = await supabase
+    .from("facilitators")
+    .select("id, name, chain, address, source_url, fixture_id, active")
+    .order("chain", { ascending: true })
+    .order("id", { ascending: true });
+  if (error || !data) return [];
+  return data.map((r) => ({
+    id: r.id,
+    name: r.name,
+    chain: r.chain,
+    address: r.address,
+    sourceUrl: r.source_url,
+    fixtureId: r.fixture_id,
+    active: r.active,
+  }));
+}
