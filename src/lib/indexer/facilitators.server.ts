@@ -40,15 +40,18 @@ export const FACILITATOR_SEED: Facilitator[] = [
     id: "payai-solana",
     name: "PayAI Facilitator (Solana)",
     chain: "solana",
-    // POPULATE from PayAI's official docs — as of 2026-08-01 neither
-    // docs.payai.network nor facilitator.payai.network publishes the Solana
-    // settlement fee-payer. Left empty deliberately: never infer from chain.
-    address: "",
+    // Published by PayAI as the Solana mainnet `extra.feePayer` in their x402
+    // reference docs, and served live by the operator's own /supported
+    // endpoint (https://facilitator.payai.network/supported →
+    // network "solana" / "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp").
+    // Independently corroborated by QuickNode's x402-rails guide.
+    address: "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
     scheme: "exact",
-    sourceUrl: "https://docs.payai.network/x402/facilitators/introduction",
-    fixtureId: null,
-    active: false,
+    sourceUrl: "https://docs.payai.network/x402/reference",
+    fixtureId: "x402-facilitator-settlement-01",
+    active: true,
   },
+
 
   // EVM lane placeholder — Base facilitator sender addresses go here when the
   // EVM ingestion lane ships. Detection code is chain-aware from day one.

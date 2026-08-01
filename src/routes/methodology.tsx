@@ -169,7 +169,7 @@ const BLIND_SPOTS = [
   "Off-chain revenue, service quality, and operator intent are unknowable to SPX402.",
   "Webhook delivery latency may delay event ingestion. Reconciliation runs every 60 seconds.",
   "x402 endpoints behind aggregators may be undercounted until the aggregator publishes settlement metadata.",
-  "x402 settlements are undercounted while the facilitator registry is empty: without a published, fixture-verified fee-payer, only transactions carrying an explicit protocol marker (Tier B) are detected.",
+  "x402 settlements are undercounted for facilitators outside the registry: only operators that publish a fee-payer (cross-checked against their /supported endpoint and proven by a captured fixture) get Tier A detection; everything else relies on explicit protocol markers (Tier B).",
   "Cross-chain components are not yet indexed. Solana is the only ingest source today.",
 ];
 
@@ -407,13 +407,19 @@ function MethodologyPage() {
           <a href="/status" className="text-amber underline underline-offset-4">
             status page
           </a>
-          , including addresses that are tracked but not yet active. An address
-          becomes active only when its operator publishes it and a captured
+          , including addresses that are tracked but not yet active. Every
+          address is taken from the operator's own documentation and
+          cross-checked against that operator's live{" "}
+          <span className="font-mono text-paper">/supported</span> endpoint,
+          which publishes each supported network alongside its{" "}
+          <span className="font-mono text-paper">extra.feePayer</span>. An
+          address becomes active only when both sources agree and a captured
           settlement fixture proves detection against it. SPX402 does not infer
           facilitator addresses from observed chain traffic, so the registry may
           legitimately be empty — in which case Tier A is dormant and x402
           coverage is understated rather than fabricated.
         </p>
+
       </section>
 
 

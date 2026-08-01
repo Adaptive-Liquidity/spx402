@@ -1,0 +1,130 @@
+{
+  "_fixture": {
+    "id": "x402-facilitator-settlement-02",
+    "capturedAt": "2026-08-01T00:42:33.456Z",
+    "signature": "2V6r5myBt1iEYpLbaQbwGLc7iprxiQ4NLdabyRC9zxAmx9pio8BaTutfKd1Y2pPMeCs43P42ZCc7zrPUVM7gtkJ2",
+    "slot": 436459668,
+    "capturedBy": "scripts/capture-fixture.ts",
+    "parserVersionIntroduced": "v0.2.0",
+    "expected": {
+      "executorWallets": [
+        "J28Fii2VFnJcavvaeEfsKc628htk3mnrZKubD7WsGStW"
+      ],
+      "amountSol": 0,
+      "amountToken": 0.0095,
+      "facilitatorId": "payai-solana",
+      "facilitatorAddress": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+      "facilitatorSourceUrl": "https://docs.payai.network/x402/reference",
+      "payerWallet": "TeStKWyNre9PW8XbLfvuBm9f6EnTBYqS5GXTzciCnHw"
+    },
+    "notes": "Tier A structural proof: settlement carries NO x402 memo, description or source marker; it is detected solely because the tx fee-payer is the PayAI Solana facilitator. The same tx yields zero events with an empty registry.",
+    "status": "CAPTURED"
+  },
+  "tx": {
+    "description": "TeStKWyNre9PW8XbLfvuBm9f6EnTBYqS5GXTzciCnHw transferred 0.0095 USDC to J28Fii2VFnJcavvaeEfsKc628htk3mnrZKubD7WsGStW.",
+    "type": "TRANSFER",
+    "source": "SOLANA_PROGRAM_LIBRARY",
+    "fee": 10001,
+    "feePayer": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+    "signature": "2V6r5myBt1iEYpLbaQbwGLc7iprxiQ4NLdabyRC9zxAmx9pio8BaTutfKd1Y2pPMeCs43P42ZCc7zrPUVM7gtkJ2",
+    "slot": 436459668,
+    "timestamp": 1785544378,
+    "tokenTransfers": [
+      {
+        "fromTokenAccount": "8Zy3kJsPhkSs5MPafrmiMXGczX5NyMV8SenArwsuGxys",
+        "toTokenAccount": "4fQ7yrVxuXPA16ywSBsJ5dXBAvV3SKvyv8mwrrJV1W4g",
+        "fromUserAccount": "TeStKWyNre9PW8XbLfvuBm9f6EnTBYqS5GXTzciCnHw",
+        "toUserAccount": "J28Fii2VFnJcavvaeEfsKc628htk3mnrZKubD7WsGStW",
+        "tokenAmount": 0.0095,
+        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "tokenStandard": "Fungible"
+      }
+    ],
+    "nativeTransfers": [],
+    "accountData": [
+      {
+        "account": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+        "nativeBalanceChange": -10001,
+        "tokenBalanceChanges": []
+      },
+      {
+        "account": "TeStKWyNre9PW8XbLfvuBm9f6EnTBYqS5GXTzciCnHw",
+        "nativeBalanceChange": 0,
+        "tokenBalanceChanges": []
+      },
+      {
+        "account": "8Zy3kJsPhkSs5MPafrmiMXGczX5NyMV8SenArwsuGxys",
+        "nativeBalanceChange": 0,
+        "tokenBalanceChanges": [
+          {
+            "userAccount": "TeStKWyNre9PW8XbLfvuBm9f6EnTBYqS5GXTzciCnHw",
+            "tokenAccount": "8Zy3kJsPhkSs5MPafrmiMXGczX5NyMV8SenArwsuGxys",
+            "rawTokenAmount": {
+              "tokenAmount": "-9500",
+              "decimals": 6
+            },
+            "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          }
+        ]
+      },
+      {
+        "account": "4fQ7yrVxuXPA16ywSBsJ5dXBAvV3SKvyv8mwrrJV1W4g",
+        "nativeBalanceChange": 0,
+        "tokenBalanceChanges": [
+          {
+            "userAccount": "J28Fii2VFnJcavvaeEfsKc628htk3mnrZKubD7WsGStW",
+            "tokenAccount": "4fQ7yrVxuXPA16ywSBsJ5dXBAvV3SKvyv8mwrrJV1W4g",
+            "rawTokenAmount": {
+              "tokenAmount": "9500",
+              "decimals": 6
+            },
+            "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+          }
+        ]
+      },
+      {
+        "account": "ComputeBudget111111111111111111111111111111",
+        "nativeBalanceChange": 0,
+        "tokenBalanceChanges": []
+      },
+      {
+        "account": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "nativeBalanceChange": 0,
+        "tokenBalanceChanges": []
+      },
+      {
+        "account": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "nativeBalanceChange": 0,
+        "tokenBalanceChanges": []
+      }
+    ],
+    "transactionError": null,
+    "instructions": [
+      {
+        "accounts": [],
+        "data": "KpRLZd",
+        "programId": "ComputeBudget111111111111111111111111111111",
+        "innerInstructions": []
+      },
+      {
+        "accounts": [],
+        "data": "3DdGGhkhJbjm",
+        "programId": "ComputeBudget111111111111111111111111111111",
+        "innerInstructions": []
+      },
+      {
+        "accounts": [
+          "8Zy3kJsPhkSs5MPafrmiMXGczX5NyMV8SenArwsuGxys",
+          "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          "4fQ7yrVxuXPA16ywSBsJ5dXBAvV3SKvyv8mwrrJV1W4g",
+          "TeStKWyNre9PW8XbLfvuBm9f6EnTBYqS5GXTzciCnHw"
+        ],
+        "data": "gTj63uXssSia1",
+        "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "innerInstructions": []
+      }
+    ],
+    "lighthouseData": null,
+    "events": {}
+  }
+}
