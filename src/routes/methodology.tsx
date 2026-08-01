@@ -135,10 +135,34 @@ const GRADES = [
 const PARSER_VERSIONS = [
   { name: "Score model", value: "spx-score-v0.3.0" },
   { name: "Confidence model", value: "spx-confidence-v0.2.0" },
-  { name: "Parser", value: "spx-parser-v0.1.7" },
+  { name: "Parser", value: "spx-parser-v0.2.0" },
+  { name: "Facilitator registry", value: "spx-facilitators-v0.2.0" },
   { name: "Evidence schema", value: "spx.evidence.v1" },
   { name: "Verified-list schema", value: "spx.verified.v1" },
 ];
+
+// How an x402 settlement gets recognised. Ordered by strength of evidence.
+const X402_DETECTION_TIERS = [
+  {
+    tier: "Tier A",
+    name: "Facilitator fee-payer",
+    confidence: "high",
+    body: "The transaction fee-payer is an address in the SPX402 facilitator registry. Facilitators sponsor gas for x402 settlements, so their fee-payer slot is the strongest available proof that a transfer is a protocol settlement rather than an ordinary transfer. No memo required.",
+  },
+  {
+    tier: "Tier B",
+    name: "Protocol marker",
+    confidence: "medium",
+    body: "No registry facilitator is present, but the transaction carries an x402 memo or description marker. Markers are self-asserted by the payer or server, so these settlements are recorded at medium confidence and are capped in the confidence model.",
+  },
+  {
+    tier: "Not detected",
+    name: "Bare transfer",
+    confidence: "—",
+    body: "A transfer to an executor wallet with neither a registry fee-payer nor a protocol marker is not counted as an x402 settlement. SPX402 undercounts rather than guesses.",
+  },
+];
+
 
 const BLIND_SPOTS = [
   "Custom buyback routes outside known IDLs may surface as low-confidence events.",
