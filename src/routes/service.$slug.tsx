@@ -40,11 +40,25 @@ export const Route = createFileRoute("/service/$slug")({
     };
   },
   loader: async ({ params }) => {
+    // UUID permalinks are unambiguous but illegible: redirect them once to
+    // the frozen canonical slug so every shared URL settles on one form.
+    if (isUuid(params.slug)) {
+      const byId = await fetchServiceById(params.slug);
+      if (byId) {
+        throw redirect({
+          to: "/service/$slug",
+          params: { slug: byId.slug },
+          replace: true,
+        });
+      }
+      throw notFound();
+    }
     const service = await fetchServiceBySlug(params.slug);
     if (!service) throw notFound();
     const runs = await fetchProbeRuns(service.id, 200);
     return { service, runs, series: settleRateSeries(runs) };
   },
+
   staleTime: 60_000,
   component: ServicePage,
   notFoundComponent: () => (
