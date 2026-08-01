@@ -79,7 +79,7 @@ export const FACILITATOR_SEED: Facilitator[] = [
 ];
 
 
-export const FACILITATOR_REGISTRY_VERSION = "v0.2.0";
+export const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
 // ── Runtime registry: static seed merged with DB overrides. Cached per
 // ── isolate with a short TTL; cron routes re-fetch each invocation anyway.
@@ -149,6 +149,18 @@ export function facilitatorAddressList(
   registry: Map<string, Facilitator>,
 ): string[] {
   return Array.from(registry.values()).map((f) => f.address);
+}
+
+/**
+ * EVM equivalent of `facilitatorForFeePayer`: the settlement signer on EVM is
+ * the transaction sender. Addresses are compared lowercase.
+ */
+export function facilitatorForSender(
+  registry: Map<string, Facilitator>,
+  txFrom: string | undefined,
+): Facilitator | null {
+  if (!txFrom) return null;
+  return registry.get(`base:${txFrom.toLowerCase()}`) ?? null;
 }
 
 // Re-export for tests.
