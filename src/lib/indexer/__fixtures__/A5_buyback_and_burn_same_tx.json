@@ -1,0 +1,19 @@
+{
+  "_fixture": {
+    "id": "A5_buyback_and_burn_same_tx",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "agents": [],
+      "amountSol": 0,
+      "amountToken": 0,
+      "depositCount": 1
+    },
+    "notes": "Single tx containing both the buyback leg and the burn leg.",
+    "status": "SKIPPED",
+    "skipReason": "Awaiting verbatim capture; not observed for live indexed agents."
+  }
+}

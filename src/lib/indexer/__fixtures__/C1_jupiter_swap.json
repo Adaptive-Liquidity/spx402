@@ -1,0 +1,18 @@
+{
+  "_fixture": {
+    "id": "C1_jupiter_swap",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "executorWallets": [],
+      "amountSol": 0,
+      "source": "JUPITER"
+    },
+    "notes": "Jupiter swap executed by a tracked executor wallet.",
+    "status": "SKIPPED",
+    "skipReason": "No executor wallets are indexed yet, so no swap tx can be attributed to a tracked wallet."
+  }
+}

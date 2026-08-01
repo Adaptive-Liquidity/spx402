@@ -1,0 +1,19 @@
+{
+  "_fixture": {
+    "id": "A4_burn_token2022",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "agents": [],
+      "amountSol": 0,
+      "amountToken": 0,
+      "depositCount": 1
+    },
+    "notes": "Token-2022 burnChecked of a tracked mint.",
+    "status": "SKIPPED",
+    "skipReason": "No Token-2022 agent is currently indexed; nothing on-chain to capture."
+  }
+}

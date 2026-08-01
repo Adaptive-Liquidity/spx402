@@ -1,0 +1,18 @@
+{
+  "_fixture": {
+    "id": "B6_x402_reverted",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "executorWallets": [],
+      "amountSol": 0,
+      "amountToken": 0
+    },
+    "notes": "Errored x402-marked tx involving a tracked executor wallet.",
+    "status": "SKIPPED",
+    "skipReason": "Zero x402 executors are indexed in production."
+  }
+}

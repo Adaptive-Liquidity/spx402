@@ -1,0 +1,18 @@
+{
+  "_fixture": {
+    "id": "B3_x402_memo_marker",
+    "capturedAt": null,
+    "signature": null,
+    "slot": null,
+    "capturedBy": null,
+    "parserVersionIntroduced": "spx-decoder-v1",
+    "expected": {
+      "executorWallets": [],
+      "amountSol": 0,
+      "amountToken": 0
+    },
+    "notes": "x402 marker present only in the SPL Memo instruction.",
+    "status": "SKIPPED",
+    "skipReason": "Zero x402 executors are indexed in production; capture blocked until the facilitator patch lands."
+  }
+}
