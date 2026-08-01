@@ -424,3 +424,23 @@ function confidenceFor(i: ScoringInputs): "high" | "medium" | "low" {
   if (activity >= 5) return "medium";
   return "low";
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Wash-pattern anomaly predicate (scoring v0.3.0). Pure — the scoring
+// worker uses these to decide whether to emit WASH_PATTERN_SUSPECTED.
+// ─────────────────────────────────────────────────────────────────────
+export const WASH_MIN_EVENTS = 10;
+export const WASH_TOP_PAYER_SHARE = 0.8;
+
+export function shouldEmitWashAnomaly(
+  totalEvents: number,
+  topPayerShare: number,
+): boolean {
+  return totalEvents >= WASH_MIN_EVENTS && topPayerShare >= WASH_TOP_PAYER_SHARE;
+}
+
+export function washAnomalySeverity(
+  selfPaymentCount: number,
+): "warn" | "critical" {
+  return selfPaymentCount >= 3 ? "critical" : "warn";
+}

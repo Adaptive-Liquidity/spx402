@@ -9,6 +9,8 @@ import {
   score,
   type ScoringInputs,
   type ScoreResult,
+  shouldEmitWashAnomaly,
+  washAnomalySeverity,
 } from "@/lib/indexer/scoring.server";
 
 const SIX_HOURS = 60 * 60 * 6;
