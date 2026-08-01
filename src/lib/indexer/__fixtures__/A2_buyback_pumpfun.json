@@ -13,7 +13,7 @@
           "depositAddress": null
         }
       ],
-      "amountSol": 0
+      "amountSol": 0.01903928
     },
     "notes": "Live pump.fun fee-routed buyback for indexed agent 8k1e...pump (mainnet)",
     "status": "CAPTURED"
@@ -42,7 +42,7 @@
         "toTokenAccount": "FGptqdxjahafaCzpZ1T6EDtCzYMv7Dyn5MgBLyB3VUFW",
         "fromUserAccount": "7nf6GAqpBx5RVccdwXBPrNqRnfbg95dpWhRiPAiuqEkf",
         "toUserAccount": "AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY",
-        "tokenAmount": 0.000007827,
+        "tokenAmount": 7.827e-06,
         "mint": "So11111111111111111111111111111111111111112",
         "tokenStandard": "Fungible"
       },
