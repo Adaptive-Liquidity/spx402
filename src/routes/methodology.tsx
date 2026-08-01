@@ -201,6 +201,16 @@ const BLIND_SPOTS = [
 
 const SCHEMA_CHANGELOG = [
   {
+    version: "spx-parser-v1.0.0-evm",
+    date: "2026-08-02",
+    body: "Base (EVM) settlement lane. EIP-3009 and Permit2 settlements on Base are decoded from an independent, cursor-resumable log scan. Tier A (registry sender) is scored; Tier B (pattern-only) is discovery-only and never enters the event ledger. Events carry a chain field; the score model is unchanged and remains chain-agnostic.",
+  },
+  {
+    version: "spx-facilitators-v0.3.0",
+    date: "2026-08-02",
+    body: "Registry extended to EVM chains. Base facilitator rows are registered address-less and INACTIVE until an operator publishes a sender address and a captured fixture proves detection — the same activation guard applies to every chain.",
+  },
+  {
     version: "spx-parser-v0.2.0",
     date: "2026-08-01",
     body: "Tiered x402 detection. Tier A matches the transaction fee-payer against the facilitator registry (high confidence, no memo required); Tier B falls back to protocol markers (medium confidence). Settlement events now record facilitator_id, detection_method, and the payer wallet.",
