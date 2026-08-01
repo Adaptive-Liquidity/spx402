@@ -148,7 +148,22 @@ function ServicePage() {
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-16">
-      <div className="label-amber">x402 service · active verification</div>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="label-amber">
+          Service transcript · probed by SPX402 · wallet {truncWallet(proberWallet)}
+        </div>
+        <ChainBadge chain={service.chain} size="sm" />
+        {!service.url && (
+          <span className="border border-amber/60 bg-amber/10 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-amber">
+            Address-only
+          </span>
+        )}
+        {!prober.enabled && (
+          <span className="border border-wire/60 bg-panel-deep px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-paper-muted">
+            Prober disabled — awaiting operator keys
+          </span>
+        )}
+      </div>
       <h1 className="mt-3 break-all font-display text-4xl font-bold text-paper">
         {service.url ? safeHost(service.url) : (service.payTo ?? "unknown service")}
       </h1>
@@ -177,6 +192,15 @@ function ServicePage() {
               v={service.lastProbeAt ? relativeFromNow(service.lastProbeAt) : "never"}
             />
           </dl>
+          {subject && (
+            <Link
+              to="/agent/$mint"
+              params={{ mint: subject }}
+              className="mt-4 inline-block border border-bronze/70 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+            >
+              Payee dossier ↗
+            </Link>
+          )}
         </Panel>
 
         <Panel eyebrow="Measured" title="Probe summary">
@@ -207,7 +231,7 @@ function ServicePage() {
         </Panel>
 
         <Panel eyebrow="30 days" title="Settle rate">
-          <Sparkline series={series} />
+          <SettleRateSparkline series={series} />
           <p className="mt-3 font-mono text-[11px] text-wire">
             Bars are daily settled/attempted for paid probes. Grey = no probe
             that day. Probe data is not scored.
@@ -216,53 +240,43 @@ function ServicePage() {
       </div>
 
       <section className="mt-10">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Configuration drift
+        </h2>
+        {driftRuns.length === 0 ? (
+          <p className="mt-2 text-sm text-paper-muted">
+            No drift recorded. The wallet this endpoint advertises matches the
+            wallet it settles to.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-2">
+            {driftRuns.map((r) => (
+              <div key={r.id} className="border-l-2 border-amber pl-3">
+                <div className="font-mono text-[11px] uppercase tracking-widest text-amber">
+                  {relativeFromNow(r.ranAt)} · config drift
+                </div>
+                <p className="mt-1 text-sm text-paper-muted">
+                  {r.notes ??
+                    "The endpoint advertises a different wallet than it settles to. SPX402 records changes. It does not judge intent without evidence."}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="mt-10">
         <h2 className="font-display text-2xl font-bold text-paper">Transcript</h2>
         <p className="mt-2 text-sm text-paper-muted">
           Every probe SPX402 has run against this endpoint. The prober always
           identifies itself as{" "}
           <code className="font-mono text-xs text-paper">{PROBE_USER_AGENT}</code>.
         </p>
-
-        {runs.length === 0 ? (
-          <div className="mt-6 border border-bronze/50 bg-panel p-6 font-mono text-sm text-paper-muted">
-            No probes recorded for this service yet.
-          </div>
-        ) : (
-          <div className="mt-6 overflow-hidden border border-bronze/50">
-            {runs.map((r, i) => (
-              <div
-                key={r.id}
-                className={`grid grid-cols-12 items-center gap-3 px-4 py-3 ${i % 2 ? "bg-panel" : "bg-background"}`}
-              >
-                <div className="col-span-3 font-mono text-[11px] text-wire">
-                  {relativeFromNow(r.ranAt)}
-                  <div className="text-[10px] uppercase tracking-widest">
-                    {r.probeKind}
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <span
-                    className={`inline-block border px-2 py-1 font-mono text-[11px] uppercase tracking-widest ${toneClass(r.outcome)}`}
-                  >
-                    {outcomeLabel(r.outcome)}
-                  </span>
-                </div>
-                <div className="col-span-2 font-mono text-[11px] text-paper-muted">
-                  {r.httpStatus ?? "—"}
-                  {r.verifyMs != null ? ` · ${r.verifyMs}ms` : ""}
-                  {r.settleMs != null ? ` · settle ${r.settleMs}ms` : ""}
-                </div>
-                <div className="col-span-2 font-mono text-[11px] text-paper-muted">
-                  {r.paidAmountUsd ? `$${r.paidAmountUsd.toFixed(6)}` : "free"}
-                </div>
-                <div className="col-span-2 break-all font-mono text-[10px] text-wire">
-                  {r.txSignature ? `${r.txSignature.slice(0, 14)}…` : r.notes ? r.notes.slice(0, 60) : ""}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mt-6">
+          <ServiceTranscriptTable runs={runs} />
+        </div>
       </section>
+
 
       <div className="mt-10 border border-bronze/50 bg-panel-deep p-5 text-sm text-paper-muted">
         Probe results describe what SPX402 experienced as a paying customer.
