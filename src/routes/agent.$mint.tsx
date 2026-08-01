@@ -438,15 +438,92 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
   );
 }
 
+/** Active-verification strip. Renders only when a probe transcript exists. */
+function ProbeStrip({
+  service,
+  series,
+}: {
+  service: X402ServiceRow;
+  series: SettleRatePoint[];
+}) {
+  const withData = series.filter((p) => p.rate != null);
+  const attempts = withData.reduce((s, p) => s + p.attempts, 0);
+  const settled = withData.reduce((s, p) => s + p.settled, 0);
+  return (
+    <Panel
+      className="mt-6"
+      eyebrow="Active verification"
+      title="Probed as a paying customer"
+    >
+      <div className="flex flex-wrap items-center gap-6">
+        <div className="font-mono text-xs text-paper-muted">
+          Last probed{" "}
+          <span className="text-paper">
+            {service.lastProbeAt ? relativeFromNow(service.lastProbeAt) : "never"}
+          </span>
+          {attempts > 0 && (
+            <>
+              {" · "}30d settle rate{" "}
+              <span className="text-paper">
+                {((settled / attempts) * 100).toFixed(0)}% ({settled}/{attempts})
+              </span>
+            </>
+          )}
+        </div>
+        <div className="flex h-10 flex-1 items-end gap-[2px]">
+          {series.map((p) => (
+            <div
+              key={p.day}
+              title={
+                p.rate == null
+                  ? `${p.day}: no probe`
+                  : `${p.day}: ${(p.rate * 100).toFixed(0)}%`
+              }
+              className={`w-full ${p.rate == null ? "bg-bronze/25" : p.rate >= 0.9 ? "bg-verified/70" : p.rate >= 0.5 ? "bg-amber/70" : "bg-critical/70"}`}
+              style={{ height: `${p.rate == null ? 8 : Math.max(10, p.rate * 100)}%` }}
+            />
+          ))}
+        </div>
+        <Link
+          to="/service/$slug"
+          params={{ slug: service.slug }}
+          className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
+          Probe transcript
+        </Link>
+      </div>
+      <p className="mt-3 font-mono text-[11px] text-wire">
+        Measured by the SPX402 prober buying from this service. Probe data is
+        published as evidence and is not part of the score.
+      </p>
+    </Panel>
+  );
+}
+
 function AgentRoutePage() {
   const data = Route.useLoaderData() as LoaderData;
   if (data.kind === "verifying") {
     return <VerifyingState mint={data.mint} candidate={data.candidate} />;
   }
-  return <Dossier agent={data.agent} />;
+  return (
+    <Dossier
+      agent={data.agent}
+      probeService={data.probeService}
+      probeSeries={data.probeSeries}
+    />
+  );
 }
 
-function Dossier({ agent }: { agent: Agent }) {
+function Dossier({
+  agent,
+  probeService,
+  probeSeries,
+}: {
+  agent: Agent;
+  probeService: X402ServiceRow | null;
+  probeSeries: SettleRatePoint[];
+}) {
+
   const cat = categoryMeta(agent.category);
   const isTokenized = agent.category === "tokenized_buyback";
   const isExecutor = agent.identifierKind === "executor_wallet";
