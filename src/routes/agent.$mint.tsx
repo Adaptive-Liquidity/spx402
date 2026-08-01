@@ -155,7 +155,9 @@ type LoaderData =
       // known x402 payee. Displayed, never scored.
       probeService: X402ServiceRow | null;
       probeSeries: SettleRatePoint[];
-    }
+      probeLastRun: ProbeRunRow | null;
+      diversity: PayerDiversity;
+
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
 
 
