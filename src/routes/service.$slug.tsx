@@ -4,17 +4,26 @@
 // order, with latency, outcome, and the transaction it paid with. Probe data
 // is evidence for readers, not an input to any score.
 
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { relativeFromNow } from "@/lib/live-data";
 import {
   fetchProbeRuns,
+  fetchServiceById,
   fetchServiceBySlug,
+  isUuid,
   settleRateSeries,
   type ProbeRunRow,
   type SettleRatePoint,
   type X402ServiceRow,
 } from "@/lib/prober-data";
+
 import { outcomeLabel, outcomeTone, PROBE_USER_AGENT } from "@/lib/prober/outcomes";
 
 export const Route = createFileRoute("/service/$slug")({
@@ -40,11 +49,25 @@ export const Route = createFileRoute("/service/$slug")({
     };
   },
   loader: async ({ params }) => {
+    // UUID permalinks are unambiguous but illegible: redirect them once to
+    // the frozen canonical slug so every shared URL settles on one form.
+    if (isUuid(params.slug)) {
+      const byId = await fetchServiceById(params.slug);
+      if (byId) {
+        throw redirect({
+          to: "/service/$slug",
+          params: { slug: byId.slug },
+          replace: true,
+        });
+      }
+      throw notFound();
+    }
     const service = await fetchServiceBySlug(params.slug);
     if (!service) throw notFound();
     const runs = await fetchProbeRuns(service.id, 200);
     return { service, runs, series: settleRateSeries(runs) };
   },
+
   staleTime: 60_000,
   component: ServicePage,
   notFoundComponent: () => (

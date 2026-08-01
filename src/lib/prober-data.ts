@@ -105,6 +105,26 @@ export async function fetchServiceBySlug(
   return data ? mapService(data) : null;
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isUuid(value: string): boolean {
+  return UUID_RE.test(value.trim());
+}
+
+/** UUID permalink support: /service/:id resolves to the canonical slug. */
+export async function fetchServiceById(
+  id: string,
+): Promise<X402ServiceRow | null> {
+  const { data } = await supabase
+    .from("x402_service" as never)
+    .select(SERVICE_COLS)
+    .eq("id", id)
+    .maybeSingle();
+  return data ? mapService(data) : null;
+}
+
+
 /** Dossier join: the service (if any) paid at this agent's wallet. */
 export async function fetchServiceByPayee(
   payTo: string,

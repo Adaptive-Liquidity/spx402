@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  payeeSlug,
   ALL_PROBE_OUTCOMES,
   classifyChallenge,
   classifySettlement,
@@ -317,5 +318,23 @@ describe("serviceSlug", () => {
     const slug = serviceSlug("https://API.Example.com/v1/wea ther!");
     expect(slug).toMatch(/^[a-z0-9.~_-]+$/);
     expect(serviceSlug("https://API.Example.com/v1/wea ther!")).toBe(slug);
+  });
+});
+
+// Slug immutability is enforced in the database (trigger), but the payee
+// base slug has to agree with public.x402_service_base_slug().
+describe("payeeSlug", () => {
+  it("prefixes and lowercases the payee address", () => {
+    expect(payeeSlug("SlugTestPayee111")).toBe("payee~slugtestpayee111");
+  });
+
+  it("sanitizes unsafe characters and stays within the column budget", () => {
+    const s = payeeSlug("0xAbC!def ghi");
+    expect(s).toMatch(/^[a-z0-9.~_-]+$/);
+    expect(payeeSlug("x".repeat(400)).length).toBeLessThanOrEqual(120);
+  });
+
+  it("is deterministic", () => {
+    expect(payeeSlug("Wallet9")).toBe(payeeSlug("Wallet9"));
   });
 });

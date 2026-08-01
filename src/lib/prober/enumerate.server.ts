@@ -12,7 +12,7 @@
 // where to knock. Only rows with a URL are probeable.
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { serviceSlug } from "./outcomes";
+import { payeeSlug, serviceSlug } from "./outcomes";
 
 export interface SeedResult {
   fromSettlements: number;
@@ -107,9 +107,13 @@ export async function seedServicesFromLanes(): Promise<SeedResult> {
         discovered_via: s.discoveredVia,
         probe_tier: "address-only",
         active: true,
+        // Base slug only — the DB trigger freezes it and resolves
+        // collisions with -2, -3, ... so permalinks stay unambiguous.
+        slug: payeeSlug(s.payTo),
       })),
     );
   }
+
 
   return {
     fromSettlements,
@@ -147,12 +151,15 @@ export async function upsertServiceByUrl(
     return { ok: false, id: null, slug: "", action: "rejected", error: "invalid url" };
   }
 
-  const slug = serviceSlug(normalized);
+  // Proposed slug only. The DB assigns the real one at insert (with -2/-3
+  // collision suffixes) and freezes it forever — a shared transcript URL
+  // must never change, so updates below never carry a slug.
+  const proposedSlug = serviceSlug(normalized);
   const chain = input.chain ?? "solana";
 
   const { data: byUrl } = await supabaseAdmin
     .from("x402_service")
-    .select("id")
+    .select("id, slug")
     .eq("url", normalized)
     .maybeSingle();
 
@@ -160,7 +167,6 @@ export async function upsertServiceByUrl(
     await supabaseAdmin
       .from("x402_service")
       .update({
-        slug,
         chain,
         pay_to: input.payTo ?? undefined,
         facilitator: input.facilitator ?? undefined,
@@ -168,14 +174,15 @@ export async function upsertServiceByUrl(
         active: true,
       })
       .eq("id", byUrl.id);
-    return { ok: true, id: byUrl.id, slug, action: "updated" };
+    return { ok: true, id: byUrl.id, slug: byUrl.slug, action: "updated" };
   }
 
-  // Upgrade an address-only row discovered by the passive lanes.
+  // Upgrade an address-only row discovered by the passive lanes. It keeps the
+  // payee~ slug it was created with; that permalink is already public.
   if (input.payTo) {
     const { data: byPayee } = await supabaseAdmin
       .from("x402_service")
-      .select("id, url")
+      .select("id, url, slug")
       .eq("pay_to", input.payTo)
       .is("url", null)
       .maybeSingle();
@@ -184,14 +191,13 @@ export async function upsertServiceByUrl(
         .from("x402_service")
         .update({
           url: normalized,
-          slug,
           chain,
           facilitator: input.facilitator ?? undefined,
           probe_tier: input.probeTier ?? "challenge",
           active: true,
         })
         .eq("id", byPayee.id);
-      return { ok: true, id: byPayee.id, slug, action: "upgraded" };
+      return { ok: true, id: byPayee.id, slug: byPayee.slug, action: "upgraded" };
     }
   }
 
@@ -199,7 +205,7 @@ export async function upsertServiceByUrl(
     .from("x402_service")
     .insert({
       url: normalized,
-      slug,
+      slug: proposedSlug,
       chain,
       pay_to: input.payTo ?? null,
       facilitator: input.facilitator ?? null,
@@ -207,9 +213,17 @@ export async function upsertServiceByUrl(
       probe_tier: input.probeTier ?? "challenge",
       active: true,
     })
-    .select("id")
+    .select("id, slug")
     .maybeSingle();
 
-  if (error) return { ok: false, id: null, slug, action: "failed", error: "insert failed" };
-  return { ok: true, id: inserted?.id ?? null, slug, action: "inserted" };
+  if (error) {
+    return { ok: false, id: null, slug: proposedSlug, action: "failed", error: "insert failed" };
+  }
+  return {
+    ok: true,
+    id: inserted?.id ?? null,
+    slug: inserted?.slug ?? proposedSlug,
+    action: "inserted",
+  };
+
 }

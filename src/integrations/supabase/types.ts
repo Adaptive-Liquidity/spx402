@@ -637,7 +637,7 @@ export type Database = {
           last_settlement_probe_at: string | null
           pay_to: string | null
           probe_tier: string
-          slug: string | null
+          slug: string
           url: string | null
         }
         Insert: {
@@ -654,7 +654,7 @@ export type Database = {
           last_settlement_probe_at?: string | null
           pay_to?: string | null
           probe_tier?: string
-          slug?: string | null
+          slug: string
           url?: string | null
         }
         Update: {
@@ -671,7 +671,7 @@ export type Database = {
           last_settlement_probe_at?: string | null
           pay_to?: string | null
           probe_tier?: string
-          slug?: string | null
+          slug?: string
           url?: string | null
         }
         Relationships: []
@@ -786,6 +786,10 @@ export type Database = {
     }
     Functions: {
       enqueue_candidate_agent: { Args: { p_mint: string }; Returns: Json }
+      x402_service_base_slug: {
+        Args: { p_id: string; p_pay_to: string; p_url: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
