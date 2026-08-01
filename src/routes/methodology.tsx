@@ -113,6 +113,8 @@ const EVENT_TAXONOMY = [
   { type: "TASK_COMPLETED", severity: "success", body: "Generic agent task completion signal." },
   { type: "OPERATOR_VERIFIED", severity: "info", body: "Operator wallet signed the SPX402 challenge." },
   { type: "CONFIG_CHANGED", severity: "warn", body: "Declared agent configuration (operator, executor, route, cadence) changed." },
+  { type: "WASH_PATTERN_SUSPECTED", severity: "warn", body: "x402 receipt flow is concentrated in one payer (10+ receipts, 80%+ share). Critical when three or more self-payments are observed. Emitted at most once per subject per day." },
+
   { type: "FAILED_BUYBACK_WINDOW", severity: "critical", body: "A declared buyback window passed with deposits in scope but no confirmed buyback." },
   { type: "PROMISED_BUYBACK_NOT_SETTLED", severity: "critical", body: "A DEPOSIT_RECEIVED was followed by an errored outflow transaction." },
   { type: "X402_PAYMENT_REVERTED", severity: "critical", body: "An x402 settlement transaction errored after a quote was issued." },
