@@ -129,8 +129,16 @@ type CandidateRow = {
 };
 
 type LoaderData =
-  | { kind: "agent"; agent: Agent }
+  | {
+      kind: "agent";
+      agent: Agent;
+      // Active-verification join. Present only when this agent's wallet is a
+      // known x402 payee. Displayed, never scored.
+      probeService: X402ServiceRow | null;
+      probeSeries: SettleRatePoint[];
+    }
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
+
 
 async function fetchCandidate(mint: string): Promise<CandidateRow | null> {
   // Reads from the public view that exposes only safe columns. Internal
