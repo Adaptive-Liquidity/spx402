@@ -226,6 +226,56 @@ async function aggregateCounters(
   const totalX402Sol = x402.reduce((acc, r) => acc + Number(r.amount_sol ?? 0), 0);
   const totalX402Usdc = x402.reduce((acc, r) => acc + Number(r.amount_token ?? 0), 0);
 
+  // ── Wash-resistance aggregates (scoring v0.3.0) ──────────────────
+  // Count counterparties, not transactions. Parsed out of agent_events.raw,
+  // which the v0.2.0 facilitator decoder populates with payerWallet,
+  // detectionMethod and confidence.
+  const selfSet = new Set(selfWallets.filter(Boolean));
+  const payerCounts = new Map<string, number>();
+  let highConfCount = 0;
+  let selfPaymentCount = 0;
+  let washFilteredSol = 0;
+  let washFilteredUsdc = 0;
+  let hasLegacyUnattributed = false;
+  let topPayer: string | null = null;
+
+  for (const r of x402) {
+    const raw = (r.raw ?? {}) as Record<string, unknown>;
+    const payer =
+      typeof raw.payerWallet === "string" && raw.payerWallet.length > 0
+        ? raw.payerWallet
+        : null;
+    if (raw.confidence === "high") highConfCount++;
+    // Legacy rows predate payer attribution: they count toward totals but
+    // never toward uniquePayers.
+    if (!payer) {
+      hasLegacyUnattributed = true;
+    } else {
+      payerCounts.set(payer, (payerCounts.get(payer) ?? 0) + 1);
+    }
+    const isSelf = payer !== null && selfSet.has(payer);
+    if (isSelf) {
+      selfPaymentCount++;
+    } else {
+      washFilteredSol += Number(r.amount_sol ?? 0);
+      washFilteredUsdc += Number(r.amount_token ?? 0);
+    }
+  }
+
+  let topPayerCount = 0;
+  for (const [payer, n] of payerCounts) {
+    if (n > topPayerCount) {
+      topPayerCount = n;
+      topPayer = payer;
+    }
+  }
+  const x402UniquePayers = payerCounts.size;
+  const x402TopPayerShare =
+    totalX402Count === 0 ? 0 : topPayerCount / totalX402Count;
+  const x402HighConfShare =
+    totalX402Count === 0 ? 0 : highConfCount / totalX402Count;
+
+
   const buybackExecutionRate =
     totalDepositsCount === 0
       ? 0
