@@ -59,13 +59,14 @@ export const Route = createFileRoute("/service/$slug")({
     // the frozen canonical slug so every shared URL settles on one form.
     if (isUuid(params.slug)) {
       const byId = await fetchServiceById(params.slug);
-      if (byId) {
+      if (byId?.slug) {
         throw redirect({
           to: "/service/$slug",
           params: { slug: byId.slug },
           replace: true,
         });
       }
+
       throw notFound();
     }
     const service = await fetchServiceBySlug(params.slug);
