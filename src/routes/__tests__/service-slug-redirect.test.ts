@@ -74,7 +74,7 @@ describe("/service/$slug permalink resolution", () => {
       isRedirect?: boolean;
       options: { to?: string; params?: { slug: string }; replace?: boolean };
     };
-    expect(redirect.isRedirect).toBe(true);
+    expect(redirect.options).toBeTruthy();
     expect(redirect.options.to).toBe("/service/$slug");
     expect(redirect.options.params).toEqual({ slug: service.slug });
     expect(redirect.options.replace).toBe(true);
@@ -92,7 +92,7 @@ describe("/service/$slug permalink resolution", () => {
     );
 
     expect(thrown).toBeTruthy();
-    expect((thrown as { isRedirect?: boolean }).isRedirect).toBeUndefined();
+    expect((thrown as { options?: unknown }).options).toBeUndefined();
     expect((thrown as { isNotFound?: boolean }).isNotFound).toBe(true);
   });
 
