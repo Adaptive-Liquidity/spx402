@@ -71,14 +71,13 @@ describe("/service/$slug permalink resolution", () => {
 
     expect(thrown).toBeTruthy();
     const redirect = thrown as {
-      to?: string;
-      params?: { slug: string };
-      replace?: boolean;
       isRedirect?: boolean;
+      options: { to?: string; params?: { slug: string }; replace?: boolean };
     };
-    expect(redirect.to).toBe("/service/$slug");
-    expect(redirect.params).toEqual({ slug: service.slug });
-    expect(redirect.replace).toBe(true);
+    expect(redirect.isRedirect).toBe(true);
+    expect(redirect.options.to).toBe("/service/$slug");
+    expect(redirect.options.params).toEqual({ slug: service.slug });
+    expect(redirect.options.replace).toBe(true);
     expect(fetchServiceById).toHaveBeenCalledWith(service.id);
     // A UUID must never be resolved as a slug.
     expect(fetchServiceBySlug).not.toHaveBeenCalled();
@@ -93,8 +92,8 @@ describe("/service/$slug permalink resolution", () => {
     );
 
     expect(thrown).toBeTruthy();
-    expect((thrown as { to?: string }).to).toBeUndefined();
-    expect(JSON.stringify(thrown)).toContain("notFound");
+    expect((thrown as { isRedirect?: boolean }).isRedirect).toBeUndefined();
+    expect((thrown as { isNotFound?: boolean }).isNotFound).toBe(true);
   });
 
   it("loads the transcript directly for a canonical slug (no redirect)", async () => {
