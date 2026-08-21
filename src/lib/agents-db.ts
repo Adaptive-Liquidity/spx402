@@ -3,6 +3,7 @@
 // and the static seed fallback for the home page boot animation.
 
 import { supabase } from "@/integrations/supabase/client";
+import { SCORING_VERSION } from "@/lib/versions";
 import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
 import type { AgentCategory, IdentifierKind } from "./agents/categories";
 
@@ -47,8 +48,11 @@ type AgentRow = {
   flagged_at: string | null;
 };
 
-const num = (v: number | string | null | undefined): number =>
-  v == null ? 0 : typeof v === "number" ? v : Number(v);
+const num = (v: unknown): number => {
+  const parsed =
+    typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 function rowToAgent(r: AgentRow): Agent {
   // For tokenized agents (default), identifier equals mint. For registered /
@@ -73,7 +77,7 @@ function rowToAgent(r: AgentRow): Agent {
     operatorVerified: r.operator_verified,
     confidence: (r.confidence as Agent["confidence"]) ?? "low",
     confidenceScore: num(r.confidence_score),
-    methodologyVersion: r.methodology_version ?? "spx-score-v0.3.0",
+    methodologyVersion: r.methodology_version ?? SCORING_VERSION,
     confidenceModelVersion: r.confidence_model_version ?? "spx-confidence-v0.2.0",
     parserVersion: r.parser_version,
     lastIndexedSeconds: r.last_indexed_seconds,
@@ -90,15 +94,7 @@ function rowToAgent(r: AgentRow): Agent {
     lastBuybackLabel: r.last_buyback_label ?? "—",
     lastBurnLabel: r.last_burn_label ?? "—",
     configLastChangedLabel: r.config_last_changed_label ?? "—",
-    scoreBreakdown: (r.score_breakdown as AgentScoreBreakdown) ?? {
-      depositConsistency: 0,
-      buybackExecution: 0,
-      burnConfirmation: 0,
-      failedTx: 0,
-      recency: 0,
-      metadata: 0,
-      operator: 0,
-    },
+    scoreBreakdown: scoreBreakdown(r.score_breakdown),
     verdict: r.verdict ?? "",
     events: ((r.events as AgentEvent[]) ?? []).map((e) => ({
       ...e,
@@ -111,6 +107,20 @@ function rowToAgent(r: AgentRow): Agent {
   };
 }
 
+function scoreBreakdown(value: unknown): AgentScoreBreakdown {
+  const row = value && typeof value === "object" ? (value as Partial<AgentScoreBreakdown>) : {};
+  return {
+    depositConsistency: num(row.depositConsistency),
+    buybackExecution: num(row.buybackExecution),
+    burnConfirmation: num(row.burnConfirmation),
+    failedTx: num(row.failedTx),
+    recency: num(row.recency),
+    metadata: num(row.metadata),
+    operator: num(row.operator),
+  };
+}
+
+/** Fetch all agents ordered by descending finite score. */
 export async function fetchAllAgents(): Promise<Agent[]> {
   const { data, error } = await supabase
     .from("agents")
@@ -120,16 +130,13 @@ export async function fetchAllAgents(): Promise<Agent[]> {
   return (data as AgentRow[]).map(rowToAgent);
 }
 
+/** Resolve one agent by exact mint, symbol, or mint prefix. */
 export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   const q = mintOrSymbol.trim();
   if (!q) return null;
 
   // Try exact mint first
-  const { data: byMint } = await supabase
-    .from("agents")
-    .select("*")
-    .eq("mint", q)
-    .maybeSingle();
+  const { data: byMint } = await supabase.from("agents").select("*").eq("mint", q).maybeSingle();
   if (byMint) return rowToAgent(byMint as AgentRow);
 
   // Try symbol (case-insensitive)
@@ -152,12 +159,10 @@ export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   return null;
 }
 
+/** Fetch the agents whose identifiers match the supplied mint list. */
 export async function fetchAgentsByMints(mints: string[]): Promise<Agent[]> {
   if (mints.length === 0) return [];
-  const { data, error } = await supabase
-    .from("agents")
-    .select("*")
-    .in("mint", mints);
+  const { data, error } = await supabase.from("agents").select("*").in("mint", mints);
   if (error) throw error;
   return (data as AgentRow[]).map(rowToAgent);
 }

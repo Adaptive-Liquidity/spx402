@@ -8,7 +8,7 @@ export const SOLANA_X402_PARSER_VERSION = "v0.2.0";
 export const EVM_X402_PARSER_VERSION = "v1.0.0-evm";
 export const CORE_PARSER_VERSION = "v0.1.7";
 export const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
-export const SCORING_VERSION = "spx-score-v0.3.0";
+export const SCORING_VERSION = "spx-score-v0.4.0";
 export const CONFIDENCE_VERSION = "spx-confidence-v0.2.0";
 export const PROBER_VERSION = "prober v1";
 
@@ -19,6 +19,12 @@ export interface VersionChangelogRow {
 }
 
 export const VERSION_CHANGELOG: VersionChangelogRow[] = [
+  {
+    version: "spx-score-v0.4.0",
+    lane: "Scoring",
+    summary:
+      "Added fail-closed Outcome Contract scoring for task executors using awards, fulfillment, on-time evidence, failures, and slashes.",
+  },
   {
     version: "v0.1.7",
     lane: "Core decoder",

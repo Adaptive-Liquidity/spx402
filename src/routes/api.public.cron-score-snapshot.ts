@@ -6,6 +6,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { RISK_SCORE_MODEL_VERSION } from "@/lib/scoring/risk-score";
 
 export const Route = createFileRoute("/api/public/cron-score-snapshot")({
   server: {
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/api/public/cron-score-snapshot")({
           score: a.score,
           confidence_score: a.confidence_score ?? 0,
           grade: a.grade,
-          methodology_version: a.methodology_version ?? "spx-score-v0.3.0",
+          methodology_version: a.methodology_version ?? RISK_SCORE_MODEL_VERSION,
           confidence_model_version:
             a.confidence_model_version ?? "spx-confidence-v0.2.0",
           taken_at: takenAt,

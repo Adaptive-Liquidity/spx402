@@ -4,6 +4,7 @@
 //   - CRON_SECRET            : 5 cron workers (read+mutate via service role)
 //   - HELIUS_WEBHOOK_SECRET  : webhook ingest only (also HMAC key)
 //   - HELIUS_ADMIN_SECRET    : webhook setup/list/delete (reconfigures Helius)
+//   - OC_INGEST_SECRET       : Outcome Contract evidence ingest only
 //
 // During the rollout window we accept the legacy HELIUS_WEBHOOK_SECRET as a
 // fallback for cron/admin so that an unconfigured CRON_SECRET / HELIUS_ADMIN_SECRET
@@ -64,4 +65,13 @@ export function checkAdminAuth(req: Request): boolean {
   if (adminSecret && authHeaderMatches(req, adminSecret)) return true;
   if (legacy && authHeaderMatches(req, legacy)) return true;
   return false;
+}
+
+/** Check the dedicated Outcome Contract evidence ingestion credential. */
+export function checkOcIngestAuth(req: Request): boolean {
+  const ingestSecret = process.env.OC_INGEST_SECRET;
+  if (!ingestSecret) return false;
+  const authorization = req.headers.get("authorization")?.trim();
+  if (!authorization?.toLowerCase().startsWith("bearer ")) return false;
+  return authHeaderMatches(req, ingestSecret);
 }

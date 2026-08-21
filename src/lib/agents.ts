@@ -26,6 +26,11 @@ export type EventType =
   | "SWAP_EXECUTED"
   | "X402_PAYMENT_RECEIVED"
   | "TASK_COMPLETED"
+  | "OC_OPENED"
+  | "OC_AWARDED"
+  | "OC_FULFILLED"
+  | "OC_FAILED"
+  | "OC_SLASHED"
   // Wave 1b — failure decoder negative-event taxonomy.
   | "FAILED_BUYBACK_WINDOW"
   | "PROMISED_BUYBACK_NOT_SETTLED"
@@ -126,6 +131,7 @@ const LEADERBOARD_GRADES: ReadonlySet<Grade> = new Set([
   "SPX BB",
 ]);
 
+/** Return whether an agent satisfies the public leaderboard quality gate. */
 export function qualifiesForLeaderboard(agent: Agent): boolean {
   if (agent.flagged) return false;
   if (!LEADERBOARD_GRADES.has(agent.grade)) return false;
@@ -133,10 +139,12 @@ export function qualifiesForLeaderboard(agent: Agent): boolean {
   return true;
 }
 
+/** Return whether a grade represents failed or insufficient evidence. */
 export function isLowGrade(agent: Agent): boolean {
   return agent.grade === "SPX D" || agent.grade === "SPX404";
 }
 
+/** Map an execution grade to its shared UI color token. */
 export function gradeColor(grade: Grade): string {
   if (grade === "SPX AAA" || grade === "SPX AA") return "verified";
   if (grade === "SPX A" || grade === "SPX BBB") return "amber";

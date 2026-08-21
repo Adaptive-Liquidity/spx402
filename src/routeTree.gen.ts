@@ -39,6 +39,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as ApiPublicX402SelftestRouteImport } from './routes/api.public.x402-selftest'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
 import { Route as ApiPublicVerifiedRouteImport } from './routes/api.public.verified'
+import { Route as ApiPublicIngestOcEvidenceRouteImport } from './routes/api.public.ingest-oc-evidence'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
@@ -209,6 +210,12 @@ const ApiPublicVerifiedRoute = ApiPublicVerifiedRouteImport.update({
   path: '/public/verified',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicIngestOcEvidenceRoute =
+  ApiPublicIngestOcEvidenceRouteImport.update({
+    id: '/public/ingest-oc-evidence',
+    path: '/public/ingest-oc-evidence',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicHeliusWebhookSetupRoute =
   ApiPublicHeliusWebhookSetupRouteImport.update({
     id: '/public/helius-webhook-setup',
@@ -369,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
+  '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -420,6 +428,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
+  '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -473,6 +482,7 @@ export interface FileRoutesById {
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
+  '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
+    | '/api/public/ingest-oc-evidence'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -577,6 +588,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
+    | '/api/public/ingest-oc-evidence'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -629,6 +641,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
+    | '/api/public/ingest-oc-evidence'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -876,6 +889,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicVerifiedRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/ingest-oc-evidence': {
+      id: '/api/public/ingest-oc-evidence'
+      path: '/public/ingest-oc-evidence'
+      fullPath: '/api/public/ingest-oc-evidence'
+      preLoaderRoute: typeof ApiPublicIngestOcEvidenceRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/helius-webhook-setup': {
       id: '/api/public/helius-webhook-setup'
       path: '/public/helius-webhook-setup'
@@ -1065,6 +1085,7 @@ interface ApiRouteChildren {
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
+  ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
   ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
   ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
@@ -1089,6 +1110,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
+  ApiPublicIngestOcEvidenceRoute: ApiPublicIngestOcEvidenceRoute,
   ApiPublicVerifiedRoute: ApiPublicVerifiedRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
   ApiPublicX402SelftestRoute: ApiPublicX402SelftestRoute,

@@ -15,10 +15,8 @@
 //   3. x402_executor — wallets receiving x402 micropayments. Score weighted
 //      on payment volume, recurrence, and recency.
 //
-// Anything else (copy_trader, task_executor, general) currently falls back
-// to the tokenized branch, which produces a neutral SPX404 baseline until a
-// dedicated decoder ships for that category. That's intentional — we don't
-// want unscored categories to dominate the leaderboard.
+// task_executor has a dedicated Outcome Contract branch. Other undecoded
+// categories retain the neutral tokenized fallback.
 
 import type { AgentCategory } from "@/lib/agents/categories";
 
@@ -45,16 +43,27 @@ export interface ScoringInputs {
   // Generalized swap counters (DEX swaps emitted for executor wallets).
   totalSwapCount?: number;
   totalSwapSol?: number;
+  // For task_executor: server-observed Outcome Contract evidence.
+  totalOutcomeOpened?: number;
+  totalOutcomeAwarded?: number;
+  totalOutcomeFulfilled?: number;
+  totalOutcomeFailed?: number;
+  totalOutcomeSlashed?: number;
+  outcomeFulfillmentRate?: number;
+  outcomeOnTimeRate?: number;
+  outcomeAwardDensity?: number;
+  hasPublicCapsule?: boolean;
+  outcomeEvidenceComplete?: boolean;
 }
 
 export interface ScoreBreakdown {
   depositConsistency: number; // /20  (label depends on category)
-  buybackExecution: number;   // /25  (label depends on category)
-  burnConfirmation: number;   // /20
-  failedTx: number;           // /15
-  recency: number;            // /10
-  metadata: number;           // /5
-  operator: number;           // /5
+  buybackExecution: number; // /25  (label depends on category)
+  burnConfirmation: number; // /20
+  failedTx: number; // /15
+  recency: number; // /10
+  metadata: number; // /5
+  operator: number; // /5
 }
 
 export type Grade =
@@ -75,6 +84,15 @@ export interface ScoreResult {
   confidence: "high" | "medium" | "low";
 }
 
+/** Return the nullable score persisted for a category's public grade. */
+export function scoreForPersistence(
+  category: AgentCategory,
+  result: Pick<ScoreResult, "grade" | "total">,
+): number | null {
+  return category === "task_executor" && result.grade === "SPX404" ? null : result.total;
+}
+
+/** Compute the category-specific execution score and evidence verdict. */
 export function score(inputs: ScoringInputs): ScoreResult {
   const category: AgentCategory = inputs.category ?? "tokenized_buyback";
 
@@ -84,6 +102,9 @@ export function score(inputs: ScoringInputs): ScoreResult {
   if (category === "x402_executor") {
     return scoreX402(inputs);
   }
+  if (category === "task_executor") {
+    return scoreOutcomeContract(inputs);
+  }
   // tokenized_buyback (default) and any other non-decoded category.
   return scoreTokenized(inputs);
 }
@@ -92,8 +113,7 @@ export function score(inputs: ScoringInputs): ScoreResult {
 // Branch 1: tokenized_buyback (classic + fee-buyback fallback)
 // ─────────────────────────────────────────────────────────────────────
 function scoreTokenized(inputs: ScoringInputs): ScoreResult {
-  const isFeeBuyback =
-    inputs.totalDepositsCount === 0 && inputs.totalBuybacksCount >= 3;
+  const isFeeBuyback = inputs.totalDepositsCount === 0 && inputs.totalBuybacksCount >= 3;
   const buybackSol = inputs.totalBuybackSol ?? 0;
 
   const depositConsistency = isFeeBuyback
@@ -104,9 +124,10 @@ function scoreTokenized(inputs: ScoringInputs): ScoreResult {
     ? clamp(Math.round((Math.min(buybackSol, 2) / 2) * 25), 0, 25)
     : clamp(Math.round(inputs.buybackExecutionRate * 25), 0, 25);
 
-  const burnConfirmation = isFeeBuyback && inputs.totalBurnsCount === 0
-    ? 10
-    : clamp(Math.round(inputs.burnConfirmationRate * 20), 0, 20);
+  const burnConfirmation =
+    isFeeBuyback && inputs.totalBurnsCount === 0
+      ? 10
+      : clamp(Math.round(inputs.burnConfirmationRate * 20), 0, 20);
 
   const breakdown: ScoreBreakdown = {
     depositConsistency,
@@ -128,11 +149,7 @@ function scoreTokenized(inputs: ScoringInputs): ScoreResult {
 }
 
 function gradeForTokenized(total: number, i: ScoringInputs): Grade {
-  if (
-    i.totalDepositsCount === 0 &&
-    i.totalBuybacksCount === 0 &&
-    i.totalBurnsCount === 0
-  ) {
+  if (i.totalDepositsCount === 0 && i.totalBuybacksCount === 0 && i.totalBurnsCount === 0) {
     return "SPX404";
   }
   if (i.failedWindows > 10) return "SPX D";
@@ -140,18 +157,12 @@ function gradeForTokenized(total: number, i: ScoringInputs): Grade {
 }
 
 function verdictForTokenized(total: number, i: ScoringInputs): string {
-  if (
-    i.totalDepositsCount === 0 &&
-    i.totalBuybacksCount === 0 &&
-    i.totalBurnsCount === 0
-  ) {
+  if (i.totalDepositsCount === 0 && i.totalBuybacksCount === 0 && i.totalBurnsCount === 0) {
     return "No on-chain activity observed in the indexed window.";
   }
-  if (i.failedWindows > 10)
-    return "Repeated failed buyback windows. Operator review required.";
+  if (i.failedWindows > 10) return "Repeated failed buyback windows. Operator review required.";
   if (i.totalDepositsCount === 0 && i.totalBuybacksCount > 0) {
-    if (total >= 70)
-      return "Fee-routed buyback agent with consistent on-chain execution.";
+    if (total >= 70) return "Fee-routed buyback agent with consistent on-chain execution.";
     if (total >= 50)
       return "Fee-routed buyback agent — execution observed, cadence still building.";
     return "Fee-routed buyback agent with limited execution history.";
@@ -175,16 +186,8 @@ function scoreRegistered(inputs: ScoringInputs): ScoreResult {
   // buybackExecution slot is reused as "swap activity".
   const breakdown: ScoreBreakdown = {
     depositConsistency: clamp(Math.round((identityProof / 35) * 20), 0, 20),
-    buybackExecution: clamp(
-      Math.round((Math.min(swapCount, 50) / 50) * 25),
-      0,
-      25,
-    ),
-    burnConfirmation: clamp(
-      Math.round((Math.min(swapSol, 5) / 5) * 20),
-      0,
-      20,
-    ),
+    buybackExecution: clamp(Math.round((Math.min(swapCount, 50) / 50) * 25), 0, 25),
+    burnConfirmation: clamp(Math.round((Math.min(swapSol, 5) / 5) * 20), 0, 20),
     failedTx: clamp(15 - Math.min(inputs.failedWindows, 15), 0, 15),
     recency: recencyScore(inputs.lastIndexedSeconds, "long"),
     metadata: inputs.hasMetadata ? 5 : 0,
@@ -218,10 +221,8 @@ function verdictForRegistered(total: number, i: ScoringInputs): string {
   if (!i.registryProof) {
     return "Swap activity observed but MPL Agent Identity PDA not currently resolvable.";
   }
-  if (total >= 80)
-    return "Verified Metaplex agent with consistent on-chain execution.";
-  if (total >= 60)
-    return "Verified Metaplex agent with moderate activity in the indexed window.";
+  if (total >= 80) return "Verified Metaplex agent with consistent on-chain execution.";
+  if (total >= 60) return "Verified Metaplex agent with moderate activity in the indexed window.";
   return "Verified Metaplex agent — execution still building.";
 }
 
@@ -241,23 +242,14 @@ function scoreX402(inputs: ScoringInputs): ScoreResult {
 
   const breakdown: ScoreBreakdown = {
     // depositConsistency = payment recurrence (count, capped at 100).
-    depositConsistency: clamp(
-      Math.round((Math.min(count, 100) / 100) * 20),
-      0,
-      20,
-    ),
+    depositConsistency: clamp(Math.round((Math.min(count, 100) / 100) * 20), 0, 20),
     // buybackExecution = aggregate receipt volume in SOL-equivalent
     // (capped at 10 SOL or $200 USDC).
-    buybackExecution: clamp(
-      Math.round((Math.min(sol + usdcValue / 200, 10) / 10) * 25),
-      0,
-      25,
-    ),
+    buybackExecution: clamp(Math.round((Math.min(sol + usdcValue / 200, 10) / 10) * 25), 0, 25),
     // burnConfirmation = USDC-share bonus. Stable-denominated revenue is
     // a stronger trust signal than volatile SOL flow.
-    burnConfirmation: usdcValue > 0
-      ? clamp(Math.round((Math.min(usdcValue, 100) / 100) * 20), 0, 20)
-      : 0,
+    burnConfirmation:
+      usdcValue > 0 ? clamp(Math.round((Math.min(usdcValue, 100) / 100) * 20), 0, 20) : 0,
     failedTx: clamp(15 - Math.min(inputs.failedWindows, 15), 0, 15),
     recency: recencyScore(inputs.lastIndexedSeconds, "short"),
     metadata: inputs.hasMetadata ? 5 : 0,
@@ -284,9 +276,65 @@ function verdictForX402(total: number, count: number, usdcValue: number): string
   if (count === 0) return "No x402 payment receipts observed yet.";
   if (total >= 80)
     return `Active x402 executor — ${count} receipts indexed${usdcValue > 0 ? `, ~$${usdcValue.toFixed(2)} USDC routed` : ""}.`;
-  if (total >= 60)
-    return `Live x402 executor with moderate receipt volume (${count} receipts).`;
+  if (total >= 60) return `Live x402 executor with moderate receipt volume (${count} receipts).`;
   return `x402 receipts observed (${count}) — volume still building.`;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Branch 4: task_executor (Outcome Contracts)
+// ─────────────────────────────────────────────────────────────────────
+function scoreOutcomeContract(inputs: ScoringInputs): ScoreResult {
+  const awarded = inputs.totalOutcomeAwarded ?? 0;
+  const fulfilled = inputs.totalOutcomeFulfilled ?? 0;
+  const failed = inputs.totalOutcomeFailed ?? 0;
+  const slashed = inputs.totalOutcomeSlashed ?? 0;
+  const evidenceComplete = inputs.outcomeEvidenceComplete === true;
+  const hasRateEvidence =
+    inputs.outcomeAwardDensity !== undefined && inputs.outcomeFulfillmentRate !== undefined;
+  const hasOnTimeEvidence = inputs.outcomeOnTimeRate !== undefined;
+
+  const breakdown: ScoreBreakdown = {
+    // awarded-contract density
+    depositConsistency: clamp(Math.round((inputs.outcomeAwardDensity ?? 0) * 20), 0, 20),
+    // fulfillment rate
+    buybackExecution: clamp(Math.round((inputs.outcomeFulfillmentRate ?? 0) * 25), 0, 25),
+    // on-time rate; absent until the producer supplies a verifiable deadline
+    burnConfirmation: clamp(Math.round((inputs.outcomeOnTimeRate ?? 0) * 20), 0, 20),
+    // failures cost 2 points, slashes cost 5.
+    failedTx: clamp(15 - failed * 2 - slashed * 5, 0, 15),
+    recency: recencyScore(inputs.lastIndexedSeconds, "long"),
+    metadata: inputs.hasPublicCapsule ? 5 : 0,
+    operator: inputs.operatorVerified ? 5 : 0,
+  };
+  const total = sumBreakdown(breakdown);
+  const outcomeEvents = (inputs.totalOutcomeOpened ?? 0) + awarded + fulfilled + failed + slashed;
+
+  return {
+    total,
+    breakdown,
+    grade:
+      awarded === 0 || !evidenceComplete || !hasRateEvidence || !hasOnTimeEvidence
+        ? "SPX404"
+        : gradeFromTotal(total),
+    verdict:
+      awarded === 0
+        ? "No awarded Outcome Contract evidence observed yet."
+        : !evidenceComplete
+          ? "Outcome Contract evidence window is incomplete; score withheld."
+          : !hasRateEvidence
+            ? "Required Outcome Contract rate evidence is unavailable; score withheld."
+            : !hasOnTimeEvidence
+              ? "Verifiable Outcome Contract deadline evidence is unavailable; score withheld."
+              : slashed > 0
+                ? `${slashed} Outcome Contract slash event${slashed === 1 ? "" : "s"} observed.`
+                : `${fulfilled} of ${awarded} awarded Outcome Contracts fulfilled in the indexed window.`,
+    confidence:
+      outcomeEvents >= 20 && inputs.lastIndexedSeconds < 60 * 60 * 24
+        ? "high"
+        : outcomeEvents >= 5
+          ? "medium"
+          : "low",
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -311,11 +359,7 @@ function sumBreakdown(b: ScoreBreakdown): number {
 function recencyScore(lastIndexedSeconds: number, window: "short" | "long"): number {
   // short = 6h, long = 7d
   const w = window === "short" ? 60 * 60 * 6 : 60 * 60 * 24 * 7;
-  return clamp(
-    Math.round(10 * Math.max(0, 1 - lastIndexedSeconds / w)),
-    0,
-    10,
-  );
+  return clamp(Math.round(10 * Math.max(0, 1 - lastIndexedSeconds / w)), 0, 10);
 }
 
 function gradeFromTotal(total: number): Grade {

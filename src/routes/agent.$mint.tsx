@@ -14,6 +14,10 @@ import {
   type AgentEventRow,
   type PayerDiversity,
 } from "@/lib/live-data";
+import {
+  fetchOutcomeContractMetrics,
+  type OutcomeContractMetrics,
+} from "@/lib/outcome-contract.functions";
 import { ChainBadge } from "@/components/spx/ChainBadge";
 import { PayerDiversityStat } from "@/components/spx/PayerDiversityStat";
 import { ProbeStatusPanel } from "@/components/spx/ProbeStatusPanel";
@@ -26,16 +30,34 @@ import {
   type X402ServiceRow,
 } from "@/lib/prober-data";
 
-
 import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/lib/auth";
+import { SCORING_VERSION } from "@/lib/versions";
 import {
-  ShieldCheck, ShieldOff, Copy, Share2, AlertTriangle, CheckCircle2, ArrowDownToLine, Repeat, Flame, Settings, Activity, Check, Bell,
+  ShieldCheck,
+  ShieldOff,
+  Copy,
+  Share2,
+  AlertTriangle,
+  CheckCircle2,
+  ArrowDownToLine,
+  Repeat,
+  Flame,
+  Settings,
+  Activity,
+  Check,
+  Bell,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
 } from "recharts";
 
 const KNOWN_EVENT_TYPES: EventType[] = [
@@ -49,23 +71,49 @@ const KNOWN_EVENT_TYPES: EventType[] = [
   "SWAP_EXECUTED",
   "X402_PAYMENT_RECEIVED",
   "TASK_COMPLETED",
+  "OC_OPENED",
+  "OC_AWARDED",
+  "OC_FULFILLED",
+  "OC_FAILED",
+  "OC_SLASHED",
 ];
 
 const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
 
 function eventTitleFor(type: string): string {
   switch (type) {
-    case "DEPOSIT_RECEIVED": return "Deposit received";
-    case "BUYBACK_EXECUTED": return "Buyback executed";
-    case "BURN_CONFIRMED": return "Burn confirmed";
-    case "CONFIG_CHANGED": return "Config changed";
-    case "FAILED_WINDOW": return "Failed buyback window";
-    case "ANOMALY_DETECTED": return "Anomaly detected";
-    case "OPERATOR_VERIFIED": return "Operator verified";
-    case "SWAP_EXECUTED": return "DEX swap executed";
-    case "X402_PAYMENT_RECEIVED": return "x402 payment received";
-    case "TASK_COMPLETED": return "Task completed";
-    default: return type;
+    case "DEPOSIT_RECEIVED":
+      return "Deposit received";
+    case "BUYBACK_EXECUTED":
+      return "Buyback executed";
+    case "BURN_CONFIRMED":
+      return "Burn confirmed";
+    case "CONFIG_CHANGED":
+      return "Config changed";
+    case "FAILED_WINDOW":
+      return "Failed buyback window";
+    case "ANOMALY_DETECTED":
+      return "Anomaly detected";
+    case "OPERATOR_VERIFIED":
+      return "Operator verified";
+    case "SWAP_EXECUTED":
+      return "DEX swap executed";
+    case "X402_PAYMENT_RECEIVED":
+      return "x402 payment received";
+    case "TASK_COMPLETED":
+      return "Task completed";
+    case "OC_OPENED":
+      return "Outcome Contract opened";
+    case "OC_AWARDED":
+      return "Outcome Contract awarded";
+    case "OC_FULFILLED":
+      return "Outcome Contract fulfilled";
+    case "OC_FAILED":
+      return "Outcome Contract failed";
+    case "OC_SLASHED":
+      return "Outcome Contract slashed";
+    default:
+      return type;
   }
 }
 
@@ -93,6 +141,16 @@ function eventDescFor(row: AgentEventRow): string {
         : `${row.amountSol.toFixed(4)} SOL received via x402 micropayment.`;
     case "TASK_COMPLETED":
       return "Agent completed a priced task attested on-chain.";
+    case "OC_OPENED":
+      return "Outcome Contract posted and escrow locked.";
+    case "OC_AWARDED":
+      return "Executor selected for the Outcome Contract.";
+    case "OC_FULFILLED":
+      return "Checkable outcome met with public Capsule evidence.";
+    case "OC_FAILED":
+      return "Outcome Contract missed, expired, or was rejected.";
+    case "OC_SLASHED":
+      return "Outcome Contract escrow was slashed.";
     default:
       return "Decoded program event.";
   }
@@ -123,7 +181,6 @@ function rowToAgentEvent(row: AgentEventRow): AgentEvent {
     iso: row.occurredAt,
   };
 }
-
 
 // Live agent_events are authoritative once present. The seeded jsonb is only
 // shown when no live events have been indexed for this agent yet.
@@ -157,11 +214,9 @@ type LoaderData =
       probeSeries: SettleRatePoint[];
       probeLastRun: ProbeRunRow | null;
       diversity: PayerDiversity;
+      outcomeMetrics: OutcomeContractMetrics | null;
     }
-
-
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
-
 
 async function fetchCandidate(mint: string): Promise<CandidateRow | null> {
   // Reads from the public view that exposes only safe columns. Internal
@@ -234,13 +289,14 @@ export const Route = createFileRoute("/agent/$mint")({
       const payee =
         agent.executorWallet ??
         (agent.identifierKind === "executor_wallet" ? agent.identifier : null);
-      const [probeService, diversity] = await Promise.all([
+      const [probeService, diversity, outcomeMetrics] = await Promise.all([
         payee ? fetchServiceByPayee(payee) : Promise.resolve(null),
         fetchPayerDiversity(agent.mint),
+        agent.category === "task_executor"
+          ? fetchOutcomeContractMetrics({ data: agent.mint })
+          : Promise.resolve(null),
       ]);
-      const probeRuns = probeService
-        ? await fetchProbeRuns(probeService.id, 200)
-        : [];
+      const probeRuns = probeService ? await fetchProbeRuns(probeService.id, 200) : [];
       return {
         kind: "agent",
         agent: { ...agent, events: merged },
@@ -248,8 +304,8 @@ export const Route = createFileRoute("/agent/$mint")({
         probeSeries: settleRateSeries(probeRuns),
         probeLastRun: probeRuns[0] ?? null,
         diversity,
+        outcomeMetrics,
       };
-
     }
 
     // Not in agents table — auto-enqueue if it's a plausible mint and show
@@ -272,7 +328,10 @@ export const Route = createFileRoute("/agent/$mint")({
         <div className="label-amber">Dossier error</div>
         <p className="mt-3 text-paper-muted">{error.message}</p>
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
@@ -282,7 +341,13 @@ export const Route = createFileRoute("/agent/$mint")({
   },
 });
 
-function VerifyingState({ mint, candidate: initial }: { mint: string; candidate: CandidateRow | null }) {
+function VerifyingState({
+  mint,
+  candidate: initial,
+}: {
+  mint: string;
+  candidate: CandidateRow | null;
+}) {
   const router = useRouter();
   const [candidate, setCandidate] = useState<CandidateRow | null>(initial);
 
@@ -315,10 +380,16 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
         </p>
         {mint && <p className="mt-2 font-mono text-xs text-wire">QUERY: {mint}</p>}
         <div className="mt-8 flex justify-center gap-3">
-          <Link to="/" className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep">
+          <Link
+            to="/"
+            className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          >
             New search
           </Link>
-          <Link to="/explore" className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper">
+          <Link
+            to="/explore"
+            className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper"
+          >
             Explore agents
           </Link>
         </div>
@@ -330,10 +401,30 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
   const status = candidate?.status ?? "pending";
   const isRejected = status === "rejected";
   const checks: { key: string; label: string; passed: boolean; hint: string }[] = [
-    { key: "skills_md", label: "Skills.md in metadata", passed: !!signals.skills_md, hint: "Off-chain JSON URI references skills" },
-    { key: "invoice_pda", label: "Invoice ID PDA derivable", passed: !!signals.invoice_pda, hint: "Pump.fun agent-payments registration" },
-    { key: "on_chain_earnings", label: "Deposit → buyback → burn observed", passed: !!signals.on_chain_earnings, hint: "Required to pass · the strict bar" },
-    { key: "agent_registry", label: "Solana Agent Registry entry", passed: !!signals.agent_registry, hint: "AgentIdentity PDA exists" },
+    {
+      key: "skills_md",
+      label: "Skills.md in metadata",
+      passed: !!signals.skills_md,
+      hint: "Off-chain JSON URI references skills",
+    },
+    {
+      key: "invoice_pda",
+      label: "Invoice ID PDA derivable",
+      passed: !!signals.invoice_pda,
+      hint: "Pump.fun agent-payments registration",
+    },
+    {
+      key: "on_chain_earnings",
+      label: "Deposit → buyback → burn observed",
+      passed: !!signals.on_chain_earnings,
+      hint: "Required to pass · the strict bar",
+    },
+    {
+      key: "agent_registry",
+      label: "Solana Agent Registry entry",
+      passed: !!signals.agent_registry,
+      hint: "AgentIdentity PDA exists",
+    },
   ];
 
   return (
@@ -352,15 +443,22 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
 
       <div className="mt-6 flex flex-wrap items-center gap-3 font-mono text-xs">
         <span className="border border-bronze/60 bg-panel-deep px-3 py-1.5 text-paper-muted">
-          MINT <span className="ml-2 text-paper">{mint.slice(0, 6)}…{mint.slice(-6)}</span>
+          MINT{" "}
+          <span className="ml-2 text-paper">
+            {mint.slice(0, 6)}…{mint.slice(-6)}
+          </span>
         </span>
         <span className="border border-bronze/60 bg-panel-deep px-3 py-1.5 text-paper-muted">
           STATUS{" "}
-          <span className={
-            status === "verified" ? "ml-2 text-verified"
-            : status === "rejected" ? "ml-2 text-critical"
-            : "ml-2 text-amber"
-          }>
+          <span
+            className={
+              status === "verified"
+                ? "ml-2 text-verified"
+                : status === "rejected"
+                  ? "ml-2 text-critical"
+                  : "ml-2 text-amber"
+            }
+          >
             {status.toUpperCase()}
           </span>
         </span>
@@ -368,7 +466,10 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
           ATTEMPTS <span className="ml-2 text-paper">{candidate?.check_attempts ?? 0} / 5</span>
         </span>
         <span className="border border-bronze/60 bg-panel-deep px-3 py-1.5 text-paper-muted">
-          SOURCE <span className="ml-2 text-paper">{(candidate?.discovered_via ?? "search_lookup").toUpperCase()}</span>
+          SOURCE{" "}
+          <span className="ml-2 text-paper">
+            {(candidate?.discovered_via ?? "search_lookup").toUpperCase()}
+          </span>
         </span>
       </div>
 
@@ -403,8 +504,8 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
 
       {!isRejected && (
         <p className="mt-6 font-mono text-xs text-wire">
-          The verifier runs every 5 minutes. This page polls automatically — when
-          the agent passes, the dossier loads here.
+          The verifier runs every 5 minutes. This page polls automatically — when the agent passes,
+          the dossier loads here.
         </p>
       )}
       {isRejected && candidate?.rejection_reason && (
@@ -414,10 +515,16 @@ function VerifyingState({ mint, candidate: initial }: { mint: string; candidate:
       )}
 
       <div className="mt-10 flex flex-wrap gap-3">
-        <Link to="/" className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep">
+        <Link
+          to="/"
+          className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
           New search
         </Link>
-        <Link to="/explore" className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper">
+        <Link
+          to="/explore"
+          className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper"
+        >
           Explore verified agents
         </Link>
       </div>
@@ -436,6 +543,11 @@ const EVENT_ICON: Record<string, typeof Activity> = {
   SWAP_EXECUTED: Repeat,
   X402_PAYMENT_RECEIVED: ArrowDownToLine,
   TASK_COMPLETED: ShieldCheck,
+  OC_OPENED: Activity,
+  OC_AWARDED: ShieldCheck,
+  OC_FULFILLED: ShieldCheck,
+  OC_FAILED: AlertTriangle,
+  OC_SLASHED: AlertTriangle,
 };
 
 function shortMint(m: string) {
@@ -471,6 +583,7 @@ function AgentRoutePage() {
       probeSeries={data.probeSeries}
       probeLastRun={data.probeLastRun}
       diversity={data.diversity}
+      outcomeMetrics={data.outcomeMetrics}
     />
   );
 }
@@ -481,21 +594,31 @@ function Dossier({
   probeSeries,
   probeLastRun,
   diversity,
+  outcomeMetrics,
 }: {
   agent: Agent;
   probeService: X402ServiceRow | null;
   probeSeries: SettleRatePoint[];
   probeLastRun: ProbeRunRow | null;
   diversity: PayerDiversity;
+  outcomeMetrics: OutcomeContractMetrics | null;
 }) {
-
-
   const cat = categoryMeta(agent.category);
   const isTokenized = agent.category === "tokenized_buyback";
+  const isTaskExecutor = agent.category === "task_executor";
   const isExecutor = agent.identifierKind === "executor_wallet";
   const isRegistered = agent.category === "registered_agent";
 
-  type FilterKey = "all" | "buyback" | "burn" | "deposit" | "anomaly" | "config" | "swap" | "x402";
+  type FilterKey =
+    | "all"
+    | "buyback"
+    | "burn"
+    | "deposit"
+    | "anomaly"
+    | "config"
+    | "swap"
+    | "x402"
+    | "outcome";
   const [filter, setFilter] = useState<FilterKey>("all");
   const filtered = agent.events.filter((e) => {
     if (filter === "all") return true;
@@ -506,15 +629,18 @@ function Dossier({
     if (filter === "config") return e.type === "CONFIG_CHANGED";
     if (filter === "swap") return e.type === "SWAP_EXECUTED";
     if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
+    if (filter === "outcome") return e.type.startsWith("OC_");
     return true;
   });
 
   // Category-aware filter chips: only show what's meaningful for the agent type.
   const filterKeys: FilterKey[] = isTokenized
     ? ["all", "buyback", "burn", "deposit", "anomaly", "config"]
-    : isExecutor || isRegistered
-      ? ["all", "swap", "x402", "anomaly"]
-      : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
+    : isTaskExecutor
+      ? ["all", "outcome", "anomaly"]
+      : isExecutor || isRegistered
+        ? ["all", "swap", "x402", "anomaly"]
+        : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
 
   // Aggregate counts for non-tokenized metric cards.
   const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
@@ -528,6 +654,69 @@ function Dossier({
   const x402Usdc = agent.events
     .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
     .reduce((s, e) => s + (e.tokenAmount ?? 0), 0);
+  const outcomeAwarded = outcomeMetrics?.totalAwarded ?? null;
+  const outcomeFulfilled = outcomeMetrics?.totalFulfilled ?? null;
+  const outcomeFailed = outcomeMetrics?.totalFailed ?? null;
+  const outcomeSlashed = outcomeMetrics?.totalSlashed ?? null;
+  const outcomeFulfillmentRate = outcomeMetrics?.fulfillmentRate ?? null;
+  const outcomeOnTimePillar =
+    agent.score == null || agent.grade === "SPX404"
+      ? null
+      : (agent.scoreBreakdown.burnConfirmation / 20) * 100;
+
+  const scorePillars = isTaskExecutor
+    ? [
+        {
+          pillar: "Outcome execution",
+          hint: "Award density · fulfillment · on-time performance",
+          value:
+            agent.scoreBreakdown.depositConsistency +
+            agent.scoreBreakdown.buybackExecution +
+            agent.scoreBreakdown.burnConfirmation,
+          max: 65,
+          tone: "text-verified",
+        },
+        {
+          pillar: "Reliability",
+          hint: "Failures · slashes · evidence recency",
+          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+          max: 25,
+          tone: "text-amber",
+        },
+        {
+          pillar: "Verification",
+          hint: "Public Capsule · operator signature",
+          value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
+          max: 10,
+          tone: "text-paper",
+        },
+      ]
+    : [
+        {
+          pillar: "Execution",
+          hint: "Deposits → buybacks → burns",
+          value:
+            agent.scoreBreakdown.depositConsistency +
+            agent.scoreBreakdown.buybackExecution +
+            agent.scoreBreakdown.burnConfirmation,
+          max: 65,
+          tone: "text-verified",
+        },
+        {
+          pillar: "Reliability",
+          hint: "Failed-window rate · indexing recency",
+          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+          max: 25,
+          tone: "text-amber",
+        },
+        {
+          pillar: "Identity",
+          hint: "Metadata · operator signature",
+          value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
+          max: 10,
+          tone: "text-paper",
+        },
+      ];
 
   const isSPX404 = agent.grade === "SPX404";
 
@@ -543,9 +732,8 @@ function Dossier({
                 Flagged by SPX402 — trust violation
               </div>
               <p className="mt-1 text-sm text-paper">
-                This agent has been flagged and is excluded from the leaderboard,
-                explorer, homepage tape, and ticker. Dossier remains public for
-                auditability.
+                This agent has been flagged and is excluded from the leaderboard, explorer, homepage
+                tape, and ticker. Dossier remains public for auditability.
               </p>
               {agent.flagReason && (
                 <p className="mt-2 font-mono text-xs text-critical/90">
@@ -558,7 +746,8 @@ function Dossier({
                 </p>
               )}
               <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-wire">
-                Dispute? Email <span className="text-amber">disputes@spx402.com</span> with on-chain evidence.
+                Dispute? Email <span className="text-amber">disputes@spx402.com</span> with on-chain
+                evidence.
               </p>
             </div>
           </div>
@@ -568,10 +757,25 @@ function Dossier({
       {/* Top status bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 border border-bronze/50 bg-panel-deep/60 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-wire">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-          <span><span className="text-amber">SPX402</span> / AGENT DOSSIER / SOLANA MAINNET</span>
+          <span>
+            <span className="text-amber">SPX402</span> / AGENT DOSSIER / SOLANA MAINNET
+          </span>
           <span>PARSER {agent.parserVersion}</span>
           <span>LAST INDEXED {agent.lastIndexedSeconds}s AGO</span>
-          <span>CONFIDENCE <span className={agent.confidence === "high" ? "text-verified" : agent.confidence === "medium" ? "text-amber" : "text-critical"}>{agent.confidence.toUpperCase()}</span></span>
+          <span>
+            CONFIDENCE{" "}
+            <span
+              className={
+                agent.confidence === "high"
+                  ? "text-verified"
+                  : agent.confidence === "medium"
+                    ? "text-amber"
+                    : "text-critical"
+              }
+            >
+              {agent.confidence.toUpperCase()}
+            </span>
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-verified pulse-amber" />
@@ -585,7 +789,9 @@ function Dossier({
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <div className="label-amber">{cat.longLabel} {isSPX404 ? "· not found" : "confirmed"}</div>
+                <div className="label-amber">
+                  {cat.longLabel} {isSPX404 ? "· not found" : "confirmed"}
+                </div>
                 <ChainBadge chain={agent.chain ?? "solana"} size="sm" />
               </div>
 
@@ -596,14 +802,18 @@ function Dossier({
                 {isTokenized ? agent.name : `$${agent.symbol}`}
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs text-wire">{cat.identifierLabel.toUpperCase()}</span>
+                <span className="font-mono text-xs text-wire">
+                  {cat.identifierLabel.toUpperCase()}
+                </span>
                 <span className="font-mono text-xs text-paper">{shortMint(agent.identifier)}</span>
                 <CopyButton value={agent.identifier} />
               </div>
               {isExecutor && agent.executorWallet && agent.executorWallet !== agent.identifier && (
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="font-mono text-xs text-wire">EXECUTOR</span>
-                  <span className="font-mono text-xs text-paper">{shortMint(agent.executorWallet)}</span>
+                  <span className="font-mono text-xs text-paper">
+                    {shortMint(agent.executorWallet)}
+                  </span>
                   <CopyButton value={agent.executorWallet} />
                   <Link
                     to="/operator/$wallet"
@@ -710,32 +920,7 @@ function Dossier({
             <TransparencyScoreRing score={agent.score} />
           </div>
           <div className="mt-6 space-y-4">
-            {[
-              {
-                pillar: "Execution",
-                hint: "Deposits → buybacks → burns",
-                value:
-                  agent.scoreBreakdown.depositConsistency +
-                  agent.scoreBreakdown.buybackExecution +
-                  agent.scoreBreakdown.burnConfirmation,
-                max: 65,
-                tone: "text-verified",
-              },
-              {
-                pillar: "Reliability",
-                hint: "Failed-window rate · indexing recency",
-                value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
-                max: 25,
-                tone: "text-amber",
-              },
-              {
-                pillar: "Identity",
-                hint: "Metadata · operator signature",
-                value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
-                max: 10,
-                tone: "text-paper",
-              },
-            ].map((row) => {
+            {scorePillars.map((row) => {
               const pct = row.max === 0 ? 0 : (row.value / row.max) * 100;
               return (
                 <div key={row.pillar}>
@@ -758,7 +943,7 @@ function Dossier({
             })}
           </div>
           <div className="mt-5 border-t border-bronze/30 pt-4 text-[10px] font-mono uppercase tracking-widest text-wire">
-            Pillars compose the SPX Execution Score. Methodology · v0.1.7
+            Pillars compose the SPX Execution Score. Methodology · {SCORING_VERSION}
           </div>
         </Panel>
       </div>
@@ -792,15 +977,31 @@ function Dossier({
           const buybackRateDisplay = isFeeModel
             ? "—"
             : `${(agent.buybackExecutionRate * 100).toFixed(1)}`;
-          const burnRateDisplay = agent.totalBuybacksCount === 0
-            ? "—"
-            : `${(agent.burnConfirmationRate * 100).toFixed(1)}`;
+          const burnRateDisplay =
+            agent.totalBuybacksCount === 0
+              ? "—"
+              : `${(agent.burnConfirmationRate * 100).toFixed(1)}`;
           return (
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <MetricCard label="Total Deposits" value={agent.totalDepositsCount.toLocaleString()} />
-              <MetricCard label="Buybacks Confirmed" value={agent.totalBuybacksCount.toLocaleString()} tone="verified" />
-              <MetricCard label="Burns Confirmed" value={agent.totalBurnsCount.toLocaleString()} tone="verified" />
-              <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
+              <MetricCard
+                label="Total Deposits"
+                value={agent.totalDepositsCount.toLocaleString()}
+              />
+              <MetricCard
+                label="Buybacks Confirmed"
+                value={agent.totalBuybacksCount.toLocaleString()}
+                tone="verified"
+              />
+              <MetricCard
+                label="Burns Confirmed"
+                value={agent.totalBurnsCount.toLocaleString()}
+                tone="verified"
+              />
+              <MetricCard
+                label="Failed Windows"
+                value={agent.failedWindows.toString()}
+                tone={agent.failedWindows > 10 ? "critical" : "amber"}
+              />
               <MetricCard
                 label={isFeeModel ? "Buyback Rate (fee model)" : "Buyback Rate"}
                 value={buybackRateDisplay}
@@ -814,24 +1015,72 @@ function Dossier({
             </div>
           );
         })()
+      ) : isTaskExecutor ? (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <MetricCard
+            label="OC Awards"
+            value={outcomeAwarded == null ? "—" : outcomeAwarded.toLocaleString()}
+            tone={outcomeAwarded != null && outcomeAwarded > 0 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="OC Fulfilled"
+            value={outcomeFulfilled == null ? "—" : outcomeFulfilled.toLocaleString()}
+            tone={outcomeFulfilled != null && outcomeFulfilled > 0 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="Fulfillment Rate"
+            value={outcomeFulfillmentRate == null ? "—" : outcomeFulfillmentRate.toFixed(1)}
+            suffix={outcomeFulfillmentRate == null ? undefined : "%"}
+          />
+          <MetricCard
+            label="On-time Pillar"
+            value={outcomeOnTimePillar == null ? "—" : outcomeOnTimePillar.toFixed(0)}
+            suffix={outcomeOnTimePillar == null ? undefined : "%"}
+          />
+          <MetricCard
+            label="OC Failures"
+            value={outcomeFailed == null ? "—" : outcomeFailed.toLocaleString()}
+            tone={outcomeFailed != null && outcomeFailed > 0 ? "critical" : "verified"}
+          />
+          <MetricCard
+            label="OC Slashes"
+            value={outcomeSlashed == null ? "—" : outcomeSlashed.toLocaleString()}
+            tone={outcomeSlashed != null && outcomeSlashed > 0 ? "critical" : "verified"}
+          />
+        </div>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard label="Swaps Executed" value={swapCount.toLocaleString()} tone="verified" />
           <MetricCard label="Swap Volume" value={swapSol.toFixed(3)} suffix="SOL" />
-          <MetricCard label="x402 Receipts" value={x402Count.toLocaleString()} tone={x402Count > 0 ? "verified" : "amber"} />
-          <MetricCard label="x402 Revenue" value={x402Usdc > 0 ? (x402Usdc / 1_000_000).toFixed(2) : x402Sol.toFixed(3)} suffix={x402Usdc > 0 ? "USDC" : "SOL"} />
+          <MetricCard
+            label="x402 Receipts"
+            value={x402Count.toLocaleString()}
+            tone={x402Count > 0 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="x402 Revenue"
+            value={x402Usdc > 0 ? (x402Usdc / 1_000_000).toFixed(2) : x402Sol.toFixed(3)}
+            suffix={x402Usdc > 0 ? "USDC" : "SOL"}
+          />
           <MetricCard
             label={isRegistered ? "MPL Registered" : "Identity"}
             value={isRegistered ? "YES" : agent.operatorVerified ? "VERIFIED" : "—"}
             tone={isRegistered || agent.operatorVerified ? "verified" : "amber"}
           />
-          <MetricCard label="Failed Windows" value={agent.failedWindows.toString()} tone={agent.failedWindows > 10 ? "critical" : "amber"} />
+          <MetricCard
+            label="Failed Windows"
+            value={agent.failedWindows.toString()}
+            tone={agent.failedWindows > 10 ? "critical" : "amber"}
+          />
         </div>
       )}
 
       {/* SECONDARY STATS */}
       <div className="mt-6 grid gap-6 lg:grid-cols-12">
-        <Panel className="lg:col-span-8" eyebrow="Proof Timeline" title="On-chain execution log"
+        <Panel
+          className="lg:col-span-8"
+          eyebrow="Proof Timeline"
+          title="On-chain execution log"
           right={
             <div className="flex flex-wrap gap-1">
               {filterKeys.map((f) => (
@@ -856,8 +1105,8 @@ function Dossier({
                 No verifiable execution detected.
               </div>
               <div className="mt-2 font-mono text-xs text-wire">
-                This may mean the agent is new, inactive, misconfigured, or not routing
-                activity on-chain. SPX402 only rates what it can prove.
+                This may mean the agent is new, inactive, misconfigured, or not routing activity
+                on-chain. SPX402 only rates what it can prove.
               </div>
             </div>
           ) : (
@@ -875,7 +1124,9 @@ function Dossier({
                         : "text-paper border-bronze/60";
                 return (
                   <li key={e.id} className="relative pb-6 pl-12">
-                    <div className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center border bg-background ${color}`}>
+                    <div
+                      className={`absolute left-0 top-0 flex h-8 w-8 items-center justify-center border bg-background ${color}`}
+                    >
                       <Icon className="h-3.5 w-3.5" />
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -906,7 +1157,6 @@ function Dossier({
                         </>
                       ) : null}
                     </div>
-
                   </li>
                 );
               })}
@@ -928,7 +1178,8 @@ function Dossier({
                     Execution gap
                   </div>
                   <p className="mt-1 text-sm text-paper-muted">
-                    {agent.failedWindows} failed buyback windows observed. The tape has developed a limp.
+                    {agent.failedWindows} failed buyback windows observed. The tape has developed a
+                    limp.
                   </p>
                 </div>
                 <div className="border-l-2 border-amber pl-3">
@@ -1036,8 +1287,16 @@ function Dossier({
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="oklch(0.32 0.04 65)" strokeOpacity={0.3} vertical={false} />
-                <XAxis dataKey="t" stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} />
-                <YAxis stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} width={70} />
+                <XAxis
+                  dataKey="t"
+                  stroke="var(--wire)"
+                  tick={{ fontSize: 10, fontFamily: "monospace" }}
+                />
+                <YAxis
+                  stroke="var(--wire)"
+                  tick={{ fontSize: 10, fontFamily: "monospace" }}
+                  width={70}
+                />
                 <Tooltip
                   contentStyle={{
                     background: "var(--panel-deep)",
@@ -1048,7 +1307,13 @@ function Dossier({
                   }}
                   labelStyle={{ color: "var(--wire)" }}
                 />
-                <Area type="monotone" dataKey="v" stroke="var(--amber)" strokeWidth={2} fill="url(#amberFill)" />
+                <Area
+                  type="monotone"
+                  dataKey="v"
+                  stroke="var(--amber)"
+                  strokeWidth={2}
+                  fill="url(#amberFill)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -1056,11 +1321,7 @@ function Dossier({
       )}
 
       {probeService && (
-        <ProbeStatusPanel
-          service={probeService}
-          series={probeSeries}
-          lastRun={probeLastRun}
-        />
+        <ProbeStatusPanel service={probeService} series={probeSeries} lastRun={probeLastRun} />
       )}
 
       {diversity.uniquePayers > 0 && (
@@ -1071,9 +1332,7 @@ function Dossier({
 
       {/* RAW TX TABLE */}
 
-
       <Panel className="mt-6" eyebrow="Raw transactions" title="Decoded events">
-
         <div className="overflow-x-auto">
           <table className="w-full font-mono text-xs">
             <thead>
@@ -1098,7 +1357,9 @@ function Dossier({
                   </td>
                   <td className="px-3 py-2.5 text-wire">{e.slot.toLocaleString()}</td>
                   <td className="px-3 py-2.5 text-amber">{e.signature.slice(0, 12)}…</td>
-                  <td className={`px-3 py-2.5 ${e.confidence === "high" ? "text-verified" : e.confidence === "medium" ? "text-amber" : "text-critical"}`}>
+                  <td
+                    className={`px-3 py-2.5 ${e.confidence === "high" ? "text-verified" : e.confidence === "medium" ? "text-amber" : "text-critical"}`}
+                  >
                     {e.confidence}
                   </td>
                 </tr>
@@ -1119,11 +1380,14 @@ function Dossier({
       <div className="mt-10 border-l-2 border-bronze bg-panel-deep/60 p-5">
         <div className="label-amber">Disclaimer</div>
         <p className="mt-2 text-sm leading-relaxed text-paper-muted">
-          SPX402 verifies observable on-chain events. It does not verify off-chain
-          revenue, service quality, future buybacks, token value, or operator intent.
-          A high Transparency Score does not mean a token is safe, valuable, or
-          suitable to buy. Buybacks may not occur, may occur irregularly, or may
-          stop entirely. Read the full <Link to="/disclaimer" className="text-amber hover:underline">disclaimer</Link>.
+          SPX402 verifies observable on-chain events. It does not verify off-chain revenue, service
+          quality, future buybacks, token value, or operator intent. A high Transparency Score does
+          not mean a token is safe, valuable, or suitable to buy. Buybacks may not occur, may occur
+          irregularly, or may stop entirely. Read the full{" "}
+          <Link to="/disclaimer" className="text-amber hover:underline">
+            disclaimer
+          </Link>
+          .
         </p>
       </div>
     </div>
@@ -1143,10 +1407,16 @@ function WatchlistButton({ mint, symbol }: { mint: string; symbol: string }) {
     }
     let cancelled = false;
     isOnWatchlist(user.id, mint)
-      .then((v) => { if (!cancelled) setTracked(v); })
+      .then((v) => {
+        if (!cancelled) setTracked(v);
+      })
       .catch(() => {})
-      .finally(() => { if (!cancelled) setChecked(true); });
-    return () => { cancelled = true; };
+      .finally(() => {
+        if (!cancelled) setChecked(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [user, mint]);
 
   if (!user) {
@@ -1203,4 +1473,3 @@ function AlertSubscribeButton({ mint: _mint }: { mint: string }) {
     </ComingSoon>
   );
 }
-
