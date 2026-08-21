@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { BodyTooLargeError, readBodyWithLimit } from "@/lib/http/read-body.server";
 import { checkOcIngestAuth } from "@/lib/indexer/auth.server";
 import {
   mapOcEvidenceToAgentEvent,
@@ -19,14 +20,13 @@ export const Route = createFileRoute("/api/public/ingest-oc-evidence")({
           return errorJson(401, "unauthorized");
         }
 
-        const declaredLength = Number(request.headers.get("content-length"));
-        if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
-          return errorJson(413, "payload_too_large");
-        }
-
-        const rawBody = await request.text();
-        if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
-          return errorJson(413, "payload_too_large");
+        let rawBody: string;
+        try {
+          rawBody = await readBodyWithLimit(request, MAX_BODY_BYTES);
+        } catch (error) {
+          return error instanceof BodyTooLargeError
+            ? errorJson(413, "payload_too_large")
+            : errorJson(400, "invalid_json");
         }
 
         let body: unknown;

@@ -85,6 +85,14 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
               ? raw.source_occurred_at
               : null,
           evidence_source: isOutcomeContract ? "flok" : "chain",
+          source_event_id:
+            isOutcomeContract && raw && typeof raw.source_event_id === "string"
+              ? raw.source_event_id
+              : null,
+          source_evidence_hash:
+            isOutcomeContract && raw && typeof raw.source_evidence_hash === "string"
+              ? raw.source_evidence_hash
+              : null,
           tx_signature: ev.signature,
           slot: ev.slot,
           amount_sol: Number(ev.amount_sol ?? 0),
