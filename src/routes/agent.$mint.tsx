@@ -9,9 +9,11 @@ import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
 import {
   fetchAgentEvents,
+  fetchOutcomeContractMetrics,
   fetchPayerDiversity,
   relativeFromNow,
   type AgentEventRow,
+  type OutcomeContractMetrics,
   type PayerDiversity,
 } from "@/lib/live-data";
 import { ChainBadge } from "@/components/spx/ChainBadge";
@@ -210,6 +212,7 @@ type LoaderData =
       probeSeries: SettleRatePoint[];
       probeLastRun: ProbeRunRow | null;
       diversity: PayerDiversity;
+      outcomeMetrics: OutcomeContractMetrics | null;
     }
   | { kind: "verifying"; mint: string; candidate: CandidateRow | null };
 
@@ -284,9 +287,12 @@ export const Route = createFileRoute("/agent/$mint")({
       const payee =
         agent.executorWallet ??
         (agent.identifierKind === "executor_wallet" ? agent.identifier : null);
-      const [probeService, diversity] = await Promise.all([
+      const [probeService, diversity, outcomeMetrics] = await Promise.all([
         payee ? fetchServiceByPayee(payee) : Promise.resolve(null),
         fetchPayerDiversity(agent.mint),
+        agent.category === "task_executor"
+          ? fetchOutcomeContractMetrics(agent.mint)
+          : Promise.resolve(null),
       ]);
       const probeRuns = probeService ? await fetchProbeRuns(probeService.id, 200) : [];
       return {
@@ -296,6 +302,7 @@ export const Route = createFileRoute("/agent/$mint")({
         probeSeries: settleRateSeries(probeRuns),
         probeLastRun: probeRuns[0] ?? null,
         diversity,
+        outcomeMetrics,
       };
     }
 
@@ -574,6 +581,7 @@ function AgentRoutePage() {
       probeSeries={data.probeSeries}
       probeLastRun={data.probeLastRun}
       diversity={data.diversity}
+      outcomeMetrics={data.outcomeMetrics}
     />
   );
 }
@@ -584,12 +592,14 @@ function Dossier({
   probeSeries,
   probeLastRun,
   diversity,
+  outcomeMetrics,
 }: {
   agent: Agent;
   probeService: X402ServiceRow | null;
   probeSeries: SettleRatePoint[];
   probeLastRun: ProbeRunRow | null;
   diversity: PayerDiversity;
+  outcomeMetrics: OutcomeContractMetrics | null;
 }) {
   const cat = categoryMeta(agent.category);
   const isTokenized = agent.category === "tokenized_buyback";
@@ -642,12 +652,11 @@ function Dossier({
   const x402Usdc = agent.events
     .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
     .reduce((s, e) => s + (e.tokenAmount ?? 0), 0);
-  const outcomeAwarded = agent.events.filter((e) => e.type === "OC_AWARDED").length;
-  const outcomeFulfilled = agent.events.filter((e) => e.type === "OC_FULFILLED").length;
-  const outcomeFailed = agent.events.filter((e) => e.type === "OC_FAILED").length;
-  const outcomeSlashed = agent.events.filter((e) => e.type === "OC_SLASHED").length;
-  const outcomeFulfillmentRate =
-    outcomeAwarded === 0 ? null : Math.min(100, (outcomeFulfilled / outcomeAwarded) * 100);
+  const outcomeAwarded = outcomeMetrics?.totalAwarded ?? null;
+  const outcomeFulfilled = outcomeMetrics?.totalFulfilled ?? null;
+  const outcomeFailed = outcomeMetrics?.totalFailed ?? null;
+  const outcomeSlashed = outcomeMetrics?.totalSlashed ?? null;
+  const outcomeFulfillmentRate = outcomeMetrics?.fulfillmentRate ?? null;
   const outcomeOnTimePillar =
     agent.score == null || agent.grade === "SPX404"
       ? null
@@ -1008,13 +1017,13 @@ function Dossier({
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard
             label="OC Awards"
-            value={outcomeAwarded.toLocaleString()}
-            tone={outcomeAwarded > 0 ? "verified" : "amber"}
+            value={outcomeAwarded == null ? "—" : outcomeAwarded.toLocaleString()}
+            tone={outcomeAwarded != null && outcomeAwarded > 0 ? "verified" : "amber"}
           />
           <MetricCard
             label="OC Fulfilled"
-            value={outcomeFulfilled.toLocaleString()}
-            tone={outcomeFulfilled > 0 ? "verified" : "amber"}
+            value={outcomeFulfilled == null ? "—" : outcomeFulfilled.toLocaleString()}
+            tone={outcomeFulfilled != null && outcomeFulfilled > 0 ? "verified" : "amber"}
           />
           <MetricCard
             label="Fulfillment Rate"
@@ -1028,13 +1037,13 @@ function Dossier({
           />
           <MetricCard
             label="OC Failures"
-            value={outcomeFailed.toLocaleString()}
-            tone={outcomeFailed > 0 ? "critical" : "verified"}
+            value={outcomeFailed == null ? "—" : outcomeFailed.toLocaleString()}
+            tone={outcomeFailed != null && outcomeFailed > 0 ? "critical" : "verified"}
           />
           <MetricCard
             label="OC Slashes"
-            value={outcomeSlashed.toLocaleString()}
-            tone={outcomeSlashed > 0 ? "critical" : "verified"}
+            value={outcomeSlashed == null ? "—" : outcomeSlashed.toLocaleString()}
+            tone={outcomeSlashed != null && outcomeSlashed > 0 ? "critical" : "verified"}
           />
         </div>
       ) : (
