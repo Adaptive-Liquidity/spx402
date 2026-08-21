@@ -8,6 +8,7 @@ import { describe, it, expect } from "vitest";
 import {
   score,
   scoreForPersistence,
+  scorePublication,
   type ScoringInputs,
   type ScoreResult,
 } from "@/lib/indexer/scoring.server";
@@ -459,6 +460,27 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
     });
     expect(penalized.breakdown.failedTx).toBe(6);
     expect(penalized.total).toBeLessThan(healthy.total);
+  });
+
+  it("withholds task-executor publication while decoderLive is false", () => {
+    const result = score(
+      base({
+        category: "task_executor",
+        totalOutcomeOpened: 1,
+        totalOutcomeAwarded: 1,
+        totalOutcomeFulfilled: 1,
+        outcomeFulfillmentRate: 1,
+        outcomeAwardDensity: 0.05,
+        outcomeOnTimeRate: 1,
+        outcomeEvidenceComplete: true,
+      }),
+    );
+    expect(result.grade).not.toBe("SPX404");
+    expect(scorePublication("task_executor", result, false)).toMatchObject({
+      score: null,
+      grade: "SPX404",
+      verdict: "Outcome Contract decoder remains gated; score withheld.",
+    });
   });
 
   it("does not fall through to tokenized buyback math", () => {
