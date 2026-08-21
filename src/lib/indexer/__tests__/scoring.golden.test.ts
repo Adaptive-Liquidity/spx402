@@ -5,11 +5,7 @@
 // reviewable diff.
 
 import { describe, it, expect } from "vitest";
-import {
-  score,
-  type ScoringInputs,
-  type ScoreResult,
-} from "@/lib/indexer/scoring.server";
+import { score, type ScoringInputs, type ScoreResult } from "@/lib/indexer/scoring.server";
 
 const SIX_HOURS = 60 * 60 * 6;
 const SEVEN_DAYS = 60 * 60 * 24 * 7;
@@ -99,9 +95,9 @@ describe("F2 — SPX404 conditions per branch", () => {
     expect(score(base({ category: "tokenized_buyback", totalBurnsCount: 1 })).grade).not.toBe(
       "SPX404",
     );
-    expect(
-      score(base({ category: "tokenized_buyback", totalDepositsCount: 1 })).grade,
-    ).not.toBe("SPX404");
+    expect(score(base({ category: "tokenized_buyback", totalDepositsCount: 1 })).grade).not.toBe(
+      "SPX404",
+    );
   });
 
   it("x402: zero receipts → SPX404", () => {
@@ -121,15 +117,13 @@ describe("F2 — SPX404 conditions per branch", () => {
       base({ category: "registered_agent", registryProof: false, totalSwapCount: 0 }),
     );
     expect(r.grade).toBe("SPX404");
-    expect(r.verdict).toBe(
-      "No MPL Agent Identity PDA observed and no recent swap activity.",
-    );
+    expect(r.verdict).toBe("No MPL Agent Identity PDA observed and no recent swap activity.");
   });
 
   it("registered: registry proof alone lifts out of SPX404", () => {
-    expect(
-      score(base({ category: "registered_agent", registryProof: true })).grade,
-    ).not.toBe("SPX404");
+    expect(score(base({ category: "registered_agent", registryProof: true })).grade).not.toBe(
+      "SPX404",
+    );
   });
 
   it("registered: swaps alone lift out of SPX404 but flag missing PDA", () => {
@@ -158,9 +152,7 @@ describe("F3 — SPX D override on repeated failed windows", () => {
       }),
     );
     expect(r.grade).toBe("SPX D");
-    expect(r.verdict).toBe(
-      "Repeated failed buyback windows. Operator review required.",
-    );
+    expect(r.verdict).toBe("Repeated failed buyback windows. Operator review required.");
   });
 
   it("failedWindows === 10 does not trigger the override", () => {
@@ -225,8 +217,8 @@ describe("F4 — fee-buyback auto-detect edges", () => {
 
 describe("F5 — recency window edges", () => {
   const tokenized = (secs: number) =>
-    score(base({ totalDepositsCount: 1, totalBurnsCount: 1, lastIndexedSeconds: secs }))
-      .breakdown.recency;
+    score(base({ totalDepositsCount: 1, totalBurnsCount: 1, lastIndexedSeconds: secs })).breakdown
+      .recency;
 
   const feeBuyback = (secs: number) =>
     score(
@@ -268,23 +260,20 @@ describe("F5 — recency window edges", () => {
 
 describe("F6 — confidence buckets", () => {
   it("tokenized: >=20 activity and <24h → high", () => {
-    expect(
-      score(base({ totalDepositsCount: 20, lastIndexedSeconds: 60 })).confidence,
-    ).toBe("high");
+    expect(score(base({ totalDepositsCount: 20, lastIndexedSeconds: 60 })).confidence).toBe("high");
   });
   it("tokenized: >=5 activity → medium", () => {
-    expect(
-      score(base({ totalDepositsCount: 5, lastIndexedSeconds: 60 })).confidence,
-    ).toBe("medium");
+    expect(score(base({ totalDepositsCount: 5, lastIndexedSeconds: 60 })).confidence).toBe(
+      "medium",
+    );
   });
   it("tokenized: sparse activity → low", () => {
     expect(score(base({ totalDepositsCount: 1 })).confidence).toBe("low");
   });
   it("x402: 20 receipts and fresh → high, 5 → medium, 1 → low", () => {
     const c = (n: number, secs = 60) =>
-      score(
-        base({ category: "x402_executor", totalX402Count: n, lastIndexedSeconds: secs }),
-      ).confidence;
+      score(base({ category: "x402_executor", totalX402Count: n, lastIndexedSeconds: secs }))
+        .confidence;
     expect(c(20)).toBe("high");
     expect(c(5)).toBe("medium");
     expect(c(1)).toBe("low");
@@ -392,7 +381,7 @@ describe("F7 — full ScoreResult regression pin (one per branch)", () => {
 });
 
 describe("F8 — undecoded categories fall back to the tokenized branch", () => {
-  for (const category of ["copy_trader", "task_executor", "general"] as const) {
+  for (const category of ["copy_trader", "general"] as const) {
     it(`${category} scores identically to tokenized_buyback`, () => {
       const inputs = base({
         totalDepositsCount: 10,
@@ -406,4 +395,99 @@ describe("F8 — undecoded categories fall back to the tokenized branch", () => 
       );
     });
   }
+});
+
+describe("F9 — task_executor Outcome Contract scoring", () => {
+  it("fails closed with SPX404 when no award is observed", () => {
+    const r = score(
+      base({
+        category: "task_executor",
+        totalOutcomeOpened: 1,
+        totalDepositsCount: 50,
+        totalBuybacksCount: 50,
+        buybackExecutionRate: 1,
+      }),
+    );
+    expect(r.grade).toBe("SPX404");
+    expect(r.verdict).toBe("No awarded Outcome Contract evidence observed yet.");
+  });
+
+  it("scores only OC inputs and penalizes failures and slashes", () => {
+    const healthy = score(
+      base({
+        category: "task_executor",
+        totalOutcomeOpened: 10,
+        totalOutcomeAwarded: 10,
+        totalOutcomeFulfilled: 9,
+        outcomeFulfillmentRate: 0.9,
+        outcomeAwardDensity: 0.5,
+        outcomeOnTimeRate: 0.8,
+        hasPublicCapsule: true,
+        operatorVerified: true,
+      }),
+    );
+    const penalized = score(
+      base({
+        category: "task_executor",
+        totalOutcomeOpened: 10,
+        totalOutcomeAwarded: 10,
+        totalOutcomeFulfilled: 7,
+        totalOutcomeFailed: 2,
+        totalOutcomeSlashed: 1,
+        outcomeFulfillmentRate: 0.7,
+        outcomeAwardDensity: 0.5,
+        outcomeOnTimeRate: 0.8,
+        hasPublicCapsule: true,
+        operatorVerified: true,
+      }),
+    );
+    expect(healthy.breakdown).toEqual({
+      depositConsistency: 10,
+      buybackExecution: 23,
+      burnConfirmation: 16,
+      failedTx: 15,
+      recency: 10,
+      metadata: 5,
+      operator: 5,
+    });
+    expect(penalized.breakdown.failedTx).toBe(6);
+    expect(penalized.total).toBeLessThan(healthy.total);
+  });
+
+  it("does not fall through to tokenized buyback math", () => {
+    const task = score(
+      base({
+        category: "task_executor",
+        totalOutcomeAwarded: 1,
+        totalOutcomeFulfilled: 1,
+        outcomeFulfillmentRate: 1,
+        outcomeAwardDensity: 0.05,
+        totalDepositsCount: 50,
+        totalBuybacksCount: 50,
+        totalBurnsCount: 50,
+        buybackExecutionRate: 1,
+        burnConfirmationRate: 1,
+      }),
+    );
+    expect(task.breakdown.depositConsistency).toBe(1);
+    expect(task.breakdown.burnConfirmation).toBe(0);
+    expect(task.grade).toBe("SPX404");
+    expect(task.verdict).toContain("deadline evidence is unavailable");
+  });
+
+  it("withholds a grade when the evidence query was truncated", () => {
+    const task = score(
+      base({
+        category: "task_executor",
+        totalOutcomeAwarded: 20,
+        totalOutcomeFulfilled: 20,
+        outcomeFulfillmentRate: 1,
+        outcomeAwardDensity: 1,
+        outcomeOnTimeRate: 1,
+        outcomeEvidenceComplete: false,
+      }),
+    );
+    expect(task.grade).toBe("SPX404");
+    expect(task.verdict).toContain("evidence window is incomplete");
+  });
 });

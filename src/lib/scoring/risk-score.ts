@@ -11,9 +11,13 @@
 // Key invariant: this file MUST stay pure (no DB, no env, no fetch). It is
 // the unit-testable surface for the score model.
 
-import { score as legacyScore, type ScoringInputs, type ScoreResult } from "@/lib/indexer/scoring.server";
+import {
+  score as legacyScore,
+  type ScoringInputs,
+  type ScoreResult,
+} from "@/lib/indexer/scoring.server";
 
-export const RISK_SCORE_MODEL_VERSION = "spx-score-v0.3.0";
+export const RISK_SCORE_MODEL_VERSION = "spx-score-v0.4.0";
 
 export interface RiskScoreResult {
   modelVersion: string;

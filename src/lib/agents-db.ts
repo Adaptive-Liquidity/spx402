@@ -90,15 +90,7 @@ function rowToAgent(r: AgentRow): Agent {
     lastBuybackLabel: r.last_buyback_label ?? "—",
     lastBurnLabel: r.last_burn_label ?? "—",
     configLastChangedLabel: r.config_last_changed_label ?? "—",
-    scoreBreakdown: (r.score_breakdown as AgentScoreBreakdown) ?? {
-      depositConsistency: 0,
-      buybackExecution: 0,
-      burnConfirmation: 0,
-      failedTx: 0,
-      recency: 0,
-      metadata: 0,
-      operator: 0,
-    },
+    scoreBreakdown: scoreBreakdown(r.score_breakdown),
     verdict: r.verdict ?? "",
     events: ((r.events as AgentEvent[]) ?? []).map((e) => ({
       ...e,
@@ -108,6 +100,22 @@ function rowToAgent(r: AgentRow): Agent {
     flagged: Boolean(r.flagged),
     flagReason: r.flag_reason ?? null,
     flaggedAt: r.flagged_at ?? null,
+  };
+}
+
+function scoreBreakdown(value: unknown): AgentScoreBreakdown {
+  const row =
+    value && typeof value === "object"
+      ? (value as Partial<AgentScoreBreakdown>)
+      : {};
+  return {
+    depositConsistency: num(row.depositConsistency),
+    buybackExecution: num(row.buybackExecution),
+    burnConfirmation: num(row.burnConfirmation),
+    failedTx: num(row.failedTx),
+    recency: num(row.recency),
+    metadata: num(row.metadata),
+    operator: num(row.operator),
   };
 }
 

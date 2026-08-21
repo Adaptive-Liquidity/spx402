@@ -53,6 +53,11 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
 
         const rawJson = canonicalJsonStringify(ev.raw ?? {});
         const rawTxHash = await sha256Hex(rawJson);
+        const raw =
+          ev.raw && typeof ev.raw === "object" && !Array.isArray(ev.raw)
+            ? ev.raw
+            : null;
+        const isOutcomeContract = ev.type.startsWith("OC_");
 
         const subjectType = subjectTypeFor(agent?.identifier_kind ?? "mint");
 
@@ -72,6 +77,14 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
           type: ev.type,
           severity: ev.severity,
           occurred_at: ev.occurred_at,
+          observed_at: isOutcomeContract ? ev.occurred_at : null,
+          source_occurred_at:
+            isOutcomeContract &&
+            raw &&
+            typeof raw.source_occurred_at === "string"
+              ? raw.source_occurred_at
+              : null,
+          evidence_source: isOutcomeContract ? "flok" : "chain",
           tx_signature: ev.signature,
           slot: ev.slot,
           amount_sol: Number(ev.amount_sol ?? 0),
@@ -89,13 +102,14 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
           confidence_model_version: agent?.confidence_model_version ?? null,
           score_impact: null, // Wave 3
           attestation_id: null, // Wave 5
-          bond_impact: null,    // Wave 6
+          bond_impact: null, // Wave 6
           links: {
             permalink: `/tape/${ev.id}`,
             subject_evidence: `/api/public/agent/${ev.mint}/evidence`,
-            tx_explorer: ev.signature && !isDerivedSignature(ev.signature)
-              ? `https://solscan.io/tx/${ev.signature}`
-              : null,
+            tx_explorer:
+              ev.signature && !isDerivedSignature(ev.signature)
+                ? `https://solscan.io/tx/${ev.signature}`
+                : null,
           },
         };
 
@@ -104,8 +118,7 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
           headers: {
             "Content-Type": "application/json",
             // Immutable evidence rows — safe to cache aggressively.
-            "Cache-Control":
-              "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+            "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
             "Access-Control-Allow-Origin": "*",
           },
         });
@@ -134,7 +147,8 @@ function isDerivedSignature(sig: string): boolean {
     sig.startsWith("fbw-") ||
     sig.startsWith("pbns-") ||
     sig.startsWith("x402rv-") ||
-    sig.startsWith("failwin-")
+    sig.startsWith("failwin-") ||
+    sig.startsWith("oc-")
   );
 }
 
@@ -143,14 +157,11 @@ function isUuid(s: string): boolean {
 }
 
 function errorJson(status: number, code: string, detail?: string): Response {
-  return new Response(
-    JSON.stringify({ error: code, detail: detail ?? null }, null, 2),
-    {
-      status,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+  return new Response(JSON.stringify({ error: code, detail: detail ?? null }, null, 2), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
     },
-  );
+  });
 }

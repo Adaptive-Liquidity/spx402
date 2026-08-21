@@ -74,6 +74,9 @@ export const CATEGORIES: CategoryMeta[] = [
       "Agents that complete priced tasks attested via the Validation Registry. Decoder pending.",
     identifierKind: "executor_wallet",
     identifierLabel: "Executor Wallet",
+    // Flip only after DB-backed ingest replay/conflict tests pass, cron score
+    // output is verified, and production has emitted OC_FAILED + OC_SLASHED.
+    // Raise FAILURE_DECODER_COVERAGE.task_executor to 1.0 in the same release.
     decoderLive: false,
   },
   {

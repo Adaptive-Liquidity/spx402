@@ -49,6 +49,11 @@ const KNOWN_EVENT_TYPES: EventType[] = [
   "SWAP_EXECUTED",
   "X402_PAYMENT_RECEIVED",
   "TASK_COMPLETED",
+  "OC_OPENED",
+  "OC_AWARDED",
+  "OC_FULFILLED",
+  "OC_FAILED",
+  "OC_SLASHED",
 ];
 
 const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
@@ -65,6 +70,11 @@ function eventTitleFor(type: string): string {
     case "SWAP_EXECUTED": return "DEX swap executed";
     case "X402_PAYMENT_RECEIVED": return "x402 payment received";
     case "TASK_COMPLETED": return "Task completed";
+    case "OC_OPENED": return "Outcome Contract opened";
+    case "OC_AWARDED": return "Outcome Contract awarded";
+    case "OC_FULFILLED": return "Outcome Contract fulfilled";
+    case "OC_FAILED": return "Outcome Contract failed";
+    case "OC_SLASHED": return "Outcome Contract slashed";
     default: return type;
   }
 }
@@ -93,6 +103,16 @@ function eventDescFor(row: AgentEventRow): string {
         : `${row.amountSol.toFixed(4)} SOL received via x402 micropayment.`;
     case "TASK_COMPLETED":
       return "Agent completed a priced task attested on-chain.";
+    case "OC_OPENED":
+      return "Outcome Contract posted and escrow locked.";
+    case "OC_AWARDED":
+      return "Executor selected for the Outcome Contract.";
+    case "OC_FULFILLED":
+      return "Checkable outcome met with public Capsule evidence.";
+    case "OC_FAILED":
+      return "Outcome Contract missed, expired, or was rejected.";
+    case "OC_SLASHED":
+      return "Outcome Contract escrow was slashed.";
     default:
       return "Decoded program event.";
   }
@@ -436,6 +456,11 @@ const EVENT_ICON: Record<string, typeof Activity> = {
   SWAP_EXECUTED: Repeat,
   X402_PAYMENT_RECEIVED: ArrowDownToLine,
   TASK_COMPLETED: ShieldCheck,
+  OC_OPENED: Activity,
+  OC_AWARDED: ShieldCheck,
+  OC_FULFILLED: ShieldCheck,
+  OC_FAILED: AlertTriangle,
+  OC_SLASHED: AlertTriangle,
 };
 
 function shortMint(m: string) {

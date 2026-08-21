@@ -125,7 +125,13 @@ function TapeEventPage() {
 
       <div className="mt-8">
         <div className="label-amber">Verify on-chain</div>
-        {r.signature.startsWith("fbw-") ||
+        {r.signature.startsWith("oc-") ? (
+          <p className="mt-3 font-mono text-xs text-paper-muted">
+            This is authenticated Flok Outcome Contract evidence, not a
+            Solana transaction. Verify the source envelope and hashes in the
+            raw payload below.
+          </p>
+        ) : r.signature.startsWith("fbw-") ||
         r.signature.startsWith("pbns-") ||
         r.signature.startsWith("x402rv-") ||
         r.signature.startsWith("failwin-") ? (

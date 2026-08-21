@@ -64,7 +64,7 @@ const EXPECTED_EVENT_TYPES: Record<AgentCategory, number> = {
   registered_agent: 3,  // SWAP, X402, CONFIG_CHANGED
   x402_executor: 2,     // X402_PAYMENT_RECEIVED, X402_PAYMENT_REVERTED
   copy_trader: 2,
-  task_executor: 2,
+  task_executor: 5, // OC_OPENED, OC_AWARDED, OC_FULFILLED, OC_FAILED, OC_SLASHED
   general: 2,
 };
 

@@ -26,6 +26,11 @@ export type EventType =
   | "SWAP_EXECUTED"
   | "X402_PAYMENT_RECEIVED"
   | "TASK_COMPLETED"
+  | "OC_OPENED"
+  | "OC_AWARDED"
+  | "OC_FULFILLED"
+  | "OC_FAILED"
+  | "OC_SLASHED"
   // Wave 1b — failure decoder negative-event taxonomy.
   | "FAILED_BUYBACK_WINDOW"
   | "PROMISED_BUYBACK_NOT_SETTLED"

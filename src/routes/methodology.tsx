@@ -110,7 +110,11 @@ const EVENT_TAXONOMY = [
   { type: "BURN_CONFIRMED", severity: "success", body: "SPL Token burn instruction confirmed on-chain." },
   { type: "SWAP_EXECUTED", severity: "success", body: "Registered agent observed performing its declared swap operation." },
   { type: "X402_PAYMENT_RECEIVED", severity: "success", body: "x402 endpoint settled a payment from a counterparty." },
-  { type: "TASK_COMPLETED", severity: "success", body: "Generic agent task completion signal." },
+  { type: "OC_OPENED", severity: "info", body: "Outcome Contract posted and escrow locked." },
+  { type: "OC_AWARDED", severity: "info", body: "Executor selected and bound to the Outcome Contract." },
+  { type: "OC_FULFILLED", severity: "success", body: "Checkable outcome met with public Capsule evidence." },
+  { type: "OC_FAILED", severity: "critical", body: "Outcome missed, expired, or was rejected." },
+  { type: "OC_SLASHED", severity: "critical", body: "Outcome Contract escrow was slashed." },
   { type: "OPERATOR_VERIFIED", severity: "info", body: "Operator wallet signed the SPX402 challenge." },
   { type: "CONFIG_CHANGED", severity: "warn", body: "Declared agent configuration (operator, executor, route, cadence) changed." },
   { type: "FAILED_BUYBACK_WINDOW", severity: "critical", body: "A declared buyback window passed with deposits in scope but no confirmed buyback." },
@@ -133,7 +137,7 @@ const GRADES = [
 ] as const;
 
 const PARSER_VERSIONS = [
-  { name: "Score model", value: "spx-score-v0.3.0" },
+  { name: "Score model", value: "spx-score-v0.4.0" },
   { name: "Confidence model", value: "spx-confidence-v0.2.0" },
   { name: "Parser", value: "spx-parser-v0.2.0" },
   { name: "EVM parser (Base)", value: "spx-parser-v1.0.0-evm" },

@@ -139,6 +139,7 @@ interface TickerLineInput {
 }
 
 function chainTag(chain?: string): string {
+  if (chain === "flok") return "[FLOK]";
   return chain === "base" ? "[BASE]" : "[SOL]";
 }
 
@@ -179,6 +180,16 @@ function tickerLine(input: TickerLineInput): string {
       return `${tag} ANOMALY · ${m} · review queued`;
     case "OPERATOR_VERIFIED":
       return `${tag} OPERATOR VERIFIED · ${m}`;
+    case "OC_OPENED":
+      return `${tag} CONTRACT OPENED · ${m}`;
+    case "OC_AWARDED":
+      return `${tag} CONTRACT AWARDED · ${m}`;
+    case "OC_FULFILLED":
+      return `${tag} CONTRACT FULFILLED · ${m}`;
+    case "OC_FAILED":
+      return `${tag} CONTRACT FAILED · ${m}`;
+    case "OC_SLASHED":
+      return `${tag} CONTRACT SLASHED · ${m}`;
     default:
       return `${tag} ${type} · ${m}`;
   }
