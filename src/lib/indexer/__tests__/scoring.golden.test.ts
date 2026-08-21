@@ -424,6 +424,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
         outcomeOnTimeRate: 0.8,
         hasPublicCapsule: true,
         operatorVerified: true,
+        outcomeEvidenceComplete: true,
       }),
     );
     const penalized = score(
@@ -439,6 +440,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
         outcomeOnTimeRate: 0.8,
         hasPublicCapsule: true,
         operatorVerified: true,
+        outcomeEvidenceComplete: true,
       }),
     );
     expect(healthy.breakdown).toEqual({
@@ -467,6 +469,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
         totalBurnsCount: 50,
         buybackExecutionRate: 1,
         burnConfirmationRate: 1,
+        outcomeEvidenceComplete: true,
       }),
     );
     expect(task.breakdown.depositConsistency).toBe(1);
@@ -485,6 +488,21 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
         outcomeAwardDensity: 1,
         outcomeOnTimeRate: 1,
         outcomeEvidenceComplete: false,
+      }),
+    );
+    expect(task.grade).toBe("SPX404");
+    expect(task.verdict).toContain("evidence window is incomplete");
+  });
+
+  it("withholds a grade when evidence completeness is omitted", () => {
+    const task = score(
+      base({
+        category: "task_executor",
+        totalOutcomeAwarded: 1,
+        totalOutcomeFulfilled: 1,
+        outcomeFulfillmentRate: 1,
+        outcomeAwardDensity: 0.05,
+        outcomeOnTimeRate: 1,
       }),
     );
     expect(task.grade).toBe("SPX404");

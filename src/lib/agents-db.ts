@@ -104,10 +104,7 @@ function rowToAgent(r: AgentRow): Agent {
 }
 
 function scoreBreakdown(value: unknown): AgentScoreBreakdown {
-  const row =
-    value && typeof value === "object"
-      ? (value as Partial<AgentScoreBreakdown>)
-      : {};
+  const row = value && typeof value === "object" ? (value as Partial<AgentScoreBreakdown>) : {};
   return {
     depositConsistency: num(row.depositConsistency),
     buybackExecution: num(row.buybackExecution),

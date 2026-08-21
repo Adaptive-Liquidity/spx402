@@ -53,10 +53,7 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
 
         const rawJson = canonicalJsonStringify(ev.raw ?? {});
         const rawTxHash = await sha256Hex(rawJson);
-        const raw =
-          ev.raw && typeof ev.raw === "object" && !Array.isArray(ev.raw)
-            ? ev.raw
-            : null;
+        const raw = ev.raw && typeof ev.raw === "object" && !Array.isArray(ev.raw) ? ev.raw : null;
         const isOutcomeContract = ev.type.startsWith("OC_");
 
         const subjectType = subjectTypeFor(agent?.identifier_kind ?? "mint");
@@ -79,9 +76,7 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
           occurred_at: ev.occurred_at,
           observed_at: isOutcomeContract ? ev.occurred_at : null,
           source_occurred_at:
-            isOutcomeContract &&
-            raw &&
-            typeof raw.source_occurred_at === "string"
+            isOutcomeContract && raw && typeof raw.source_occurred_at === "string"
               ? raw.source_occurred_at
               : null,
           evidence_source: isOutcomeContract ? "flok" : "chain",

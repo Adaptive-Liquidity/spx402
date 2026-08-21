@@ -111,8 +111,16 @@ const EVENT_TAXONOMY = [
   { type: "SWAP_EXECUTED", severity: "success", body: "Registered agent observed performing its declared swap operation." },
   { type: "X402_PAYMENT_RECEIVED", severity: "success", body: "x402 endpoint settled a payment from a counterparty." },
   { type: "OC_OPENED", severity: "info", body: "Outcome Contract posted and escrow locked." },
-  { type: "OC_AWARDED", severity: "info", body: "Executor selected and bound to the Outcome Contract." },
-  { type: "OC_FULFILLED", severity: "success", body: "Checkable outcome met with public Capsule evidence." },
+  {
+    type: "OC_AWARDED",
+    severity: "info",
+    body: "Executor selected and bound to the Outcome Contract.",
+  },
+  {
+    type: "OC_FULFILLED",
+    severity: "success",
+    body: "Checkable outcome met with public Capsule evidence.",
+  },
   { type: "OC_FAILED", severity: "critical", body: "Outcome missed, expired, or was rejected." },
   { type: "OC_SLASHED", severity: "critical", body: "Outcome Contract escrow was slashed." },
   { type: "OPERATOR_VERIFIED", severity: "info", body: "Operator wallet signed the SPX402 challenge." },
@@ -205,6 +213,11 @@ const BLIND_SPOTS = [
 
 const SCHEMA_CHANGELOG = [
   {
+    version: "spx-score-v0.4.0",
+    date: "2026-08-20",
+    body: "Added dedicated Outcome Contract scoring for task executors. Award density, fulfillment, verifiable on-time performance, failures, and slashes now determine the execution score; grades are withheld unless awarded-contract, complete-window, and deadline evidence are present.",
+  },
+  {
     version: "spx-parser-v1.0.0-evm",
     date: "2026-08-02",
     body: "Base (EVM) settlement lane. EIP-3009 and Permit2 settlements on Base are decoded from an independent, cursor-resumable log scan. Tier A (registry sender) is scored; Tier B (pattern-only) is discovery-only and never enters the event ledger. Events carry a chain field; the score model is unchanged and remains chain-agnostic.",
@@ -255,7 +268,7 @@ const SCHEMA_CHANGELOG = [
 function MethodologyPage() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">Methodology · spx-score-v0.3.0</div>
+      <div className="label-amber">Methodology · spx-score-v0.4.0</div>
       <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
         Public, versioned methodology.<br />
         <span className="text-amber">Risk and confidence are computed separately.</span>
@@ -315,7 +328,7 @@ function MethodologyPage() {
 
       {/* RISK SCORE FORMULA */}
       <section className="mt-12">
-        <Panel eyebrow="Risk score · spx-score-v0.3.0" title="Σ weighted execution signals = 100">
+        <Panel eyebrow="Risk score · spx-score-v0.4.0" title="Σ weighted execution signals = 100">
           <div className="space-y-4">
             {RISK_INPUTS.map((row) => (
               <div key={row.label}>

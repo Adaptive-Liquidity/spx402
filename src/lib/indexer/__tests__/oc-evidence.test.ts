@@ -127,6 +127,13 @@ describe("Outcome Contract evidence ingestion", () => {
     process.env.OC_INGEST_SECRET = "secret";
     expect(checkOcIngestAuth(request())).toBe(false);
     expect(checkOcIngestAuth(request("wrong"))).toBe(false);
+    expect(
+      checkOcIngestAuth(
+        new Request("https://spx402.example/api/public/ingest-oc-evidence", {
+          headers: { authorization: "secret" },
+        }),
+      ),
+    ).toBe(false);
     expect(checkOcIngestAuth(request("secret"))).toBe(true);
   });
 });

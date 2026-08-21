@@ -71,5 +71,7 @@ export function checkAdminAuth(req: Request): boolean {
 export function checkOcIngestAuth(req: Request): boolean {
   const ingestSecret = process.env.OC_INGEST_SECRET;
   if (!ingestSecret) return false;
+  const authorization = req.headers.get("authorization")?.trim();
+  if (!authorization?.toLowerCase().startsWith("bearer ")) return false;
   return authHeaderMatches(req, ingestSecret);
 }

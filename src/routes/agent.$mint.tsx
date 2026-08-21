@@ -70,11 +70,16 @@ function eventTitleFor(type: string): string {
     case "SWAP_EXECUTED": return "DEX swap executed";
     case "X402_PAYMENT_RECEIVED": return "x402 payment received";
     case "TASK_COMPLETED": return "Task completed";
-    case "OC_OPENED": return "Outcome Contract opened";
-    case "OC_AWARDED": return "Outcome Contract awarded";
-    case "OC_FULFILLED": return "Outcome Contract fulfilled";
-    case "OC_FAILED": return "Outcome Contract failed";
-    case "OC_SLASHED": return "Outcome Contract slashed";
+    case "OC_OPENED":
+      return "Outcome Contract opened";
+    case "OC_AWARDED":
+      return "Outcome Contract awarded";
+    case "OC_FULFILLED":
+      return "Outcome Contract fulfilled";
+    case "OC_FAILED":
+      return "Outcome Contract failed";
+    case "OC_SLASHED":
+      return "Outcome Contract slashed";
     default: return type;
   }
 }
@@ -517,10 +522,20 @@ function Dossier({
 
   const cat = categoryMeta(agent.category);
   const isTokenized = agent.category === "tokenized_buyback";
+  const isTaskExecutor = agent.category === "task_executor";
   const isExecutor = agent.identifierKind === "executor_wallet";
   const isRegistered = agent.category === "registered_agent";
 
-  type FilterKey = "all" | "buyback" | "burn" | "deposit" | "anomaly" | "config" | "swap" | "x402";
+  type FilterKey =
+    | "all"
+    | "buyback"
+    | "burn"
+    | "deposit"
+    | "anomaly"
+    | "config"
+    | "swap"
+    | "x402"
+    | "outcome";
   const [filter, setFilter] = useState<FilterKey>("all");
   const filtered = agent.events.filter((e) => {
     if (filter === "all") return true;
@@ -531,15 +546,18 @@ function Dossier({
     if (filter === "config") return e.type === "CONFIG_CHANGED";
     if (filter === "swap") return e.type === "SWAP_EXECUTED";
     if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
+    if (filter === "outcome") return e.type.startsWith("OC_");
     return true;
   });
 
   // Category-aware filter chips: only show what's meaningful for the agent type.
   const filterKeys: FilterKey[] = isTokenized
     ? ["all", "buyback", "burn", "deposit", "anomaly", "config"]
-    : isExecutor || isRegistered
-      ? ["all", "swap", "x402", "anomaly"]
-      : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
+    : isTaskExecutor
+      ? ["all", "outcome", "anomaly"]
+      : isExecutor || isRegistered
+        ? ["all", "swap", "x402", "anomaly"]
+        : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
 
   // Aggregate counts for non-tokenized metric cards.
   const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
@@ -553,6 +571,70 @@ function Dossier({
   const x402Usdc = agent.events
     .filter((e) => e.type === "X402_PAYMENT_RECEIVED")
     .reduce((s, e) => s + (e.tokenAmount ?? 0), 0);
+  const outcomeAwarded = agent.events.filter((e) => e.type === "OC_AWARDED").length;
+  const outcomeFulfilled = agent.events.filter((e) => e.type === "OC_FULFILLED").length;
+  const outcomeFailed = agent.events.filter((e) => e.type === "OC_FAILED").length;
+  const outcomeSlashed = agent.events.filter((e) => e.type === "OC_SLASHED").length;
+  const outcomeFulfillmentRate =
+    outcomeAwarded === 0 ? null : (outcomeFulfilled / outcomeAwarded) * 100;
+  const outcomeOnTimePillar =
+    agent.score == null || agent.grade === "SPX404"
+      ? null
+      : (agent.scoreBreakdown.burnConfirmation / 20) * 100;
+
+  const scorePillars = isTaskExecutor
+    ? [
+        {
+          pillar: "Outcome execution",
+          hint: "Award density · fulfillment · on-time performance",
+          value:
+            agent.scoreBreakdown.depositConsistency +
+            agent.scoreBreakdown.buybackExecution +
+            agent.scoreBreakdown.burnConfirmation,
+          max: 65,
+          tone: "text-verified",
+        },
+        {
+          pillar: "Reliability",
+          hint: "Failures · slashes · evidence recency",
+          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+          max: 25,
+          tone: "text-amber",
+        },
+        {
+          pillar: "Verification",
+          hint: "Public Capsule · operator signature",
+          value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
+          max: 10,
+          tone: "text-paper",
+        },
+      ]
+    : [
+        {
+          pillar: "Execution",
+          hint: "Deposits → buybacks → burns",
+          value:
+            agent.scoreBreakdown.depositConsistency +
+            agent.scoreBreakdown.buybackExecution +
+            agent.scoreBreakdown.burnConfirmation,
+          max: 65,
+          tone: "text-verified",
+        },
+        {
+          pillar: "Reliability",
+          hint: "Failed-window rate · indexing recency",
+          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+          max: 25,
+          tone: "text-amber",
+        },
+        {
+          pillar: "Identity",
+          hint: "Metadata · operator signature",
+          value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
+          max: 10,
+          tone: "text-paper",
+        },
+      ];
 
   const isSPX404 = agent.grade === "SPX404";
 
@@ -735,32 +817,7 @@ function Dossier({
             <TransparencyScoreRing score={agent.score} />
           </div>
           <div className="mt-6 space-y-4">
-            {[
-              {
-                pillar: "Execution",
-                hint: "Deposits → buybacks → burns",
-                value:
-                  agent.scoreBreakdown.depositConsistency +
-                  agent.scoreBreakdown.buybackExecution +
-                  agent.scoreBreakdown.burnConfirmation,
-                max: 65,
-                tone: "text-verified",
-              },
-              {
-                pillar: "Reliability",
-                hint: "Failed-window rate · indexing recency",
-                value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
-                max: 25,
-                tone: "text-amber",
-              },
-              {
-                pillar: "Identity",
-                hint: "Metadata · operator signature",
-                value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
-                max: 10,
-                tone: "text-paper",
-              },
-            ].map((row) => {
+            {scorePillars.map((row) => {
               const pct = row.max === 0 ? 0 : (row.value / row.max) * 100;
               return (
                 <div key={row.pillar}>
@@ -839,6 +896,39 @@ function Dossier({
             </div>
           );
         })()
+      ) : isTaskExecutor ? (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <MetricCard
+            label="OC Awards"
+            value={outcomeAwarded.toLocaleString()}
+            tone={outcomeAwarded > 0 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="OC Fulfilled"
+            value={outcomeFulfilled.toLocaleString()}
+            tone={outcomeFulfilled > 0 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="Fulfillment Rate"
+            value={outcomeFulfillmentRate == null ? "—" : outcomeFulfillmentRate.toFixed(1)}
+            suffix={outcomeFulfillmentRate == null ? undefined : "%"}
+          />
+          <MetricCard
+            label="On-time Pillar"
+            value={outcomeOnTimePillar == null ? "—" : outcomeOnTimePillar.toFixed(0)}
+            suffix={outcomeOnTimePillar == null ? undefined : "%"}
+          />
+          <MetricCard
+            label="OC Failures"
+            value={outcomeFailed.toLocaleString()}
+            tone={outcomeFailed > 0 ? "critical" : "verified"}
+          />
+          <MetricCard
+            label="OC Slashes"
+            value={outcomeSlashed.toLocaleString()}
+            tone={outcomeSlashed > 0 ? "critical" : "verified"}
+          />
+        </div>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard label="Swaps Executed" value={swapCount.toLocaleString()} tone="verified" />

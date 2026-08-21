@@ -279,7 +279,7 @@ function scoreOutcomeContract(inputs: ScoringInputs): ScoreResult {
   const fulfilled = inputs.totalOutcomeFulfilled ?? 0;
   const failed = inputs.totalOutcomeFailed ?? 0;
   const slashed = inputs.totalOutcomeSlashed ?? 0;
-  const evidenceComplete = inputs.outcomeEvidenceComplete !== false;
+  const evidenceComplete = inputs.outcomeEvidenceComplete === true;
   const hasOnTimeEvidence = inputs.outcomeOnTimeRate !== undefined;
 
   const breakdown: ScoreBreakdown = {
