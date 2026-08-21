@@ -12,6 +12,10 @@ export const OC_EVENT_TYPES = [
 export type OcEventType = (typeof OC_EVENT_TYPES)[number];
 export type OcSeverity = "info" | "success" | "critical";
 
+export function isOcEventType(value: string): value is OcEventType {
+  return (OC_EVENT_TYPES as readonly string[]).includes(value);
+}
+
 const EVENT_SEVERITY: Record<OcEventType, OcSeverity> = {
   OC_OPENED: "info",
   OC_AWARDED: "info",

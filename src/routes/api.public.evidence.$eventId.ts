@@ -20,6 +20,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { canonicalJsonStringify, sha256Hex } from "@/lib/evidence/hash.server";
+import { isOcEventType } from "@/lib/indexer/oc-evidence.server";
 
 export const Route = createFileRoute("/api/public/evidence/$eventId")({
   server: {
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
         const rawJson = canonicalJsonStringify(ev.raw ?? {});
         const rawTxHash = await sha256Hex(rawJson);
         const raw = ev.raw && typeof ev.raw === "object" && !Array.isArray(ev.raw) ? ev.raw : null;
-        const isOutcomeContract = ev.type.startsWith("OC_");
+        const isOutcomeContract = isOcEventType(ev.type);
 
         const subjectType = subjectTypeFor(agent?.identifier_kind ?? "mint");
 

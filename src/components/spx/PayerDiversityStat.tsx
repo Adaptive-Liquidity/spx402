@@ -2,7 +2,7 @@ import type { PayerDiversity } from "@/lib/live-data";
 import { SCORING_VERSION } from "@/lib/versions";
 
 /**
- * Counterparty stats for x402 agents. Scoring v0.3.0 grades who paid, not how
+ * Counterparty stats for x402 agents. Scoring v0.4.0 grades who paid, not how
  * many times — a service with one customer may be excellent, but it has not
  * proven a market.
  */

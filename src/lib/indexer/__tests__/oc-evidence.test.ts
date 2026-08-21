@@ -3,6 +3,7 @@ import { canonicalJsonStringify, sha256Hex } from "@/lib/evidence/hash.server";
 import { checkOcIngestAuth } from "@/lib/indexer/auth.server";
 import {
   aggregateOutcomeContractCounters,
+  isOcEventType,
   mapOcEvidenceToAgentEvent,
   OC_EVENT_TYPES,
   validateOcEvidenceEnvelope,
@@ -58,6 +59,8 @@ describe("Outcome Contract evidence ingestion", () => {
       "OC_SLASHED",
     ]);
     expect(OC_EVENT_TYPES).not.toContain("TASK_COMPLETED");
+    expect(isOcEventType("OC_FULFILLED")).toBe(true);
+    expect(isOcEventType("OC_UNRECOGNIZED")).toBe(false);
   });
 
   it("validates the Flok envelope and rejects tampering", async () => {

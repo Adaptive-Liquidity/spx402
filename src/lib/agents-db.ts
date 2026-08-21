@@ -3,6 +3,7 @@
 // and the static seed fallback for the home page boot animation.
 
 import { supabase } from "@/integrations/supabase/client";
+import { SCORING_VERSION } from "@/lib/versions";
 import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
 import type { AgentCategory, IdentifierKind } from "./agents/categories";
 
@@ -73,7 +74,7 @@ function rowToAgent(r: AgentRow): Agent {
     operatorVerified: r.operator_verified,
     confidence: (r.confidence as Agent["confidence"]) ?? "low",
     confidenceScore: num(r.confidence_score),
-    methodologyVersion: r.methodology_version ?? "spx-score-v0.3.0",
+    methodologyVersion: r.methodology_version ?? SCORING_VERSION,
     confidenceModelVersion: r.confidence_model_version ?? "spx-confidence-v0.2.0",
     parserVersion: r.parser_version,
     lastIndexedSeconds: r.last_indexed_seconds,

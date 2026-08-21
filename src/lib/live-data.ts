@@ -1035,7 +1035,7 @@ export async function fetchHomeStats(): Promise<HomeStats> {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Payer diversity (scoring methodology v0.3.0 counts counterparties, not
+// Payer diversity (scoring methodology v0.4.0 counts counterparties, not
 // transactions). Computed from settlement events that carry payer
 // attribution; receipts decoded before parser v0.2.0 have none.
 // ─────────────────────────────────────────────────────────────────────
