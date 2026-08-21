@@ -20,6 +20,7 @@ begin
     from public.agent_events
     where type in ('OC_OPENED', 'OC_AWARDED', 'OC_FULFILLED', 'OC_FAILED', 'OC_SLASHED')
       and raw ->> 'source_schema' = 'flok.oc-evidence.v2'
+      and raw ->> 'contract_id' is not null
     group by mint, raw ->> 'contract_id', type
     having count(*) > 1
   ) then
