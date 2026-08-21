@@ -11,6 +11,12 @@ export const OC_EVENT_TYPES = [
 
 export type OcEventType = (typeof OC_EVENT_TYPES)[number];
 export type OcSeverity = "info" | "success" | "critical";
+export const OC_EVIDENCE_SCHEMA = "flok.oc-evidence.v2" as const;
+export const OC_DEADLINE_MAX_HORIZON_MS = 30 * 24 * 60 * 60 * 1000;
+// Producer and SPX clocks can differ slightly. A fulfillment is on time when
+// SPX received it no later than five minutes after the producer-declared,
+// hash-bound deadline.
+export const OC_FULFILLMENT_SKEW_MS = 5 * 60 * 1000;
 
 /** Return whether a value belongs to the canonical Outcome Contract taxonomy. */
 export function isOcEventType(value: string): value is OcEventType {
@@ -34,7 +40,7 @@ const identifier = z
 
 const ocEvidenceSchema = z
   .object({
-    schema: z.literal("flok.oc-evidence.v1"),
+    schema: z.literal(OC_EVIDENCE_SCHEMA),
     event_id: z.string().regex(/^oc_[a-f0-9]{64}$/),
     category: z.literal("task_executor"),
     subject: z
@@ -57,6 +63,7 @@ const ocEvidenceSchema = z
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     type: z.enum(OC_EVENT_TYPES),
     occurred_at: z.string().datetime({ offset: true }),
+    deadline_at: z.string().datetime({ offset: true }).optional(),
     idempotency_key: identifier,
     capsule_id: identifier.optional(),
     severity: z.enum(["info", "success", "critical"]),
@@ -66,6 +73,34 @@ const ocEvidenceSchema = z
   .refine((evidence) => evidence.type !== "OC_FULFILLED" || evidence.capsule_id !== undefined, {
     message: "OC_FULFILLED requires capsule_id",
     path: ["capsule_id"],
+  })
+  .superRefine((evidence, context) => {
+    if (evidence.type !== "OC_OPENED" && evidence.type !== "OC_AWARDED") return;
+    if (!evidence.deadline_at) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${evidence.type} requires deadline_at`,
+        path: ["deadline_at"],
+      });
+      return;
+    }
+
+    const occurredAt = Date.parse(evidence.occurred_at);
+    const deadlineAt = Date.parse(evidence.deadline_at);
+    if (deadlineAt <= occurredAt) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "deadline_at must be after occurred_at",
+        path: ["deadline_at"],
+      });
+    }
+    if (evidence.type === "OC_OPENED" && deadlineAt > occurredAt + OC_DEADLINE_MAX_HORIZON_MS) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "deadline_at exceeds the 30-day OC horizon",
+        path: ["deadline_at"],
+      });
+    }
   });
 
 export type OcEvidenceEnvelope = z.infer<typeof ocEvidenceSchema>;
@@ -111,6 +146,7 @@ export interface OcAgentEventInsert {
 export function mapOcEvidenceToAgentEvent(
   evidence: OcEvidenceEnvelope,
   observedAt: Date,
+  committedDeadline?: string,
 ): OcAgentEventInsert {
   if (!Number.isFinite(observedAt.getTime())) {
     throw new Error("invalid_observed_at");
@@ -128,7 +164,7 @@ export function mapOcEvidenceToAgentEvent(
     // Scoring windows and recency use this server-owned timestamp. The
     // producer timestamp remains in raw.source_occurred_at for audit.
     occurred_at: observedAtIso,
-    parser_version: "spx-oc-v0.1.0",
+    parser_version: "spx-oc-v0.2.0",
     raw: {
       source_schema: evidence.schema,
       evidence_source: "flok",
@@ -136,6 +172,9 @@ export function mapOcEvidenceToAgentEvent(
       source_evidence_hash: evidence.evidence_hash,
       source_occurred_at: evidence.occurred_at,
       observed_at: observedAtIso,
+      ...(evidence.deadline_at || committedDeadline
+        ? { deadline_at: evidence.deadline_at ?? committedDeadline }
+        : {}),
       contract_id: evidence.contract_id,
       cluster_id: evidence.cluster_id,
       cluster_slug: evidence.cluster_slug,
@@ -149,6 +188,7 @@ export function mapOcEvidenceToAgentEvent(
 export interface OutcomeContractEventRow {
   type: string;
   raw: unknown;
+  occurred_at?: string | null;
 }
 
 export interface OutcomeContractCounters {
@@ -174,6 +214,8 @@ export function aggregateOutcomeContractCounters(
   const totalOutcomeFailed = count("OC_FAILED");
   const totalOutcomeSlashed = count("OC_SLASHED");
 
+  const outcomeOnTimeRate = aggregateOutcomeOnTimeRate(rows, totalOutcomeFulfilled);
+
   return {
     totalOutcomeOpened,
     totalOutcomeAwarded,
@@ -183,9 +225,7 @@ export function aggregateOutcomeContractCounters(
     outcomeFulfillmentRate:
       totalOutcomeAwarded === 0 ? 0 : Math.min(1, totalOutcomeFulfilled / totalOutcomeAwarded),
     outcomeAwardDensity: Math.min(1, totalOutcomeAwarded / 20),
-    // The v1 Flok envelope does not carry a server-verifiable deadline.
-    // Keep this signal absent instead of inferring punctuality.
-    outcomeOnTimeRate: null,
+    outcomeOnTimeRate,
     hasPublicCapsule: rows.some(
       (row) =>
         row.type === "OC_FULFILLED" &&
@@ -194,6 +234,56 @@ export function aggregateOutcomeContractCounters(
         row.raw.capsule_id.length > 0,
     ),
   };
+}
+
+function aggregateOutcomeOnTimeRate(
+  rows: OutcomeContractEventRow[],
+  totalOutcomeFulfilled: number,
+): number | null {
+  if (totalOutcomeFulfilled === 0) return null;
+
+  const deadlinesByContract = new Map<string, Set<string>>();
+  for (const row of rows) {
+    if (row.type !== "OC_OPENED" || !isRecord(row.raw)) continue;
+    if (
+      row.raw.source_schema !== OC_EVIDENCE_SCHEMA ||
+      typeof row.raw.contract_id !== "string" ||
+      typeof row.raw.deadline_at !== "string" ||
+      !Number.isFinite(Date.parse(row.raw.deadline_at))
+    ) {
+      continue;
+    }
+    const deadlines = deadlinesByContract.get(row.raw.contract_id) ?? new Set<string>();
+    deadlines.add(row.raw.deadline_at);
+    deadlinesByContract.set(row.raw.contract_id, deadlines);
+  }
+
+  let onTime = 0;
+  let completeFulfillments = 0;
+  for (const row of rows) {
+    if (row.type !== "OC_FULFILLED" || !isRecord(row.raw)) continue;
+    if (row.raw.source_schema !== OC_EVIDENCE_SCHEMA || typeof row.raw.contract_id !== "string") {
+      continue;
+    }
+    const deadlines = deadlinesByContract.get(row.raw.contract_id);
+    const fulfillmentDeadline =
+      typeof row.raw.deadline_at === "string" ? row.raw.deadline_at : undefined;
+    const candidates = new Set(deadlines ?? []);
+    if (fulfillmentDeadline) candidates.add(fulfillmentDeadline);
+    if (candidates.size !== 1) continue;
+    const [deadline] = candidates;
+    const observedAt =
+      typeof row.raw.observed_at === "string" ? row.raw.observed_at : row.occurred_at;
+    if (!deadline || !observedAt) continue;
+    const observedAtMs = Date.parse(observedAt);
+    if (!Number.isFinite(observedAtMs)) continue;
+
+    completeFulfillments++;
+    if (observedAtMs <= Date.parse(deadline) + OC_FULFILLMENT_SKEW_MS) onTime++;
+  }
+
+  // Mixed legacy/incomplete evidence must not manufacture punctuality.
+  return completeFulfillments === totalOutcomeFulfilled ? onTime / completeFulfillments : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

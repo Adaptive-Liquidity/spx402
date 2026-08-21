@@ -83,7 +83,7 @@ const TASK_EXECUTOR_RISK_INPUTS = [
   {
     slot: "Burn Confirmation Rate",
     signal: "On-time rate",
-    body: "Fulfilled contracts with server-verifiable deadline evidence.",
+    body: "Fulfillments received by SPX no later than the OPENED producer-declared deadline plus a five-minute clock-skew allowance.",
   },
   {
     slot: "Failed / Errored Tx",
@@ -231,6 +231,7 @@ const PARSER_VERSIONS = [
   { name: "EVM parser (Base)", value: "spx-parser-v1.0.0-evm" },
   { name: "Facilitator registry", value: "spx-facilitators-v0.3.0" },
   { name: "Evidence schema", value: "spx.evidence.v1" },
+  { name: "Outcome Contract evidence", value: "flok.oc-evidence.v2 (gated)" },
   { name: "Verified-list schema", value: "spx.verified.v1" },
 ];
 
@@ -287,9 +288,15 @@ const BLIND_SPOTS = [
   "x402 settlements are undercounted for facilitators outside the registry: only operators that publish a fee-payer (cross-checked against their /supported endpoint and proven by a captured fixture) get Tier A detection; everything else relies on explicit protocol markers (Tier B).",
   "Base (EVM) x402 detection is live but the Base facilitator registry is empty, so the Base lane currently scores zero agents and reports discovery counts only.",
   "Solana and Base are indexed as independent lanes. SPX402 performs no cross-chain identity linking: a Solana subject and a Base subject are never merged, even if the same operator controls both.",
+  "Outcome Contract deadlines are producer-declared, not independently chosen by SPX402. The deadline is hash-bound at OC_OPENED, must be echoed unchanged by OC_AWARDED, and is accepted only within the documented 30-day horizon.",
 ];
 
 const SCHEMA_CHANGELOG = [
+  {
+    version: "flok.oc-evidence.v2",
+    date: "2026-08-21",
+    body: "Hard cutover for gated Outcome Contract ingest. OC_OPENED commits a producer-declared deadline, OC_AWARDED must echo it, and on-time fulfillment compares SPX server observation time with that deadline plus a five-minute clock-skew allowance. This does not mark the task-executor decoder LIVE.",
+  },
   {
     version: "spx-score-v0.4.0",
     date: "2026-08-20",
@@ -455,6 +462,15 @@ function MethodologyPage() {
               A grade is withheld as <span className="font-mono text-paper">SPX404</span> unless
               award density, fulfillment rate, complete-window evidence, and verifiable on-time
               evidence are all present.
+            </p>
+            <p className="mt-3 text-sm text-paper-muted">
+              Outcome Contract ingest accepts{" "}
+              <span className="font-mono text-paper">flok.oc-evidence.v2</span> only. Deadlines are
+              declared by the producer, hash-bound at{" "}
+              <span className="font-mono text-paper">OC_OPENED</span>, and must be echoed unchanged
+              by <span className="font-mono text-paper">OC_AWARDED</span>. SPX compares its
+              server-observed receipt time to that deadline with a five-minute clock-skew grace. The
+              decoder remains gated; this schema support is not a LIVE claim.
             </p>
           </div>
         </Panel>

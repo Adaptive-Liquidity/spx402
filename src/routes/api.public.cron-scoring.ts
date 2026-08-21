@@ -9,7 +9,7 @@ import { scoreForPersistence } from "@/lib/indexer/scoring.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
 import { computeRiskScore, RISK_SCORE_MODEL_VERSION } from "@/lib/scoring/risk-score";
 import { computeConfidence, CONFIDENCE_MODEL_VERSION } from "@/lib/scoring/confidence";
-import type { AgentCategory } from "@/lib/agents/categories";
+import { isLiveCategory, type AgentCategory } from "@/lib/agents/categories";
 import { aggregateOutcomeContractCounters } from "@/lib/indexer/oc-evidence.server";
 
 // Wave 2 — Failure-decoder coverage by category. Reflects which negative-event
@@ -132,21 +132,23 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             identityResolutionStrength: identityStrength(category, a.operator_verified ?? false),
             unresolvedAnomalies: counters.failedNegativeCount,
           });
-          const persistedScore = scoreForPersistence(category, result);
+          const taskExecutorGated = category === "task_executor" && !isLiveCategory(category);
+          const persistedScore = taskExecutorGated ? null : scoreForPersistence(category, result);
           const { error } = await supabaseAdmin
             .from("agents")
             .update({
               score: persistedScore,
-              grade: result.grade,
-              verdict: result.verdict,
+              grade: taskExecutorGated ? "SPX404" : result.grade,
+              verdict: taskExecutorGated
+                ? "Outcome Contract decoder remains gated; score withheld."
+                : result.verdict,
               confidence: confidenceLabel(conf.score),
               confidence_score: conf.score,
               confidence_breakdown: conf.breakdown as unknown as never,
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
-              score_breakdown: persistedScore == null
-                ? ({} as never)
-                : (result.breakdown as unknown as never),
+              score_breakdown:
+                persistedScore == null ? ({} as never) : (result.breakdown as unknown as never),
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
