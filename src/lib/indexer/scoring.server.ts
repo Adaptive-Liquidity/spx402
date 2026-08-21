@@ -280,6 +280,8 @@ function scoreOutcomeContract(inputs: ScoringInputs): ScoreResult {
   const failed = inputs.totalOutcomeFailed ?? 0;
   const slashed = inputs.totalOutcomeSlashed ?? 0;
   const evidenceComplete = inputs.outcomeEvidenceComplete === true;
+  const hasRateEvidence =
+    inputs.outcomeAwardDensity !== undefined && inputs.outcomeFulfillmentRate !== undefined;
   const hasOnTimeEvidence = inputs.outcomeOnTimeRate !== undefined;
 
   const breakdown: ScoreBreakdown = {
@@ -302,17 +304,21 @@ function scoreOutcomeContract(inputs: ScoringInputs): ScoreResult {
     total,
     breakdown,
     grade:
-      awarded === 0 || !evidenceComplete || !hasOnTimeEvidence ? "SPX404" : gradeFromTotal(total),
+      awarded === 0 || !evidenceComplete || !hasRateEvidence || !hasOnTimeEvidence
+        ? "SPX404"
+        : gradeFromTotal(total),
     verdict:
       awarded === 0
         ? "No awarded Outcome Contract evidence observed yet."
         : !evidenceComplete
           ? "Outcome Contract evidence window is incomplete; score withheld."
-          : !hasOnTimeEvidence
-            ? "Verifiable Outcome Contract deadline evidence is unavailable; score withheld."
-            : slashed > 0
-              ? `${slashed} Outcome Contract slash event${slashed === 1 ? "" : "s"} observed.`
-              : `${fulfilled} of ${awarded} awarded Outcome Contracts fulfilled in the indexed window.`,
+          : !hasRateEvidence
+            ? "Required Outcome Contract rate evidence is unavailable; score withheld."
+            : !hasOnTimeEvidence
+              ? "Verifiable Outcome Contract deadline evidence is unavailable; score withheld."
+              : slashed > 0
+                ? `${slashed} Outcome Contract slash event${slashed === 1 ? "" : "s"} observed.`
+                : `${fulfilled} of ${awarded} awarded Outcome Contracts fulfilled in the indexed window.`,
     confidence:
       outcomeEvents >= 20 && inputs.lastIndexedSeconds < 60 * 60 * 24
         ? "high"

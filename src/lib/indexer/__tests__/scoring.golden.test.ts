@@ -508,4 +508,24 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
     expect(task.grade).toBe("SPX404");
     expect(task.verdict).toContain("evidence window is incomplete");
   });
+
+  it.each(["outcomeAwardDensity", "outcomeFulfillmentRate"] as const)(
+    "withholds a grade when %s is omitted",
+    (missingRate) => {
+      const task = score(
+        base({
+          category: "task_executor",
+          totalOutcomeAwarded: 1,
+          totalOutcomeFulfilled: 1,
+          outcomeAwardDensity: 0.05,
+          outcomeFulfillmentRate: 1,
+          outcomeOnTimeRate: 1,
+          outcomeEvidenceComplete: true,
+          [missingRate]: undefined,
+        }),
+      );
+      expect(task.grade).toBe("SPX404");
+      expect(task.verdict).toContain("rate evidence is unavailable");
+    },
+  );
 });
