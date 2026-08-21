@@ -512,6 +512,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
       }),
     );
     expect(task.grade).toBe("SPX404");
+    expect(scoreForPersistence("task_executor", task)).toBeNull();
     expect(task.verdict).toContain("evidence window is incomplete");
   });
 
@@ -531,6 +532,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
         }),
       );
       expect(task.grade).toBe("SPX404");
+      expect(scoreForPersistence("task_executor", task)).toBeNull();
       expect(task.verdict).toContain("rate evidence is unavailable");
     },
   );
@@ -548,6 +550,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
       }),
     );
     expect(task.grade).toBe("SPX404");
+    expect(scoreForPersistence("task_executor", task)).toBeNull();
     expect(task.verdict).toContain("deadline evidence is unavailable");
   });
 });
