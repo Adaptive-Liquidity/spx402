@@ -41,18 +41,18 @@ export interface ConfidenceInputs {
 }
 
 export interface ConfidenceBreakdown {
-  evidenceDepth: number;        // 0..0.30
-  observationWindow: number;    // 0..0.15
-  recency: number;              // 0..0.15
-  parserCoverage: number;       // 0..0.10
+  evidenceDepth: number; // 0..0.30
+  observationWindow: number; // 0..0.15
+  recency: number; // 0..0.15
+  parserCoverage: number; // 0..0.10
   failureDecoderCoverage: number; // 0..0.15
-  identityResolution: number;   // 0..0.15
-  anomalyPenalty: number;       // 0..-0.20
+  identityResolution: number; // 0..0.15
+  anomalyPenalty: number; // 0..-0.20
 }
 
 export interface ConfidenceResult {
   modelVersion: string;
-  score: number;          // 0..1
+  score: number; // 0..1
   band: "low" | "medium" | "high";
   breakdown: ConfidenceBreakdown;
 }
@@ -61,20 +61,17 @@ export interface ConfidenceResult {
 // subject should be producing. Drives the parser_coverage factor.
 const EXPECTED_EVENT_TYPES: Record<AgentCategory, number> = {
   tokenized_buyback: 4, // DEPOSIT, BUYBACK, BURN, FAILED_BUYBACK_WINDOW
-  registered_agent: 3,  // SWAP, X402, CONFIG_CHANGED
-  x402_executor: 2,     // X402_PAYMENT_RECEIVED, X402_PAYMENT_REVERTED
+  registered_agent: 3, // SWAP, X402, CONFIG_CHANGED
+  x402_executor: 2, // X402_PAYMENT_RECEIVED, X402_PAYMENT_REVERTED
   copy_trader: 2,
   task_executor: 5, // OC_OPENED, OC_AWARDED, OC_FULFILLED, OC_FAILED, OC_SLASHED
   general: 2,
 };
 
+/** Compute evidence confidence independently from the execution score. */
 export function computeConfidence(inputs: ConfidenceInputs): ConfidenceResult {
   // 1. evidence_depth: log-scaled event count, saturating at ~50 events.
-  const evidenceDepth = clamp(
-    0.30 * (Math.log10(1 + inputs.totalEvents) / Math.log10(51)),
-    0,
-    0.30,
-  );
+  const evidenceDepth = clamp(0.3 * (Math.log10(1 + inputs.totalEvents) / Math.log10(51)), 0, 0.3);
 
   // 2. observation_window: linear ramp to 90 days.
   const NINETY_DAYS = 60 * 60 * 24 * 90;
@@ -87,36 +84,33 @@ export function computeConfidence(inputs: ConfidenceInputs): ConfidenceResult {
   // 3. recency: full credit in first 24h, decays linearly to 0 at 14d.
   const FOURTEEN_DAYS = 60 * 60 * 24 * 14;
   const ONE_DAY = 60 * 60 * 24;
-  const recency = inputs.lastEventSeconds <= ONE_DAY
-    ? 0.15
-    : clamp(0.15 * (1 - (inputs.lastEventSeconds - ONE_DAY) / (FOURTEEN_DAYS - ONE_DAY)), 0, 0.15);
+  const recency =
+    inputs.lastEventSeconds <= ONE_DAY
+      ? 0.15
+      : clamp(
+          0.15 * (1 - (inputs.lastEventSeconds - ONE_DAY) / (FOURTEEN_DAYS - ONE_DAY)),
+          0,
+          0.15,
+        );
 
   // 4. parser_coverage: distinct event types observed vs expected for category.
   const expected = EXPECTED_EVENT_TYPES[inputs.category] ?? 2;
   const parserCoverage = clamp(
-    0.10 * (Math.min(inputs.distinctEventTypes, expected) / expected),
+    0.1 * (Math.min(inputs.distinctEventTypes, expected) / expected),
     0,
-    0.10,
+    0.1,
   );
 
   // 5. failure_decoder_coverage: are negative-event decoders shipped for this
   //    category? This is the honesty check — without failure decoders we can't
   //    distinguish "no failures" from "no decoder."
-  const failureDecoderCoverage = clamp(
-    0.15 * inputs.failureDecoderCoverage,
-    0,
-    0.15,
-  );
+  const failureDecoderCoverage = clamp(0.15 * inputs.failureDecoderCoverage, 0, 0.15);
 
   // 6. identity_resolution: how well anchored is this subject?
-  const identityResolution = clamp(
-    0.15 * inputs.identityResolutionStrength,
-    0,
-    0.15,
-  );
+  const identityResolution = clamp(0.15 * inputs.identityResolutionStrength, 0, 0.15);
 
   // 7. anomaly penalty: each unresolved anomaly costs 5pp confidence, capped.
-  const anomalyPenalty = -clamp(0.05 * inputs.unresolvedAnomalies, 0, 0.20);
+  const anomalyPenalty = -clamp(0.05 * inputs.unresolvedAnomalies, 0, 0.2);
 
   const breakdown: ConfidenceBreakdown = {
     evidenceDepth,

@@ -20,6 +20,12 @@ export interface VersionChangelogRow {
 
 export const VERSION_CHANGELOG: VersionChangelogRow[] = [
   {
+    version: "spx-score-v0.4.0",
+    lane: "Scoring",
+    summary:
+      "Added fail-closed Outcome Contract scoring for task executors using awards, fulfillment, on-time evidence, failures, and slashes.",
+  },
+  {
     version: "v0.1.7",
     lane: "Core decoder",
     summary:

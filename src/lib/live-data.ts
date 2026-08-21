@@ -27,30 +27,31 @@ export interface AgentEventRow {
   detectionMethod: string | null;
 }
 
-
 const numOrZero = (v: number | string | null | undefined): number =>
   v == null ? 0 : typeof v === "number" ? v : Number(v);
 
 // Tiered-detection provenance lives in agent_events.raw (written by the x402
 // decoder, parser v0.2.0+). Missing on every pre-v0.2.0 row — hence nullable.
+/** Extract a facilitator identifier from an event's raw payload. */
 export function facilitatorIdFromRaw(raw: unknown): string | null {
   if (!raw || typeof raw !== "object") return null;
-  const v = (raw as Record<string, unknown>)["facilitator_id"] ??
+  const v =
+    (raw as Record<string, unknown>)["facilitator_id"] ??
     (raw as Record<string, unknown>)["facilitatorId"];
   return typeof v === "string" && v.length > 0 ? v : null;
 }
 
+/** Extract the recorded settlement-detection method from raw evidence. */
 export function detectionMethodFromRaw(raw: unknown): string | null {
   if (!raw || typeof raw !== "object") return null;
-  const v = (raw as Record<string, unknown>)["detection_method"] ??
+  const v =
+    (raw as Record<string, unknown>)["detection_method"] ??
     (raw as Record<string, unknown>)["detectionMethod"];
   return typeof v === "string" && v.length > 0 ? v : null;
 }
 
-export async function fetchAgentEvents(
-  mint: string,
-  limit = 50,
-): Promise<AgentEventRow[]> {
+/** Fetch recent normalized events for one agent. */
+export async function fetchAgentEvents(mint: string, limit = 50): Promise<AgentEventRow[]> {
   if (!mint) return [];
   const { data, error } = await supabase
     .from("agent_events")
@@ -77,10 +78,10 @@ export async function fetchAgentEvents(
   }));
 }
 
-
-export async function fetchRecentTickerEvents(limit = 20): Promise<
-  Array<{ id: string; line: string; severity: string }>
-> {
+/** Fetch recent events formatted for the live ticker. */
+export async function fetchRecentTickerEvents(
+  limit = 20,
+): Promise<Array<{ id: string; line: string; severity: string }>> {
   const { data, error } = await supabase
     .from("agent_events")
     .select("id, mint, type, severity, amount_sol, amount_token, chain, raw, occurred_at")
@@ -109,8 +110,8 @@ export async function fetchRecentTickerEvents(limit = 20): Promise<
     }));
 }
 
-
 // Leaderboard-flavored ticker lines (top earners) — woven in alongside event lines.
+/** Fetch compact ticker lines for leading agents. */
 export async function fetchLeaderboardTickerLines(limit = 5): Promise<string[]> {
   const { data, error } = await supabase
     .from("agents")
@@ -195,7 +196,6 @@ function tickerLine(input: TickerLineInput): string {
   }
 }
 
-
 // ---------- indexer_runs ----------
 
 export interface IndexerRunRow {
@@ -219,10 +219,8 @@ const KNOWN_WORKERS = [
   "prober",
 ] as const;
 
-
-export async function fetchLatestIndexerRuns(): Promise<
-  Record<string, IndexerRunRow | null>
-> {
+/** Fetch the latest heartbeat for each indexer worker. */
+export async function fetchLatestIndexerRuns(): Promise<Record<string, IndexerRunRow | null>> {
   const out: Record<string, IndexerRunRow | null> = {};
   for (const w of KNOWN_WORKERS) out[w] = null;
 
@@ -255,6 +253,7 @@ export async function fetchLatestIndexerRuns(): Promise<
   return out;
 }
 
+/** Aggregate indexer health statistics for the last 24 hours. */
 export async function fetchIndexerStats24h(): Promise<{
   eventsProcessed: number;
   successEvents: number;
@@ -263,24 +262,23 @@ export async function fetchIndexerStats24h(): Promise<{
 }> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-  const [{ count: total }, { count: success }, { count: critical }, agentsRes] =
-    await Promise.all([
-      supabase
-        .from("agent_events")
-        .select("id", { count: "exact", head: true })
-        .gte("occurred_at", since),
-      supabase
-        .from("agent_events")
-        .select("id", { count: "exact", head: true })
-        .gte("occurred_at", since)
-        .eq("severity", "success"),
-      supabase
-        .from("agent_events")
-        .select("id", { count: "exact", head: true })
-        .gte("occurred_at", since)
-        .eq("severity", "critical"),
-      supabase.from("agents").select("mint", { count: "exact", head: true }),
-    ]);
+  const [{ count: total }, { count: success }, { count: critical }, agentsRes] = await Promise.all([
+    supabase
+      .from("agent_events")
+      .select("id", { count: "exact", head: true })
+      .gte("occurred_at", since),
+    supabase
+      .from("agent_events")
+      .select("id", { count: "exact", head: true })
+      .gte("occurred_at", since)
+      .eq("severity", "success"),
+    supabase
+      .from("agent_events")
+      .select("id", { count: "exact", head: true })
+      .gte("occurred_at", since)
+      .eq("severity", "critical"),
+    supabase.from("agents").select("mint", { count: "exact", head: true }),
+  ]);
 
   return {
     eventsProcessed: total ?? 0,
@@ -300,6 +298,7 @@ export interface ChangelogEntry {
   items: string[];
 }
 
+/** Fetch public release notes in reverse chronological order. */
 export async function fetchChangelog(): Promise<ChangelogEntry[]> {
   const { data, error } = await supabase
     .from("changelog")
@@ -315,6 +314,7 @@ export async function fetchChangelog(): Promise<ChangelogEntry[]> {
   }));
 }
 
+/** Format an ISO timestamp for release-note display. */
 export function formatReleaseDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
@@ -325,6 +325,7 @@ export function formatReleaseDate(iso: string): string {
   });
 }
 
+/** Format an ISO timestamp as a compact relative age. */
 export function relativeFromNow(iso: string): string {
   const t = new Date(iso).getTime();
   if (Number.isNaN(t)) return "—";
@@ -366,9 +367,7 @@ interface AgentLite {
   category: string;
 }
 
-async function loadAgentLookup(
-  mints: string[],
-): Promise<Map<string, AgentLite>> {
+async function loadAgentLookup(mints: string[]): Promise<Map<string, AgentLite>> {
   if (mints.length === 0) return new Map();
   const { data } = await supabase
     .from("agents")
@@ -392,6 +391,7 @@ interface FetchTapeOpts {
   mint?: string | null;
 }
 
+/** Fetch the filtered public evidence tape. */
 export async function fetchTape(opts: FetchTapeOpts = {}): Promise<TapeRow[]> {
   const limit = opts.limit ?? 50;
   let query = supabase
@@ -432,10 +432,10 @@ export async function fetchTape(opts: FetchTapeOpts = {}): Promise<TapeRow[]> {
   return rows;
 }
 
-export async function fetchTapeEventWithRaw(eventId: string): Promise<
-  | (TapeRow & { slot: number | null; raw: Record<string, unknown> })
-  | null
-> {
+/** Fetch one tape event together with its immutable raw evidence. */
+export async function fetchTapeEventWithRaw(
+  eventId: string,
+): Promise<(TapeRow & { slot: number | null; raw: Record<string, unknown> }) | null> {
   const { data, error } = await supabase
     .from("agent_events")
     .select(
@@ -468,6 +468,7 @@ export async function fetchTapeEventWithRaw(eventId: string): Promise<
 // Returns recent observation count + timestamp for each (category, type)
 // pair. Lets the status page distinguish "no failures" from "decoder is
 // broken / dark category."
+/** Aggregate observed event-type coverage by agent category. */
 export async function fetchEventCoverage(): Promise<
   Array<{
     category: string;
@@ -544,19 +545,13 @@ interface SnapshotRow {
 // Movers (24h) — for each agent, compare the most recent snapshot at least
 // `windowHours` old to the current agents row. Returns agents with non-zero
 // score delta sorted by absolute delta.
-export async function fetchScoreMovers(
-  windowHours = 24,
-  limit = 25,
-): Promise<ScoreMover[]> {
-  const cutoff = new Date(
-    Date.now() - windowHours * 60 * 60 * 1000,
-  ).toISOString();
+/** Fetch agents with the largest recent score changes. */
+export async function fetchScoreMovers(windowHours = 24, limit = 25): Promise<ScoreMover[]> {
+  const cutoff = new Date(Date.now() - windowHours * 60 * 60 * 1000).toISOString();
 
   // Pull the newest snapshot per mint that is older than `cutoff`.
   // We fetch a generous window so the per-mint reduction below sees enough rows.
-  const since = new Date(
-    Date.now() - (windowHours + 96) * 60 * 60 * 1000,
-  ).toISOString();
+  const since = new Date(Date.now() - (windowHours + 96) * 60 * 60 * 1000).toISOString();
   const { data: snaps } = await supabase
     .from("agent_score_snapshots")
     .select("mint, score, confidence_score, grade, taken_at")
@@ -574,9 +569,7 @@ export async function fetchScoreMovers(
   const mints = Array.from(baseline.keys());
   const { data: agentRows } = await supabase
     .from("agents")
-    .select(
-      "mint, symbol, name, category, grade, score, confidence_score",
-    )
+    .select("mint, symbol, name, category, grade, score, confidence_score")
     .in("mint", mints);
   if (!agentRows) return [];
 
@@ -635,6 +628,7 @@ export interface PulseEntry {
 // /pulse feed — chronological merge of (a) the most recent score-delta
 // transitions per agent, and (b) recent failure / critical events. The two
 // streams are interleaved by occurredAt so the page reads as a live timeline.
+/** Fetch the mixed activity feed used by Pulse. */
 export async function fetchPulseFeed(limit = 60): Promise<PulseEntry[]> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -754,10 +748,7 @@ export async function fetchPulseFeed(limit = 60): Promise<PulseEntry[]> {
     }
   }
 
-  entries.sort(
-    (a, b) =>
-      new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
-  );
+  entries.sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime());
   return entries.slice(0, limit);
 }
 
@@ -807,9 +798,8 @@ const GRADE_RANK: Record<string, number> = {
   "SPX 404": 1,
 };
 
-export async function fetchOperatorProfile(
-  wallet: string,
-): Promise<OperatorProfile | null> {
+/** Fetch an operator and the agents bound to its wallet. */
+export async function fetchOperatorProfile(wallet: string): Promise<OperatorProfile | null> {
   if (!wallet) return null;
 
   // Find agents owned/operated by this wallet. Match either the
@@ -820,9 +810,7 @@ export async function fetchOperatorProfile(
     .select(
       "mint, symbol, name, category, grade, score, confidence_score, total_buyback_sol, total_buybacks_count, failed_windows, flagged, last_indexed_seconds",
     )
-    .or(
-      `operator_wallet.eq.${wallet},executor_wallet.eq.${wallet}`,
-    );
+    .or(`operator_wallet.eq.${wallet},executor_wallet.eq.${wallet}`);
   if (agentsErr || !agents || agents.length === 0) return null;
 
   const agentSummaries: OperatorAgentSummary[] = agents.map((a) => ({
@@ -866,7 +854,6 @@ export async function fetchOperatorProfile(
     parserVersion: r.parser_version,
     facilitatorId: facilitatorIdFromRaw(r.raw),
     detectionMethod: detectionMethodFromRaw(r.raw),
-
   }));
 
   let failureEvents = 0;
@@ -880,28 +867,18 @@ export async function fetchOperatorProfile(
   const avgScore =
     scoredAgents.length === 0
       ? null
-      : Math.round(
-          scoredAgents.reduce((acc, a) => acc + (a.score ?? 0), 0) /
-            scoredAgents.length,
-        );
+      : Math.round(scoredAgents.reduce((acc, a) => acc + (a.score ?? 0), 0) / scoredAgents.length);
   const avgConfidence =
     agentSummaries.length === 0
       ? 0
-      : agentSummaries.reduce((acc, a) => acc + a.confidenceScore, 0) /
-        agentSummaries.length;
+      : agentSummaries.reduce((acc, a) => acc + a.confidenceScore, 0) / agentSummaries.length;
 
-  const grades = agentSummaries
-    .map((a) => a.grade)
-    .filter((g) => GRADE_RANK[g] != null);
+  const grades = agentSummaries.map((a) => a.grade).filter((g) => GRADE_RANK[g] != null);
   let bestGrade: string | null = null;
   let worstGrade: string | null = null;
   if (grades.length > 0) {
-    bestGrade = grades.reduce((a, b) =>
-      GRADE_RANK[a] >= GRADE_RANK[b] ? a : b,
-    );
-    worstGrade = grades.reduce((a, b) =>
-      GRADE_RANK[a] <= GRADE_RANK[b] ? a : b,
-    );
+    bestGrade = grades.reduce((a, b) => (GRADE_RANK[a] >= GRADE_RANK[b] ? a : b));
+    worstGrade = grades.reduce((a, b) => (GRADE_RANK[a] <= GRADE_RANK[b] ? a : b));
   }
 
   return {
@@ -909,10 +886,7 @@ export async function fetchOperatorProfile(
     agents: agentSummaries,
     aggregate: {
       agentCount: agentSummaries.length,
-      totalBuybackSol: agentSummaries.reduce(
-        (acc, a) => acc + a.totalBuybackSol,
-        0,
-      ),
+      totalBuybackSol: agentSummaries.reduce((acc, a) => acc + a.totalBuybackSol, 0),
       totalEvents: events.length,
       failureEvents,
       successEvents,
@@ -927,12 +901,11 @@ export async function fetchOperatorProfile(
 }
 
 // Discover the set of distinct operator wallets — drives an index page if needed.
-export async function fetchOperatorWallets(limit = 100): Promise<
-  Array<{ wallet: string; agentCount: number }>
-> {
-  const { data } = await supabase
-    .from("agents")
-    .select("operator_wallet, executor_wallet");
+/** Fetch operator wallets for directory presentation. */
+export async function fetchOperatorWallets(
+  limit = 100,
+): Promise<Array<{ wallet: string; agentCount: number }>> {
+  const { data } = await supabase.from("agents").select("operator_wallet, executor_wallet");
   const counts = new Map<string, number>();
   for (const r of data ?? []) {
     const w = r.operator_wallet || r.executor_wallet;
@@ -960,6 +933,7 @@ export interface FacilitatorRow {
   active: boolean;
 }
 
+/** Fetch the public facilitator registry. */
 export async function fetchFacilitators(): Promise<FacilitatorRow[]> {
   const { data, error } = await supabase
     .from("facilitators")
@@ -998,6 +972,7 @@ const EMPTY_HOME_STATS: HomeStats = {
   activeFacilitators: 0,
 };
 
+/** Aggregate headline statistics for the home page. */
 export async function fetchHomeStats(): Promise<HomeStats> {
   try {
     const settlementTypes = ["X402_PAYMENT_RECEIVED", "BUYBACK_EXECUTED", "BURN_CONFIRMED"];
@@ -1017,10 +992,7 @@ export async function fetchHomeStats(): Promise<HomeStats> {
         .from("x402_service" as never)
         .select("id", { count: "exact", head: true })
         .not("last_probe_at", "is", null),
-      supabase
-        .from("facilitators")
-        .select("id", { count: "exact", head: true })
-        .eq("active", true),
+      supabase.from("facilitators").select("id", { count: "exact", head: true }).eq("active", true),
     ]);
     return {
       agentsIndexed: agentsRes.count ?? 0,
@@ -1065,6 +1037,7 @@ function payerFromRaw(raw: unknown): string | null {
   return typeof v === "string" && v.length > 0 ? v : null;
 }
 
+/** Aggregate unique-payer and attribution metrics for one agent. */
 export async function fetchPayerDiversity(mint: string): Promise<PayerDiversity> {
   if (!mint) return EMPTY_PAYER_DIVERSITY;
   const { data, error } = await supabase

@@ -14,11 +14,11 @@ export type AgentCategory =
 
 export interface CategoryMeta {
   id: AgentCategory;
-  label: string;          // short label for tabs / chips
-  longLabel: string;      // full descriptive name
-  blurb: string;          // 1-line description for tab bodies
+  label: string; // short label for tabs / chips
+  longLabel: string; // full descriptive name
+  blurb: string; // 1-line description for tab bodies
   identifierKind: IdentifierKind; // primary identifier kind for this category
-  identifierLabel: string;        // "Mint", "MPL Core Asset", "Executor Wallet"
+  identifierLabel: string; // "Mint", "MPL Core Asset", "Executor Wallet"
   // Indexer status — true means we have a live decoder that can score this
   // category right now. False means the category is registered/visible but
   // agents can only land as candidates until a decoder ships.
@@ -40,8 +40,7 @@ export const CATEGORIES: CategoryMeta[] = [
     id: "registered_agent",
     label: "Registered",
     longLabel: "MPL Registered Agents",
-    blurb:
-      "Agents with a verified Metaplex Agent Identity PDA bound to an MPL Core asset.",
+    blurb: "Agents with a verified Metaplex Agent Identity PDA bound to an MPL Core asset.",
     identifierKind: "core_asset",
     identifierLabel: "MPL Core Asset",
     decoderLive: true,
@@ -60,8 +59,7 @@ export const CATEGORIES: CategoryMeta[] = [
     id: "copy_trader",
     label: "Copy-Traders",
     longLabel: "Copy-Trading Agents",
-    blurb:
-      "Agents executing public swap strategies. PnL benchmarking ships in a follow-up wave.",
+    blurb: "Agents executing public swap strategies. PnL benchmarking ships in a follow-up wave.",
     identifierKind: "executor_wallet",
     identifierLabel: "Executor Wallet",
     decoderLive: false,
@@ -90,15 +88,15 @@ export const CATEGORIES: CategoryMeta[] = [
   },
 ];
 
-export const CATEGORIES_BY_ID: Record<AgentCategory, CategoryMeta> =
-  CATEGORIES.reduce(
-    (acc, c) => {
-      acc[c.id] = c;
-      return acc;
-    },
-    {} as Record<AgentCategory, CategoryMeta>,
-  );
+export const CATEGORIES_BY_ID: Record<AgentCategory, CategoryMeta> = CATEGORIES.reduce(
+  (acc, c) => {
+    acc[c.id] = c;
+    return acc;
+  },
+  {} as Record<AgentCategory, CategoryMeta>,
+);
 
+/** Resolve category metadata, defaulting unknown values to tokenized buybacks. */
 export function categoryMeta(id: string | null | undefined): CategoryMeta {
   if (id && id in CATEGORIES_BY_ID) {
     return CATEGORIES_BY_ID[id as AgentCategory];
@@ -106,10 +104,12 @@ export function categoryMeta(id: string | null | undefined): CategoryMeta {
   return CATEGORIES_BY_ID.tokenized_buyback;
 }
 
+/** Resolve the short display label for an agent category. */
 export function categoryLabel(id: string | null | undefined): string {
   return categoryMeta(id).label;
 }
 
+/** Return whether the category's decoder is enabled for live classification. */
 export function isLiveCategory(id: string | null | undefined): boolean {
   return categoryMeta(id).decoderLive;
 }
@@ -124,6 +124,7 @@ export function isLiveCategory(id: string | null | undefined): boolean {
 //     base58 pubkeys, so we use a checksum approach: look up via the
 //     verifier instead of guessing here).
 //   - Otherwise treat as mint and let the verifier resolve the actual kind.
+/** Conservatively classify a user-supplied on-chain identifier. */
 export function guessIdentifierKind(input: string): IdentifierKind {
   const v = input.trim();
   if (v.length < 32 || v.length > 44) return "mint";

@@ -29,6 +29,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 import { useAuth } from "@/lib/auth";
+import { SCORING_VERSION } from "@/lib/versions";
 import {
   ShieldCheck,
   ShieldOff,
@@ -931,7 +932,7 @@ function Dossier({
             })}
           </div>
           <div className="mt-5 border-t border-bronze/30 pt-4 text-[10px] font-mono uppercase tracking-widest text-wire">
-            Pillars compose the SPX Execution Score. Methodology · v0.1.7
+            Pillars compose the SPX Execution Score. Methodology · {SCORING_VERSION}
           </div>
         </Panel>
       </div>

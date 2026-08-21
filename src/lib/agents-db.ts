@@ -48,8 +48,11 @@ type AgentRow = {
   flagged_at: string | null;
 };
 
-const num = (v: number | string | null | undefined): number =>
-  v == null ? 0 : typeof v === "number" ? v : Number(v);
+const num = (v: unknown): number => {
+  const parsed =
+    typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 function rowToAgent(r: AgentRow): Agent {
   // For tokenized agents (default), identifier equals mint. For registered /
@@ -117,6 +120,7 @@ function scoreBreakdown(value: unknown): AgentScoreBreakdown {
   };
 }
 
+/** Fetch all agents ordered by descending finite score. */
 export async function fetchAllAgents(): Promise<Agent[]> {
   const { data, error } = await supabase
     .from("agents")
@@ -126,16 +130,13 @@ export async function fetchAllAgents(): Promise<Agent[]> {
   return (data as AgentRow[]).map(rowToAgent);
 }
 
+/** Resolve one agent by exact mint, symbol, or mint prefix. */
 export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   const q = mintOrSymbol.trim();
   if (!q) return null;
 
   // Try exact mint first
-  const { data: byMint } = await supabase
-    .from("agents")
-    .select("*")
-    .eq("mint", q)
-    .maybeSingle();
+  const { data: byMint } = await supabase.from("agents").select("*").eq("mint", q).maybeSingle();
   if (byMint) return rowToAgent(byMint as AgentRow);
 
   // Try symbol (case-insensitive)
@@ -158,12 +159,10 @@ export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   return null;
 }
 
+/** Fetch the agents whose identifiers match the supplied mint list. */
 export async function fetchAgentsByMints(mints: string[]): Promise<Agent[]> {
   if (mints.length === 0) return [];
-  const { data, error } = await supabase
-    .from("agents")
-    .select("*")
-    .in("mint", mints);
+  const { data, error } = await supabase.from("agents").select("*").in("mint", mints);
   if (error) throw error;
   return (data as AgentRow[]).map(rowToAgent);
 }

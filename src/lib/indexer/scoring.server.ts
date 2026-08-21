@@ -84,6 +84,7 @@ export interface ScoreResult {
   confidence: "high" | "medium" | "low";
 }
 
+/** Compute the category-specific execution score and evidence verdict. */
 export function score(inputs: ScoringInputs): ScoreResult {
   const category: AgentCategory = inputs.category ?? "tokenized_buyback";
 

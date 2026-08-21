@@ -528,4 +528,20 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
       expect(task.verdict).toContain("rate evidence is unavailable");
     },
   );
+
+  it("withholds a grade when on-time evidence is omitted", () => {
+    const task = score(
+      base({
+        category: "task_executor",
+        totalOutcomeAwarded: 1,
+        totalOutcomeFulfilled: 1,
+        outcomeAwardDensity: 0.05,
+        outcomeFulfillmentRate: 1,
+        outcomeOnTimeRate: undefined,
+        outcomeEvidenceComplete: true,
+      }),
+    );
+    expect(task.grade).toBe("SPX404");
+    expect(task.verdict).toContain("deadline evidence is unavailable");
+  });
 });

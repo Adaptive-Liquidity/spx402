@@ -12,6 +12,7 @@ export const OC_EVENT_TYPES = [
 export type OcEventType = (typeof OC_EVENT_TYPES)[number];
 export type OcSeverity = "info" | "success" | "critical";
 
+/** Return whether a value belongs to the canonical Outcome Contract taxonomy. */
 export function isOcEventType(value: string): value is OcEventType {
   return (OC_EVENT_TYPES as readonly string[]).includes(value);
 }
@@ -69,6 +70,7 @@ const ocEvidenceSchema = z
 
 export type OcEvidenceEnvelope = z.infer<typeof ocEvidenceSchema>;
 
+/** Validate an OC envelope, including severity, deterministic ID, and content hash. */
 export async function validateOcEvidenceEnvelope(input: unknown): Promise<OcEvidenceEnvelope> {
   const evidence = ocEvidenceSchema.parse(input);
   if (evidence.severity !== EVENT_SEVERITY[evidence.type]) {
@@ -105,6 +107,7 @@ export interface OcAgentEventInsert {
   raw: Record<string, unknown>;
 }
 
+/** Map validated OC evidence to an immutable agent-event insert. */
 export function mapOcEvidenceToAgentEvent(
   evidence: OcEvidenceEnvelope,
   observedAt: Date,
@@ -160,6 +163,7 @@ export interface OutcomeContractCounters {
   hasPublicCapsule: boolean;
 }
 
+/** Aggregate canonical OC events into bounded scoring counters. */
 export function aggregateOutcomeContractCounters(
   rows: OutcomeContractEventRow[],
 ): OutcomeContractCounters {

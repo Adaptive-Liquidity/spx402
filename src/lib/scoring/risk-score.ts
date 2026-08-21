@@ -27,6 +27,7 @@ export interface RiskScoreResult {
   breakdown: ScoreResult["breakdown"];
 }
 
+/** Compute a version-stamped risk score from category-aware scoring inputs. */
 export function computeRiskScore(inputs: ScoringInputs): RiskScoreResult {
   const r = legacyScore(inputs);
   return {

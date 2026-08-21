@@ -502,8 +502,9 @@ function MethodologyPage() {
       <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-paper">Event taxonomy</h2>
         <p className="mt-2 max-w-3xl text-paper-muted">
-          The full set of event types SPX402 emits today. Severity drives both the risk score and
-          the failure-detector coverage signal that bounds confidence.
+          The registered taxonomy includes live and gated event types. Outcome Contract events
+          remain gated while the task_executor decoder is disabled. Severity drives both the risk
+          score and the failure-detector coverage signal that bounds confidence.
         </p>
         <div className="mt-6 overflow-hidden border border-bronze/50">
           <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel px-5 py-2 text-[10px] uppercase tracking-widest text-paper-muted">

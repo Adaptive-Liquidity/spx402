@@ -1,3 +1,4 @@
+/** Signals that a request body exceeded its configured byte limit. */
 export class BodyTooLargeError extends Error {
   constructor() {
     super("payload_too_large");
@@ -10,6 +11,7 @@ interface ReadableRequestBody {
   body: ReadableStream<Uint8Array> | null;
 }
 
+/** Read a request body while enforcing the byte cap during streaming. */
 export async function readBodyWithLimit(
   request: ReadableRequestBody,
   maxBytes: number,
