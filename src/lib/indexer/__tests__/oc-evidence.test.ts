@@ -131,13 +131,15 @@ describe("Outcome Contract evidence ingestion", () => {
   it("uses the upstream observation time for scoring", async () => {
     const valid = await validateOcEvidenceEnvelope(await envelope());
     const observedAt = new Date("2026-08-21T03:04:05.000Z");
-    const row = mapOcEvidenceToAgentEvent(valid, observedAt);
+    const committedDeadline = "2026-08-21T19:00:00.000Z";
+    const row = mapOcEvidenceToAgentEvent(valid, observedAt, committedDeadline);
     expect(row.occurred_at).toBe(observedAt.toISOString());
     expect(row.occurred_at).not.toBe(valid.occurred_at);
     expect(row.chain).toBe("flok");
     expect(row.signature).toBe(`oc-${SUBJECT}-${valid.event_id}`);
     expect(row.raw.source_occurred_at).toBe(valid.occurred_at);
     expect(row.raw.observed_at).toBe(observedAt.toISOString());
+    expect(row.raw.deadline_at).toBe(committedDeadline);
     expect(row.parser_version).toBe("spx-oc-v0.2.0");
   });
 

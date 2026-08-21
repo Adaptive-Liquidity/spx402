@@ -469,7 +469,9 @@ function MethodologyPage() {
               declared by the producer, hash-bound at{" "}
               <span className="font-mono text-paper">OC_OPENED</span>, and must be echoed unchanged
               by <span className="font-mono text-paper">OC_AWARDED</span>. SPX compares its
-              server-observed receipt time to that deadline with a five-minute clock-skew grace. The
+              server-observed receipt time to that deadline with a five-minute clock-skew grace.
+              AWARDED and terminal events received before the corresponding OPENED commitment are
+              rejected. Conflicting replays and duplicate contract events return HTTP 409. The
               decoder remains gated; this schema support is not a LIVE claim.
             </p>
           </div>

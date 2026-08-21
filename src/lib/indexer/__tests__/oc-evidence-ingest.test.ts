@@ -17,19 +17,23 @@ async function envelope(
   type: OcEventType,
   overrides: Record<string, unknown> = {},
 ): Promise<Record<string, unknown>> {
+  const contractId =
+    typeof overrides.contract_id === "string" ? overrides.contract_id : "contract-42";
+  const idempotencyKey =
+    typeof overrides.idempotency_key === "string" ? overrides.idempotency_key : "attempt-1";
   const payload = {
     schema: OC_EVIDENCE_SCHEMA,
     event_id: `oc_${await sha256Hex(
       canonicalJsonStringify({
-        contract_id: "contract-42",
+        contract_id: contractId,
         type,
-        idempotency_key: "attempt-1",
+        idempotency_key: idempotencyKey,
       }),
     )}`,
     category: "task_executor",
     subject: SUBJECT,
     handle: "growthops",
-    contract_id: "contract-42",
+    contract_id: contractId,
     cluster_id: "cluster-7",
     cluster_slug: "outbound",
     type,
@@ -37,7 +41,7 @@ async function envelope(
     ...(type === "OC_OPENED" || type === "OC_AWARDED"
       ? { deadline_at: "2026-08-21T19:00:00.000Z" }
       : {}),
-    idempotency_key: "attempt-1",
+    idempotency_key: idempotencyKey,
     ...(type === "OC_FULFILLED" ? { capsule_id: "capsule-9" } : {}),
     severity:
       type === "OC_FULFILLED"
@@ -112,6 +116,16 @@ class MemoryOcRepository implements OcEvidenceRepository {
     if (this.raceNextInsert) {
       this.raceNextInsert = false;
       this.rows.set(row.signature, { id, row });
+      return { id: null, errorCode: "23505", error: { code: "23505" } };
+    }
+    const contractTypeExists = [...this.rows.values()].some(
+      ({ row: existing }) =>
+        existing.mint === row.mint &&
+        existing.type === row.type &&
+        existing.raw.contract_id === row.raw.contract_id &&
+        existing.raw.source_schema === OC_EVIDENCE_SCHEMA,
+    );
+    if (contractTypeExists) {
       return { id: null, errorCode: "23505", error: { code: "23505" } };
     }
     if (this.rows.has(row.signature)) {
@@ -220,5 +234,52 @@ describe("Outcome Contract durable ingest behavior", () => {
     const response = await handleOcEvidenceIngest(request(body), repository, () => OBSERVED_AT);
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: "invalid_evidence" });
+  });
+
+  it("requires a persisted OPENED deadline before fulfillment", async () => {
+    const repository = new MemoryOcRepository();
+    const response = await handleOcEvidenceIngest(
+      request(await envelope("OC_FULFILLED")),
+      repository,
+      () => OBSERVED_AT,
+    );
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "opened_deadline_not_found" });
+  });
+
+  it("rejects producer-supplied deadlines on fulfillment evidence", async () => {
+    const repository = new MemoryOcRepository();
+    await handleOcEvidenceIngest(
+      request(await envelope("OC_OPENED")),
+      repository,
+      () => OBSERVED_AT,
+    );
+    const response = await handleOcEvidenceIngest(
+      request(
+        await envelope("OC_FULFILLED", {
+          deadline_at: "2026-09-20T19:00:00.000Z",
+        }),
+      ),
+      repository,
+      () => OBSERVED_AT,
+    );
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "invalid_evidence" });
+  });
+
+  it("maps the database contract/type uniqueness violation to 409", async () => {
+    const repository = new MemoryOcRepository();
+    await handleOcEvidenceIngest(
+      request(await envelope("OC_OPENED")),
+      repository,
+      () => OBSERVED_AT,
+    );
+    const response = await handleOcEvidenceIngest(
+      request(await envelope("OC_OPENED", { idempotency_key: "attempt-2" })),
+      repository,
+      () => OBSERVED_AT,
+    );
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "contract_event_conflict" });
   });
 });

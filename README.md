@@ -2107,6 +2107,7 @@ public client config):
 | `HELIUS_API_KEY` | Solana | Enhanced Transactions + webhook ingest. |
 | `HELIUS_WEBHOOK_SECRET` | Solana | Verifies inbound webhook deliveries. |
 | `CRON_SECRET` | both | Bearer token for `/api/public/cron-*` routes. |
+| `OC_INGEST_SECRET` | Flok Outcome Contracts | Dedicated bearer token for authenticated `flok.oc-evidence.v2` ingest. |
 | `BASE_RPC_URL` | Base (EVM) | **Required by the Base lane.** Full JSON-RPC URL for a Base mainnet node used by `eth_getLogs` / `eth_getTransactionByHash`. Without it, `cron-scan-x402-evm` no-ops and the `evm_x402_scan` heartbeat reports the missing configuration. Never commit this URL — provider URLs usually embed an API key. |
 
 `scripts/capture-fixture.ts --chain base` also reads `BASE_RPC_URL` locally; it

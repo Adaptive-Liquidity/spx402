@@ -92,6 +92,36 @@ export function scoreForPersistence(
   return category === "task_executor" && result.grade === "SPX404" ? null : result.total;
 }
 
+/** Apply the task-executor decoder gate to values exposed by persistence. */
+export function scorePublication(
+  category: AgentCategory,
+  result: Pick<ScoreResult, "grade" | "total" | "verdict" | "breakdown">,
+  decoderLive: boolean,
+): Pick<ScoreResult, "grade" | "verdict" | "breakdown"> & { score: number | null } {
+  if (category === "task_executor" && !decoderLive) {
+    return {
+      score: null,
+      grade: "SPX404",
+      verdict: "Outcome Contract decoder remains gated; score withheld.",
+      breakdown: {
+        depositConsistency: 0,
+        buybackExecution: 0,
+        burnConfirmation: 0,
+        failedTx: 0,
+        recency: 0,
+        metadata: 0,
+        operator: 0,
+      },
+    };
+  }
+  return {
+    score: scoreForPersistence(category, result),
+    grade: result.grade,
+    verdict: result.verdict,
+    breakdown: result.breakdown,
+  };
+}
+
 /** Compute the category-specific execution score and evidence verdict. */
 export function score(inputs: ScoringInputs): ScoreResult {
   const category: AgentCategory = inputs.category ?? "tokenized_buyback";

@@ -75,7 +75,16 @@ const ocEvidenceSchema = z
     path: ["capsule_id"],
   })
   .superRefine((evidence, context) => {
-    if (evidence.type !== "OC_OPENED" && evidence.type !== "OC_AWARDED") return;
+    if (evidence.type !== "OC_OPENED" && evidence.type !== "OC_AWARDED") {
+      if (evidence.deadline_at !== undefined) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${evidence.type} must not declare deadline_at`,
+          path: ["deadline_at"],
+        });
+      }
+      return;
+    }
     if (!evidence.deadline_at) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -172,8 +181,8 @@ export function mapOcEvidenceToAgentEvent(
       source_evidence_hash: evidence.evidence_hash,
       source_occurred_at: evidence.occurred_at,
       observed_at: observedAtIso,
-      ...(evidence.deadline_at || committedDeadline
-        ? { deadline_at: evidence.deadline_at ?? committedDeadline }
+      ...(committedDeadline || evidence.deadline_at
+        ? { deadline_at: committedDeadline ?? evidence.deadline_at }
         : {}),
       contract_id: evidence.contract_id,
       cluster_id: evidence.cluster_id,
