@@ -464,7 +464,7 @@ function MethodologyPage() {
               evidence are all present.
             </p>
             <p className="mt-3 text-sm text-paper-muted">
-              Outcome Contract ingest accepts{" "}
+              Authenticated Outcome Contract ingest accepts{" "}
               <span className="font-mono text-paper">flok.oc-evidence.v2</span> only. Deadlines are
               declared by the producer, hash-bound at{" "}
               <span className="font-mono text-paper">OC_OPENED</span>, and must be echoed unchanged
@@ -472,7 +472,11 @@ function MethodologyPage() {
               server-observed receipt time to that deadline with a five-minute clock-skew grace.
               AWARDED and terminal events received before the corresponding OPENED commitment are
               rejected. Conflicting replays and duplicate contract events return HTTP 409. The
-              decoder remains gated; this schema support is not a LIVE claim.
+              <span className="font-mono text-paper"> decoderLive</span> flag remains false, so
+              task-executor scores stay withheld as{" "}
+              <span className="font-mono text-paper">score: null / SPX404</span> even after valid v2
+              evidence is stored. This authenticated route does not change other ingest paths and is
+              not a LIVE claim.
             </p>
           </div>
         </Panel>

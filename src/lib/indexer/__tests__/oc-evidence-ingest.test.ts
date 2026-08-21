@@ -213,6 +213,17 @@ describe("Outcome Contract durable ingest behavior", () => {
     expect(await response.json()).toEqual({ error: "deadline_mismatch" });
   });
 
+  it("rejects AWARDED when no OPENED deadline is committed", async () => {
+    const repository = new MemoryOcRepository();
+    const response = await handleOcEvidenceIngest(
+      request(await envelope("OC_AWARDED")),
+      repository,
+      () => OBSERVED_AT,
+    );
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "opened_deadline_not_found" });
+  });
+
   it("accepts AWARDED only when it echoes the stored OPENED deadline", async () => {
     const repository = new MemoryOcRepository();
     await handleOcEvidenceIngest(

@@ -284,11 +284,13 @@ function aggregateOutcomeOnTimeRate(
     const observedAt =
       typeof row.raw.observed_at === "string" ? row.raw.observed_at : row.occurred_at;
     if (!deadline || !observedAt) continue;
+    const deadlineMs = Date.parse(deadline);
+    if (!Number.isFinite(deadlineMs)) continue;
     const observedAtMs = Date.parse(observedAt);
     if (!Number.isFinite(observedAtMs)) continue;
 
     completeFulfillments++;
-    if (observedAtMs <= Date.parse(deadline) + OC_FULFILLMENT_SKEW_MS) onTime++;
+    if (observedAtMs <= deadlineMs + OC_FULFILLMENT_SKEW_MS) onTime++;
   }
 
   // Mixed legacy/incomplete evidence must not manufacture punctuality.

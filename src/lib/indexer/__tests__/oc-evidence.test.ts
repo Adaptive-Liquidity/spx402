@@ -93,11 +93,11 @@ describe("Outcome Contract evidence ingestion", () => {
     const opened = await envelope("OC_OPENED");
     await expect(validateOcEvidenceEnvelope(opened)).resolves.toEqual(opened);
     await expect(
-      validateOcEvidenceEnvelope({ ...opened, schema: "flok.oc-evidence.v1" }),
-    ).rejects.toThrow();
+      validateOcEvidenceEnvelope(await resign(opened, { schema: "flok.oc-evidence.v1" })),
+    ).rejects.toThrow(/literal|schema/i);
     await expect(
-      validateOcEvidenceEnvelope({ ...opened, deadline_at: undefined }),
-    ).rejects.toThrow();
+      validateOcEvidenceEnvelope(await resign(opened, { deadline_at: undefined })),
+    ).rejects.toThrow(/requires deadline_at/i);
 
     const maxDeadline = "2026-09-19T19:00:00.000Z";
     await expect(
@@ -195,7 +195,23 @@ describe("Outcome Contract evidence ingestion", () => {
     ).toBeNull();
   });
 
-  it("uses the persisted OPENED commitment carried onto an in-window fulfillment", () => {
+  it("returns null when a fulfillment-carried deadline is not parseable", () => {
+    expect(
+      aggregateOutcomeContractCounters([
+        {
+          type: "OC_FULFILLED",
+          raw: {
+            source_schema: OC_EVIDENCE_SCHEMA,
+            contract_id: "contract-42",
+            deadline_at: "not-a-date",
+            observed_at: "2026-08-21T19:00:00.000Z",
+          },
+        },
+      ]).outcomeOnTimeRate,
+    ).toBeNull();
+  });
+
+  it("scores 0 when the fulfillment-carried deadline is outside the skew window", () => {
     const deadline = "2026-08-21T19:00:00.000Z";
     expect(
       aggregateOutcomeContractCounters([

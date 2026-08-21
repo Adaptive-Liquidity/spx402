@@ -4,6 +4,7 @@ import { BodyTooLargeError, readBodyWithLimit } from "@/lib/http/read-body.serve
 import { checkOcIngestAuth } from "@/lib/indexer/auth.server";
 import {
   mapOcEvidenceToAgentEvent,
+  OC_EVIDENCE_SCHEMA,
   validateOcEvidenceEnvelope,
   type OcAgentEventInsert,
   type OcEvidenceEnvelope,
@@ -225,6 +226,7 @@ const supabaseOcEvidenceRepository: OcEvidenceRepository = {
       .select("raw")
       .eq("mint", subject)
       .eq("type", "OC_OPENED")
+      .eq("raw->>source_schema", OC_EVIDENCE_SCHEMA)
       .eq("raw->>contract_id", contractId);
     if (error) {
       console.error("[oc-evidence] opened deadline lookup failed:", error);
