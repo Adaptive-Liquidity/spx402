@@ -5,7 +5,12 @@
 // reviewable diff.
 
 import { describe, it, expect } from "vitest";
-import { score, type ScoringInputs, type ScoreResult } from "@/lib/indexer/scoring.server";
+import {
+  score,
+  scoreForPersistence,
+  type ScoringInputs,
+  type ScoreResult,
+} from "@/lib/indexer/scoring.server";
 
 const SIX_HOURS = 60 * 60 * 6;
 const SEVEN_DAYS = 60 * 60 * 24 * 7;
@@ -491,6 +496,7 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
       }),
     );
     expect(task.grade).toBe("SPX404");
+    expect(scoreForPersistence("task_executor", task)).toBeNull();
     expect(task.verdict).toContain("evidence window is incomplete");
   });
 

@@ -5,7 +5,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { score } from "@/lib/indexer/scoring.server";
+import { scoreForPersistence } from "@/lib/indexer/scoring.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
 import { computeRiskScore, RISK_SCORE_MODEL_VERSION } from "@/lib/scoring/risk-score";
 import { computeConfidence, CONFIDENCE_MODEL_VERSION } from "@/lib/scoring/confidence";
@@ -132,11 +132,11 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             identityResolutionStrength: identityStrength(category, a.operator_verified ?? false),
             unresolvedAnomalies: counters.failedNegativeCount,
           });
-          const outcomeScoreWithheld = category === "task_executor" && result.grade === "SPX404";
+          const persistedScore = scoreForPersistence(category, result);
           const { error } = await supabaseAdmin
             .from("agents")
             .update({
-              score: outcomeScoreWithheld ? null : result.total,
+              score: persistedScore,
               grade: result.grade,
               verdict: result.verdict,
               confidence: confidenceLabel(conf.score),
@@ -144,7 +144,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               confidence_breakdown: conf.breakdown as unknown as never,
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
-              score_breakdown: outcomeScoreWithheld
+              score_breakdown: persistedScore == null
                 ? ({} as never)
                 : (result.breakdown as unknown as never),
               total_deposits_count: counters.totalDepositsCount,

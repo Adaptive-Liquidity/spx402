@@ -84,6 +84,14 @@ export interface ScoreResult {
   confidence: "high" | "medium" | "low";
 }
 
+/** Return the nullable score persisted for a category's public grade. */
+export function scoreForPersistence(
+  category: AgentCategory,
+  result: Pick<ScoreResult, "grade" | "total">,
+): number | null {
+  return category === "task_executor" && result.grade === "SPX404" ? null : result.total;
+}
+
 /** Compute the category-specific execution score and evidence verdict. */
 export function score(inputs: ScoringInputs): ScoreResult {
   const category: AgentCategory = inputs.category ?? "tokenized_buyback";
