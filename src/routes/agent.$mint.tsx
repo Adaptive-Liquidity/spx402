@@ -9,13 +9,15 @@ import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
 import {
   fetchAgentEvents,
-  fetchOutcomeContractMetrics,
   fetchPayerDiversity,
   relativeFromNow,
   type AgentEventRow,
-  type OutcomeContractMetrics,
   type PayerDiversity,
 } from "@/lib/live-data";
+import {
+  fetchOutcomeContractMetrics,
+  type OutcomeContractMetrics,
+} from "@/lib/outcome-contract.functions";
 import { ChainBadge } from "@/components/spx/ChainBadge";
 import { PayerDiversityStat } from "@/components/spx/PayerDiversityStat";
 import { ProbeStatusPanel } from "@/components/spx/ProbeStatusPanel";
@@ -291,7 +293,7 @@ export const Route = createFileRoute("/agent/$mint")({
         payee ? fetchServiceByPayee(payee) : Promise.resolve(null),
         fetchPayerDiversity(agent.mint),
         agent.category === "task_executor"
-          ? fetchOutcomeContractMetrics(agent.mint)
+          ? fetchOutcomeContractMetrics({ data: agent.mint })
           : Promise.resolve(null),
       ]);
       const probeRuns = probeService ? await fetchProbeRuns(probeService.id, 200) : [];

@@ -78,45 +78,6 @@ export async function fetchAgentEvents(mint: string, limit = 50): Promise<AgentE
   }));
 }
 
-export interface OutcomeContractMetrics {
-  totalAwarded: number;
-  totalFulfilled: number;
-  totalFailed: number;
-  totalSlashed: number;
-  fulfillmentRate: number | null;
-}
-
-/** Fetch exact 30-day Outcome Contract counts used by the scoring window. */
-export async function fetchOutcomeContractMetrics(
-  mint: string,
-): Promise<OutcomeContractMetrics | null> {
-  if (!mint) return null;
-  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const eventTypes = ["OC_AWARDED", "OC_FULFILLED", "OC_FAILED", "OC_SLASHED"] as const;
-  const results = await Promise.all(
-    eventTypes.map((type) =>
-      supabase
-        .from("agent_events")
-        .select("id", { count: "exact", head: true })
-        .eq("mint", mint)
-        .eq("type", type)
-        .gte("occurred_at", since),
-    ),
-  );
-  if (results.some(({ error, count }) => error || count == null)) return null;
-
-  const [totalAwarded, totalFulfilled, totalFailed, totalSlashed] = results.map(
-    ({ count }) => count ?? 0,
-  );
-  return {
-    totalAwarded,
-    totalFulfilled,
-    totalFailed,
-    totalSlashed,
-    fulfillmentRate: totalAwarded === 0 ? null : (totalFulfilled / totalAwarded) * 100,
-  };
-}
-
 /** Fetch recent events formatted for the live ticker. */
 export async function fetchRecentTickerEvents(
   limit = 20,
