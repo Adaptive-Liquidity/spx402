@@ -1,0 +1,37 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "@types/*"
+          - "vitest*"
+          - "eslint*"
+          - "prettier*"
+          - "@tanstack/*"
+      production-dependencies:
+        patterns:
+          - "@supabase/*"
+          - "@tanstack/*"
+          - "viem"
+          - "zod"
+          - "lucide-react"
+          - "recharts"
+          - "date-fns"
+          - "clsx"
+          - "tailwind*"
+    ignore:
+      - dependency-name: "@tanstack/react-router"
+        versions: [">=1.170.0"]  # pin until compatible
