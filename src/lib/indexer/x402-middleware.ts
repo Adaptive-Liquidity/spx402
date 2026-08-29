@@ -137,7 +137,7 @@ export async function checkApiKeyAuth(
 
 function hashApiKey(key: string): string {
   // Simple hash for storage - in production use bcrypt or argon2
-  const crypto = await import("crypto");
+  const crypto = require("crypto");
   return crypto.createHash("sha256").update(key).digest("hex");
 }
 
