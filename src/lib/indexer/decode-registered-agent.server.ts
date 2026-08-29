@@ -55,11 +55,7 @@ export function diffRegisteredAgent(
 
   // OPERATOR_CHANGED — only if we had a prior owner. A null→value transition
   // is the initial seed and does not constitute a change in operator.
-  if (
-    prev.identityOwner &&
-    next.identityOwner &&
-    prev.identityOwner !== next.identityOwner
-  ) {
+  if (prev.identityOwner && next.identityOwner && prev.identityOwner !== next.identityOwner) {
     out.push({
       mint: next.asset,
       type: "OPERATOR_CHANGED",
@@ -80,11 +76,7 @@ export function diffRegisteredAgent(
   }
 
   // CONFIG_CHANGED — metadata URI flip. Both sides non-null.
-  if (
-    prev.metadataUri &&
-    next.metadataUri &&
-    prev.metadataUri !== next.metadataUri
-  ) {
+  if (prev.metadataUri && next.metadataUri && prev.metadataUri !== next.metadataUri) {
     out.push({
       mint: next.asset,
       type: "CONFIG_CHANGED",

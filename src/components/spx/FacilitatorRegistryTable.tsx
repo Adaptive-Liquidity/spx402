@@ -5,16 +5,12 @@ import { ChainBadge } from "@/components/spx/ChainBadge";
  * The full facilitator registry, rendered from the `facilitators` table.
  * Anyone can audit who we trust: add or remove a row and this page changes.
  */
-export function FacilitatorRegistryTable({
-  facilitators,
-}: {
-  facilitators: FacilitatorRow[];
-}) {
+export function FacilitatorRegistryTable({ facilitators }: { facilitators: FacilitatorRow[] }) {
   if (facilitators.length === 0) {
     return (
       <div className="border border-bronze/50 bg-panel p-6 font-mono text-sm text-paper-muted">
-        The registry is empty. No facilitator is trusted for Tier A detection,
-        so no settlement is scored as high confidence.
+        The registry is empty. No facilitator is trusted for Tier A detection, so no settlement is
+        scored as high confidence.
       </div>
     );
   }
@@ -41,9 +37,7 @@ export function FacilitatorRegistryTable({
               <td className="px-4 py-2.5">
                 <ChainBadge chain={f.chain} size="sm" />
               </td>
-              <td className="break-all px-4 py-2.5 text-paper-muted">
-                {f.address || "—"}
-              </td>
+              <td className="break-all px-4 py-2.5 text-paper-muted">{f.address || "—"}</td>
               <td className="px-4 py-2.5">
                 {f.sourceUrl ? (
                   <a

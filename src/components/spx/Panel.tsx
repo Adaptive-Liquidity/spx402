@@ -22,9 +22,7 @@ export function Panel({
           <div>
             {eyebrow && <div className="label-amber">{eyebrow}</div>}
             {title && (
-              <h2 className="mt-1 font-display text-base font-semibold text-paper">
-                {title}
-              </h2>
+              <h2 className="mt-1 font-display text-base font-semibold text-paper">{title}</h2>
             )}
           </div>
           {right}

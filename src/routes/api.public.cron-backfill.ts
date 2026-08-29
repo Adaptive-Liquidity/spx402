@@ -17,9 +17,7 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
           return new Response("unauthorized", { status: 401 });
         }
 
-        const { data: agents } = await supabaseAdmin
-          .from("agents")
-          .select("mint, deposit_address");
+        const { data: agents } = await supabaseAdmin.from("agents").select("mint, deposit_address");
 
         const lookup = (agents ?? []).map((r) => ({
           mint: r.mint,
@@ -30,9 +28,7 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
         let totalInserted = 0;
 
         for (const a of lookup) {
-          const targets = [a.mint, a.depositAddress].filter(
-            (x): x is string => Boolean(x),
-          );
+          const targets = [a.mint, a.depositAddress].filter((x): x is string => Boolean(x));
           for (const addr of targets) {
             const txs = await fetchAddressTxs(addr);
             const events = txs.flatMap((tx) => decodeTx(tx, lookup));
@@ -77,13 +73,7 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
   },
 });
 
-
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

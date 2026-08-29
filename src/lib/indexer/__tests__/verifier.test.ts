@@ -37,7 +37,11 @@ function swapTx(i: number) {
     feePayer: WALLET,
     nativeTransfers: [{ fromUserAccount: WALLET, toUserAccount: "pool", amount: 100_000 }],
     tokenTransfers: [
-      { mint: "So11111111111111111111111111111111111111112", toUserAccount: WALLET, tokenAmount: 5 },
+      {
+        mint: "So11111111111111111111111111111111111111112",
+        toUserAccount: WALLET,
+        tokenAmount: 5,
+      },
     ],
     instructions: [],
   };

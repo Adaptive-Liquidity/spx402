@@ -48,10 +48,7 @@ export const Route = createFileRoute("/api/public/helius-webhook-setup")({
   },
 });
 
-async function handle(
-  request: Request,
-  action: "list" | "upsert" | "delete",
-): Promise<Response> {
+async function handle(request: Request, action: "list" | "upsert" | "delete"): Promise<Response> {
   const sharedSecret = process.env.HELIUS_WEBHOOK_SECRET;
   const heliusKey = process.env.HELIUS_API_KEY;
 
@@ -67,8 +64,7 @@ async function handle(
 
   const url = new URL(request.url);
   const webhookUrl =
-    url.searchParams.get("webhookUrl") ??
-    `${url.origin}/api/public/webhook-helius`;
+    url.searchParams.get("webhookUrl") ?? `${url.origin}/api/public/webhook-helius`;
 
   // Pull every observable address across all agent categories. The webhook
   // must subscribe to every kind of address that any decoder cares about,
@@ -114,10 +110,9 @@ async function handle(
 
   if (action === "delete") {
     if (!ours) return json(404, { ok: false, error: "no webhook to delete" });
-    const res = await fetch(
-      `${HELIUS_API_BASE}/webhooks/${ours.webhookID}?api-key=${heliusKey}`,
-      { method: "DELETE" },
-    );
+    const res = await fetch(`${HELIUS_API_BASE}/webhooks/${ours.webhookID}?api-key=${heliusKey}`, {
+      method: "DELETE",
+    });
     if (!res.ok) {
       return json(res.status, {
         ok: false,
@@ -146,14 +141,11 @@ async function handle(
   let webhookID: string;
   let mode: "created" | "updated";
   if (ours) {
-    const res = await fetch(
-      `${HELIUS_API_BASE}/webhooks/${ours.webhookID}?api-key=${heliusKey}`,
-      {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      },
-    );
+    const res = await fetch(`${HELIUS_API_BASE}/webhooks/${ours.webhookID}?api-key=${heliusKey}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
     if (!res.ok) {
       return json(res.status, {
         ok: false,

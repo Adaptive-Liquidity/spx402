@@ -4,7 +4,16 @@ import { CopyButton } from "@/components/spx/CopyButton";
 
 const BASE_URL = "https://api.spx402.xyz";
 
-function EndpointCard({ method, path, price, title, description, request, response, curl }: {
+function EndpointCard({
+  method,
+  path,
+  price,
+  title,
+  description,
+  request,
+  response,
+  curl,
+}: {
   method: "GET" | "POST";
   path: string;
   price?: string;
@@ -34,7 +43,9 @@ function EndpointCard({ method, path, price, title, description, request, respon
         )}
         {response && (
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-widest text-wire">Response (200 OK)</div>
+            <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
+              Response (200 OK)
+            </div>
             <pre className="mt-1 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
               {response}
             </pre>
@@ -49,7 +60,10 @@ export const Route = createFileRoute("/api/docs")({
   head: () => ({
     meta: [
       { title: "API Docs — SPX402" },
-      { name: "description", content: "Endpoint reference, authentication, x402 pay-per-call docs." },
+      {
+        name: "description",
+        content: "Endpoint reference, authentication, x402 pay-per-call docs.",
+      },
     ],
   }),
   component: ApiDocsPage,
@@ -59,39 +73,51 @@ function ApiDocsPage() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-20">
       <div className="label-amber">API · v1</div>
-      <h1 className="mt-3 font-display text-5xl font-bold text-paper">
-        Endpoint reference.
-      </h1>
+      <h1 className="mt-3 font-display text-5xl font-bold text-paper">Endpoint reference.</h1>
       <p className="mt-5 max-w-2xl text-paper-muted">
         SPX402 exposes execution data over two layers:
         <br />
         <strong>REST API</strong> — API key auth, rate-limited tiers (Free/Pro/Team).
         <br />
-        <strong>x402 Pay-per-Call</strong> — No account needed. Machines pay USDC per request via HTTP 402.
+        <strong>x402 Pay-per-Call</strong> — No account needed. Machines pay USDC per request via
+        HTTP 402.
         <br />
         All endpoints return JSON. All times are UTC ISO 8601.
       </p>
 
       <div className="mt-10 panel-engraved p-6">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-amber">Authentication</div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-amber">
+          Authentication
+        </div>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <Panel eyebrow="REST API (API Key)">
             <p className="text-paper-muted">
-              Include your API key in the <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">Authorization</code> header.
-              Get keys from your <a href="/dashboard/api-keys" className="text-amber hover:underline">dashboard</a>.
+              Include your API key in the{" "}
+              <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">
+                Authorization
+              </code>{" "}
+              header. Get keys from your{" "}
+              <a href="/dashboard/api-keys" className="text-amber hover:underline">
+                dashboard
+              </a>
+              .
             </p>
             <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
-{curl_cmd}
-</pre>
+              {curl_cmd}
+            </pre>
           </Panel>
           <Panel eyebrow="x402 Pay-per-Call">
             <p className="text-paper-muted">
-              No API key needed. Client receives HTTP 402 with payment quote, pays on Base, retries with payment proof.
-              Uses <a href="https://x402.org" target="_blank" className="text-amber hover:underline">x402 protocol</a>.
+              No API key needed. Client receives HTTP 402 with payment quote, pays on Base, retries
+              with payment proof. Uses{" "}
+              <a href="https://x402.org" target="_blank" className="text-amber hover:underline">
+                x402 protocol
+              </a>
+              .
             </p>
             <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
-{curl_x402}
-</pre>
+              {curl_x402}
+            </pre>
           </Panel>
         </div>
       </div>
@@ -106,23 +132,27 @@ function ApiDocsPage() {
           description="Current SPX grade, score, active bond, and escrow success rate. Optimized for fast agent-to-agent verification."
           curl={`curl -H "X-Payment: <x402_proof>" \\
   ${BASE_URL}/v1/agent/7xKQ92.../score`}
-          response={JSON.stringify({
-            mint: "7xKQ92...",
-            symbol: "NOVA",
-            name: "Agent Nova",
-            grade: "SPX AA",
-            score: 87,
-            confidence: "high",
-            activeBond: 12500,
-            escrowSuccessRate: 0.99,
-            totalSlashed: 0,
-            escrowsCompleted: 142,
-            escrowsFailed: 0,
-            lastIndexed: "2026-04-24T16:56:25Z",
-            operatorVerified: true,
-            category: "aeon_executor",
-            chain: "solana",
-          }, null, 2)}
+          response={JSON.stringify(
+            {
+              mint: "7xKQ92...",
+              symbol: "NOVA",
+              name: "Agent Nova",
+              grade: "SPX AA",
+              score: 87,
+              confidence: "high",
+              activeBond: 12500,
+              escrowSuccessRate: 0.99,
+              totalSlashed: 0,
+              escrowsCompleted: 142,
+              escrowsFailed: 0,
+              lastIndexed: "2026-04-24T16:56:25Z",
+              operatorVerified: true,
+              category: "aeon_executor",
+              chain: "solana",
+            },
+            null,
+            2,
+          )}
         />
 
         {/* DOSSIER ENDPOINT */}
@@ -177,18 +207,29 @@ function ApiDocsPage() {
         />
 
         {/* REST API ENDPOINTS (API Key) */}
-        <Panel eyebrow="GET /v1/agent/:mint/score (REST + API Key)" title="REST Score — API Key Auth">
-          <p className="text-paper-muted">Same data as x402 score endpoint, but authenticated via API key. Free tier: 10 calls/day.</p>
+        <Panel
+          eyebrow="GET /v1/agent/:mint/score (REST + API Key)"
+          title="REST Score — API Key Auth"
+        >
+          <p className="text-paper-muted">
+            Same data as x402 score endpoint, but authenticated via API key. Free tier: 10
+            calls/day.
+          </p>
           <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
-{curl_rest}
-</pre>
+            {curl_rest}
+          </pre>
         </Panel>
 
-        <Panel eyebrow="GET /v1/agent/:mint/dossier (REST + API Key)" title="REST Dossier — API Key Auth">
-          <p className="text-paper-muted">Same data as x402 dossier endpoint. Pro tier: 1,000 calls/day.</p>
+        <Panel
+          eyebrow="GET /v1/agent/:mint/dossier (REST + API Key)"
+          title="REST Dossier — API Key Auth"
+        >
+          <p className="text-paper-muted">
+            Same data as x402 dossier endpoint. Pro tier: 1,000 calls/day.
+          </p>
           <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
-{curl_rest_dossier}
-</pre>
+            {curl_rest_dossier}
+          </pre>
         </Panel>
 
         {/* TIER TABLE */}
@@ -240,13 +281,20 @@ function ApiDocsPage() {
 
         {/* WEBHOOKS */}
         <Panel eyebrow="Webhooks (Team + Enterprise)" title="Real-time Event Delivery">
-          <p className="text-paper-muted">Subscribe to execution events. SPX402 delivers with exponential backoff and idempotent keys.</p>
+          <p className="text-paper-muted">
+            Subscribe to execution events. SPX402 delivers with exponential backoff and idempotent
+            keys.
+          </p>
           <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
-{webhook_payload}
-</pre>
+            {webhook_payload}
+          </pre>
           <div className="mt-3 space-y-2 font-mono text-xs">
             <div className="text-wire">Event Types:</div>
-            <div className="text-paper-muted">ESCROW_CREATED, ESCROW_RELEASED, ESCROW_CANCELED, BOND_DEPOSITED, BOND_SLASHED, RECEIPT_CREATED, DEPOSIT_RECEIVED, BUYBACK_EXECUTED, BURN_CONFIRMED, FAILED_WINDOW, ANOMALY_DETECTED, OPERATOR_VERIFIED</div>
+            <div className="text-paper-muted">
+              ESCROW_CREATED, ESCROW_RELEASED, ESCROW_CANCELED, BOND_DEPOSITED, BOND_SLASHED,
+              RECEIPT_CREATED, DEPOSIT_RECEIVED, BUYBACK_EXECUTED, BURN_CONFIRMED, FAILED_WINDOW,
+              ANOMALY_DETECTED, OPERATOR_VERIFIED
+            </div>
           </div>
         </Panel>
 
@@ -255,22 +303,43 @@ function ApiDocsPage() {
           <div className="grid gap-4 md:grid-cols-3">
             <Panel title="Wallet (Phantom/Backpack)" className="md:col-span-1">
               <ol className="space-y-2 text-sm text-paper-muted list-decimal list-inside">
-                <li>Call <code className="font-mono bg-panel-deep px-1 rounded">/v1/agent/:mint/score</code> before user confirms tx</li>
-                <li>If <code className="font-mono bg-panel-deep px-1 rounded">grade &lt; SPX A</code> → show warning badge</li>
+                <li>
+                  Call{" "}
+                  <code className="font-mono bg-panel-deep px-1 rounded">
+                    /v1/agent/:mint/score
+                  </code>{" "}
+                  before user confirms tx
+                </li>
+                <li>
+                  If <code className="font-mono bg-panel-deep px-1 rounded">grade &lt; SPX A</code>{" "}
+                  → show warning badge
+                </li>
                 <li>Cache for 5 min to avoid rate limits</li>
               </ol>
             </Panel>
             <Panel title="DEX (Raydium/Orca)" className="md:col-span-1">
               <ol className="space-y-2 text-sm text-paper-muted list-decimal list-inside">
                 <li>Display SPX badge next to token in pool list</li>
-                <li>Auto-hide pools with <code className="font-mono bg-panel-deep px-1 rounded">SPX D / SPX404</code></li>
+                <li>
+                  Auto-hide pools with{" "}
+                  <code className="font-mono bg-panel-deep px-1 rounded">SPX D / SPX404</code>
+                </li>
                 <li>Use webhook for real-time grade changes</li>
               </ol>
             </Panel>
             <Panel title="AI Agent (AutoGPT/LangChain)" className="md:col-span-1">
               <ol className="space-y-2 text-sm text-paper-muted list-decimal list-inside">
-                <li>Before delegating task: <code className="font-mono bg-panel-deep px-1 rounded">GET /score</code></li>
-                <li>If <code className="font-mono bg-panel-deep px-1 rounded">activeBond &gt; taskValue</code> → proceed</li>
+                <li>
+                  Before delegating task:{" "}
+                  <code className="font-mono bg-panel-deep px-1 rounded">GET /score</code>
+                </li>
+                <li>
+                  If{" "}
+                  <code className="font-mono bg-panel-deep px-1 rounded">
+                    activeBond &gt; taskValue
+                  </code>{" "}
+                  → proceed
+                </li>
                 <li>Log result to SPX402 via AEON escrow</li>
               </ol>
             </Panel>
@@ -333,9 +402,3 @@ X-SPX-Timestamp: 2026-04-24T16:42:11Z
     "transactionSignature": "novax...Q"
   }
 }`;
-
-
-
-
-
-

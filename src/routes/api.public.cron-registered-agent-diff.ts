@@ -23,8 +23,7 @@ import {
 } from "@/lib/indexer/decode-registered-agent.server";
 import { verifyCandidate } from "@/lib/indexer/verifier.server";
 
-const MPL_AGENT_IDENTITY_PROGRAM_ID =
-  "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
+const MPL_AGENT_IDENTITY_PROGRAM_ID = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 const HELIUS_RPC = "https://mainnet.helius-rpc.com";
 const ASSET_OFFSET = 8;
 const OWNER_OFFSET = 40;
@@ -48,10 +47,7 @@ export const Route = createFileRoute("/api/public/cron-registered-agent-diff")({
 
         // 1. Pull every PDA. We need both asset and owner offsets.
         const accounts = await getProgramAccounts(heliusKey);
-        const onchain = new Map<
-          string,
-          { owner: string | null }
-        >();
+        const onchain = new Map<string, { owner: string | null }>();
         for (const acct of accounts) {
           const asset = base58Slice(acct.data, ASSET_OFFSET, 32);
           const owner = base58Slice(acct.data, OWNER_OFFSET, 32);
@@ -110,7 +106,11 @@ export const Route = createFileRoute("/api/public/cron-registered-agent-diff")({
           };
 
           // Seed-only path: previous snapshot was empty.
-          if (!prev.identityOwner && !prev.metadataUri && (next.identityOwner || next.metadataUri)) {
+          if (
+            !prev.identityOwner &&
+            !prev.metadataUri &&
+            (next.identityOwner || next.metadataUri)
+          ) {
             await supabaseAdmin
               .from("agents")
               .update({
@@ -137,23 +137,21 @@ export const Route = createFileRoute("/api/public/cron-registered-agent-diff")({
 
           // Insert the diff events. (signature) is the upsert key on
           // agent_events so a hour-collision is naturally idempotent.
-          const { error: insertErr } = await supabaseAdmin
-            .from("agent_events")
-            .upsert(
-              diffs.map((d) => ({
-                mint: d.mint,
-                type: d.type,
-                severity: d.severity,
-                signature: d.signature,
-                slot: undefined,
-                occurred_at: d.occurredAt,
-                amount_sol: d.amountSol,
-                amount_token: d.amountToken,
-                raw: d.raw as never,
-                parser_version: "spx-parser-v0.1.7",
-              })) as never,
-              { onConflict: "signature", ignoreDuplicates: true },
-            );
+          const { error: insertErr } = await supabaseAdmin.from("agent_events").upsert(
+            diffs.map((d) => ({
+              mint: d.mint,
+              type: d.type,
+              severity: d.severity,
+              signature: d.signature,
+              slot: undefined,
+              occurred_at: d.occurredAt,
+              amount_sol: d.amountSol,
+              amount_token: d.amountToken,
+              raw: d.raw as never,
+              parser_version: "spx-parser-v0.1.7",
+            })) as never,
+            { onConflict: "signature", ignoreDuplicates: true },
+          );
           if (!insertErr) {
             changed += 1;
             eventsWritten += diffs.length;
@@ -195,10 +193,7 @@ async function getProgramAccounts(apiKey: string): Promise<ProgramAccount[]> {
       jsonrpc: "2.0",
       id: 1,
       method: "getProgramAccounts",
-      params: [
-        MPL_AGENT_IDENTITY_PROGRAM_ID,
-        { encoding: "base64", commitment: "confirmed" },
-      ],
+      params: [MPL_AGENT_IDENTITY_PROGRAM_ID, { encoding: "base64", commitment: "confirmed" }],
     }),
   });
   if (!res.ok) return [];
@@ -220,8 +215,7 @@ function base58Slice(data: Uint8Array, offset: number, len: number): string | nu
   return base58Encode(slice);
 }
 
-const B58_ALPHABET =
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 function base58Encode(bytes: Uint8Array): string {
   if (bytes.length === 0) return "";
   let zeros = 0;
@@ -245,12 +239,7 @@ function base58Encode(bytes: Uint8Array): string {
   return str;
 }
 
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

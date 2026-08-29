@@ -41,13 +41,9 @@ export function ProofChainX402() {
         <li key={s.title} className="relative bg-panel p-6">
           <div className="flex items-start justify-between">
             <s.icon className="h-6 w-6 text-amber" aria-hidden />
-            <span className="font-mono text-[10px] tracking-widest text-wire">
-              0{i + 1}
-            </span>
+            <span className="font-mono text-[10px] tracking-widest text-wire">0{i + 1}</span>
           </div>
-          <h3 className="mt-5 font-display text-lg font-semibold text-paper">
-            {s.title}
-          </h3>
+          <h3 className="mt-5 font-display text-lg font-semibold text-paper">{s.title}</h3>
           <p className="mt-2 text-sm leading-relaxed text-paper-muted">{s.body}</p>
           <div className="mt-4 inline-block border border-bronze/60 bg-panel-deep px-2 py-1 font-mono text-[10px] tracking-widest text-amber">
             {s.code}

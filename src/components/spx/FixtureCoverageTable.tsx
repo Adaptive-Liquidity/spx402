@@ -24,9 +24,7 @@ export function FixtureCoverageTable() {
                 <td className="px-4 py-2.5 text-verified">
                   {s.captured}/{s.total}
                 </td>
-                <td className="px-4 py-2.5 text-paper-muted">
-                  {s.skipped > 0 ? s.skipped : "—"}
-                </td>
+                <td className="px-4 py-2.5 text-paper-muted">{s.skipped > 0 ? s.skipped : "—"}</td>
                 <td className="px-4 py-2.5 text-paper-muted">
                   {s.lastCaptureAt ? s.lastCaptureAt.slice(0, 10) : "—"}
                 </td>
@@ -37,9 +35,9 @@ export function FixtureCoverageTable() {
       </div>
       <p className="mt-3 font-mono text-[11px] text-wire">
         {totals.captured} of {totals.total} fixtures captured
-        {totals.lastCaptureAt ? ` · last capture ${totals.lastCaptureAt.slice(0, 10)}` : ""}. A
-        case we cannot capture yet is recorded as a skip with a reason — never a
-        fabricated transaction, never a silent pass.
+        {totals.lastCaptureAt ? ` · last capture ${totals.lastCaptureAt.slice(0, 10)}` : ""}. A case
+        we cannot capture yet is recorded as a skip with a reason — never a fabricated transaction,
+        never a silent pass.
       </p>
     </div>
   );

@@ -47,10 +47,7 @@ export const Route = createFileRoute("/api/public/admin-seed-vault")({
           );
           if (error) {
             console.error("[seed-vault] update failed:", error);
-            return Response.json(
-              { ok: false, error: "vault_update_failed" },
-              { status: 500 },
-            );
+            return Response.json({ ok: false, error: "vault_update_failed" }, { status: 500 });
           }
           return Response.json({ ok: true, action: "updated" });
         }
@@ -65,10 +62,7 @@ export const Route = createFileRoute("/api/public/admin-seed-vault")({
         );
         if (error) {
           console.error("[seed-vault] create failed:", error);
-          return Response.json(
-            { ok: false, error: "vault_create_failed" },
-            { status: 500 },
-          );
+          return Response.json({ ok: false, error: "vault_create_failed" }, { status: 500 });
         }
         return Response.json({ ok: true, action: "created" });
       },

@@ -57,12 +57,10 @@ export function SiteFooter() {
               </div>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-paper-muted">
-              The on-chain reputation terminal for every Solana agent.
-              We only rate what we can prove.
+              The on-chain reputation terminal for every Solana agent. We only rate what we can
+              prove.
             </p>
-            <div className="mt-6 label-mono">
-              PARSER v0.1.7 · LAST RECONCILED 14s AGO
-            </div>
+            <div className="mt-6 label-mono">PARSER v0.1.7 · LAST RECONCILED 14s AGO</div>
           </div>
 
           {COLS.map((col) => (
@@ -91,9 +89,9 @@ export function SiteFooter() {
             © 2026 SPX402 · ALL OBSERVATIONS RESERVED
           </p>
           <p className="max-w-2xl text-right leading-relaxed">
-            SPX402 provides operational transparency only. Not investment, legal, tax, or
-            financial advice. Not affiliated with S&amp;P, Standard &amp; Poor&apos;s,
-            S&amp;P Global, or S&amp;P Dow Jones Indices.
+            SPX402 provides operational transparency only. Not investment, legal, tax, or financial
+            advice. Not affiliated with S&amp;P, Standard &amp; Poor&apos;s, S&amp;P Global, or
+            S&amp;P Dow Jones Indices.
           </p>
         </div>
       </div>

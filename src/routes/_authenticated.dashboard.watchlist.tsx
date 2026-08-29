@@ -1,11 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import {
-  fetchWatchlist,
-  removeFromWatchlist,
-  type WatchlistRow,
-} from "@/lib/watchlist";
+import { fetchWatchlist, removeFromWatchlist, type WatchlistRow } from "@/lib/watchlist";
 import { fetchAgentsByMints } from "@/lib/agents-db";
 import type { Agent } from "@/lib/agents";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
@@ -88,9 +84,12 @@ function WatchlistPage() {
         <div className="panel-engraved p-12 text-center">
           <div className="label-mono text-wire">Empty watchlist</div>
           <p className="mt-3 max-w-md mx-auto text-sm text-paper-muted">
-            Open the <Link to="/explore" className="text-amber hover:underline">Explorer</Link>
-            {" "}or any agent dossier and tap{" "}
-            <span className="text-amber">Add to watchlist</span> to start tracking.
+            Open the{" "}
+            <Link to="/explore" className="text-amber hover:underline">
+              Explorer
+            </Link>{" "}
+            or any agent dossier and tap <span className="text-amber">Add to watchlist</span> to
+            start tracking.
           </p>
         </div>
       ) : (
@@ -130,14 +129,16 @@ function WatchlistPage() {
                 </div>
                 <div className="col-span-3">
                   {agent ? (
-                    <ExecutionGradeBadge grade={agent.grade} size="sm" confidenceScore={agent.confidenceScore} />
+                    <ExecutionGradeBadge
+                      grade={agent.grade}
+                      size="sm"
+                      confidenceScore={agent.confidenceScore}
+                    />
                   ) : (
                     <span className="font-mono text-xs text-wire">—</span>
                   )}
                 </div>
-                <div className="col-span-2 font-mono text-sm text-paper">
-                  {agent?.score ?? "—"}
-                </div>
+                <div className="col-span-2 font-mono text-sm text-paper">{agent?.score ?? "—"}</div>
                 <div className="col-span-2 font-mono text-xs text-paper-muted">
                   {agent?.lastBuybackLabel ?? "—"}
                 </div>

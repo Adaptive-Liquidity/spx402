@@ -8,27 +8,28 @@ fake, what the real source is, and what we need to build to display it.
 
 ## 1. Inventory of mock surfaces (today)
 
-| Surface | File | Today | Real source |
-|---|---|---|---|
-| Agent dossiers (5 demo agents) | `src/lib/agents.ts`, `agents` table | Hand-seeded NOVA / ARIA / FLUX / NULL / SPX402 | Solana Agent Registry + Pump.fun tokenized agents |
-| Explore list | `src/routes/explore.tsx` | Reads `agents` table (seeded) | Same table, populated by indexer |
-| Agent events timeline | `agents.events` jsonb | Hand-written events | Helius webhook → decoded program events |
-| Price series | `agents.price_series` jsonb | Random walk | Birdeye / Jupiter price feed |
-| Score breakdown | `agents.score_breakdown` | Hand-set numbers | Computed by scoring worker (see §5) |
-| Operator verified flag | `agents.operator_verified` | Hand-toggled | Ed25519 challenge sign (see §6) |
-| Status page components | `src/routes/status.tsx` const `COMPONENTS` | Hardcoded "operational" | Read from internal health table written by indexer heartbeat |
-| Status page stats | `src/routes/status.tsx` const `STATS` | Hardcoded numbers | Aggregations on `agent_events` and `indexer_runs` tables |
-| Changelog | `src/routes/changelog.tsx` const `ENTRIES` | Hardcoded | Move to a `changelog` table (admin-write, public-read) |
-| Ticker tape | `src/components/spx/TickerTape.tsx` | Hardcoded headlines | Latest 20 events of severity `success` or `critical` from `agent_events` |
-| Pricing tier features | `src/routes/pricing.tsx` | Marketing copy — keep | n/a |
-| Methodology weights | `src/routes/methodology.tsx` | Documented design — keep | n/a |
-| Disclaimer | `src/routes/disclaimer.tsx` | Legal copy — keep | n/a |
+| Surface                        | File                                       | Today                                          | Real source                                                              |
+| ------------------------------ | ------------------------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------ |
+| Agent dossiers (5 demo agents) | `src/lib/agents.ts`, `agents` table        | Hand-seeded NOVA / ARIA / FLUX / NULL / SPX402 | Solana Agent Registry + Pump.fun tokenized agents                        |
+| Explore list                   | `src/routes/explore.tsx`                   | Reads `agents` table (seeded)                  | Same table, populated by indexer                                         |
+| Agent events timeline          | `agents.events` jsonb                      | Hand-written events                            | Helius webhook → decoded program events                                  |
+| Price series                   | `agents.price_series` jsonb                | Random walk                                    | Birdeye / Jupiter price feed                                             |
+| Score breakdown                | `agents.score_breakdown`                   | Hand-set numbers                               | Computed by scoring worker (see §5)                                      |
+| Operator verified flag         | `agents.operator_verified`                 | Hand-toggled                                   | Ed25519 challenge sign (see §6)                                          |
+| Status page components         | `src/routes/status.tsx` const `COMPONENTS` | Hardcoded "operational"                        | Read from internal health table written by indexer heartbeat             |
+| Status page stats              | `src/routes/status.tsx` const `STATS`      | Hardcoded numbers                              | Aggregations on `agent_events` and `indexer_runs` tables                 |
+| Changelog                      | `src/routes/changelog.tsx` const `ENTRIES` | Hardcoded                                      | Move to a `changelog` table (admin-write, public-read)                   |
+| Ticker tape                    | `src/components/spx/TickerTape.tsx`        | Hardcoded headlines                            | Latest 20 events of severity `success` or `critical` from `agent_events` |
+| Pricing tier features          | `src/routes/pricing.tsx`                   | Marketing copy — keep                          | n/a                                                                      |
+| Methodology weights            | `src/routes/methodology.tsx`               | Documented design — keep                       | n/a                                                                      |
+| Disclaimer                     | `src/routes/disclaimer.tsx`                | Legal copy — keep                              | n/a                                                                      |
 
 ---
 
 ## 2. Real on-chain sources
 
 ### a. Solana Agent Registry (Solana Foundation)
+
 - **What it is**: open on-chain protocol giving agents a verifiable identity,
   reputation, and validation surface. Three sub-registries: Identity,
   Reputation, Validation. Cost: 0.009 SOL to register, 0.00001 SOL for
@@ -40,6 +41,7 @@ fake, what the real source is, and what we need to build to display it.
 - **Docs**: <https://solana.com/agent-registry>
 
 ### b. MPL Agent Registry (Metaplex)
+
 - **What it is**: pair of Solana programs (Agent Identity + Agent Tools) that
   bind on-chain identity to MPL Core assets and manage execution delegation.
 - **What we read**: identity PDA + executive profiles → who is allowed to
@@ -49,6 +51,7 @@ fake, what the real source is, and what we need to build to display it.
 - **SDK**: `@metaplex-foundation/mpl-agent-registry`
 
 ### c. Pump.fun Tokenized Agents (buyback + burn)
+
 - **What it is**: on-chain feature that routes agent revenue (SOL/USDC) into
   automatic token buybacks and burns. This is the entire economic substrate
   the SPX402 grade is built on.
@@ -60,12 +63,14 @@ fake, what the real source is, and what we need to build to display it.
 - **Docs**: <https://pump.fun/docs/tokenized-agent-disclaimer>
 
 ### d. Price + supply data
+
 - **Birdeye** (`/v3/token/list`, `/defi/price_history`) — for symbol, current
   price, OHLC series.
 - **Jupiter Price API v2** as fallback — public, no key, less granular.
 - **Helius RPC `getTokenSupply`** — for circulating supply diff (post-burn).
 
 ### e. Helius (transaction stream)
+
 - **Helius Webhooks** subscribed to: each known Agent Deposit Address, each
   agent mint (for SPL burns), and the Pump.fun program ID (for config
   changes + buyback instructions).

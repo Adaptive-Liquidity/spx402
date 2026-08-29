@@ -49,10 +49,7 @@ export async function sha256Hex(input: string | Uint8Array): Promise<string> {
   const data: ArrayBuffer =
     typeof input === "string"
       ? (new TextEncoder().encode(input).buffer as ArrayBuffer)
-      : (input.buffer.slice(
-          input.byteOffset,
-          input.byteOffset + input.byteLength,
-        ) as ArrayBuffer);
+      : (input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength) as ArrayBuffer);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return bytesToHex(new Uint8Array(digest));
 }

@@ -45,7 +45,9 @@ export function AgentSearchBar({
           className={`group relative ml-2 flex items-center gap-2 border-l border-bronze/60 bg-amber/10 px-5 font-mono text-xs uppercase tracking-widest text-amber transition-colors hover:bg-amber hover:text-panel-deep ${tall}`}
         >
           Analyze
-          <span aria-hidden className="text-current">→</span>
+          <span aria-hidden className="text-current">
+            →
+          </span>
         </button>
       </div>
       <p className="mt-3 px-1 font-mono text-[11px] uppercase tracking-widest text-wire">

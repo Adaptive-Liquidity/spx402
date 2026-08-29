@@ -114,7 +114,6 @@ export async function seedServicesFromLanes(): Promise<SeedResult> {
     );
   }
 
-
   return {
     fromSettlements,
     fromCandidates,
@@ -225,5 +224,4 @@ export async function upsertServiceByUrl(
     slug: inserted?.slug ?? proposedSlug,
     action: "inserted",
   };
-
 }

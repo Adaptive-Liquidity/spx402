@@ -32,9 +32,7 @@ export const Route = createFileRoute("/tape/$eventId")({
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center">
       <div className="label-amber">Not on the tape</div>
-      <p className="mt-3 text-paper-muted">
-        That event id is not in the SPX402 ledger.
-      </p>
+      <p className="mt-3 text-paper-muted">That event id is not in the SPX402 ledger.</p>
       <Link
         to="/tape"
         className="mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
@@ -71,12 +69,8 @@ function severityTone(sev: string): string {
 }
 
 function TapeEventPage() {
-  const r = Route.useLoaderData() as NonNullable<
-    Awaited<ReturnType<typeof fetchTapeEventWithRaw>>
-  >;
-  const subject = r.agentSymbol
-    ? `$${r.agentSymbol}`
-    : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`;
+  const r = Route.useLoaderData() as NonNullable<Awaited<ReturnType<typeof fetchTapeEventWithRaw>>>;
+  const subject = r.agentSymbol ? `$${r.agentSymbol}` : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`;
 
   return (
     <div className="mx-auto max-w-[900px] px-4 py-12 lg:px-8 lg:py-16">
@@ -90,9 +84,7 @@ function TapeEventPage() {
       <div className="mt-6 flex items-start justify-between gap-4">
         <div>
           <div className="label-amber">Event</div>
-          <h1 className="mt-2 font-display text-3xl font-bold text-paper sm:text-4xl">
-            {r.type}
-          </h1>
+          <h1 className="mt-2 font-display text-3xl font-bold text-paper sm:text-4xl">{r.type}</h1>
           <p className="mt-3 font-mono text-sm text-paper-muted">
             {r.agentName ?? r.mint} · {categoryLabel(r.agentCategory)}
           </p>
@@ -107,13 +99,13 @@ function TapeEventPage() {
       <div className="mt-10 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2">
         <Field label="Subject" value={subject} mono />
         <Field label="Mint / Identifier" value={r.mint} mono truncate />
-        <Field label="Occurred" value={`${relativeFromNow(r.occurredAt)} · ${new Date(r.occurredAt).toISOString()}`} mono />
-        <Field label="Slot" value={r.slot != null ? r.slot.toLocaleString() : "—"} mono />
         <Field
-          label="Amount (SOL)"
-          value={r.amountSol > 0 ? r.amountSol.toFixed(6) : "—"}
+          label="Occurred"
+          value={`${relativeFromNow(r.occurredAt)} · ${new Date(r.occurredAt).toISOString()}`}
           mono
         />
+        <Field label="Slot" value={r.slot != null ? r.slot.toLocaleString() : "—"} mono />
+        <Field label="Amount (SOL)" value={r.amountSol > 0 ? r.amountSol.toFixed(6) : "—"} mono />
         <Field
           label="Amount (token)"
           value={r.amountToken > 0 ? r.amountToken.toLocaleString() : "—"}
@@ -131,13 +123,12 @@ function TapeEventPage() {
             the source envelope and hashes in the raw payload below.
           </p>
         ) : r.signature.startsWith("fbw-") ||
-        r.signature.startsWith("pbns-") ||
-        r.signature.startsWith("x402rv-") ||
-        r.signature.startsWith("failwin-") ? (
+          r.signature.startsWith("pbns-") ||
+          r.signature.startsWith("x402rv-") ||
+          r.signature.startsWith("failwin-") ? (
           <p className="mt-3 font-mono text-xs text-paper-muted">
-            This is a derived event written by the failure reconciler. The
-            source signature is in the raw payload below — open it on
-            Solscan to inspect the underlying transaction.
+            This is a derived event written by the failure reconciler. The source signature is in
+            the raw payload below — open it on Solscan to inspect the underlying transaction.
           </p>
         ) : (
           <a

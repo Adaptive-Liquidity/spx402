@@ -4,7 +4,11 @@ export const Route = createFileRoute("/disclaimer")({
   head: () => ({
     meta: [
       { title: "Disclaimer — SPX402" },
-      { name: "description", content: "SPX402 provides operational transparency only. Not investment, legal, tax, or financial advice." },
+      {
+        name: "description",
+        content:
+          "SPX402 provides operational transparency only. Not investment, legal, tax, or financial advice.",
+      },
     ],
   }),
   component: DisclaimerPage,
@@ -41,14 +45,11 @@ function DisclaimerPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-24">
       <div className="label-amber">Disclaimer</div>
-      <h1 className="mt-3 font-display text-5xl font-bold text-paper">
-        Read this carefully.
-      </h1>
+      <h1 className="mt-3 font-display text-5xl font-bold text-paper">Read this carefully.</h1>
       <p className="mt-5 text-paper-muted">
-        SPX402 is a public proof layer. It is not a financial product, a security,
-        a regulated rating, or an investment recommendation. The plain-English
-        terms below apply to every page, every dashboard, every API response, and
-        every alert.
+        SPX402 is a public proof layer. It is not a financial product, a security, a regulated
+        rating, or an investment recommendation. The plain-English terms below apply to every page,
+        every dashboard, every API response, and every alert.
       </p>
 
       <div className="mt-12 space-y-10">

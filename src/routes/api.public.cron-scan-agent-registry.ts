@@ -21,8 +21,7 @@ import { checkCronAuth } from "@/lib/indexer/auth.server";
 // Metaplex MPL Agent Identity program (verified mainnet program ID, March 2026).
 // Source: https://developers.metaplex.com/smart-contracts/mpl-agent
 // Same address on Mainnet and Devnet.
-const MPL_AGENT_IDENTITY_PROGRAM_ID =
-  "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
+const MPL_AGENT_IDENTITY_PROGRAM_ID = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 
 const HELIUS_RPC = "https://mainnet.helius-rpc.com";
 
@@ -82,14 +81,10 @@ export const Route = createFileRoute("/api/public/cron-scan-agent-registry")({
 
         // 3. Skip assets we already know about.
         const assetList = Array.from(assets);
-        const [{ data: agentsRows }, { data: existingCandidates }] =
-          await Promise.all([
-            supabaseAdmin.from("agents").select("mint").in("mint", assetList),
-            supabaseAdmin
-              .from("candidate_agents")
-              .select("mint")
-              .in("mint", assetList),
-          ]);
+        const [{ data: agentsRows }, { data: existingCandidates }] = await Promise.all([
+          supabaseAdmin.from("agents").select("mint").in("mint", assetList),
+          supabaseAdmin.from("candidate_agents").select("mint").in("mint", assetList),
+        ]);
         const known = new Set<string>([
           ...(agentsRows ?? []).map((r) => r.mint),
           ...(existingCandidates ?? []).map((r) => r.mint),
@@ -147,10 +142,7 @@ async function getProgramAccounts(apiKey: string): Promise<ProgramAccount[]> {
       jsonrpc: "2.0",
       id: 1,
       method: "getProgramAccounts",
-      params: [
-        MPL_AGENT_IDENTITY_PROGRAM_ID,
-        { encoding: "base64", commitment: "confirmed" },
-      ],
+      params: [MPL_AGENT_IDENTITY_PROGRAM_ID, { encoding: "base64", commitment: "confirmed" }],
     }),
   });
   if (!res.ok) return [];
@@ -177,8 +169,7 @@ function extractAssetFromData(data: Uint8Array): string | null {
 }
 
 // Minimal base58 encoder (no external dep). Solana pubkey alphabet.
-const B58_ALPHABET =
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const B58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 function base58Encode(bytes: Uint8Array): string {
   if (bytes.length === 0) return "";
   let zeros = 0;
@@ -202,12 +193,7 @@ function base58Encode(bytes: Uint8Array): string {
   return str;
 }
 
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

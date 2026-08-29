@@ -4,10 +4,8 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 export const PUMPFUN_PROGRAM_ID = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
-export const SPL_TOKEN_PROGRAM_ID =
-  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-export const SPL_TOKEN_2022_PROGRAM_ID =
-  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+export const SPL_TOKEN_PROGRAM_ID = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+export const SPL_TOKEN_2022_PROGRAM_ID = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 
 /**
  * Verify the HMAC-SHA256 signature Helius sends on the
@@ -19,10 +17,7 @@ export const SPL_TOKEN_2022_PROGRAM_ID =
  * the raw body, whichever matches first. This makes the route robust
  * to either webhook configuration style.
  */
-export function verifyHeliusSignature(
-  authHeader: string | null,
-  rawBody: string,
-): boolean {
+export function verifyHeliusSignature(authHeader: string | null, rawBody: string): boolean {
   const secret = process.env.HELIUS_WEBHOOK_SECRET;
   if (!secret || !authHeader) return false;
 
@@ -105,15 +100,10 @@ export function lamportsToSol(lamports: number | undefined | null): number {
  * Walk an Enhanced Tx and find the first SPL Token Burn instruction.
  * Returns mint + amount if found.
  */
-export function extractBurn(
-  tx: HeliusEnhancedTx,
-): { mint: string; amount: number } | null {
+export function extractBurn(tx: HeliusEnhancedTx): { mint: string; amount: number } | null {
   const all = flattenInstructions(tx.instructions ?? []);
   for (const ix of all) {
-    if (
-      ix.programId !== SPL_TOKEN_PROGRAM_ID &&
-      ix.programId !== SPL_TOKEN_2022_PROGRAM_ID
-    )
+    if (ix.programId !== SPL_TOKEN_PROGRAM_ID && ix.programId !== SPL_TOKEN_2022_PROGRAM_ID)
       continue;
     const t = ix.parsed?.type?.toLowerCase();
     if (t !== "burn" && t !== "burnchecked") continue;
@@ -143,10 +133,7 @@ function flattenInstructions(ixs: HeliusInstruction[]): HeliusInstruction[] {
  * Find the largest native-SOL transfer landing in `address`.
  * Returns lamports received, or 0.
  */
-export function lamportsReceivedAt(
-  tx: HeliusEnhancedTx,
-  address: string,
-): number {
+export function lamportsReceivedAt(tx: HeliusEnhancedTx, address: string): number {
   let total = 0;
   for (const t of tx.nativeTransfers ?? []) {
     if (t.toUserAccount === address && typeof t.amount === "number") {
@@ -196,9 +183,7 @@ export function extractPumpFunMints(tx: HeliusEnhancedTx): string[] {
 
 const HELIUS_BASE = "https://api.helius.xyz/v0";
 
-export async function fetchEnhancedTxs(
-  signatures: string[],
-): Promise<HeliusEnhancedTx[]> {
+export async function fetchEnhancedTxs(signatures: string[]): Promise<HeliusEnhancedTx[]> {
   const key = process.env.HELIUS_API_KEY;
   if (!key || signatures.length === 0) return [];
   const res = await fetch(`${HELIUS_BASE}/transactions?api-key=${key}`, {

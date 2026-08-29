@@ -66,9 +66,7 @@ describe("D — registered-agent diff decoder", () => {
   });
 
   it("value → null (transient read failure) does not emit", () => {
-    expect(
-      diffRegisteredAgent(snap({ identityOwner: "OwnerAAA" }), snap(), AT),
-    ).toEqual([]);
+    expect(diffRegisteredAgent(snap({ identityOwner: "OwnerAAA" }), snap(), AT)).toEqual([]);
   });
 
   it("identical snapshots emit nothing", () => {

@@ -24,8 +24,7 @@ const fetchAgentSubjectForPayee = vi.fn();
 const getProberPublicConfig = vi.fn();
 
 vi.mock("@/lib/prober-data", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/lib/prober-data")>("@/lib/prober-data");
+  const actual = await vi.importActual<typeof import("@/lib/prober-data")>("@/lib/prober-data");
   return {
     ...actual,
     fetchServiceById: (...a: unknown[]) => fetchServiceById(...a),
@@ -41,9 +40,7 @@ vi.mock("@/lib/system.functions", () => ({
 
 async function runLoader(slug: string) {
   const { Route } = await import("../service.$slug");
-  const loader = Route.options.loader as (ctx: {
-    params: { slug: string };
-  }) => Promise<unknown>;
+  const loader = Route.options.loader as (ctx: { params: { slug: string } }) => Promise<unknown>;
   return loader({ params: { slug } });
 }
 

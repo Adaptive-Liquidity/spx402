@@ -1,11 +1,5 @@
 /** Settlement lane badge. SPX402 never merges identities across chains. */
-export function ChainBadge({
-  chain,
-  size = "md",
-}: {
-  chain: string;
-  size?: "sm" | "md";
-}) {
+export function ChainBadge({ chain, size = "md" }: { chain: string; size?: "sm" | "md" }) {
   const isBase = chain === "base";
   const pad = size === "sm" ? "px-2 py-0.5 text-[9px]" : "px-3 py-1.5 text-[10px]";
   return (

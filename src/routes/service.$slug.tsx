@@ -4,13 +4,7 @@
 // order, with latency, outcome, and the transaction it paid with. Probe data
 // is evidence for readers, not an input to any score.
 
-import {
-  createFileRoute,
-  Link,
-  notFound,
-  redirect,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect, useRouter } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { ChainBadge } from "@/components/spx/ChainBadge";
 import { SettleRateSparkline } from "@/components/spx/SettleRateSparkline";
@@ -30,7 +24,6 @@ import {
 import { getProberPublicConfig, type ProberPublicConfig } from "@/lib/system.functions";
 
 import { PROBE_USER_AGENT } from "@/lib/prober/outcomes";
-
 
 export const Route = createFileRoute("/service/$slug")({
   head: ({ loaderData }) => {
@@ -78,7 +71,6 @@ export const Route = createFileRoute("/service/$slug")({
     ]);
     return { service, runs, subject, prober, series: settleRateSeries(runs) };
   },
-
 
   staleTime: 60_000,
   component: ServicePage,
@@ -143,9 +135,7 @@ function ServicePage() {
   const challengeRuns = runs.filter((r) => r.probeKind === "challenge");
   const validChallenges = challengeRuns.filter((r) => r.challengeValid).length;
   const driftRuns = runs.filter((r) => r.outcome === "config_drift");
-  const proberWallet =
-    service.chain === "base" ? prober.baseWallet : prober.solanaWallet;
-
+  const proberWallet = service.chain === "base" ? prober.baseWallet : prober.solanaWallet;
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-16">
@@ -218,11 +208,7 @@ function ServicePage() {
             <Row l="Paid probes" v={String(settlementRuns.length)} />
             <Row
               l="Settled + delivered"
-              v={
-                settlementRuns.length === 0
-                  ? "no data"
-                  : `${settled}/${settlementRuns.length}`
-              }
+              v={settlementRuns.length === 0 ? "no data" : `${settled}/${settlementRuns.length}`}
             />
             <Row
               l="Total paid"
@@ -234,20 +220,17 @@ function ServicePage() {
         <Panel eyebrow="30 days" title="Settle rate">
           <SettleRateSparkline series={series} />
           <p className="mt-3 font-mono text-[11px] text-wire">
-            Bars are daily settled/attempted for paid probes. Grey = no probe
-            that day. Probe data is not scored.
+            Bars are daily settled/attempted for paid probes. Grey = no probe that day. Probe data
+            is not scored.
           </p>
         </Panel>
       </div>
 
       <section className="mt-10">
-        <h2 className="font-display text-2xl font-bold text-paper">
-          Configuration drift
-        </h2>
+        <h2 className="font-display text-2xl font-bold text-paper">Configuration drift</h2>
         {driftRuns.length === 0 ? (
           <p className="mt-2 text-sm text-paper-muted">
-            No drift recorded. The wallet this endpoint advertises matches the
-            wallet it settles to.
+            No drift recorded. The wallet this endpoint advertises matches the wallet it settles to.
           </p>
         ) : (
           <div className="mt-4 space-y-2">
@@ -269,8 +252,7 @@ function ServicePage() {
       <section className="mt-10">
         <h2 className="font-display text-2xl font-bold text-paper">Transcript</h2>
         <p className="mt-2 text-sm text-paper-muted">
-          Every probe SPX402 has run against this endpoint. The prober always
-          identifies itself as{" "}
+          Every probe SPX402 has run against this endpoint. The prober always identifies itself as{" "}
           <code className="font-mono text-xs text-paper">{PROBE_USER_AGENT}</code>.
         </p>
         <div className="mt-6">
@@ -278,11 +260,9 @@ function ServicePage() {
         </div>
       </section>
 
-
       <div className="mt-10 border border-bronze/50 bg-panel-deep p-5 text-sm text-paper-muted">
-        Probe results describe what SPX402 experienced as a paying customer.
-        They are published as evidence and are{" "}
-        <strong className="text-paper">not part of any score</strong> in this
+        Probe results describe what SPX402 experienced as a paying customer. They are published as
+        evidence and are <strong className="text-paper">not part of any score</strong> in this
         release. See{" "}
         <Link to="/methodology" className="text-amber hover:underline">
           methodology → active verification

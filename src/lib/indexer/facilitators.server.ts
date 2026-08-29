@@ -52,7 +52,6 @@ export const FACILITATOR_SEED: Facilitator[] = [
     active: true,
   },
 
-
   // ── EVM lane (Base). Addresses are populated ONLY from each operator's
   // ── /supported endpoint or official docs, then fixture-verified before
   // ── active=true. Shipping address-less and inactive is the honest state.
@@ -78,7 +77,6 @@ export const FACILITATOR_SEED: Facilitator[] = [
   },
 ];
 
-
 export const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
 // ── Runtime registry: static seed merged with DB overrides. Cached per
@@ -97,10 +95,7 @@ export async function getActiveFacilitators(
     if (f.active && f.address) map.set(key(chainOf(f), f.address), f);
   }
   try {
-    const { data } = await supabaseAdmin
-      .from("facilitators")
-      .select("*")
-      .eq("active", true);
+    const { data } = await supabaseAdmin.from("facilitators").select("*").eq("active", true);
     for (const row of (data ?? []) as Array<Record<string, unknown>>) {
       map.set(key(String(row.chain), String(row.address)), {
         id: String(row.id),
@@ -147,9 +142,7 @@ export function facilitatorForFeePayer(
 }
 
 /** Addresses the scanner should subscribe to / sweep. */
-export function facilitatorAddressList(
-  registry: Map<string, Facilitator>,
-): string[] {
+export function facilitatorAddressList(registry: Map<string, Facilitator>): string[] {
   return Array.from(registry.values()).map((f) => f.address);
 }
 

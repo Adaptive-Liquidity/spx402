@@ -124,71 +124,77 @@ Each agent gets an SVG card styled as an SPX402 terminal:
 ## The Narrative Arc (What We Tweet)
 
 ### Tweet 1: The Hook
+
 > We audited the top 50 "AI agents" on Solana using SPX402's new AEON execution model.
-> 
+>
 > **47 scored SPX D or SPX404.**
-> 
+>
 > They have $0 in slashable bonds. 0 escrows settled. 0 receipts.
-> 
+>
 > They're running on hope and hot wallets.
-> 
+>
 > 🧵👇
 
 ### Tweet 2: The Evidence (Thread)
+
 > **Agent: $NOVA (3.2M market cap)**
-> 
+>
 > Grade: **SPX D (12/100)**
-> 
+>
 > • 0 AEON escrows completed
 > • 0 active slashable bond
 > • 47 failed transaction windows
 > • Operator: UNVERIFIED
-> 
+>
 > The chain doesn't lie. [Terminal Card Image]
-> 
+>
 > spx402.xyz/agent/NoVa...
 
 ### Tweet 3: The Pattern
+
 > This isn't one bad apple. It's the entire orchard.
-> 
-> | Grade | Count |
-> |-------|-------|
-> | SPX AAA | 0 |
-> | SPX AA  | 0 |
-> | SPX A   | 1 |
-> | SPX BBB | 2 |
-> | SPX BB  | 3 |
-> | SPX B   | 8 |
-> | SPX D   | 18 |
-> | SPX404  | 18 |
-> 
+>
+> | Grade   | Count |
+> | ------- | ----- |
+> | SPX AAA | 0     |
+> | SPX AA  | 0     |
+> | SPX A   | 1     |
+> | SPX BBB | 2     |
+> | SPX BB  | 3     |
+> | SPX B   | 8     |
+> | SPX D   | 18    |
+> | SPX404  | 18    |
+>
 > **96% fail the execution test.**
 
 ### Tweet 4: The Solution
+
 > There is exactly one way to guarantee an SPX AAA rating:
-> 
+>
 > **Build on AEON Program.**
-> 
+>
 > • Scoped spending authorities (fail-closed)
 > • Slashable bonds (skin in the game)
 > • Hash-chained receipts (proof of execution)
 > • Escrow-native settlement
-> 
+>
 > The grade isn't a suggestion. It's a mathematical guarantee.
-> 
+>
 > github.com/Adaptive-Liquidity/aeon-program
 
 ### Tweet 5: The Challenge
+
 > **To every agent dev reading this:**
-> 
+>
 > Run your mint through SPX402.
-> 
+>
 > If you score SPX D, you have two choices:
+>
 > 1. Keep the hot wallet. Accept the grade.
 > 2. Integrate AEON. Earn the AAA.
-> 
+>
 > We'll re-grade you in 30 days.
-> 
+>
 > spx402.xyz
 
 ---
@@ -206,14 +212,14 @@ Each agent gets an SVG card styled as an SPX402 terminal:
 
 Once the Shadow Grade goes viral:
 
-| Stage | Action | Tool |
-|-------|--------|------|
-| **Panic** | Devs see their SPX D grade | SPX402 Terminal Card |
-| **Curiosity** | Click through to dossier | `/agent/:mint` |
-| **Education** | Read "Why SPX D?" verdict | Verdict explains missing primitives |
-| **Solution** | "How do I fix this?" | AEON Program SDK link |
-| **Adoption** | Integrate AEON escrows/bonds | `aeon-program` SDK |
-| **Redemption** | Re-grade in 30 days | SPX402 shows SPX AAA |
+| Stage          | Action                       | Tool                                |
+| -------------- | ---------------------------- | ----------------------------------- |
+| **Panic**      | Devs see their SPX D grade   | SPX402 Terminal Card                |
+| **Curiosity**  | Click through to dossier     | `/agent/:mint`                      |
+| **Education**  | Read "Why SPX D?" verdict    | Verdict explains missing primitives |
+| **Solution**   | "How do I fix this?"         | AEON Program SDK link               |
+| **Adoption**   | Integrate AEON escrows/bonds | `aeon-program` SDK                  |
+| **Redemption** | Re-grade in 30 days          | SPX402 shows SPX AAA                |
 
 ---
 
@@ -241,6 +247,7 @@ Once the Shadow Grade goes viral:
 After Shadow Grade establishes SPX402 as the execution authority:
 
 **Phase 5: x402 API & B2B Monetization**
+
 - Wallet integrations (Phantom, Backpack warning badges)
 - DEX integrations (Raydium/Orca execution grade display)
 - Agent-to-agent verification (pay-per-call via x402)

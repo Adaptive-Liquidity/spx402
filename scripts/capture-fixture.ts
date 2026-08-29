@@ -97,7 +97,9 @@ async function main() {
   const chain = arg("chain") ?? "solana";
 
   if (!id || !signature) {
-    console.error("Usage: bun scripts/capture-fixture.ts --id <id> --signature <sig|0xhash> [--chain solana|base] [--expect <json>] [--notes <text>]");
+    console.error(
+      "Usage: bun scripts/capture-fixture.ts --id <id> --signature <sig|0xhash> [--chain solana|base] [--expect <json>] [--notes <text>]",
+    );
     process.exit(1);
   }
 

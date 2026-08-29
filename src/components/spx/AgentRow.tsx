@@ -10,19 +10,12 @@ export function AgentRow({ agent }: { agent: Agent }) {
   // the "buybacks" slot since buybacks are tokenized-only.
   const isExecutor = agent.category === "x402_executor";
   const isRegistered = agent.category === "registered_agent";
-  const middleLabel = isExecutor
-    ? "x402 receipts"
-    : isRegistered
-      ? "Swap activity"
-      : "Buybacks";
-  const middleValue = isExecutor || isRegistered
-    ? "—" // populated once x402 / swap counters land on Agent type (next wave)
-    : agent.totalBuybacksCount.toLocaleString();
-  const lastLabel = isExecutor
-    ? "Last receipt"
-    : isRegistered
-      ? "Last activity"
-      : "Last buyback";
+  const middleLabel = isExecutor ? "x402 receipts" : isRegistered ? "Swap activity" : "Buybacks";
+  const middleValue =
+    isExecutor || isRegistered
+      ? "—" // populated once x402 / swap counters land on Agent type (next wave)
+      : agent.totalBuybacksCount.toLocaleString();
+  const lastLabel = isExecutor ? "Last receipt" : isRegistered ? "Last activity" : "Last buyback";
   return (
     <Link
       to="/agent/$mint"
@@ -41,12 +34,13 @@ export function AgentRow({ agent }: { agent: Agent }) {
                   ${agent.symbol}
                 </span>
                 {agent.operatorVerified ? (
-                  <ShieldCheck className="h-3.5 w-3.5 text-verified" aria-label="Operator verified" />
+                  <ShieldCheck
+                    className="h-3.5 w-3.5 text-verified"
+                    aria-label="Operator verified"
+                  />
                 ) : null}
               </div>
-              <div className="truncate font-mono text-[11px] text-wire">
-                {agent.name}
-              </div>
+              <div className="truncate font-mono text-[11px] text-wire">{agent.name}</div>
               <div className="mt-1 inline-block border border-bronze/40 bg-panel-deep px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-paper-muted">
                 {cat.label}
               </div>
@@ -57,7 +51,11 @@ export function AgentRow({ agent }: { agent: Agent }) {
         <div className="col-span-6 sm:col-span-2">
           <div className="label-mono">Grade</div>
           <div className="mt-1.5">
-            <ExecutionGradeBadge grade={agent.grade} size="sm" confidenceScore={agent.confidenceScore} />
+            <ExecutionGradeBadge
+              grade={agent.grade}
+              size="sm"
+              confidenceScore={agent.confidenceScore}
+            />
           </div>
         </div>
 
@@ -70,16 +68,12 @@ export function AgentRow({ agent }: { agent: Agent }) {
 
         <div className="col-span-6 sm:col-span-2">
           <div className="label-mono">{middleLabel}</div>
-          <div className="num-display mt-1.5 text-lg font-semibold text-paper">
-            {middleValue}
-          </div>
+          <div className="num-display mt-1.5 text-lg font-semibold text-paper">{middleValue}</div>
         </div>
 
         <div className="col-span-6 sm:col-span-2">
           <div className="label-mono">{lastLabel}</div>
-          <div className="mt-1.5 font-mono text-xs text-paper-muted">
-            {agent.lastBuybackLabel}
-          </div>
+          <div className="mt-1.5 font-mono text-xs text-paper-muted">{agent.lastBuybackLabel}</div>
         </div>
 
         <div className="col-span-12 hidden sm:col-span-1 sm:block">

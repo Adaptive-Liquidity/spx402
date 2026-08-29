@@ -109,10 +109,7 @@ function parseSettlement(input: string, to: string): Settlement | null {
   ) {
     if (lower(to) !== BASE_USDC) return null;
     try {
-      const abi =
-        selector === TRANSFER_WITH_AUTHORIZATION_SELECTOR
-          ? EIP3009_ABI
-          : EIP3009_SIG_ABI;
+      const abi = selector === TRANSFER_WITH_AUTHORIZATION_SELECTOR ? EIP3009_ABI : EIP3009_SIG_ABI;
       const { args } = decodeFunctionData({ abi, data: data as `0x${string}` });
       const [from, payee, value] = args as unknown as [string, string, bigint];
       return {
@@ -165,9 +162,7 @@ export function decodeEvmX402Tx(
   if (!settlement) return [];
 
   const facilitator = facilitatorForSender(registry, tx.from);
-  const method: EvmDetectionMethod = facilitator
-    ? "facilitator_sender"
-    : "eip3009_pattern";
+  const method: EvmDetectionMethod = facilitator ? "facilitator_sender" : "eip3009_pattern";
   const confidence: "high" | "low" = facilitator ? "high" : "low";
 
   // Never treat the facilitator's own inbound flows as agent revenue.

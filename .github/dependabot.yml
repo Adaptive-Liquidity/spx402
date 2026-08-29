@@ -34,4 +34,4 @@ updates:
           - "tailwind*"
     ignore:
       - dependency-name: "@tanstack/react-router"
-        versions: [">=1.170.0"]  # pin until compatible
+        versions: [">=1.170.0"] # pin until compatible

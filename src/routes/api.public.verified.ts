@@ -106,7 +106,7 @@ export const Route = createFileRoute("/api/public/verified")({
             parser_version: r.parser_version,
           },
           bond: { bonded: false }, // Wave 6
-          attestation: null,        // Wave 5
+          attestation: null, // Wave 5
           links: {
             permalink: `/agent/${r.mint}`,
             evidence: `/api/public/agent/${r.mint}/evidence`,
@@ -139,8 +139,7 @@ export const Route = createFileRoute("/api/public/verified")({
 
         return jsonResponse(body, 200, {
           // Snapshots refresh after scoring cron — 5min edge cache, 1h SWR.
-          "Cache-Control":
-            "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+          "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
         });
       },
       OPTIONS: async () =>
@@ -156,11 +155,7 @@ export const Route = createFileRoute("/api/public/verified")({
   },
 });
 
-function jsonResponse(
-  body: unknown,
-  status: number,
-  extra: Record<string, string> = {},
-): Response {
+function jsonResponse(body: unknown, status: number, extra: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body, null, 2), {
     status,
     headers: {
@@ -180,16 +175,7 @@ function sanitizeGrade(v: string | null): string | null {
   if (!v) return null;
   // Accept both URL-safe ("SPX_A") and display ("SPX A") forms.
   const normalized = v.replace(/_/g, " ").trim().toUpperCase();
-  const allowed = [
-    "SPX AAA",
-    "SPX AA",
-    "SPX A",
-    "SPX BBB",
-    "SPX BB",
-    "SPX B",
-    "SPX D",
-    "SPX404",
-  ];
+  const allowed = ["SPX AAA", "SPX AA", "SPX A", "SPX BBB", "SPX BB", "SPX B", "SPX D", "SPX404"];
   if (allowed.includes(normalized)) return normalized;
   if (normalized === "SPX 404") return "SPX404";
   return null;

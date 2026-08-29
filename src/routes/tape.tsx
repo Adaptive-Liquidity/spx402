@@ -97,9 +97,8 @@ function TapePage() {
         Every grade is explainable from the tape.
       </h1>
       <p className="mt-4 max-w-2xl text-paper-muted">
-        Canonical evidence ledger. Every row is a permalinked on-chain event
-        the indexer observed. SPX402 only rates what the chain can prove —
-        this is the proof.
+        Canonical evidence ledger. Every row is a permalinked on-chain event the indexer observed.
+        SPX402 only rates what the chain can prove — this is the proof.
       </p>
 
       {/* Filters */}
@@ -162,9 +161,7 @@ function TapePage() {
           <div className="col-span-9 sm:col-span-2 text-right">When</div>
         </div>
         {loading ? (
-          <div className="px-4 py-12 text-center font-mono text-xs text-paper-muted">
-            Loading…
-          </div>
+          <div className="px-4 py-12 text-center font-mono text-xs text-paper-muted">Loading…</div>
         ) : rows.length === 0 ? (
           <div className="px-4 py-12 text-center font-mono text-xs text-paper-muted">
             No events match these filters.
@@ -172,20 +169,17 @@ function TapePage() {
         ) : (
           <ul>
             {rows.map((r, i) => (
-              <li
-                key={r.id}
-                className={`${i % 2 ? "bg-panel" : "bg-background"}`}
-              >
+              <li key={r.id} className={`${i % 2 ? "bg-panel" : "bg-background"}`}>
                 <Link
                   to="/tape/$eventId"
                   params={{ eventId: r.id }}
                   className="grid grid-cols-12 items-center gap-2 px-4 py-3 font-mono text-xs hover:bg-panel-deep"
                 >
-                  <div className={`col-span-3 truncate ${severityTone(r.severity)}`}>
-                    {r.type}
-                  </div>
+                  <div className={`col-span-3 truncate ${severityTone(r.severity)}`}>{r.type}</div>
                   <div className="col-span-3 truncate text-paper">
-                    {r.agentSymbol ? `$${r.agentSymbol}` : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`}
+                    {r.agentSymbol
+                      ? `$${r.agentSymbol}`
+                      : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`}
                   </div>
                   <div className="col-span-2 hidden text-paper-muted sm:block">
                     {categoryLabel(r.agentCategory)}

@@ -5,9 +5,15 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — SPX402" },
-      { name: "description", content: "Free to verify. Paid to monitor. Priced for operators with something to lose." },
+      {
+        name: "description",
+        content: "Free to verify. Paid to monitor. Priced for operators with something to lose.",
+      },
       { property: "og:title", content: "SPX402 Pricing" },
-      { property: "og:description", content: "Free dossiers. Pro alerts. Team API. x402 pay-per-call." },
+      {
+        property: "og:description",
+        content: "Free dossiers. Pro alerts. Team API. x402 pay-per-call.",
+      },
     ],
   }),
   component: PricingPage,
@@ -129,12 +135,13 @@ function PricingPage() {
       <div className="text-center">
         <div className="label-amber">Pricing</div>
         <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper sm:text-6xl">
-          Free to verify.<br />
+          Free to verify.
+          <br />
           <span className="text-amber">Paid to monitor.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-paper-muted">
-          Public dossiers stay free forever. Operators, researchers, funds, and
-          machine clients pay for monitoring, history, alerts, and API access.
+          Public dossiers stay free forever. Operators, researchers, funds, and machine clients pay
+          for monitoring, history, alerts, and API access.
         </p>
       </div>
 
@@ -154,7 +161,9 @@ function PricingPage() {
             </div>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="num-display text-4xl font-bold text-paper">{t.price}</span>
-              <span className="font-mono text-xs uppercase tracking-widest text-wire">{t.cadence}</span>
+              <span className="font-mono text-xs uppercase tracking-widest text-wire">
+                {t.cadence}
+              </span>
             </div>
             <p className="mt-3 text-sm text-paper-muted">{t.body}</p>
             <ul className="mt-6 flex-1 space-y-2.5 text-sm">
@@ -182,18 +191,16 @@ function PricingPage() {
       {/* WARNING */}
       <div className="mt-10 border-l-2 border-bronze bg-panel-deep/60 p-5">
         <p className="text-sm leading-relaxed text-paper-muted">
-          <span className="font-mono uppercase tracking-widest text-amber">Note</span>{" "}
-          — Subscriptions buy access to monitoring tools and data features. They do
-          not buy investment recommendations, token returns, or preferential scoring.
+          <span className="font-mono uppercase tracking-widest text-amber">Note</span> —
+          Subscriptions buy access to monitoring tools and data features. They do not buy investment
+          recommendations, token returns, or preferential scoring.
         </p>
       </div>
 
       {/* COMPARE */}
       <section className="mt-20">
         <div className="label-amber">Compare</div>
-        <h2 className="mt-3 font-display text-3xl font-bold text-paper">
-          Feature comparison
-        </h2>
+        <h2 className="mt-3 font-display text-3xl font-bold text-paper">Feature comparison</h2>
         <div className="mt-6 overflow-x-auto border border-bronze/50">
           <table className="w-full font-mono text-xs">
             <thead className="bg-panel-deep">
@@ -209,10 +216,18 @@ function PricingPage() {
               {COMPARE_ROWS.map((row, i) => (
                 <tr key={i} className="border-t border-bronze/30">
                   <td className="px-4 py-3 text-paper">{row[0] as string}</td>
-                  <td className="px-4 py-3 text-center"><Cell v={row[1] as boolean | string} /></td>
-                  <td className="px-4 py-3 text-center"><Cell v={row[2] as boolean | string} /></td>
-                  <td className="px-4 py-3 text-center"><Cell v={row[3] as boolean | string} /></td>
-                  <td className="px-4 py-3 text-center"><Cell v={row[4] as boolean | string} /></td>
+                  <td className="px-4 py-3 text-center">
+                    <Cell v={row[1] as boolean | string} />
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <Cell v={row[2] as boolean | string} />
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <Cell v={row[3] as boolean | string} />
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <Cell v={row[4] as boolean | string} />
+                  </td>
                 </tr>
               ))}
             </tbody>

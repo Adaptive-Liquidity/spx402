@@ -44,8 +44,8 @@ export function ProbeStatusPanel({
         <p className="text-sm text-paper-muted">
           Settlement observed. Endpoint not yet probed.
           <span className="mt-2 block font-mono text-[11px] text-wire">
-            SPX402 knows the wallet that gets paid, not the URL that charges.
-            Active verification starts once an endpoint is known.
+            SPX402 knows the wallet that gets paid, not the URL that charges. Active verification
+            starts once an endpoint is known.
           </span>
         </p>
       ) : (
@@ -60,9 +60,7 @@ export function ProbeStatusPanel({
                 <>
                   {" — "}
                   <span className="text-paper">
-                    {lastRun.challengeValid === false
-                      ? "challenge malformed"
-                      : "challenge valid"}
+                    {lastRun.challengeValid === false ? "challenge malformed" : "challenge valid"}
                     {lastRun.settleMs != null
                       ? `, ${outcomeLabel(lastRun.outcome)} in ${(lastRun.settleMs / 1000).toFixed(1)}s`
                       : `, ${outcomeLabel(lastRun.outcome)}`}
@@ -92,8 +90,8 @@ export function ProbeStatusPanel({
             )}
           </div>
           <p className="mt-3 font-mono text-[11px] text-wire">
-            Measured by the SPX402 prober buying from this service. Probe data is
-            published as evidence and is not part of the score.
+            Measured by the SPX402 prober buying from this service. Probe data is published as
+            evidence and is not part of the score.
           </p>
         </>
       )}

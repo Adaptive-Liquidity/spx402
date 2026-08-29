@@ -42,7 +42,7 @@
         "toTokenAccount": "FGptqdxjahafaCzpZ1T6EDtCzYMv7Dyn5MgBLyB3VUFW",
         "fromUserAccount": "7nf6GAqpBx5RVccdwXBPrNqRnfbg95dpWhRiPAiuqEkf",
         "toUserAccount": "AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY",
-        "tokenAmount": 7.827e-06,
+        "tokenAmount": 7.827e-6,
         "mint": "So11111111111111111111111111111111111111112",
         "tokenStandard": "Fungible"
       },
@@ -312,9 +312,7 @@
     "transactionError": null,
     "instructions": [
       {
-        "accounts": [
-          "jitodontfront81111111TradeWithAxiomDotTrade"
-        ],
+        "accounts": ["jitodontfront81111111TradeWithAxiomDotTrade"],
         "data": "FXNmT5",
         "programId": "ComputeBudget111111111111111111111111111111",
         "innerInstructions": []
@@ -353,9 +351,7 @@
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
           {
-            "accounts": [
-              "F8JC8tTGJNw1rVbrerm1yK8rbCt4KKhRj55FxVTtrvRB"
-            ],
+            "accounts": ["F8JC8tTGJNw1rVbrerm1yK8rbCt4KKhRj55FxVTtrvRB"],
             "data": "J",
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           }
@@ -488,9 +484,7 @@
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
           {
-            "accounts": [
-              "GS4CU59F31iL7aR2Q8zVS8DRrcRnXX1yjQ66TqNVQnaR"
-            ],
+            "accounts": ["GS4CU59F31iL7aR2Q8zVS8DRrcRnXX1yjQ66TqNVQnaR"],
             "data": "6XW3shCCGa999Pyhw3LjFVAt8QfzyzSde1yoV7Zp9KfJJbFuCZLetEy3xD8sUXBe3HUikrFg82e9rYLJZvp9UiMmygw8vLcmFtfgMtTtenPYvyGEyuUEfACHYVPfWFUjozfTZ9quZ6km2egkrP77Wt4ULsiTWhJxrz4HpAz35JHBoYZQ5xYpqcgrdYrbD9EQmPfUyzdCfJVdiRuk25uZ14eZrJw6NXm3mhY1ymgjeoxnT42ax7xMdWViemtivJKJHxaLjr29gib5Dd49qj1qsrww7mf7Wd32ZtSUkeEz26WYv1virNk5Vn2Ue2g97gvBG6Pqgbr1kdtM3FyDyVGJXZgn9DE2s24V3Jy4tmGcLj8p5z1B2kYrAeCqFR98ys6RQqveTYsJKfZ7N6uxqzGNmeq2FJV52NQwQGTnVHrs9H8BEVTjzztvVWXbwd2UfV5LktDqXXDLr4svXrvruQeaDeeqCeRq6JCmm3vuc4yKbNEyyvZARCRobJGyifz3jmMQ8sAde6Q12kvdpvxmknQYBwcQeSxw5GUbHsaTLESQvdaTMm4LeVRnPbB17RKipDkQxjWzo1ygt13ayRP2Sgxh33y6vPVXhFJY5pb",
             "programId": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
           },

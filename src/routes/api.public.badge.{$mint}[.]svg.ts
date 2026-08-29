@@ -34,8 +34,7 @@ export const Route = createFileRoute("/api/public/badge/{$mint}.svg")({
           headers: {
             "Content-Type": "image/svg+xml; charset=utf-8",
             // 5 min edge cache, 1 hour stale-while-revalidate.
-            "Cache-Control":
-              "public, max-age=300, s-maxage=300, stale-while-revalidate=3600",
+            "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=3600",
           },
         });
       },

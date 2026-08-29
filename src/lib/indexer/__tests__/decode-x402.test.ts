@@ -143,16 +143,13 @@ describe("B — x402 decoder", () => {
     },
   );
 
-
   fixtureTest(
     "B4_transfer_no_marker",
     "plain transfer, non-facilitator fee-payer, no marker → no event",
     (tx, env) => {
       expect(decodeX402Tx(tx, wallets(env.expected))).toEqual([]);
       // Empty registry must not turn an ordinary transfer into a settlement.
-      expect(
-        decodeX402Tx(tx, wallets(env.expected), { registry: new Map() }),
-      ).toEqual([]);
+      expect(decodeX402Tx(tx, wallets(env.expected), { registry: new Map() })).toEqual([]);
     },
   );
 
@@ -161,9 +158,9 @@ describe("B — x402 decoder", () => {
     "x402-marked tx that never credits a tracked wallet → no event",
     (tx, env) => {
       expect(decodeX402Tx(tx, wallets(env.expected))).toEqual([]);
-      expect(
-        decodeX402Tx(tx, wallets(env.expected), { registry: registryFor(tx, env) }),
-      ).toEqual([]);
+      expect(decodeX402Tx(tx, wallets(env.expected), { registry: registryFor(tx, env) })).toEqual(
+        [],
+      );
     },
   );
 

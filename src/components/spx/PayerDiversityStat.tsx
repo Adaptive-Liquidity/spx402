@@ -40,10 +40,8 @@ export function PayerDiversityStat({ diversity }: { diversity: PayerDiversity })
       </p>
       {diversity.legacyUnattributed > 0 && (
         <p className="mt-2 font-mono text-[11px] text-amber">
-          legacy — predates payer attribution:{" "}
-          {diversity.legacyUnattributed.toLocaleString()} of{" "}
-          {diversity.settlements.toLocaleString()} receipts carry no payer
-          (parser &lt; v0.2.0).
+          legacy — predates payer attribution: {diversity.legacyUnattributed.toLocaleString()} of{" "}
+          {diversity.settlements.toLocaleString()} receipts carry no payer (parser &lt; v0.2.0).
         </p>
       )}
     </div>

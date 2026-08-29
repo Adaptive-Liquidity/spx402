@@ -46,14 +46,15 @@ export const Route = createFileRoute("/api/v1/agent/$mint/score")({
           };
         });
       },
-      OPTIONS: async () => new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Payment, X-API-Key",
-        },
-      }),
+      OPTIONS: async () =>
+        new Response(null, {
+          status: 204,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Payment, X-API-Key",
+          },
+        }),
     },
   },
 });

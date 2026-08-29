@@ -37,11 +37,7 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
 
         for (const c of queue ?? []) {
           const kind =
-            (c.identifier_kind as
-              | "mint"
-              | "core_asset"
-              | "executor_wallet"
-              | null) ?? "mint";
+            (c.identifier_kind as "mint" | "core_asset" | "executor_wallet" | null) ?? "mint";
           const result = await verifyCandidate(c.mint, {
             discoveredVia: c.discovered_via,
             identifierKind: kind,
@@ -114,12 +110,10 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
                   }
                 }
                 if (rows.length > 0) {
-                  await supabaseAdmin
-                    .from("agent_events")
-                    .upsert(rows as never, {
-                      onConflict: "signature",
-                      ignoreDuplicates: true,
-                    });
+                  await supabaseAdmin.from("agent_events").upsert(rows as never, {
+                    onConflict: "signature",
+                    ignoreDuplicates: true,
+                  });
                 }
               } catch {
                 /* backfill is best-effort; scoring picks up later */

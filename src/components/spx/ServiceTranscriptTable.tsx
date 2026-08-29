@@ -65,11 +65,7 @@ export function ServiceTranscriptTable({ runs }: { runs: ProbeRunRow[] }) {
             )}
           </div>
           <div className="break-all font-mono text-[10px] text-wire sm:col-span-2">
-            {r.txSignature
-              ? `${r.txSignature.slice(0, 14)}…`
-              : r.notes
-                ? r.notes.slice(0, 60)
-                : ""}
+            {r.txSignature ? `${r.txSignature.slice(0, 14)}…` : r.notes ? r.notes.slice(0, 60) : ""}
           </div>
         </div>
       ))}

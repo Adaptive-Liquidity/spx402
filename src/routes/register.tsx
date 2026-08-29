@@ -2,11 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  CATEGORIES,
-  type AgentCategory,
-  type IdentifierKind,
-} from "@/lib/agents/categories";
+import { CATEGORIES, type AgentCategory, type IdentifierKind } from "@/lib/agents/categories";
 import { ArrowRight, Copy, Check } from "lucide-react";
 
 export const Route = createFileRoute("/register")({
@@ -49,10 +45,7 @@ function RegisterPage() {
   >({ kind: "idle" });
 
   // The chosen category dictates which on-chain identifier kind we store.
-  const selectedMeta = useMemo(
-    () => CATEGORIES.find((c) => c.id === category)!,
-    [category],
-  );
+  const selectedMeta = useMemo(() => CATEGORIES.find((c) => c.id === category)!, [category]);
   const identifierKind: IdentifierKind = selectedMeta.identifierKind;
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -123,13 +116,12 @@ function RegisterPage() {
         Put your agent on the tape.
       </h1>
       <p className="mt-4 text-lg text-paper-muted">
-        Three steps: pick a category, paste the on-chain identifier, queue for
-        verification. SPX402 indexes your execution history and publishes a live
-        dossier.
+        Three steps: pick a category, paste the on-chain identifier, queue for verification. SPX402
+        indexes your execution history and publishes a live dossier.
       </p>
       <p className="mt-3 font-mono text-sm text-wire">
-        Tokenized buyback, MPL-registered agent, x402 wallet, copy-trader, task
-        executor — same flow for all of them.
+        Tokenized buyback, MPL-registered agent, x402 wallet, copy-trader, task executor — same flow
+        for all of them.
       </p>
 
       {!user && (
@@ -152,13 +144,11 @@ function RegisterPage() {
             You&apos;re on the tape.
           </h2>
           <p className="mt-3 text-paper-muted">
-            Your agent is now in the SPX402 verification queue. First score
-            expected in ~10 min once activity is detected.
+            Your agent is now in the SPX402 verification queue. First score expected in ~10 min once
+            activity is detected.
           </p>
           <div className="mt-6 flex items-center gap-2 border border-bronze/60 bg-panel-deep px-3 py-2.5">
-            <code className="flex-1 truncate font-mono text-xs text-paper">
-              {dossierUrl}
-            </code>
+            <code className="flex-1 truncate font-mono text-xs text-paper">{dossierUrl}</code>
             <button
               type="button"
               onClick={() => {
@@ -205,8 +195,8 @@ function RegisterPage() {
           <div className="panel-engraved p-6">
             <div className="label-amber">Step 1 · Category</div>
             <p className="mt-2 text-sm text-paper-muted">
-              Categories tune which pillars dominate your score and tell the
-              indexer which on-chain identifier to expect.
+              Categories tune which pillars dominate your score and tell the indexer which on-chain
+              identifier to expect.
             </p>
             <div className="mt-4 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2">
               {CATEGORIES.map((c) => {
@@ -292,8 +282,8 @@ function RegisterPage() {
               className="mt-2 w-full border border-bronze/60 bg-panel-deep px-3 py-2.5 font-mono text-sm text-paper outline-none focus:border-amber"
             />
             <p className="mt-2 font-mono text-[11px] text-wire">
-              Operator verification (Ed25519 signature) is a separate step from
-              your dossier once indexed.
+              Operator verification (Ed25519 signature) is a separate step from your dossier once
+              indexed.
             </p>
           </div>
 
@@ -313,8 +303,8 @@ function RegisterPage() {
       )}
 
       <div className="mt-12 border-t border-bronze/40 pt-6 font-mono text-xs text-wire">
-        Submissions are public. The queue, signals, and verification outcome are
-        all visible — that&apos;s the whole point.
+        Submissions are public. The queue, signals, and verification outcome are all visible —
+        that&apos;s the whole point.
       </div>
     </div>
   );

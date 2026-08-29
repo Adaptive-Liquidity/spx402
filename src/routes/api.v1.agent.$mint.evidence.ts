@@ -29,24 +29,33 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
           const liveEvents = await fetchAgentEvents(agent.mint, 1000);
 
           // Filter to execution-critical events
-          const executionEvents = liveEvents.filter(e =>
-            e.type.startsWith("ESCROW_") ||
-            e.type.startsWith("BOND_") ||
-            e.type === "RECEIPT_CREATED" ||
-            e.type === "DEPOSIT_RECEIVED" ||
-            e.type === "BUYBACK_EXECUTED" ||
-            e.type === "BURN_CONFIRMED" ||
-            e.type === "FAILED_WINDOW" ||
-            e.type === "ANOMALY_DETECTED"
+          const executionEvents = liveEvents.filter(
+            (e) =>
+              e.type.startsWith("ESCROW_") ||
+              e.type.startsWith("BOND_") ||
+              e.type === "RECEIPT_CREATED" ||
+              e.type === "DEPOSIT_RECEIVED" ||
+              e.type === "BUYBACK_EXECUTED" ||
+              e.type === "BURN_CONFIRMED" ||
+              e.type === "FAILED_WINDOW" ||
+              e.type === "ANOMALY_DETECTED",
           );
 
           // Build Merkle tree of events
           const { merkleRoot, merkleProofs, leaves } = buildMerkleTree(executionEvents);
 
           // Time window
-          const timestamps = executionEvents.map(e => new Date(e.iso).getTime()).sort((a, b) => a - b);
-          const windowStart = timestamps.length > 0 ? new Date(timestamps[0]).toISOString() : new Date().toISOString();
-          const windowEnd = timestamps.length > 0 ? new Date(timestamps[timestamps.length - 1]).toISOString() : new Date().toISOString();
+          const timestamps = executionEvents
+            .map((e) => new Date(e.iso).getTime())
+            .sort((a, b) => a - b);
+          const windowStart =
+            timestamps.length > 0
+              ? new Date(timestamps[0]).toISOString()
+              : new Date().toISOString();
+          const windowEnd =
+            timestamps.length > 0
+              ? new Date(timestamps[timestamps.length - 1]).toISOString()
+              : new Date().toISOString();
 
           return {
             mint: agent.mint,
@@ -81,18 +90,20 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
               generatedAt: new Date().toISOString(),
               verifier: "SPX402 Oracle",
             },
-            disclaimer: "This evidence bundle proves SPX402 observed these on-chain events. It does not guarantee future execution or token value.",
+            disclaimer:
+              "This evidence bundle proves SPX402 observed these on-chain events. It does not guarantee future execution or token value.",
           };
         });
       },
-      OPTIONS: async () => new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Payment, X-API-Key",
-        },
-      }),
+      OPTIONS: async () =>
+        new Response(null, {
+          status: 204,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Payment, X-API-Key",
+          },
+        }),
     },
   },
 });
@@ -112,7 +123,7 @@ function buildMerkleTree(events: any[]): {
   }
 
   // Create leaves: hash of canonical event representation
-  const leaves = events.map(e => {
+  const leaves = events.map((e) => {
     const canonical = JSON.stringify({
       type: e.type,
       signature: e.signature,
@@ -134,7 +145,11 @@ function buildMerkleTree(events: any[]): {
     for (let i = 0; i < currentLevel.length; i += 2) {
       const left = currentLevel[i];
       const right = i + 1 < currentLevel.length ? currentLevel[i + 1] : left;
-      const parent = "0x" + createHash("sha256").update(left + right.slice(2)).digest("hex");
+      const parent =
+        "0x" +
+        createHash("sha256")
+          .update(left + right.slice(2))
+          .digest("hex");
       nextLevel.push(parent);
 
       // Record proof for left leaf

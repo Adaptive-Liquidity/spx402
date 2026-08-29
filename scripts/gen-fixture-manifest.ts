@@ -34,7 +34,9 @@ function sectionFor(id: string): string {
   return "F · Facilitator registry captures";
 }
 
-const files = readdirSync(FIXTURE_DIR).filter((f) => f.endsWith(".json")).sort();
+const files = readdirSync(FIXTURE_DIR)
+  .filter((f) => f.endsWith(".json"))
+  .sort();
 
 const entries = files.map((f) => {
   const raw = JSON.parse(readFileSync(join(FIXTURE_DIR, f), "utf-8")) as {
@@ -115,4 +117,6 @@ export function fixtureTotals(): { total: number; captured: number; lastCaptureA
 `;
 
 writeFileSync(OUT, body);
-console.log(`wrote ${OUT} — ${entries.length} fixtures, ${entries.filter((e) => e.captured).length} captured`);
+console.log(
+  `wrote ${OUT} — ${entries.length} fixtures, ${entries.filter((e) => e.captured).length} captured`,
+);

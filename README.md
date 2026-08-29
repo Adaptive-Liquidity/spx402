@@ -42,23 +42,23 @@ Use these across the site:
 4. **Paste a mint. Read the tape.**
 5. **For agents that claim revenue, SPX402 checks the chain.**
 
-The brand architecture you attached defines SPX402 as “the ghost of Wall Street” that got deprecated, uploaded itself to Solana, and now rates the agents that replaced it. That narrative is strong and should drive the visual identity, voice, and product microcopy. 
+The brand architecture you attached defines SPX402 as “the ghost of Wall Street” that got deprecated, uploaded itself to Solana, and now rates the agents that replaced it. That narrative is strong and should drive the visual identity, voice, and product microcopy.
 
 ## What SPX402 is
 
-* A public proof layer.
-* A tokenized-agent transparency terminal.
-* A dashboard for observable payment, deposit, buyback, burn, and anomaly data.
-* A future x402/pay-per-call data API for humans and agents.
+- A public proof layer.
+- A tokenized-agent transparency terminal.
+- A dashboard for observable payment, deposit, buyback, burn, and anomaly data.
+- A future x402/pay-per-call data API for humans and agents.
 
 ## What SPX402 is not
 
-* Not investment advice.
-* Not price prediction.
-* Not a promise of token appreciation.
-* Not a credit-rating agency.
-* Not affiliated with S&P, Standard & Poor’s, S&P Global, or S&P Dow Jones Indices.
-* Not a claim that buybacks benefit holders financially.
+- Not investment advice.
+- Not price prediction.
+- Not a promise of token appreciation.
+- Not a credit-rating agency.
+- Not affiliated with S&P, Standard & Poor’s, S&P Global, or S&P Dow Jones Indices.
+- Not a claim that buybacks benefit holders financially.
 
 This boundary matters because Pump’s own Tokenized Agent disclaimer says the feature is a setting for automated buybacks and burns, not an AI agent itself; it also says Agent Tokens do not confer equity, profit rights, governance rights, dividends, revenue entitlement, or guaranteed economic return. ([Pump][2])
 
@@ -78,7 +78,7 @@ The site must do four jobs:
    The homepage must be the search bar. Paste a token mint, creator wallet, or deposit address.
 
 4. **Convert serious users.**
-   Free public dashboards drive distribution. Paid tiers monetize alerts, exports, operator verification, API access, webhooks, and full history. This matches the freemium strategy you attached: the free tier is the distribution engine, while operators and power users pay because they have real stakes in the agent economy. 
+   Free public dashboards drive distribution. Paid tiers monetize alerts, exports, operator verification, API access, webhooks, and full history. This matches the freemium strategy you attached: the free tier is the distribution engine, while operators and power users pay because they have real stakes in the agent economy.
 
 ---
 
@@ -195,28 +195,28 @@ Never use bubbly crypto typography.
 
 ## Layout language
 
-* Dense but readable.
-* Thin amber rules.
-* Strong grid.
-* Data panels with engraved borders.
-* Ticker tape dividers.
-* Subtle scanline background.
-* Light paper-texture overlays.
-* Animated “terminal boot” hero.
-* Cards should feel like physical financial instruments, not SaaS cards.
+- Dense but readable.
+- Thin amber rules.
+- Strong grid.
+- Data panels with engraved borders.
+- Ticker tape dividers.
+- Subtle scanline background.
+- Light paper-texture overlays.
+- Animated “terminal boot” hero.
+- Cards should feel like physical financial instruments, not SaaS cards.
 
 ## Animation style
 
 Use restrained motion:
 
-* Hero terminal boots line by line.
-* Ticker tape scrolls horizontally.
-* Numbers count up when in viewport.
-* Score ring animates once.
-* Burn counter ticks like a mechanical meter.
-* Red `404` badge flickers slightly.
-* Agent timeline draws itself vertically.
-* Hover states should feel like terminal focus, not bouncy app UI.
+- Hero terminal boots line by line.
+- Ticker tape scrolls horizontally.
+- Numbers count up when in viewport.
+- Score ring animates once.
+- Burn counter ticks like a mechanical meter.
+- Red `404` badge flickers slightly.
+- Agent timeline draws itself vertically.
+- Hover states should feel like terminal focus, not bouncy app UI.
 
 No confetti. No fireworks. No meme chaos inside the product UI.
 
@@ -228,16 +228,16 @@ SPX402 speaks like a retired quant that no longer believes anyone.
 
 ## Voice rules
 
-* Short sentences.
-* No hype.
-* No exclamation marks.
-* Data first.
-* Dry humor only.
-* Never tells users to buy, sell, hold, ape, or fade.
-* Never calls a token “safe.”
-* Never says price will rise.
-* Never says buybacks reward holders.
-* Never calls itself financial advice.
+- Short sentences.
+- No hype.
+- No exclamation marks.
+- Data first.
+- Dry humor only.
+- Never tells users to buy, sell, hold, ape, or fade.
+- Never calls a token “safe.”
+- Never says price will rise.
+- Never says buybacks reward holders.
+- Never calls itself financial advice.
 
 ## Good voice examples
 
@@ -318,7 +318,7 @@ Use:
 
 # 7. Transparency Score
 
-The score comes from your attached AgentLens blueprint and should remain operational only: deposit consistency, buyback execution rate, burn confirmation rate, failed/errored transaction rate, recency, metadata presence, and operator verification. Do not include token price. 
+The score comes from your attached AgentLens blueprint and should remain operational only: deposit consistency, buyback execution rate, burn confirmation rate, failed/errored transaction rate, recency, metadata presence, and operator verification. Do not include token price.
 
 ## Lovable should display this formula
 
@@ -518,7 +518,7 @@ Team — $149/mo
 x402 API — pay per call
 ```
 
-The attached freemium model has the right logic: free dashboards and shareable cards drive distribution; paid tiers monetize alerts, exports, full history, operator tooling, and API access. 
+The attached freemium model has the right logic: free dashboards and shareable cards drive distribution; paid tiers monetize alerts, exports, full history, operator tooling, and API access.
 
 ## Section 8: Final CTA
 
@@ -808,11 +808,11 @@ SPX402 has insufficient evidence. The correct answer is “unknown,” not “pr
 
 Mention:
 
-* Helius webhooks for live on-chain event delivery.
-* Raw transaction backfill.
-* Pump/PumpSwap IDL decoders.
-* SPL Token burn detection.
-* Manual fixture validation.
+- Helius webhooks for live on-chain event delivery.
+- Raw transaction backfill.
+- Pump/PumpSwap IDL decoders.
+- SPL Token burn detection.
+- Manual fixture validation.
 
 Helius supports both enhanced webhooks for parsed transaction insights and raw webhooks for lower-latency, unfiltered transaction data involving monitored addresses; Helius also warns that retries can create duplicate webhook deliveries, so the website should describe reconciliation and idempotent processing. ([Helius][5])
 
@@ -1077,7 +1077,7 @@ Not the same parser.
 The same discipline.
 ```
 
-This matches the attached expansion arc but fixes the overclaim: the future is not “same codebase everywhere”; it is the same scoring framework with protocol-specific adapters. 
+This matches the attached expansion arc but fixes the overclaim: the future is not “same codebase everywhere”; it is the same scoring framework with protocol-specific adapters.
 
 ---
 
@@ -2102,13 +2102,13 @@ npm run dev
 Backend-only secrets (never committed; `.env` is git-ignored and holds only
 public client config):
 
-| Secret | Lane | Purpose |
-| --- | --- | --- |
-| `HELIUS_API_KEY` | Solana | Enhanced Transactions + webhook ingest. |
-| `HELIUS_WEBHOOK_SECRET` | Solana | Verifies inbound webhook deliveries. |
-| `CRON_SECRET` | both | Bearer token for `/api/public/cron-*` routes. |
-| `OC_INGEST_SECRET` | Flok Outcome Contracts | Dedicated bearer token for authenticated `flok.oc-evidence.v2` ingest. |
-| `BASE_RPC_URL` | Base (EVM) | **Required by the Base lane.** Full JSON-RPC URL for a Base mainnet node used by `eth_getLogs` / `eth_getTransactionByHash`. Without it, `cron-scan-x402-evm` no-ops and the `evm_x402_scan` heartbeat reports the missing configuration. Never commit this URL — provider URLs usually embed an API key. |
+| Secret                  | Lane                   | Purpose                                                                                                                                                                                                                                                                                                   |
+| ----------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HELIUS_API_KEY`        | Solana                 | Enhanced Transactions + webhook ingest.                                                                                                                                                                                                                                                                   |
+| `HELIUS_WEBHOOK_SECRET` | Solana                 | Verifies inbound webhook deliveries.                                                                                                                                                                                                                                                                      |
+| `CRON_SECRET`           | both                   | Bearer token for `/api/public/cron-*` routes.                                                                                                                                                                                                                                                             |
+| `OC_INGEST_SECRET`      | Flok Outcome Contracts | Dedicated bearer token for authenticated `flok.oc-evidence.v2` ingest.                                                                                                                                                                                                                                    |
+| `BASE_RPC_URL`          | Base (EVM)             | **Required by the Base lane.** Full JSON-RPC URL for a Base mainnet node used by `eth_getLogs` / `eth_getTransactionByHash`. Without it, `cron-scan-x402-evm` no-ops and the `evm_x402_scan` heartbeat reports the missing configuration. Never commit this URL — provider URLs usually embed an API key. |
 
 `scripts/capture-fixture.ts --chain base` also reads `BASE_RPC_URL` locally; it
 is a developer tool and never runs in CI.

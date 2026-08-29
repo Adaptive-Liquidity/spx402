@@ -43,10 +43,7 @@ export interface AeonDecodedEvent {
  * Decode AEON program instructions from a Helius enhanced transaction.
  * Maps AEON CRI addresses and agent mints to our internal agent records.
  */
-export function decodeAeonTx(
-  tx: HeliusEnhancedTx,
-  agents: AeonLookup[],
-): AeonDecodedEvent[] {
+export function decodeAeonTx(tx: HeliusEnhancedTx, agents: AeonLookup[]): AeonDecodedEvent[] {
   const events: AeonDecodedEvent[] = [];
   const sig = tx.signature ?? "";
   const slot = tx.slot ?? null;
@@ -57,9 +54,7 @@ export function decodeAeonTx(
   if (!sig) return events;
 
   // Check if this transaction interacts with the AEON program
-  const aeonInstructions = (tx.instructions ?? []).filter(
-    (ix) => ix.programId === AEON_PROGRAM_ID,
-  );
+  const aeonInstructions = (tx.instructions ?? []).filter((ix) => ix.programId === AEON_PROGRAM_ID);
 
   if (aeonInstructions.length === 0) return events;
 
@@ -183,21 +178,21 @@ function getAeonInstructionType(discriminator: string): string | null {
   // In production, these should be computed from the IDL
   const discriminatorMap: Record<string, string> = {
     // create_escrow
-    "a8c2e9f4b1d3e7f0": "create_escrow",
+    a8c2e9f4b1d3e7f0: "create_escrow",
     // release_escrow
-    "f1e2d3c4b5a69788": "release_escrow",
+    f1e2d3c4b5a69788: "release_escrow",
     // cancel_escrow
-    "b4a5968778695a4b": "cancel_escrow",
+    b4a5968778695a4b: "cancel_escrow",
     // create_receipt
-    "c5d6e7f8a9b0c1d2": "create_receipt",
+    c5d6e7f8a9b0c1d2: "create_receipt",
     // slash_bond
-    "d6e7f8a9b0c1d2e3": "slash_bond",
+    d6e7f8a9b0c1d2e3: "slash_bond",
     // issue_authority
-    "e7f8a9b0c1d2e3f4": "issue_authority",
+    e7f8a9b0c1d2e3f4: "issue_authority",
     // expire_authority
-    "f8a9b0c1d2e3f4a5": "expire_authority",
+    f8a9b0c1d2e3f4a5: "expire_authority",
     // revoke_authority
-    "a9b0c1d2e3f4a5b6": "revoke_authority",
+    a9b0c1d2e3f4a5b6: "revoke_authority",
   };
 
   return discriminatorMap[discriminator] ?? null;
@@ -206,10 +201,7 @@ function getAeonInstructionType(discriminator: string): string | null {
 /**
  * Find the CRI account that matches one of our tracked agents
  */
-function findRelevantCriAccount(
-  ix: { accounts?: string[] },
-  trackedCris: string[],
-): string | null {
+function findRelevantCriAccount(ix: { accounts?: string[] }, trackedCris: string[]): string | null {
   if (!ix.accounts) return null;
   for (const acc of ix.accounts) {
     if (trackedCris.includes(acc)) return acc;

@@ -33,8 +33,7 @@ function treasury(): Treasury | null {
       network: "solana",
       payTo: sol,
       asset: SOLANA_USDC,
-      facilitator:
-        process.env["SPX_FACILITATOR_SOLANA"] ?? "https://facilitator.payai.network",
+      facilitator: process.env["SPX_FACILITATOR_SOLANA"] ?? "https://facilitator.payai.network",
     };
   }
   const base = process.env["SPX_TREASURY_BASE"];
@@ -117,7 +116,6 @@ export const Route = createFileRoute("/api/public/x402-selftest")({
 
           const settlement = await settle(decoded as never, accepts[0] as never);
           const txn = settlement.transaction ?? null;
-
 
           return new Response(
             JSON.stringify(

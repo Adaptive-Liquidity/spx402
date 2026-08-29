@@ -42,7 +42,10 @@ function AuthenticatedLayout() {
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <div className="label-amber">Restricted</div>
         <h1 className="mt-3 font-display text-3xl font-bold text-paper">Sign in required.</h1>
-        <Link to="/login" className="mt-6 inline-flex border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim">
+        <Link
+          to="/login"
+          className="mt-6 inline-flex border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim"
+        >
           Sign in →
         </Link>
       </div>

@@ -7,9 +7,7 @@
     "capturedBy": "scripts/capture-fixture.ts",
     "parserVersionIntroduced": "v0.2.0",
     "expected": {
-      "executorWallets": [
-        "J28Fii2VFnJcavvaeEfsKc628htk3mnrZKubD7WsGStW"
-      ],
+      "executorWallets": ["J28Fii2VFnJcavvaeEfsKc628htk3mnrZKubD7WsGStW"],
       "amountSol": 0,
       "amountToken": 0.0095,
       "facilitatorId": "payai-solana",

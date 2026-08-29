@@ -50,19 +50,23 @@ function DashboardOverview() {
 
       <section className="panel-engraved p-6">
         <div className="label-amber">Welcome</div>
-        <h2 className="mt-2 font-display text-2xl font-bold text-paper">
-          Terminal initialized.
-        </h2>
+        <h2 className="mt-2 font-display text-2xl font-bold text-paper">Terminal initialized.</h2>
         <p className="mt-3 max-w-2xl text-sm text-paper-muted">
           Signed in as <span className="font-mono text-paper">{user?.email}</span>. Add agents to
-          your watchlist to begin monitoring deposits, buybacks, and burns. Configure
-          alerts to be notified when execution drifts.
+          your watchlist to begin monitoring deposits, buybacks, and burns. Configure alerts to be
+          notified when execution drifts.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link to="/explore" className="border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep">
+          <Link
+            to="/explore"
+            className="border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          >
             Browse agents →
           </Link>
-          <Link to="/dashboard/watchlist" className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
+          <Link
+            to="/dashboard/watchlist"
+            className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+          >
             Open watchlist
           </Link>
           <ComingSoon label="Coming soon">

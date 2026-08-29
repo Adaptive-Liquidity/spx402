@@ -45,8 +45,8 @@ function PulsePage() {
         What just changed.
       </h1>
       <p className="mt-4 max-w-2xl text-paper-muted">
-        Score deltas, failure events, and critical incidents — interleaved in
-        chronological order. This is the heartbeat of SPX402's evidence layer.
+        Score deltas, failure events, and critical incidents — interleaved in chronological order.
+        This is the heartbeat of SPX402's evidence layer.
       </p>
 
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
@@ -115,9 +115,7 @@ function PulseRow({ entry }: { entry: PulseEntry }) {
                 </span>
               )}
             </div>
-            <div className="mt-1 font-mono text-[11px] text-paper-muted">
-              {entry.name ?? "—"}
-            </div>
+            <div className="mt-1 font-mono text-[11px] text-paper-muted">{entry.name ?? "—"}</div>
           </div>
           <div className="text-right">
             <div
@@ -171,9 +169,7 @@ function PulseRow({ entry }: { entry: PulseEntry }) {
           <div className="mt-1 font-mono text-[11px] text-paper-muted">
             {entry.name ?? "—"}
             {entry.amountSol != null && entry.amountSol > 0 && (
-              <span className="ml-2 text-amber">
-                {entry.amountSol.toFixed(2)} SOL
-              </span>
+              <span className="ml-2 text-amber">{entry.amountSol.toFixed(2)} SOL</span>
             )}
           </div>
         </div>

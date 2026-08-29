@@ -212,12 +212,8 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
             .from("candidate_agents")
             .select("mint")
             .in("mint", Array.from(discovered));
-          const alreadyCandidate = new Set(
-            (existingCandidates ?? []).map((r) => r.mint),
-          );
-          const fresh = Array.from(discovered).filter(
-            (m) => !alreadyCandidate.has(m),
-          );
+          const alreadyCandidate = new Set((existingCandidates ?? []).map((r) => r.mint));
+          const fresh = Array.from(discovered).filter((m) => !alreadyCandidate.has(m));
           if (fresh.length > 0) {
             const { data: inserted2, error: insErr } = await supabaseAdmin
               .from("candidate_agents")
@@ -254,12 +250,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
   },
 });
 
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

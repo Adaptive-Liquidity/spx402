@@ -151,7 +151,12 @@ export async function runSettlementProbe(
 
   if (exceedsPerProbeCap(amountUsd)) {
     return {
-      ...base(service, "settlement", "over_cap", `price ${amountUsd ?? "unknown"} > cap ${PROBE_CAPS.perProbeUsd}`),
+      ...base(
+        service,
+        "settlement",
+        "over_cap",
+        `price ${amountUsd ?? "unknown"} > cap ${PROBE_CAPS.perProbeUsd}`,
+      ),
       challengeJson: challenge.challenge.raw ?? null,
     };
   }
@@ -170,7 +175,12 @@ export async function runSettlementProbe(
   }
   if (!settlementEnabled(chain)) {
     return {
-      ...base(service, "settlement", "probe_error", `settlement disabled for ${chain} (flag or key missing)`),
+      ...base(
+        service,
+        "settlement",
+        "probe_error",
+        `settlement disabled for ${chain} (flag or key missing)`,
+      ),
       challengeJson: challenge.challenge.raw ?? null,
     };
   }
@@ -189,8 +199,10 @@ export async function runSettlementProbe(
 
   try {
     // Loaded lazily so the SDK never enters a request path that isn't paying.
-    const [{ wrapFetchWithPayment, decodeXPaymentResponse }, { createSigner }] =
-      await Promise.all([import("x402-fetch"), import("x402/types")]);
+    const [{ wrapFetchWithPayment, decodeXPaymentResponse }, { createSigner }] = await Promise.all([
+      import("x402-fetch"),
+      import("x402/types"),
+    ]);
 
     const signer = await createSigner(challenge.challenge.network ?? chain, key);
     const maxAtomic = BigInt(Math.ceil(PROBE_CAPS.perProbeUsd * 1_000_000)); // USDC base units
@@ -336,7 +348,6 @@ export async function recordProbe(record: ProbeRecord): Promise<void> {
         : { last_probe_at: now, last_settlement_probe_at: now },
     )
     .eq("id", record.serviceId);
-
 }
 
 /** Persist what a valid challenge told us about the service's own config. */

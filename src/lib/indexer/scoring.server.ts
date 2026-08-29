@@ -402,9 +402,7 @@ function scoreAeonExecution(inputs: ScoringInputs): ScoreResult {
   const totalEscrows = escrowsCompleted + escrowsFailed;
 
   // 40% Escrow Completion Rate
-  const escrowCompletion = totalEscrows > 0 
-    ? clamp(Math.round(successRate * 40), 0, 40)
-    : 0;
+  const escrowCompletion = totalEscrows > 0 ? clamp(Math.round(successRate * 40), 0, 40) : 0;
 
   // 30% Active Slashable Bond
   // Cap at $10,000 USD for max points, but heavily penalize slashed history
@@ -432,7 +430,7 @@ function scoreAeonExecution(inputs: ScoringInputs): ScoreResult {
   };
 
   const total = sumBreakdown(breakdown);
-  
+
   let grade: Grade;
   if (totalEscrows === 0 && activeBond === 0 && inputs.totalDepositsCount === 0) {
     grade = "SPX404";
@@ -491,16 +489,29 @@ function confidenceFor(i: ScoringInputs): "high" | "medium" | "low" {
   return "low";
 }
 
-function confidenceForAeon(totalEvents: number, lastIndexedSeconds: number): "high" | "medium" | "low" {
+function confidenceForAeon(
+  totalEvents: number,
+  lastIndexedSeconds: number,
+): "high" | "medium" | "low" {
   if (totalEvents >= 20 && lastIndexedSeconds < 60 * 60 * 24) return "high";
   if (totalEvents >= 5) return "medium";
   return "low";
 }
 
-function verdictForAeon(total: number, escrows: number, successRate: number, bond: number, slashed: number): string {
-  if (escrows === 0 && bond === 0) return "No verifiable AEON escrows or bonds observed. Agent operates in the dark.";
-  if (slashed > 0) return `Agent has had $${slashed.toFixed(2)} in bonds slashed due to failed execution. Extreme caution.`;
-  if (total >= 80) return `Verified execution. ${escrows} escrows settled (${Math.round(successRate * 100)}% success) with $${bond.toFixed(2)} bonded.`;
-  if (total >= 60) return `Execution observed. ${escrows} escrows settled. Monitor for consistency.`;
+function verdictForAeon(
+  total: number,
+  escrows: number,
+  successRate: number,
+  bond: number,
+  slashed: number,
+): string {
+  if (escrows === 0 && bond === 0)
+    return "No verifiable AEON escrows or bonds observed. Agent operates in the dark.";
+  if (slashed > 0)
+    return `Agent has had $${slashed.toFixed(2)} in bonds slashed due to failed execution. Extreme caution.`;
+  if (total >= 80)
+    return `Verified execution. ${escrows} escrows settled (${Math.round(successRate * 100)}% success) with $${bond.toFixed(2)} bonded.`;
+  if (total >= 60)
+    return `Execution observed. ${escrows} escrows settled. Monitor for consistency.`;
   return `Execution below the SPX402 baseline. Treat metrics as indicative only.`;
 }

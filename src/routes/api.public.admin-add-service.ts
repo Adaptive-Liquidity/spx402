@@ -11,10 +11,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { checkAdminAuth } from "@/lib/indexer/auth.server";
-import {
-  seedServicesFromLanes,
-  upsertServiceByUrl,
-} from "@/lib/prober/enumerate.server";
+import { seedServicesFromLanes, upsertServiceByUrl } from "@/lib/prober/enumerate.server";
 
 export const Route = createFileRoute("/api/public/admin-add-service")({
   server: {
@@ -40,15 +37,13 @@ export const Route = createFileRoute("/api/public/admin-add-service")({
         if (!url) return json(400, { ok: false, error: "url required" });
 
         const chain = body["chain"] === "base" ? "base" : "solana";
-        const probeTier =
-          body["probeTier"] === "settlement" ? "settlement" : "challenge";
+        const probeTier = body["probeTier"] === "settlement" ? "settlement" : "challenge";
 
         const result = await upsertServiceByUrl({
           url,
           chain,
           payTo: typeof body["payTo"] === "string" ? body["payTo"] : null,
-          facilitator:
-            typeof body["facilitator"] === "string" ? body["facilitator"] : null,
+          facilitator: typeof body["facilitator"] === "string" ? body["facilitator"] : null,
           discoveredVia:
             typeof body["discoveredVia"] === "string"
               ? (body["discoveredVia"] as string)

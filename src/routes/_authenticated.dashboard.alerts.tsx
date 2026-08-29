@@ -21,13 +21,10 @@ function AlertsDashboard() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <div className="label-amber">Alerts</div>
-          <h2 className="mt-2 font-display text-2xl font-bold text-paper">
-            Subscriptions
-          </h2>
+          <h2 className="mt-2 font-display text-2xl font-bold text-paper">Subscriptions</h2>
           <p className="mt-2 max-w-xl font-mono text-xs text-paper-muted">
-            Get notified when an agent misses a buyback window, fails to burn,
-            or changes its config. Wired to Helius webhook ingest — shipping
-            shortly.
+            Get notified when an agent misses a buyback window, fails to burn, or changes its
+            config. Wired to Helius webhook ingest — shipping shortly.
           </p>
         </div>
         <ComingSoon label="Coming soon">
@@ -74,13 +71,21 @@ function AlertsDashboard() {
       </div>
 
       <div className="border-l-2 border-amber/70 bg-amber/5 p-4 text-sm text-paper-muted">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-amber">In the meantime · </span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-amber">
+          In the meantime ·{" "}
+        </span>
         Add agents to your{" "}
-        <Link to="/dashboard/watchlist" className="font-mono text-paper underline decoration-amber/60 underline-offset-4 hover:text-amber">
+        <Link
+          to="/dashboard/watchlist"
+          className="font-mono text-paper underline decoration-amber/60 underline-offset-4 hover:text-amber"
+        >
           watchlist
         </Link>{" "}
         or{" "}
-        <Link to="/explore" className="font-mono text-paper underline decoration-amber/60 underline-offset-4 hover:text-amber">
+        <Link
+          to="/explore"
+          className="font-mono text-paper underline decoration-amber/60 underline-offset-4 hover:text-amber"
+        >
           explore agents
         </Link>{" "}
         to keep them on your radar.

@@ -38,9 +38,7 @@ export const Route = createFileRoute("/embed/$subject")({
   },
   errorComponent: ({ error }) => (
     <EmbedShell>
-      <div className="text-xs text-critical">
-        Failed to load: {error.message}
-      </div>
+      <div className="text-xs text-critical">Failed to load: {error.message}</div>
     </EmbedShell>
   ),
   notFoundComponent: () => (
@@ -91,8 +89,7 @@ function EmbedSubject() {
         <div className="space-y-2">
           <ExecutionGradeBadge grade="SPX404" size="md" />
           <div className="text-xs text-paper-muted">
-            <code className="break-all">{subject}</code> is not yet verified by
-            SPX402.
+            <code className="break-all">{subject}</code> is not yet verified by SPX402.
           </div>
           <Link
             to="/submit"
@@ -114,21 +111,13 @@ function EmbedSubject() {
           <div className="text-[9px] uppercase tracking-widest text-paper-muted">
             ${agent.symbol}
           </div>
-          <div className="mt-0.5 truncate text-sm font-bold text-paper">
-            {agent.name}
-          </div>
+          <div className="mt-0.5 truncate text-sm font-bold text-paper">{agent.name}</div>
           <div className="mt-2">
-            <ExecutionGradeBadge
-              grade={agent.grade}
-              confidenceScore={confidence}
-              size="sm"
-            />
+            <ExecutionGradeBadge grade={agent.grade} confidenceScore={confidence} size="sm" />
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[9px] uppercase tracking-widest text-paper-muted">
-            score
-          </div>
+          <div className="text-[9px] uppercase tracking-widest text-paper-muted">score</div>
           <div className="num-display text-3xl font-bold leading-none text-amber">
             {agent.score ?? "—"}
           </div>
@@ -139,23 +128,14 @@ function EmbedSubject() {
       </div>
 
       <div className="mt-3 border-t border-bronze/40 pt-2">
-        <div className="text-[9px] uppercase tracking-widest text-paper-muted">
-          Last 5 events
-        </div>
+        <div className="text-[9px] uppercase tracking-widest text-paper-muted">Last 5 events</div>
         <ul className="mt-1.5 space-y-1">
           {events.length === 0 && (
-            <li className="text-[10px] text-paper-muted">
-              No events observed yet.
-            </li>
+            <li className="text-[10px] text-paper-muted">No events observed yet.</li>
           )}
           {events.map((e) => (
-            <li
-              key={e.id}
-              className="flex items-baseline justify-between gap-2 text-[10px]"
-            >
-              <span
-                className={`truncate uppercase tracking-wider ${severityColor(e.severity)}`}
-              >
+            <li key={e.id} className="flex items-baseline justify-between gap-2 text-[10px]">
+              <span className={`truncate uppercase tracking-wider ${severityColor(e.severity)}`}>
                 {e.type.replace(/_/g, " ")}
               </span>
               <span className="text-paper-muted">

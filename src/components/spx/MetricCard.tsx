@@ -31,15 +31,11 @@ export function MetricCard({
           {value}
         </span>
         {suffix && (
-          <span className="font-mono text-xs uppercase tracking-widest text-wire">
-            {suffix}
-          </span>
+          <span className="font-mono text-xs uppercase tracking-widest text-wire">{suffix}</span>
         )}
       </div>
       {hint && (
-        <div className="mt-3 font-mono text-[11px] uppercase tracking-wider text-wire">
-          {hint}
-        </div>
+        <div className="mt-3 font-mono text-[11px] uppercase tracking-wider text-wire">{hint}</div>
       )}
     </div>
   );

@@ -16,8 +16,8 @@ function ApiKeysPage() {
           <div className="label-amber">API Keys</div>
           <h2 className="mt-2 font-display text-2xl font-bold text-paper">Issued keys</h2>
           <p className="mt-2 max-w-xl font-mono text-xs text-paper-muted">
-            REST keys for the SPX402 v1 API. x402 pay-per-call endpoints
-            require no key — see <span className="text-paper">/api/docs</span>.
+            REST keys for the SPX402 v1 API. x402 pay-per-call endpoints require no key — see{" "}
+            <span className="text-paper">/api/docs</span>.
           </p>
         </div>
         <ComingSoon label="Coming soon">
@@ -41,8 +41,8 @@ function ApiKeysPage() {
 
       <div className="border-l-2 border-amber/70 bg-amber/5 p-4 text-sm text-paper-muted">
         <span className="font-mono text-[10px] uppercase tracking-widest text-amber">Note · </span>
-        Free tier will include 1,000 calls/month. Pay-per-call x402 endpoints
-        require no key — see <span className="font-mono text-paper">/api/docs</span>.
+        Free tier will include 1,000 calls/month. Pay-per-call x402 endpoints require no key — see{" "}
+        <span className="font-mono text-paper">/api/docs</span>.
       </div>
     </div>
   );

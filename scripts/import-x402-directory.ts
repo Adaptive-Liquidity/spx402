@@ -41,9 +41,7 @@ async function main() {
     process.exit(1);
   }
 
-  const raw = src
-    ? await (await fetch(src)).text()
-    : await Bun.file(file!).text();
+  const raw = src ? await (await fetch(src)).text() : await Bun.file(file!).text();
 
   const parsed = JSON.parse(raw) as Listing[] | { items?: Listing[] };
   const items = Array.isArray(parsed) ? parsed : (parsed.items ?? []);

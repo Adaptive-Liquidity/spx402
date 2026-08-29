@@ -61,8 +61,7 @@ function mapService(r: any): X402ServiceRow {
     payTo: r.pay_to ?? null,
     facilitator: r.facilitator ?? null,
     probeTier: r.probe_tier ?? "address-only",
-    advertisedAmountUsd:
-      r.advertised_amount_usd == null ? null : Number(r.advertised_amount_usd),
+    advertisedAmountUsd: r.advertised_amount_usd == null ? null : Number(r.advertised_amount_usd),
     advertisedAsset: r.advertised_asset ?? null,
     discoveredVia: r.discovered_via ?? "unknown",
     active: Boolean(r.active),
@@ -94,9 +93,7 @@ function mapRun(r: any): ProbeRunRow {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-export async function fetchServiceBySlug(
-  slug: string,
-): Promise<X402ServiceRow | null> {
+export async function fetchServiceBySlug(slug: string): Promise<X402ServiceRow | null> {
   const { data } = await supabase
     .from("x402_service" as never)
     .select(SERVICE_COLS)
@@ -105,17 +102,14 @@ export async function fetchServiceBySlug(
   return data ? mapService(data) : null;
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function isUuid(value: string): boolean {
   return UUID_RE.test(value.trim());
 }
 
 /** UUID permalink support: /service/:id resolves to the canonical slug. */
-export async function fetchServiceById(
-  id: string,
-): Promise<X402ServiceRow | null> {
+export async function fetchServiceById(id: string): Promise<X402ServiceRow | null> {
   const { data } = await supabase
     .from("x402_service" as never)
     .select(SERVICE_COLS)
@@ -124,11 +118,8 @@ export async function fetchServiceById(
   return data ? mapService(data) : null;
 }
 
-
 /** Dossier join: the service (if any) paid at this agent's wallet. */
-export async function fetchServiceByPayee(
-  payTo: string,
-): Promise<X402ServiceRow | null> {
+export async function fetchServiceByPayee(payTo: string): Promise<X402ServiceRow | null> {
   const { data } = await supabase
     .from("x402_service" as never)
     .select(SERVICE_COLS)
@@ -139,10 +130,7 @@ export async function fetchServiceByPayee(
   return rows.length > 0 ? mapService(rows[0]) : null;
 }
 
-export async function fetchProbeRuns(
-  serviceId: string,
-  limit = 100,
-): Promise<ProbeRunRow[]> {
+export async function fetchProbeRuns(serviceId: string, limit = 100): Promise<ProbeRunRow[]> {
   const { data } = await supabase
     .from("probe_run" as never)
     .select(RUN_COLS)
@@ -163,10 +151,7 @@ export interface SettleRatePoint {
  * 30-day daily settle-rate for a service: settled / paid attempts.
  * Days with no paid probe are `null` — an honest gap, not a zero.
  */
-export function settleRateSeries(
-  runs: ProbeRunRow[],
-  days = 30,
-): SettleRatePoint[] {
+export function settleRateSeries(runs: ProbeRunRow[], days = 30): SettleRatePoint[] {
   const buckets = new Map<string, { attempts: number; settled: number }>();
   const today = new Date();
   for (let i = days - 1; i >= 0; i--) {
@@ -221,11 +206,7 @@ const EMPTY_OVERVIEW: ProberOverview = {
 export async function fetchProberOverview(): Promise<ProberOverview> {
   const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
   const dayStart = new Date(
-    Date.UTC(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth(),
-      new Date().getUTCDate(),
-    ),
+    Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()),
   ).toISOString();
 
   const [servicesRes, runsRes] = await Promise.all([
@@ -293,12 +274,14 @@ export async function fetchProberTickerLines(limit = 5): Promise<string[]> {
     .order("ran_at", { ascending: false })
     .limit(limit);
   if (error || !data) return [];
-  return (data as unknown as Array<{
-    outcome: string;
-    chain: string | null;
-    paid_amount_usd: number | string | null;
-    settle_ms: number | null;
-  }>).map((r) => {
+  return (
+    data as unknown as Array<{
+      outcome: string;
+      chain: string | null;
+      paid_amount_usd: number | string | null;
+      settle_ms: number | null;
+    }>
+  ).map((r) => {
     const tag = r.chain === "base" ? "[BASE]" : "[SOL]";
     const secs = r.settle_ms == null ? null : (r.settle_ms / 1000).toFixed(1);
     switch (r.outcome) {
@@ -321,15 +304,11 @@ export async function fetchProbedPayees(): Promise<string[]> {
     .not("last_probe_at", "is", null);
   if (error || !data) return [];
   const rows = data as unknown as Array<{ pay_to: string | null }>;
-  return Array.from(
-    new Set(rows.map((r) => r.pay_to).filter((v): v is string => Boolean(v))),
-  );
+  return Array.from(new Set(rows.map((r) => r.pay_to).filter((v): v is string => Boolean(v))));
 }
 
 /** Dossier link target for a service payee, when SPX402 indexes that subject. */
-export async function fetchAgentSubjectForPayee(
-  payTo: string | null,
-): Promise<string | null> {
+export async function fetchAgentSubjectForPayee(payTo: string | null): Promise<string | null> {
   if (!payTo) return null;
   const { data } = await supabase
     .from("agents")

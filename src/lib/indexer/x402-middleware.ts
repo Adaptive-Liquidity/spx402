@@ -12,9 +12,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 export const X402_CONFIG = {
   // Pricing in USDC (6 decimals)
   PRICES: {
-    score: 10_000,      // 0.01 USDC
-    dossier: 50_000,    // 0.05 USDC
-    evidence: 50_000,   // 0.05 USDC
+    score: 10_000, // 0.01 USDC
+    dossier: 50_000, // 0.05 USDC
+    evidence: 50_000, // 0.05 USDC
   } as const,
 
   // USDC on Base (mainnet)
@@ -65,7 +65,9 @@ export async function verifyX402Payment(
 ): Promise<{ valid: boolean; payer?: Address; error?: string }> {
   try {
     // Parse the payment header (base64 encoded JSON)
-    const decoded = JSON.parse(Buffer.from(paymentHeader, "base64").toString()) as X402PaymentResponse;
+    const decoded = JSON.parse(
+      Buffer.from(paymentHeader, "base64").toString(),
+    ) as X402PaymentResponse;
 
     // Basic validation
     if (decoded.x402Version !== 1) {
@@ -104,7 +106,12 @@ export async function verifyX402Payment(
  */
 export async function checkApiKeyAuth(
   apiKey: string,
-): Promise<{ valid: boolean; tier: "free" | "pro" | "team"; dailyLimit: number; usedToday: number } | null> {
+): Promise<{
+  valid: boolean;
+  tier: "free" | "pro" | "team";
+  dailyLimit: number;
+  usedToday: number;
+} | null> {
   // Look up API key in database
   const { data: keyData, error } = await supabase
     .from("api_keys")
@@ -117,9 +124,12 @@ export async function checkApiKeyAuth(
   }
 
   const tier = keyData.tier as "free" | "pro" | "team";
-  const dailyLimit = tier === "free" ? X402_CONFIG.FREE_TIER_DAILY_LIMIT
-    : tier === "pro" ? X402_CONFIG.PRO_TIER_DAILY_LIMIT
-    : X402_CONFIG.TEAM_TIER_DAILY_LIMIT;
+  const dailyLimit =
+    tier === "free"
+      ? X402_CONFIG.FREE_TIER_DAILY_LIMIT
+      : tier === "pro"
+        ? X402_CONFIG.PRO_TIER_DAILY_LIMIT
+        : X402_CONFIG.TEAM_TIER_DAILY_LIMIT;
 
   // Count usage today
   const today = new Date().toISOString().split("T")[0];
@@ -263,7 +273,8 @@ export async function withX402Payment<T>(
 
   // Check for API key (for authenticated/rate-limited access)
   const apiKey = request.headers.get("x-api-key");
-  let apiKeyContext: { tier: string; dailyLimit: number; usedToday: number; keyId: string } | null = null;
+  let apiKeyContext: { tier: string; dailyLimit: number; usedToday: number; keyId: string } | null =
+    null;
 
   if (apiKey) {
     const auth = await checkApiKeyAuth(apiKey);

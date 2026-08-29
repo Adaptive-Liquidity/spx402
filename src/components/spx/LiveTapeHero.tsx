@@ -9,11 +9,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  fetchTape,
-  relativeFromNow,
-  type TapeRow,
-} from "@/lib/live-data";
+import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { categoryLabel } from "@/lib/agents/categories";
 
 const MAX_ROWS = 18;
@@ -163,9 +159,7 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
       </div>
 
       <div className="flex items-center justify-between border-t border-bronze/40 bg-panel-deep/40 px-4 py-2 font-mono text-[10px] uppercase tracking-widest">
-        <span className="text-wire">
-          Every row is a permalinked piece of evidence
-        </span>
+        <span className="text-wire">Every row is a permalinked piece of evidence</span>
         <Link to="/tape" className="text-amber hover:underline">
           Open full tape →
         </Link>

@@ -21,9 +21,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-4 py-3 lg:px-8">
         <Link to="/" className="group flex items-center gap-3">
           <div className="relative flex h-8 w-8 items-center justify-center border border-amber/70 bg-panel-deep">
-            <span className="font-mono text-[10px] font-bold tracking-tighter text-amber">
-              SPX
-            </span>
+            <span className="font-mono text-[10px] font-bold tracking-tighter text-amber">SPX</span>
             <span className="absolute -bottom-1 -right-1 h-1.5 w-1.5 rounded-full bg-amber pulse-amber" />
           </div>
           <div className="leading-none">
@@ -38,17 +36,14 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV.map((item) => {
-            const active =
-              item.to === "/" ? path === "/" : path.startsWith(item.to);
+            const active = item.to === "/" ? path === "/" : path.startsWith(item.to);
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
                   "px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors",
-                  active
-                    ? "text-amber"
-                    : "text-paper-muted hover:text-paper",
+                  active ? "text-amber" : "text-paper-muted hover:text-paper",
                 )}
               >
                 {item.label}

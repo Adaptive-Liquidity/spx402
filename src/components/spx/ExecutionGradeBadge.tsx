@@ -41,8 +41,7 @@ export function ExecutionGradeBadge({
   confidenceScore?: number;
   outlined?: boolean;
 }) {
-  const isOutlined =
-    outlined ?? (typeof confidenceScore === "number" && confidenceScore < 0.66);
+  const isOutlined = outlined ?? (typeof confidenceScore === "number" && confidenceScore < 0.66);
   const palette = isOutlined ? OUTLINED : FILLED;
   const sizes = {
     sm: "px-2 py-1 text-[10px]",

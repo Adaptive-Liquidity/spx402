@@ -6,9 +6,7 @@
 
 import { describe, expect } from "vitest";
 import { decodeTx, type AgentLookup } from "@/lib/indexer/decode.server";
-import {
-  decodePumpBuybackReversedTx,
-} from "@/lib/indexer/decode-failure.server";
+import { decodePumpBuybackReversedTx } from "@/lib/indexer/decode-failure.server";
 import { fixtureTest } from "./fixtures";
 
 function agentsFrom(expected: Record<string, unknown>): AgentLookup[] {

@@ -689,9 +689,9 @@ function Dossier({
           : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
 
   // Detect if agent has AEON execution primitives
-  const hasAeonPrimitives = 
-    (agent.totalEscrowsCompleted ?? 0) > 0 || 
-    (agent.activeBondAmount ?? 0) > 0 || 
+  const hasAeonPrimitives =
+    (agent.totalEscrowsCompleted ?? 0) > 0 ||
+    (agent.activeBondAmount ?? 0) > 0 ||
     (agent.totalSlashedUsd ?? 0) > 0;
 
   // Aggregate counts for non-tokenized metric cards.
@@ -744,62 +744,62 @@ function Dossier({
         },
       ]
     : hasAeonPrimitives
-    ? [
-        {
-          pillar: "Escrow Completion",
-          hint: "Successful escrow releases / total escrows",
-          value: agent.scoreBreakdown.escrowCompletion,
-          max: 40,
-          tone: "text-verified",
-        },
-        {
-          pillar: "Slashable Bond",
-          hint: "Active bond amount · slashing history",
-          value: agent.scoreBreakdown.slashableBond,
-          max: 30,
-          tone: "text-amber",
-        },
-        {
-          pillar: "Reliability",
-          hint: "Failed windows · failed escrows · recency",
-          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
-          max: 25,
-          tone: "text-amber",
-        },
-        {
-          pillar: "Verification",
-          hint: "Operator signature · on-chain identity",
-          value: agent.scoreBreakdown.operator,
-          max: 5,
-          tone: "text-paper",
-        },
-      ]
-    : [
-        {
-          pillar: "Execution",
-          hint: "Deposits → buybacks → burns",
-          value:
-            agent.scoreBreakdown.depositConsistency +
-            agent.scoreBreakdown.buybackExecution +
-            agent.scoreBreakdown.burnConfirmation,
-          max: 65,
-          tone: "text-verified",
-        },
-        {
-          pillar: "Reliability",
-          hint: "Failed-window rate · indexing recency",
-          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
-          max: 25,
-          tone: "text-amber",
-        },
-        {
-          pillar: "Identity",
-          hint: "Metadata · operator signature",
-          value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
-          max: 10,
-          tone: "text-paper",
-        },
-      ];
+      ? [
+          {
+            pillar: "Escrow Completion",
+            hint: "Successful escrow releases / total escrows",
+            value: agent.scoreBreakdown.escrowCompletion,
+            max: 40,
+            tone: "text-verified",
+          },
+          {
+            pillar: "Slashable Bond",
+            hint: "Active bond amount · slashing history",
+            value: agent.scoreBreakdown.slashableBond,
+            max: 30,
+            tone: "text-amber",
+          },
+          {
+            pillar: "Reliability",
+            hint: "Failed windows · failed escrows · recency",
+            value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+            max: 25,
+            tone: "text-amber",
+          },
+          {
+            pillar: "Verification",
+            hint: "Operator signature · on-chain identity",
+            value: agent.scoreBreakdown.operator,
+            max: 5,
+            tone: "text-paper",
+          },
+        ]
+      : [
+          {
+            pillar: "Execution",
+            hint: "Deposits → buybacks → burns",
+            value:
+              agent.scoreBreakdown.depositConsistency +
+              agent.scoreBreakdown.buybackExecution +
+              agent.scoreBreakdown.burnConfirmation,
+            max: 65,
+            tone: "text-verified",
+          },
+          {
+            pillar: "Reliability",
+            hint: "Failed-window rate · indexing recency",
+            value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+            max: 25,
+            tone: "text-amber",
+          },
+          {
+            pillar: "Identity",
+            hint: "Metadata · operator signature",
+            value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
+            max: 10,
+            tone: "text-paper",
+          },
+        ];
 
   const isSPX404 = agent.grade === "SPX404";
 
@@ -1128,7 +1128,9 @@ function Dossier({
           <MetricCard
             label="Escrows Failed"
             value={agent.totalEscrowsFailed?.toLocaleString() ?? "—"}
-            tone={agent.totalEscrowsFailed && agent.totalEscrowsFailed > 0 ? "critical" : "verified"}
+            tone={
+              agent.totalEscrowsFailed && agent.totalEscrowsFailed > 0 ? "critical" : "verified"
+            }
           />
         </div>
       ) : isTaskExecutor ? (

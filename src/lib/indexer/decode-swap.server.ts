@@ -12,10 +12,7 @@
 // We attribute the swap to the wallet that paid the fee and received tokens
 // in/out. amountSol = absolute SOL delta on the wallet during the tx.
 
-import {
-  lamportsToSol,
-  type HeliusEnhancedTx,
-} from "./helius.server";
+import { lamportsToSol, type HeliusEnhancedTx } from "./helius.server";
 
 const DEX_SOURCES = new Set([
   "JUPITER",
@@ -47,10 +44,7 @@ export interface SwapEvent {
  * Decode any DEX swap activity for the given executor wallets in this tx.
  * Returns one event per (wallet, tx) pair where the wallet is involved.
  */
-export function decodeSwapTx(
-  tx: HeliusEnhancedTx,
-  executorWallets: string[],
-): SwapEvent[] {
+export function decodeSwapTx(tx: HeliusEnhancedTx, executorWallets: string[]): SwapEvent[] {
   const out: SwapEvent[] = [];
   const sig = tx.signature ?? "";
   if (!sig) return out;

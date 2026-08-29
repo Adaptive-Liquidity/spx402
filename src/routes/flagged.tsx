@@ -54,15 +54,15 @@ function FlaggedPage() {
               Flagged agents.
             </h1>
             <p className="mt-3 max-w-2xl text-paper-muted">
-              Agents listed here have been flagged by SPX402 for impersonation,
-              rug signals, deceptive metadata, or other trust violations. They
-              do not appear on the leaderboard, the explorer, or the homepage
-              tape. Their dossier pages remain accessible at their direct mint
-              URL with a permanent warning banner — so the chain of custody
-              stays public and auditable.
+              Agents listed here have been flagged by SPX402 for impersonation, rug signals,
+              deceptive metadata, or other trust violations. They do not appear on the leaderboard,
+              the explorer, or the homepage tape. Their dossier pages remain accessible at their
+              direct mint URL with a permanent warning banner — so the chain of custody stays public
+              and auditable.
             </p>
             <p className="mt-3 font-mono text-[11px] uppercase tracking-widest text-wire">
-              Disagree with a flag? Email <span className="text-amber">disputes@spx402.com</span> with the mint and on-chain evidence.
+              Disagree with a flag? Email <span className="text-amber">disputes@spx402.com</span>{" "}
+              with the mint and on-chain evidence.
             </p>
           </div>
         </div>

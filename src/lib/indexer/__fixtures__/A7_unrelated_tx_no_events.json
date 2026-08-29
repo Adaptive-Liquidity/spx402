@@ -290,9 +290,7 @@
         "programId": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
         "innerInstructions": [
           {
-            "accounts": [
-              "So11111111111111111111111111111111111111112"
-            ],
+            "accounts": ["So11111111111111111111111111111111111111112"],
             "data": "84eT",
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
@@ -305,9 +303,7 @@
             "programId": "11111111111111111111111111111111"
           },
           {
-            "accounts": [
-              "2tQquPiM9QgqDvWWMRjkJjuuFyhTACsBqXoMpF2chu5L"
-            ],
+            "accounts": ["2tQquPiM9QgqDvWWMRjkJjuuFyhTACsBqXoMpF2chu5L"],
             "data": "P",
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
@@ -398,9 +394,7 @@
             "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           },
           {
-            "accounts": [
-              "GS4CU59F31iL7aR2Q8zVS8DRrcRnXX1yjQ66TqNVQnaR"
-            ],
+            "accounts": ["GS4CU59F31iL7aR2Q8zVS8DRrcRnXX1yjQ66TqNVQnaR"],
             "data": "5mPVTm9CVtwmkGePADgpYus7CviamfpDCuK7Qkf55vruvbd3ShwZXpXezVKnm2fDE2sYKQzMR6rZp6AH9PXuzAUyXQvAjwckxCPFFL8xZiGYqKXScyWmSS2tt9HHdhtf56qrZnMMJ7B8iy4tBYmZMr9cNcERn5tHF21vjiSCHEHdXzsj29Uw58aDs8kNUmUwPi3hKLmXYPP2vN6rMs4g9iZsHLfH8WfFYg2Sok6QHRRVhA2b2kwJQunizhBhXWQAD1KcV3c7tGfDjNjFDLe6E3gnB1BrhtBJoXGRVg7WEqtZ5y1j7MnZx7ZfBTn9iVph1yi38BqBECqx25HdBLsEVSSunMpeVyL5ZZioSkNfGorMtEKX1b62fzJQug53PwMj7WJquMzWZvzHY2J5JuJKvLE9odpZrvtzQ9gJrAAZcdeYSWUKxFXKeBtLNvbiUXtxbQEq4vgmkzWXtsoLP2eYZam4r6pob2gECQyDX4Sncvw6WkZcxVS5YN4QaMKNCQHEpmvH5ZzHKTaNj",
             "programId": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
           }

@@ -89,8 +89,20 @@ describe("challenge parsing", () => {
     const body = JSON.stringify({
       x402Version: 1,
       accepts: [
-        { scheme: "exact", network: "base", asset: "0xa", payTo: "0xb", maxAmountRequired: "50000" },
-        { scheme: "exact", network: "solana", asset: "So1", payTo: "Pay1", maxAmountRequired: "1000" },
+        {
+          scheme: "exact",
+          network: "base",
+          asset: "0xa",
+          payTo: "0xb",
+          maxAmountRequired: "50000",
+        },
+        {
+          scheme: "exact",
+          network: "solana",
+          asset: "So1",
+          payTo: "Pay1",
+          maxAmountRequired: "1000",
+        },
       ],
     });
     const c = parseChallenge({ headers: {}, body });
@@ -298,9 +310,7 @@ describe("PROBE_DIVERGENCE", () => {
 
 describe("serviceSlug", () => {
   it("encodes host and path", () => {
-    expect(serviceSlug("https://api.example.com/v1/weather")).toBe(
-      "api.example.com~v1~weather",
-    );
+    expect(serviceSlug("https://api.example.com/v1/weather")).toBe("api.example.com~v1~weather");
   });
 
   it("drops query strings and trailing slashes", () => {

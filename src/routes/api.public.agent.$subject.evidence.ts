@@ -21,11 +21,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  canonicalJsonStringify,
-  merkleRootHex,
-  sha256Hex,
-} from "@/lib/evidence/hash.server";
+import { canonicalJsonStringify, merkleRootHex, sha256Hex } from "@/lib/evidence/hash.server";
 
 const WINDOW_DAYS = 30;
 const MAX_LEAVES = 5_000; // hard cap — protects the worker
@@ -51,9 +47,7 @@ export const Route = createFileRoute("/api/public/agent/$subject/evidence")({
           .maybeSingle();
         if (!agent) return errorJson(404, "subject_not_found");
 
-        const since = new Date(
-          Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000,
-        ).toISOString();
+        const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
         const { data: events, error } = await supabaseAdmin
           .from("agent_events")
@@ -171,8 +165,7 @@ export const Route = createFileRoute("/api/public/agent/$subject/evidence")({
             "Content-Type": "application/json",
             // Subject evidence is a moving window; cache shorter than the
             // per-event endpoint.
-            "Cache-Control":
-              "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+            "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
             "Access-Control-Allow-Origin": "*",
           },
         });
@@ -206,14 +199,11 @@ function countBy<T>(items: T[], key: (x: T) => string): Record<string, number> {
 }
 
 function errorJson(status: number, code: string, detail?: string): Response {
-  return new Response(
-    JSON.stringify({ error: code, detail: detail ?? null }, null, 2),
-    {
-      status,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+  return new Response(JSON.stringify({ error: code, detail: detail ?? null }, null, 2), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
     },
-  );
+  });
 }

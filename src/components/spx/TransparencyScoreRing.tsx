@@ -91,10 +91,7 @@ export function TransparencyScoreRing({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="label-mono">SCORE</div>
-        <div
-          className="num-display text-5xl font-bold leading-none"
-          style={{ color: colorVar }}
-        >
+        <div className="num-display text-5xl font-bold leading-none" style={{ color: colorVar }}>
           {score === null ? "—" : Math.round(animated)}
         </div>
         <div className="label-mono mt-1">/ 100</div>

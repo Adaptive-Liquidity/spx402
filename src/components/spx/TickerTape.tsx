@@ -40,7 +40,6 @@ export function TickerTape() {
     };
   }, []);
 
-
   const stream = [...lines, ...lines, ...lines];
   return (
     <div
@@ -50,10 +49,7 @@ export function TickerTape() {
     >
       <div className="ticker-track gap-12 text-xs font-mono text-amber/90">
         {stream.map((line, i) => (
-          <span
-            key={i}
-            className="inline-flex items-center gap-3 tracking-widest"
-          >
+          <span key={i} className="inline-flex items-center gap-3 tracking-widest">
             <span aria-hidden className="text-bronze">
               ◆
             </span>

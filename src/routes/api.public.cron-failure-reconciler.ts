@@ -52,20 +52,12 @@ export const Route = createFileRoute("/api/public/cron-failure-reconciler")({
             .from("agent_events")
             .select("type, signature, occurred_at, amount_sol")
             .eq("mint", a.mint)
-            .in("type", [
-              "DEPOSIT_RECEIVED",
-              "BUYBACK_EXECUTED",
-              "FAILED_BUYBACK_WINDOW",
-            ])
+            .in("type", ["DEPOSIT_RECEIVED", "BUYBACK_EXECUTED", "FAILED_BUYBACK_WINDOW"])
             .gte("occurred_at", since)
             .order("occurred_at", { ascending: true });
 
-          const deposits = (events ?? []).filter(
-            (e) => e.type === "DEPOSIT_RECEIVED",
-          );
-          const buybacks = (events ?? []).filter(
-            (e) => e.type === "BUYBACK_EXECUTED",
-          );
+          const deposits = (events ?? []).filter((e) => e.type === "DEPOSIT_RECEIVED");
+          const buybacks = (events ?? []).filter((e) => e.type === "BUYBACK_EXECUTED");
           const alreadyFailed = new Set(
             (events ?? [])
               .filter((e) => e.type === "FAILED_BUYBACK_WINDOW")
@@ -84,28 +76,24 @@ export const Route = createFileRoute("/api/public/cron-failure-reconciler")({
               return t >= dTime && t - dTime <= BUYBACK_TOLERANCE_MS;
             });
             if (!matched) {
-              const { error: insertErr } = await supabaseAdmin
-                .from("agent_events")
-                .upsert(
-                  {
-                    mint: a.mint,
-                    type: "FAILED_BUYBACK_WINDOW",
-                    severity: "critical",
-                    signature: failureSig,
-                    occurred_at: new Date(
-                      dTime + BUYBACK_TOLERANCE_MS,
-                    ).toISOString(),
-                    amount_sol: Number(d.amount_sol ?? 0),
-                    amount_token: 0,
-                    raw: {
-                      sourceSignature: d.signature,
-                      depositOccurredAt: d.occurred_at,
-                      toleranceMs: BUYBACK_TOLERANCE_MS,
-                      reason: "no_buyback_in_tolerance",
-                    } as never,
-                  },
-                  { onConflict: "signature", ignoreDuplicates: true },
-                );
+              const { error: insertErr } = await supabaseAdmin.from("agent_events").upsert(
+                {
+                  mint: a.mint,
+                  type: "FAILED_BUYBACK_WINDOW",
+                  severity: "critical",
+                  signature: failureSig,
+                  occurred_at: new Date(dTime + BUYBACK_TOLERANCE_MS).toISOString(),
+                  amount_sol: Number(d.amount_sol ?? 0),
+                  amount_token: 0,
+                  raw: {
+                    sourceSignature: d.signature,
+                    depositOccurredAt: d.occurred_at,
+                    toleranceMs: BUYBACK_TOLERANCE_MS,
+                    reason: "no_buyback_in_tolerance",
+                  } as never,
+                },
+                { onConflict: "signature", ignoreDuplicates: true },
+              );
               if (!insertErr) flagged++;
             }
           }
@@ -129,12 +117,7 @@ export const Route = createFileRoute("/api/public/cron-failure-reconciler")({
   },
 });
 
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

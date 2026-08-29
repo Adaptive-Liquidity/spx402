@@ -11,7 +11,12 @@
 //
 // Server-only.
 
-import { fetchAddressTxs, type HeliusEnhancedTx, touchesPumpFun, extractBurn } from "./helius.server";
+import {
+  fetchAddressTxs,
+  type HeliusEnhancedTx,
+  touchesPumpFun,
+  extractBurn,
+} from "./helius.server";
 import { decodeTx } from "./decode.server";
 import { decodeSwapTx } from "./decode-swap.server";
 import { decodeX402Tx } from "./decode-x402.server";
@@ -49,8 +54,7 @@ const PUMPFUN_INVOICE_SEED = "invoice";
 // Metaplex MPL Agent Identity program (verified mainnet program ID, March 2026).
 // Source: https://developers.metaplex.com/smart-contracts/mpl-agent
 // Same address on Mainnet and Devnet.
-const SOLANA_AGENT_REGISTRY_PROGRAM_ID =
-  "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
+const SOLANA_AGENT_REGISTRY_PROGRAM_ID = "1DREGFgysWYxLnRnKQnwrxnJQeSMk2HmGaC6whw2B2p";
 
 // ============================================================================
 // Check 1 — Skills.md in Metaplex metadata
@@ -141,8 +145,7 @@ function findProgramAddressLite(seeds: Buffer[], programId: string): string | nu
   }
 }
 
-const BASE58_ALPHABET =
-  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 function base58Encode(bytes: Buffer): string {
   // simple base58 encoder
@@ -279,10 +282,7 @@ export async function verifyCandidate(
   return verifyTokenizedMint(identifier, opts);
 }
 
-async function verifyTokenizedMint(
-  mint: string,
-  opts: VerifyOpts,
-): Promise<VerificationResult> {
+async function verifyTokenizedMint(mint: string, opts: VerifyOpts): Promise<VerificationResult> {
   const [skills, invoice, earnings, registry] = await Promise.all([
     checkSkillsMd(mint),
     checkInvoicePda(mint),
@@ -298,13 +298,10 @@ async function verifyTokenizedMint(
   };
 
   const identityProofs =
-    Number(signals.skills_md) +
-    Number(signals.invoice_pda) +
-    Number(signals.agent_registry);
+    Number(signals.skills_md) + Number(signals.invoice_pda) + Number(signals.agent_registry);
 
   const isCuratedSeed = opts.discoveredVia === "curated_seed";
-  const earningsForCurated =
-    earnings.buybacksSeen >= 5 || (signals.on_chain_earnings as boolean);
+  const earningsForCurated = earnings.buybacksSeen >= 5 || (signals.on_chain_earnings as boolean);
   const passed = isCuratedSeed
     ? earningsForCurated
     : signals.on_chain_earnings && identityProofs >= 1;
@@ -349,11 +346,9 @@ async function verifyRegisteredAgent(
   };
 
   const passed = registered;
-  const notes = [
-    `kind=core_asset`,
-    `registered=${registered}`,
-    `skills=${signals.skills_md}`,
-  ].join(" ");
+  const notes = [`kind=core_asset`, `registered=${registered}`, `skills=${signals.skills_md}`].join(
+    " ",
+  );
 
   return {
     signals,
@@ -390,11 +385,7 @@ async function verifyExecutorWallet(
   };
 
   const passed = x402Count >= 1 || swapCount >= 3;
-  const notes = [
-    `kind=executor_wallet`,
-    `swaps=${swapCount}`,
-    `x402=${x402Count}`,
-  ].join(" ");
+  const notes = [`kind=executor_wallet`, `swaps=${swapCount}`, `x402=${x402Count}`].join(" ");
 
   return {
     signals,
@@ -410,9 +401,7 @@ async function verifyExecutorWallet(
 // recorded in agent_events for this payee. We query the DB, never an EVM RPC —
 // the indexer is the witness, and Tier B (non-registry EIP-3009) can never
 // appear in agent_events by construction.
-async function verifyEvmExecutorWallet(
-  address: string,
-): Promise<VerificationResult> {
+async function verifyEvmExecutorWallet(address: string): Promise<VerificationResult> {
   const wallet = address.toLowerCase();
   let tierA = 0;
   try {

@@ -1,9 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import {
-  fetchOperatorProfile,
-  relativeFromNow,
-  type OperatorAgentSummary,
-} from "@/lib/live-data";
+import { fetchOperatorProfile, relativeFromNow, type OperatorAgentSummary } from "@/lib/live-data";
 import { AlertTriangle, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/operator/$wallet")({
@@ -38,9 +34,7 @@ export const Route = createFileRoute("/operator/$wallet")({
   notFoundComponent: () => (
     <div className="mx-auto max-w-[1200px] px-4 py-20 text-center">
       <div className="label-amber">Operator not found</div>
-      <p className="mt-3 text-paper-muted">
-        No verified operator wallet matches that address yet.
-      </p>
+      <p className="mt-3 text-paper-muted">No verified operator wallet matches that address yet.</p>
       <Link to="/explore" className="mt-6 inline-block text-amber underline">
         Browse all agents →
       </Link>
@@ -82,42 +76,29 @@ function OperatorProfilePage() {
           label="Avg score"
           value={aggregate.avgScore == null ? "—" : String(aggregate.avgScore)}
         />
-        <Stat
-          label="Avg confidence"
-          value={`${Math.round(aggregate.avgConfidence * 100)}%`}
-        />
-        <Stat
-          label="Best grade"
-          value={aggregate.bestGrade ?? "—"}
-          tone="amber"
-        />
+        <Stat label="Avg confidence" value={`${Math.round(aggregate.avgConfidence * 100)}%`} />
+        <Stat label="Best grade" value={aggregate.bestGrade ?? "—"} tone="amber" />
         <Stat
           label="Failure events 30d"
           value={String(aggregate.failureEvents)}
           tone={aggregate.failureEvents > 0 ? "critical" : "default"}
         />
-        <Stat
-          label="Buyback SOL"
-          value={aggregate.totalBuybackSol.toFixed(2)}
-          tone="amber"
-        />
+        <Stat label="Buyback SOL" value={aggregate.totalBuybackSol.toFixed(2)} tone="amber" />
       </section>
 
       {aggregate.flaggedCount > 0 && (
         <div className="mt-6 flex items-center gap-3 border border-critical/50 bg-critical/5 p-4 font-mono text-sm text-critical">
           <AlertTriangle className="h-5 w-5" />
           <span>
-            {aggregate.flaggedCount} of this operator's agents are currently
-            flagged. Review each dossier before trusting downstream.
+            {aggregate.flaggedCount} of this operator's agents are currently flagged. Review each
+            dossier before trusting downstream.
           </span>
         </div>
       )}
 
       {/* AGENTS LIST */}
       <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">
-          Agents under this operator
-        </h2>
+        <h2 className="font-display text-2xl font-bold text-paper">Agents under this operator</h2>
         <div className="mt-6 space-y-2">
           {agents.map((a) => (
             <OperatorAgentCard key={a.mint} agent={a} />
@@ -127,9 +108,7 @@ function OperatorProfilePage() {
 
       {/* RECENT EVENTS */}
       <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">
-          Recent execution
-        </h2>
+        <h2 className="font-display text-2xl font-bold text-paper">Recent execution</h2>
         <p className="mt-2 max-w-2xl text-paper-muted">
           Last 30 events across all agents operated by this wallet.
         </p>
@@ -141,10 +120,7 @@ function OperatorProfilePage() {
           ) : (
             <ul className="divide-y divide-bronze/30">
               {recentEvents.map((e) => (
-                <li
-                  key={e.id}
-                  className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm"
-                >
+                <li key={e.id} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
                   <span
                     className={`font-mono text-[10px] uppercase tracking-widest ${
                       e.severity === "critical" || e.severity === "warning"
@@ -201,19 +177,11 @@ function Stat({
   tone?: "default" | "amber" | "critical";
 }) {
   const toneCls =
-    tone === "amber"
-      ? "text-amber"
-      : tone === "critical"
-        ? "text-critical"
-        : "text-paper";
+    tone === "amber" ? "text-amber" : tone === "critical" ? "text-critical" : "text-paper";
   return (
     <div className="bg-panel p-5">
-      <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
-        {label}
-      </div>
-      <div className={`mt-2 num-display text-2xl font-bold ${toneCls}`}>
-        {value}
-      </div>
+      <div className="font-mono text-[10px] uppercase tracking-widest text-wire">{label}</div>
+      <div className={`mt-2 num-display text-2xl font-bold ${toneCls}`}>{value}</div>
     </div>
   );
 }
@@ -227,9 +195,7 @@ function OperatorAgentCard({ agent }: { agent: OperatorAgentSummary }) {
     >
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-lg font-bold text-paper">
-            ${agent.symbol}
-          </span>
+          <span className="font-display text-lg font-bold text-paper">${agent.symbol}</span>
           <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
             {agent.grade}
           </span>
@@ -239,14 +205,10 @@ function OperatorAgentCard({ agent }: { agent: OperatorAgentSummary }) {
             </span>
           )}
         </div>
-        <div className="mt-1 truncate font-mono text-[11px] text-paper-muted">
-          {agent.name}
-        </div>
+        <div className="mt-1 truncate font-mono text-[11px] text-paper-muted">{agent.name}</div>
       </div>
       <div className="text-right">
-        <div className="num-display text-xl font-bold text-paper">
-          {agent.score ?? "—"}
-        </div>
+        <div className="num-display text-xl font-bold text-paper">{agent.score ?? "—"}</div>
         <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
           conf {Math.round(agent.confidenceScore * 100)}%
         </div>

@@ -63,9 +63,7 @@ export function decodeX402Tx(
     : new Date().toISOString();
 
   // ── Tier A: facilitator fee-payer ────────────────────────────────
-  const facilitator = opts.registry
-    ? facilitatorForFeePayer(opts.registry, tx.feePayer)
-    : null;
+  const facilitator = opts.registry ? facilitatorForFeePayer(opts.registry, tx.feePayer) : null;
 
   // ── Tier B: memo/description marker (legacy) ─────────────────────
   let hasMarker = false;
@@ -86,9 +84,7 @@ export function decodeX402Tx(
   }
   if (!facilitator && !hasMarker) return out;
 
-  const method: X402DetectionMethod = facilitator
-    ? "facilitator_fee_payer"
-    : "memo_marker";
+  const method: X402DetectionMethod = facilitator ? "facilitator_fee_payer" : "memo_marker";
   const confidence: "high" | "medium" = facilitator ? "high" : "medium";
 
   // Buyer = the counterparty sending funds to the executor. For facilitator
@@ -97,10 +93,7 @@ export function decodeX402Tx(
   const senders = new Map<string, number>(); // wallet → lamports+usdc sent
   for (const t of tx.nativeTransfers ?? []) {
     if (t.fromUserAccount && (t.amount ?? 0) > 0) {
-      senders.set(
-        t.fromUserAccount,
-        (senders.get(t.fromUserAccount) ?? 0) + (t.amount ?? 0),
-      );
+      senders.set(t.fromUserAccount, (senders.get(t.fromUserAccount) ?? 0) + (t.amount ?? 0));
     }
   }
   for (const t of tx.tokenTransfers ?? []) {

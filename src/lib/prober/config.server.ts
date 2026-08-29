@@ -156,8 +156,7 @@ export function checkDrain(input: {
     };
   }
 
-  const relative =
-    input.balanceStartUsd > 0 ? unaccounted / input.balanceStartUsd : 1;
+  const relative = input.balanceStartUsd > 0 ? unaccounted / input.balanceStartUsd : 1;
 
   return {
     tripped: relative > PROBE_CAPS.walletDrainPct || unaccounted > 1,

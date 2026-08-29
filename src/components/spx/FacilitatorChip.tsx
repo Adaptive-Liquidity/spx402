@@ -20,9 +20,7 @@ export function FacilitatorChip({
   return (
     <span
       className={`border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest ${
-        tierA
-          ? "border-verified/50 text-verified"
-          : "border-amber/50 text-amber"
+        tierA ? "border-verified/50 text-verified" : "border-amber/50 text-amber"
       }`}
       title={`Detected by ${how} · confidence ${confidence} · parser ${parserVersion ?? SOLANA_X402_PARSER_VERSION}`}
     >

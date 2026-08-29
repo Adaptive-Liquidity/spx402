@@ -44,9 +44,7 @@ export class EvmRpcError extends Error {}
 function rpcUrl(): string {
   const url = process.env.BASE_RPC_URL;
   if (!url) {
-    throw new EvmRpcError(
-      "BASE_RPC_URL is not configured — the Base lane cannot scan without it.",
-    );
+    throw new EvmRpcError("BASE_RPC_URL is not configured — the Base lane cannot scan without it.");
   }
   return url;
 }
@@ -119,9 +117,7 @@ export async function getTransactionByHash(hash: string): Promise<EvmTx | null> 
   };
 }
 
-export async function getTransactionReceipt(
-  hash: string,
-): Promise<Record<string, unknown> | null> {
+export async function getTransactionReceipt(hash: string): Promise<Record<string, unknown> | null> {
   return rpc<Record<string, unknown> | null>("eth_getTransactionReceipt", [hash]);
 }
 
@@ -156,13 +152,11 @@ export async function readCursor(key = EVM_CURSOR_KEY): Promise<number | null> {
   return Number.isFinite(n) ? n : null;
 }
 
-export async function writeCursor(
-  block: number,
-  key = EVM_CURSOR_KEY,
-): Promise<void> {
-  await supabaseAdmin
-    .from("indexer_state")
-    .upsert({ key, value: String(block), updated_at: new Date().toISOString() }, {
+export async function writeCursor(block: number, key = EVM_CURSOR_KEY): Promise<void> {
+  await supabaseAdmin.from("indexer_state").upsert(
+    { key, value: String(block), updated_at: new Date().toISOString() },
+    {
       onConflict: "key",
-    });
+    },
+  );
 }

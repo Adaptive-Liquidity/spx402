@@ -4,9 +4,15 @@ export const Route = createFileRoute("/api")({
   head: () => ({
     meta: [
       { title: "API — Execution data for agents · SPX402" },
-      { name: "description", content: "REST + x402 pay-per-call APIs for tokenized agent execution data." },
+      {
+        name: "description",
+        content: "REST + x402 pay-per-call APIs for tokenized agent execution data.",
+      },
       { property: "og:title", content: "SPX402 API" },
-      { property: "og:description", content: "Designed for human analysts. Priced for machine buyers." },
+      {
+        property: "og:description",
+        content: "Designed for human analysts. Priced for machine buyers.",
+      },
     ],
   }),
   component: ApiPage,
@@ -37,20 +43,26 @@ function ApiPage() {
     <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-20">
       <div className="label-amber">API</div>
       <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
-        Execution data for agents,<br />
+        Execution data for agents,
+        <br />
         <span className="text-amber">funds, launchpads, and other machines.</span>
       </h1>
       <p className="mt-6 max-w-2xl text-lg text-paper-muted">
-        Two transports. Same data. Use the REST API with a key for sustained
-        workloads. Use the x402 endpoints for instant pay-per-call from machine
-        clients with no account.
+        Two transports. Same data. Use the REST API with a key for sustained workloads. Use the x402
+        endpoints for instant pay-per-call from machine clients with no account.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link to="/api/docs" className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep">
+        <Link
+          to="/api/docs"
+          className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
           Open Endpoints →
         </Link>
-        <Link to="/pricing" className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
+        <Link
+          to="/pricing"
+          className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+        >
           Pricing
         </Link>
       </div>
@@ -95,7 +107,7 @@ function ApiPage() {
             <span className="text-verified">200 OK</span>
           </div>
           <pre className="overflow-x-auto p-5 font-mono text-[12px] leading-relaxed text-paper">
-{`{
+            {`{
   "mint": "7xKQ92pLm4nBvR8sT3jYwZcA1pXqFhNeUgD5sM2QnK7p",
   "symbol": "NOVA",
   "name": "Agent Nova",
@@ -124,9 +136,11 @@ function ApiPage() {
       {/* CALLOUT */}
       <section className="mt-16 panel-engraved p-7 text-center">
         <h2 className="font-display text-3xl font-bold text-paper">
-          Designed for human analysts.<br />
+          Designed for human analysts.
+          <br />
           <span className="text-amber">Priced for machine buyers.</span>
-          <br />Auditable by anyone.
+          <br />
+          Auditable by anyone.
         </h2>
       </section>
     </div>

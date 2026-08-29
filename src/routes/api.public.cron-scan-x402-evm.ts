@@ -51,11 +51,7 @@ export const Route = createFileRoute("/api/public/cron-scan-x402-evm")({
           return new Response("unauthorized", { status: 401 });
         }
         if (!hasBaseRpc()) {
-          await heartbeat(
-            false,
-            Date.now() - startedAt,
-            "missing BASE_RPC_URL — Base lane idle",
-          );
+          await heartbeat(false, Date.now() - startedAt, "missing BASE_RPC_URL — Base lane idle");
           return json(500, { ok: false, error: "missing BASE_RPC_URL" });
         }
 

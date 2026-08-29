@@ -76,9 +76,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-stretch px-4 py-16 lg:py-24">
-      <div className="label-amber text-center">
-        {isSignup ? "Open Terminal" : "Sign in"}
-      </div>
+      <div className="label-amber text-center">{isSignup ? "Open Terminal" : "Sign in"}</div>
       <h1 className="mt-3 text-center font-display text-3xl font-bold text-paper">
         {isSignup ? "Create your operator account." : "Welcome back."}
       </h1>
@@ -165,9 +163,19 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       <p className="mt-6 text-center font-mono text-xs uppercase tracking-widest text-wire">
         {isSignup ? (
-          <>Already have a terminal? <Link to="/login" className="text-amber hover:underline">Sign in</Link></>
+          <>
+            Already have a terminal?{" "}
+            <Link to="/login" className="text-amber hover:underline">
+              Sign in
+            </Link>
+          </>
         ) : (
-          <>New here? <Link to="/signup" className="text-amber hover:underline">Open terminal</Link></>
+          <>
+            New here?{" "}
+            <Link to="/signup" className="text-amber hover:underline">
+              Open terminal
+            </Link>
+          </>
         )}
       </p>
     </div>

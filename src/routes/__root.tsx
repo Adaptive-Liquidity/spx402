@@ -12,12 +12,10 @@ function NotFoundComponent() {
       <div className="border border-critical/70 bg-critical/10 px-4 py-2 font-mono text-xs uppercase tracking-widest text-critical flicker-404">
         SPX404
       </div>
-      <h1 className="mt-8 font-display text-5xl font-bold text-paper">
-        Route not found.
-      </h1>
+      <h1 className="mt-8 font-display text-5xl font-bold text-paper">Route not found.</h1>
       <p className="mt-4 max-w-lg font-mono text-sm text-paper-muted">
-        We do not grade ghosts without receipts. The page you requested does not exist
-        in this terminal.
+        We do not grade ghosts without receipts. The page you requested does not exist in this
+        terminal.
       </p>
       <a
         href="/"
@@ -51,11 +49,31 @@ export const Route = createRootRoute({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@SPX402" },
       { name: "twitter:title", content: "SPX402 — Execution Grade for Tokenized AI Agents" },
-      { name: "description", content: "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con" },
-      { property: "og:description", content: "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con" },
-      { name: "twitter:description", content: "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp" },
+      {
+        name: "description",
+        content:
+          "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
+      },
+      {
+        property: "og:description",
+        content:
+          "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

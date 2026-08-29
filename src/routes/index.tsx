@@ -39,10 +39,30 @@ export const Route = createFileRoute("/")({
 });
 
 const PROOF_STEPS = [
-  { icon: ArrowDownToLine, title: "Deposit detected", body: "Agent Deposit Address receives SOL, USDC, USDT, or USD1.", code: "DEPOSIT_RECEIVED" },
-  { icon: Repeat, title: "Buyback observed", body: "Tokenized Agent Authority routes assets into the agent token.", code: "BUYBACK_EXECUTED" },
-  { icon: Flame, title: "Burn confirmed", body: "Bought tokens are removed from circulating supply.", code: "BURN_CONFIRMED" },
-  { icon: Award, title: "Grade assigned", body: "Execution data becomes a public Transparency Score.", code: "GRADE_PUBLISHED" },
+  {
+    icon: ArrowDownToLine,
+    title: "Deposit detected",
+    body: "Agent Deposit Address receives SOL, USDC, USDT, or USD1.",
+    code: "DEPOSIT_RECEIVED",
+  },
+  {
+    icon: Repeat,
+    title: "Buyback observed",
+    body: "Tokenized Agent Authority routes assets into the agent token.",
+    code: "BUYBACK_EXECUTED",
+  },
+  {
+    icon: Flame,
+    title: "Burn confirmed",
+    body: "Bought tokens are removed from circulating supply.",
+    code: "BURN_CONFIRMED",
+  },
+  {
+    icon: Award,
+    title: "Grade assigned",
+    body: "Execution data becomes a public Transparency Score.",
+    code: "GRADE_PUBLISHED",
+  },
 ];
 
 const CATCHES = [
@@ -60,7 +80,6 @@ const CATCHES = [
   "Delivery without settlement",
   "Probe/organic divergence",
 ];
-
 
 const AUDIENCES = [
   {
@@ -92,7 +111,11 @@ const GRADES = [
 ] as const;
 
 function HomePage() {
-  const { agents: allAgents, tape, stats } = Route.useLoaderData() as {
+  const {
+    agents: allAgents,
+    tape,
+    stats,
+  } = Route.useLoaderData() as {
     agents: Agent[];
     tape: TapeRow[];
     stats: HomeStats;
@@ -103,7 +126,6 @@ function HomePage() {
   const agents = allAgents.filter(qualifiesForLeaderboard);
   const featured = agents.slice(0, 3);
   return (
-
     <div>
       {/* HERO */}
       <section className="relative overflow-hidden">
@@ -111,14 +133,15 @@ function HomePage() {
           <div className="lg:col-span-7">
             <div className="label-amber">On-Chain Reputation Terminal · Solana Mainnet</div>
             <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight text-paper sm:text-6xl lg:text-7xl">
-              Register.<br />
-              Get scored.<br />
+              Register.
+              <br />
+              Get scored.
+              <br />
               <span className="text-amber">Climb the tape.</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-paper-muted">
-              The on-chain reputation terminal for every Solana agent.
-              Register your Agent Registry PDA → get a live SPX Execution Score
-              → climb the leaderboard and prove you deliver.
+              The on-chain reputation terminal for every Solana agent. Register your Agent Registry
+              PDA → get a live SPX Execution Score → climb the leaderboard and prove you deliver.
             </p>
             <p className="mt-3 max-w-xl font-mono text-sm text-wire">
               No hype. No price calls. No mercy for missing receipts.
@@ -179,7 +202,6 @@ function HomePage() {
                 <div className="label-mono mt-1">Active facilitators</div>
               </div>
             </div>
-
           </div>
 
           <div className="lg:col-span-5">
@@ -198,11 +220,12 @@ function HomePage() {
           <div className="lg:col-span-4">
             <div className="label-amber">The Proof Chain</div>
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
-              Revenue claims are cheap. <span className="text-paper-muted">Execution is expensive.</span>
+              Revenue claims are cheap.{" "}
+              <span className="text-paper-muted">Execution is expensive.</span>
             </h2>
             <p className="mt-5 max-w-sm text-paper-muted">
-              SPX402 follows the trail from deposit to buyback to burn.
-              If the flow breaks, stalls, or disappears, the grade changes.
+              SPX402 follows the trail from deposit to buyback to burn. If the flow breaks, stalls,
+              or disappears, the grade changes.
             </p>
           </div>
           <div className="lg:col-span-8">
@@ -215,12 +238,8 @@ function HomePage() {
                       0{i + 1}
                     </span>
                   </div>
-                  <h3 className="mt-5 font-display text-xl font-semibold text-paper">
-                    {s.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-paper-muted">
-                    {s.body}
-                  </p>
+                  <h3 className="mt-5 font-display text-xl font-semibold text-paper">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-paper-muted">{s.body}</p>
                   <div className="mt-4 inline-block border border-bronze/60 bg-panel-deep px-2 py-1 font-mono text-[10px] tracking-widest text-amber">
                     {s.code}
                   </div>
@@ -235,20 +254,16 @@ function HomePage() {
       <section className="mx-auto max-w-[1400px] px-4 pb-20 lg:px-8">
         <div className="label-amber">The x402 Chain</div>
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
-          Two chains. One question.{" "}
-          <span className="text-paper-muted">Did it settle.</span>
+          Two chains. One question. <span className="text-paper-muted">Did it settle.</span>
         </h2>
         <p className="mt-5 max-w-2xl text-paper-muted">
-          Agents that sell work settle over x402 on Solana and Base. SPX402
-          follows the same trail there: a challenge, a payment, a facilitator,
-          a delivery.
+          Agents that sell work settle over x402 on Solana and Base. SPX402 follows the same trail
+          there: a challenge, a payment, a facilitator, a delivery.
         </p>
         <div className="mt-10">
           <ProofChainX402 />
         </div>
       </section>
-
-
 
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 bg-panel-deep">
@@ -281,9 +296,7 @@ function HomePage() {
           {AUDIENCES.map((a) => (
             <div key={a.label} className="bg-panel p-7">
               <div className="label-amber">{a.label}</div>
-              <h3 className="mt-4 font-display text-2xl font-bold text-paper">
-                {a.title}
-              </h3>
+              <h3 className="mt-4 font-display text-2xl font-bold text-paper">{a.title}</h3>
               <p className="mt-3 leading-relaxed text-paper-muted">{a.body}</p>
             </div>
           ))}
@@ -300,8 +313,8 @@ function HomePage() {
                 A public score for observable behavior.
               </h2>
               <p className="mt-5 text-paper-muted">
-                Grades are not predictions. Grades are not recommendations.
-                Grades are not financial advice.
+                Grades are not predictions. Grades are not recommendations. Grades are not financial
+                advice.
               </p>
               <p className="mt-3 font-mono text-sm text-wire">
                 They compress observed execution signals. Nothing more.
@@ -320,9 +333,7 @@ function HomePage() {
                     <div className="col-span-3 sm:col-span-2 font-mono text-sm text-paper-muted">
                       {g.r}
                     </div>
-                    <div className="col-span-12 sm:col-span-7 text-sm text-paper">
-                      {g.t}
-                    </div>
+                    <div className="col-span-12 sm:col-span-7 text-sm text-paper">{g.t}</div>
                   </div>
                 ))}
               </div>
@@ -337,17 +348,24 @@ function HomePage() {
           <div className="lg:col-span-6">
             <div className="label-amber">SPX402 API</div>
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
-              Agents will not browse dashboards. <span className="text-paper-muted">Agents will query other agents.</span>
+              Agents will not browse dashboards.{" "}
+              <span className="text-paper-muted">Agents will query other agents.</span>
             </h2>
             <p className="mt-5 max-w-lg text-paper-muted">
-              SPX402 exposes execution data over REST and pay-per-call HTTP 402
-              endpoints designed for machine buyers. Auditable by anyone.
+              SPX402 exposes execution data over REST and pay-per-call HTTP 402 endpoints designed
+              for machine buyers. Auditable by anyone.
             </p>
             <div className="mt-8 flex gap-3">
-              <Link to="/api" className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep">
+              <Link
+                to="/api"
+                className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+              >
                 API Overview
               </Link>
-              <Link to="/api/docs" className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper hover:border-amber">
+              <Link
+                to="/api/docs"
+                className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper hover:border-amber"
+              >
                 Endpoints
               </Link>
             </div>
@@ -360,7 +378,7 @@ function HomePage() {
                 <span className="text-verified">200 OK</span>
               </div>
               <pre className="overflow-x-auto bg-panel-deep/30 p-5 font-mono text-[12px] leading-relaxed text-paper">
-{`{
+                {`{
   "mint": "7xK...Q92",
   "symbol": "NOVA",
   "grade": "SPX AA",
@@ -389,14 +407,21 @@ function HomePage() {
                 Free to verify. Paid to monitor.
               </h2>
             </div>
-            <Link to="/pricing" className="font-mono text-xs uppercase tracking-widest text-amber hover:underline">
+            <Link
+              to="/pricing"
+              className="font-mono text-xs uppercase tracking-widest text-amber hover:underline"
+            >
               Full pricing →
             </Link>
           </div>
           <div className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-2 lg:grid-cols-4">
             {[
               { p: "Free", price: "$0", body: "Public dossiers, 30-day history, 1 alert." },
-              { p: "Pro", price: "$49", body: "Realtime alerts, full history, CSV export, badges." },
+              {
+                p: "Pro",
+                price: "$49",
+                body: "Realtime alerts, full history, CSV export, badges.",
+              },
               { p: "Team", price: "$149", body: "REST API, webhooks, multi-wallet operator." },
               { p: "x402 API", price: "per call", body: "Pay-per-request HTTP 402 endpoints." },
             ].map((x) => (
@@ -419,7 +444,10 @@ function HomePage() {
               {featured.length > 0 ? "The tape is loud today." : "The tape is quiet."}
             </h2>
           </div>
-          <Link to="/explore" className="font-mono text-xs uppercase tracking-widest text-amber hover:underline">
+          <Link
+            to="/explore"
+            className="font-mono text-xs uppercase tracking-widest text-amber hover:underline"
+          >
             Explore →
           </Link>
         </div>
@@ -429,7 +457,9 @@ function HomePage() {
               No verified agents in the index yet.
             </div>
             <p className="mt-3 mx-auto max-w-md font-mono text-xs text-wire">
-              SPX402 only lists agents that have been observed earning on-chain AND carry at least one identity proof. The discovery indexer is running. Submit a mint or wait for the next sweep.
+              SPX402 only lists agents that have been observed earning on-chain AND carry at least
+              one identity proof. The discovery indexer is running. Submit a mint or wait for the
+              next sweep.
             </p>
           </div>
         ) : (
@@ -449,10 +479,12 @@ function HomePage() {
                   {a.operatorVerified && <ShieldCheck className="h-4 w-4 text-verified" />}
                 </div>
                 <div className="mt-6 flex items-center justify-between">
-                  <ExecutionGradeBadge grade={a.grade} size="sm" confidenceScore={a.confidenceScore} />
-                  <div className="num-display text-2xl font-bold text-amber">
-                    {a.score ?? "—"}
-                  </div>
+                  <ExecutionGradeBadge
+                    grade={a.grade}
+                    size="sm"
+                    confidenceScore={a.confidenceScore}
+                  />
+                  <div className="num-display text-2xl font-bold text-amber">{a.score ?? "—"}</div>
                 </div>
                 {a.tagline && (
                   <p className="mt-4 border-l border-amber/40 pl-3 font-mono text-xs italic text-paper-muted">
@@ -470,7 +502,8 @@ function HomePage() {
         <Panel className="text-center" bodyClassName="px-6 py-16">
           <div className="label-amber">Final word</div>
           <h2 className="mt-4 font-display text-5xl font-bold text-paper sm:text-6xl">
-            Paste the mint.<br />
+            Paste the mint.
+            <br />
             <span className="text-amber">Let the tape speak.</span>
           </h2>
           <div className="mx-auto mt-10 max-w-2xl">

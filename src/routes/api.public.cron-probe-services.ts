@@ -67,7 +67,9 @@ export const Route = createFileRoute("/api/public/cron-probe-services")({
 
           const services = (data ?? []) as unknown as ServiceRow[];
           const now = Date.now();
-          const due = services.filter((s) => isDue(s.last_challenge_probe_at, now, CHALLENGE_INTERVAL_MS));
+          const due = services.filter((s) =>
+            isDue(s.last_challenge_probe_at, now, CHALLENGE_INTERVAL_MS),
+          );
           const batch = due.slice(0, MAX_CHALLENGE_PROBES);
 
           let settlementsRun = 0;

@@ -26,14 +26,8 @@ import {
   type X402DetectionMethod,
   type X402Event,
 } from "@/lib/indexer/decode-x402.server";
-import {
-  getActiveFacilitators,
-  facilitatorAddressList,
-} from "@/lib/indexer/facilitators.server";
-import {
-  fetchEnhancedTxs,
-  type HeliusEnhancedTx,
-} from "@/lib/indexer/helius.server";
+import { getActiveFacilitators, facilitatorAddressList } from "@/lib/indexer/facilitators.server";
+import { fetchEnhancedTxs, type HeliusEnhancedTx } from "@/lib/indexer/helius.server";
 
 const HELIUS_RPC = "https://mainnet.helius-rpc.com";
 
@@ -99,9 +93,7 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
           const txs = await fetchEnhancedTxs(batch);
           parsed += txs.length;
           for (const tx of txs) {
-            const candidates = collectReceivers(tx).filter(
-              (w) => !facAddresses.includes(w),
-            );
+            const candidates = collectReceivers(tx).filter((w) => !facAddresses.includes(w));
             if (candidates.length === 0) continue;
             const events = decodeX402Tx(tx, candidates, { registry });
             for (const ev of events) {
@@ -136,10 +128,7 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
               .select("executor_wallet")
               .in("executor_wallet", recipientList),
             supabaseAdmin.from("agents").select("mint").in("mint", recipientList),
-            supabaseAdmin
-              .from("candidate_agents")
-              .select("mint")
-              .in("mint", recipientList),
+            supabaseAdmin.from("candidate_agents").select("mint").in("mint", recipientList),
           ]);
         const known = new Set<string>([
           ...(agentsByExec ?? []).map((r) => r.executor_wallet).filter((v): v is string => !!v),
@@ -168,7 +157,6 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
             .select("mint");
           if (!error && inserted) queued = inserted.length;
         }
-
 
         const duration = Date.now() - startedAt;
         await heartbeat(
@@ -222,11 +210,7 @@ async function persistSettlementIfKnownAgent(ev: X402Event): Promise<boolean> {
   }
 }
 
-
-async function getRecentSignatures(
-  apiKey: string,
-  programId: string,
-): Promise<string[]> {
+async function getRecentSignatures(apiKey: string, programId: string): Promise<string[]> {
   try {
     const res = await fetch(`${HELIUS_RPC}/?api-key=${apiKey}`, {
       method: "POST",
@@ -242,14 +226,11 @@ async function getRecentSignatures(
     const body = (await res.json()) as {
       result?: Array<{ signature: string; err: unknown }>;
     };
-    return (body.result ?? [])
-      .filter((r) => r.err === null)
-      .map((r) => r.signature);
+    return (body.result ?? []).filter((r) => r.err === null).map((r) => r.signature);
   } catch {
     return [];
   }
 }
-
 
 // Collect every wallet that received SOL or USDC in this tx — those are the
 // only candidates a real x402 receipt could point at.
@@ -267,12 +248,7 @@ function collectReceivers(tx: HeliusEnhancedTx): string[] {
   return Array.from(out);
 }
 
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

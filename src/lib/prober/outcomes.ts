@@ -11,8 +11,7 @@
 export const PROBER_VERSION = "spx-prober-v1.0.0";
 
 /** User-Agent the prober always identifies itself with. No covert probing. */
-export const PROBE_USER_AGENT =
-  "SPX402-Probe/1.0 (+https://spx402.com/methodology)";
+export const PROBE_USER_AGENT = "SPX402-Probe/1.0 (+https://spx402.com/methodology)";
 
 export const PROBE_CAPS = {
   /** Skip any advertised amount above this and record `over_cap`. */
@@ -140,7 +139,9 @@ function str(value: unknown): string | null {
 /**
  * Normalize one `accepts[]` entry (identical shape in v1 body and v2 header).
  */
-function fromRequirement(req: Record<string, unknown>): Omit<ParsedChallenge, "source" | "raw" | "x402Version"> {
+function fromRequirement(
+  req: Record<string, unknown>,
+): Omit<ParsedChallenge, "source" | "raw" | "x402Version"> {
   const extra = asRecord(req.extra) ?? {};
   const decimalsRaw = extra.decimals ?? req.decimals;
   const decimals =
@@ -150,8 +151,7 @@ function fromRequirement(req: Record<string, unknown>): Omit<ParsedChallenge, "s
         ? Number(decimalsRaw)
         : 6; // USDC-class default; x402 amounts are USDC base units in practice.
 
-  const amountAtomic =
-    str(req.maxAmountRequired) ?? str(req.amount) ?? str(req.maxAmount) ?? null;
+  const amountAtomic = str(req.maxAmountRequired) ?? str(req.amount) ?? str(req.maxAmount) ?? null;
 
   let amountUsd: number | null = null;
   if (amountAtomic != null && Number.isFinite(decimals)) {
@@ -166,8 +166,7 @@ function fromRequirement(req: Record<string, unknown>): Omit<ParsedChallenge, "s
     payTo: str(req.payTo) ?? str(req.pay_to) ?? str(req.payToAddress),
     amountAtomic,
     amountUsd,
-    facilitator:
-      str(req.facilitator) ?? str((asRecord(req.extra) ?? {}).facilitator) ?? null,
+    facilitator: str(req.facilitator) ?? str((asRecord(req.extra) ?? {}).facilitator) ?? null,
     resource: str(req.resource),
   };
 }
@@ -191,10 +190,7 @@ export function parseChallenge(input: {
     input.headers["x-payment-required"] ??
     null;
 
-  const tryPayload = (
-    payload: unknown,
-    source: "header" | "body",
-  ): ParsedChallenge | null => {
+  const tryPayload = (payload: unknown, source: "header" | "body"): ParsedChallenge | null => {
     const root = asRecord(payload);
     if (!root) return null;
     const accepts = Array.isArray(root.accepts)
@@ -272,10 +268,7 @@ export function validateChallenge(c: ParsedChallenge): ChallengeValidation {
 }
 
 /** Chain-aware wallet comparison: EVM is case-insensitive, base58 is not. */
-export function walletsMatch(
-  a: string | null | undefined,
-  b: string | null | undefined,
-): boolean {
+export function walletsMatch(a: string | null | undefined, b: string | null | undefined): boolean {
   if (!a || !b) return false;
   if (a.startsWith("0x") && b.startsWith("0x")) {
     return a.toLowerCase() === b.toLowerCase();
@@ -518,7 +511,6 @@ export function payeeSlug(payTo: string): string {
   return cleaned.slice(0, 120);
 }
 
-
 /** Human label for an outcome, used across the UI. */
 export function outcomeLabel(outcome: string): string {
   switch (outcome) {
@@ -550,9 +542,7 @@ export function outcomeLabel(outcome: string): string {
 }
 
 /** UI tone for an outcome. */
-export function outcomeTone(
-  outcome: string,
-): "verified" | "amber" | "critical" | "muted" {
+export function outcomeTone(outcome: string): "verified" | "amber" | "critical" | "muted" {
   switch (outcome) {
     case "settled":
     case "challenge_valid":

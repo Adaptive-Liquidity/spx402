@@ -5,7 +5,10 @@ export const Route = createFileRoute("/alerts")({
   head: () => ({
     meta: [
       { title: "Alerts — SPX402" },
-      { name: "description", content: "Email, Telegram, and webhook alerts on tokenized agent execution." },
+      {
+        name: "description",
+        content: "Email, Telegram, and webhook alerts on tokenized agent execution.",
+      },
       { property: "og:title", content: "SPX402 Alerts" },
       { property: "og:description", content: "When the tape changes, you hear it first." },
     ],
@@ -14,9 +17,21 @@ export const Route = createFileRoute("/alerts")({
 });
 
 const CHANNELS = [
-  { icon: Mail, name: "Email", body: "Plain text, no marketing. Designed to be read at 3am during a launch." },
-  { icon: MessageSquare, name: "Telegram", body: "Bot delivery to a private channel. Markdown formatted, signature-linked." },
-  { icon: Webhook, name: "Webhooks", body: "Team plan only. Idempotent JSON, retries with exponential backoff." },
+  {
+    icon: Mail,
+    name: "Email",
+    body: "Plain text, no marketing. Designed to be read at 3am during a launch.",
+  },
+  {
+    icon: MessageSquare,
+    name: "Telegram",
+    body: "Bot delivery to a private channel. Markdown formatted, signature-linked.",
+  },
+  {
+    icon: Webhook,
+    name: "Webhooks",
+    body: "Team plan only. Idempotent JSON, retries with exponential backoff.",
+  },
 ];
 
 const SAMPLES = [
@@ -51,12 +66,13 @@ function AlertsPage() {
       </div>
       <div className="label-amber mt-5">Alerts</div>
       <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
-        When the tape changes,<br />
+        When the tape changes,
+        <br />
         <span className="text-amber">you hear it first.</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-paper-muted">
-        Subscribe to event-level alerts on any agent. Filter by severity, type,
-        and threshold. Operators get notified before holders do.
+        Subscribe to event-level alerts on any agent. Filter by severity, type, and threshold.
+        Operators get notified before holders do.
       </p>
 
       {/* CHANNELS */}
@@ -107,11 +123,13 @@ function AlertsPage() {
           Be first when alerts go live.
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-paper-muted">
-          Create an account now — we'll notify subscribed users the moment the
-          alert pipeline ships.
+          Create an account now — we'll notify subscribed users the moment the alert pipeline ships.
         </p>
         <div className="mt-6">
-          <Link to="/signup" className="inline-flex border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim">
+          <Link
+            to="/signup"
+            className="inline-flex border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim"
+          >
             Create account →
           </Link>
         </div>

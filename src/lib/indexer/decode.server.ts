@@ -52,10 +52,7 @@ export interface AgentLookup {
  * `agents` maps depositAddress → mint (optional) and we also key by mint
  * for burn detection.
  */
-export function decodeTx(
-  tx: HeliusEnhancedTx,
-  agents: AgentLookup[],
-): DecodedEvent[] {
+export function decodeTx(tx: HeliusEnhancedTx, agents: AgentLookup[]): DecodedEvent[] {
   const events: DecodedEvent[] = [];
   const sig = tx.signature ?? "";
   const slot = tx.slot ?? null;

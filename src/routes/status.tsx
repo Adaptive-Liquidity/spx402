@@ -14,7 +14,6 @@ import { fetchProberOverview, type ProberOverview } from "@/lib/prober-data";
 import { outcomeLabel, PROBE_CAPS } from "@/lib/prober/outcomes";
 import { categoryLabel } from "@/lib/agents/categories";
 
-
 // Kept in lockstep with FACILITATOR_REGISTRY_VERSION in
 // src/lib/indexer/facilitators.server.ts (server-only, so not importable here).
 const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
@@ -25,8 +24,7 @@ export const Route = createFileRoute("/status")({
       { title: "Status — SPX402" },
       {
         name: "description",
-        content:
-          "Indexer status, parser version, webhook health, reconciliation.",
+        content: "Indexer status, parser version, webhook health, reconciliation.",
       },
     ],
   }),
@@ -40,7 +38,6 @@ export const Route = createFileRoute("/status")({
     ]);
     return { runs, stats, coverage, facilitators, prober };
   },
-
 
   staleTime: 15_000,
   component: StatusPage,
@@ -127,7 +124,6 @@ const COMPONENT_ROWS: Array<{
   },
 ];
 
-
 type Health = "operational" | "degraded" | "no-data";
 
 function healthFor(run: IndexerRunRow | null): Health {
@@ -147,10 +143,8 @@ function StatusPage() {
     coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
     facilitators: FacilitatorRow[];
     prober: ProberOverview;
-
   };
   const activeFacilitators = facilitators.filter((f) => f.active);
-
 
   const healths = COMPONENT_ROWS.map((c) => healthFor(runs[c.key] ?? null));
   const degraded = healths.filter((h) => h === "degraded").length;
@@ -204,11 +198,7 @@ function StatusPage() {
             const run = runs[c.key] ?? null;
             const h = healthFor(run);
             const Icon =
-              h === "operational"
-                ? CheckCircle2
-                : h === "degraded"
-                  ? AlertTriangle
-                  : MinusCircle;
+              h === "operational" ? CheckCircle2 : h === "degraded" ? AlertTriangle : MinusCircle;
             const tone =
               h === "operational"
                 ? "text-verified"
@@ -216,11 +206,7 @@ function StatusPage() {
                   ? "text-critical"
                   : "text-wire";
             const label =
-              h === "operational"
-                ? "operational"
-                : h === "degraded"
-                  ? "degraded"
-                  : "no data";
+              h === "operational" ? "operational" : h === "degraded" ? "degraded" : "no data";
             const note = run
               ? `Last run ${relativeFromNow(run.ranAt)} · ${run.durationMs}ms`
               : "Awaiting first heartbeat";
@@ -235,21 +221,13 @@ function StatusPage() {
                   <Icon className={`h-5 w-5 ${tone}`} />
                 </div>
                 <div className="col-span-6">
-                  <div className="font-display text-base font-semibold text-paper">
-                    {c.name}
-                  </div>
-                  <div className="font-mono text-[11px] text-wire">
-                    {c.description}
-                  </div>
+                  <div className="font-display text-base font-semibold text-paper">{c.name}</div>
+                  <div className="font-mono text-[11px] text-wire">{c.description}</div>
                 </div>
-                <div
-                  className={`col-span-2 font-mono text-xs uppercase tracking-widest ${tone}`}
-                >
+                <div className={`col-span-2 font-mono text-xs uppercase tracking-widest ${tone}`}>
                   {label}
                 </div>
-                <div className="col-span-3 font-mono text-xs text-paper-muted">
-                  {note}
-                </div>
+                <div className="col-span-3 font-mono text-xs text-paper-muted">{note}</div>
               </div>
             );
           })}
@@ -279,9 +257,7 @@ function StatusPage() {
                 className="flex items-baseline justify-between border-b border-bronze/30 pb-2"
               >
                 <dt className="text-sm text-paper-muted">{s.l}</dt>
-                <dd className="num-display text-lg font-semibold text-paper">
-                  {s.v}
-                </dd>
+                <dd className="num-display text-lg font-semibold text-paper">{s.v}</dd>
               </div>
             ))}
           </dl>
@@ -292,19 +268,15 @@ function StatusPage() {
             <div className="font-mono text-sm text-paper-muted">
               No worker heartbeats received yet.
               <div className="mt-2 text-xs text-wire">
-                The indexer fleet (webhook ingest, backfill, scoring,
-                reconciler) will start reporting here once it ships.
+                The indexer fleet (webhook ingest, backfill, scoring, reconciler) will start
+                reporting here once it ships.
               </div>
             </div>
           ) : (
             <ul className="space-y-3">
               {Object.entries(runs)
                 .filter((entry): entry is [string, IndexerRunRow] => entry[1] !== null)
-                .sort(
-                  (a, b) =>
-                    new Date(b[1].ranAt).getTime() -
-                    new Date(a[1].ranAt).getTime(),
-                )
+                .sort((a, b) => new Date(b[1].ranAt).getTime() - new Date(a[1].ranAt).getTime())
                 .map(([worker, r]) => (
                   <li
                     key={worker}
@@ -330,12 +302,11 @@ function StatusPage() {
           Active prober <span className="text-paper-muted">· mystery shopper</span>
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-paper-muted">
-          SPX402 buys from x402 services to measure what passive indexing cannot
-          see: whether a challenge is well-formed, whether payment actually
-          settles, and whether anything is delivered. Every probe announces
-          itself as{" "}
-          <code className="font-mono text-xs text-paper">SPX402-Probe/1.0</code>.
-          Probe results are <strong className="text-paper">not scored</strong>.
+          SPX402 buys from x402 services to measure what passive indexing cannot see: whether a
+          challenge is well-formed, whether payment actually settles, and whether anything is
+          delivered. Every probe announces itself as{" "}
+          <code className="font-mono text-xs text-paper">SPX402-Probe/1.0</code>. Probe results are{" "}
+          <strong className="text-paper">not scored</strong>.
         </p>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -358,9 +329,7 @@ function StatusPage() {
                 },
                 {
                   l: "Last probe",
-                  v: prober.lastProbeAt
-                    ? relativeFromNow(prober.lastProbeAt)
-                    : "never",
+                  v: prober.lastProbeAt ? relativeFromNow(prober.lastProbeAt) : "never",
                 },
               ].map((s) => (
                 <div
@@ -368,9 +337,7 @@ function StatusPage() {
                   className="flex items-baseline justify-between border-b border-bronze/30 pb-2"
                 >
                   <dt className="text-sm text-paper-muted">{s.l}</dt>
-                  <dd className="num-display text-lg font-semibold text-paper">
-                    {s.v}
-                  </dd>
+                  <dd className="num-display text-lg font-semibold text-paper">{s.v}</dd>
                 </div>
               ))}
             </dl>
@@ -402,9 +369,7 @@ function StatusPage() {
                   className="flex items-baseline justify-between border-b border-bronze/30 pb-2"
                 >
                   <dt className="text-sm text-paper-muted">{s.l}</dt>
-                  <dd className="num-display text-lg font-semibold text-paper">
-                    {s.v}
-                  </dd>
+                  <dd className="num-display text-lg font-semibold text-paper">{s.v}</dd>
                 </div>
               ))}
             </dl>
@@ -422,8 +387,8 @@ function StatusPage() {
           </div>
           {prober.runs30d === 0 ? (
             <p className="mt-3 text-sm text-paper-muted">
-              No probes recorded yet. The lane is scheduled and visible; it stays
-              at zero until the prober is enabled and funded — see{" "}
+              No probes recorded yet. The lane is scheduled and visible; it stays at zero until the
+              prober is enabled and funded — see{" "}
               <Link to="/methodology" className="text-amber hover:underline">
                 Active verification
               </Link>
@@ -438,8 +403,7 @@ function StatusPage() {
                     key={outcome}
                     className="border border-bronze/50 px-3 py-1.5 font-mono text-xs text-paper"
                   >
-                    {outcomeLabel(outcome)}{" "}
-                    <span className="text-amber">{count}</span>
+                    {outcomeLabel(outcome)} <span className="text-amber">{count}</span>
                   </span>
                 ))}
             </div>
@@ -456,9 +420,8 @@ function StatusPage() {
           Decoder coverage <span className="text-paper-muted">· last 7 days</span>
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-paper-muted">
-          Every event type SPX402 has actually decoded in the last week,
-          grouped by agent category. An empty row means a dark category — the
-          chain produced events we did not yet recognize.
+          Every event type SPX402 has actually decoded in the last week, grouped by agent category.
+          An empty row means a dark category — the chain produced events we did not yet recognize.
         </p>
         <div className="mt-6 overflow-hidden border border-bronze/50">
           {coverage.length === 0 ? (
@@ -485,9 +448,7 @@ function StatusPage() {
                 <div className="col-span-3 font-mono text-xs text-paper">
                   {categoryLabel(c.category)}
                 </div>
-                <div className="col-span-5 font-mono text-xs text-amber">
-                  {c.type}
-                </div>
+                <div className="col-span-5 font-mono text-xs text-amber">{c.type}</div>
                 <div className="num-display col-span-2 text-right text-sm text-paper">
                   {c.count.toLocaleString()}
                 </div>
@@ -510,10 +471,9 @@ function StatusPage() {
           </span>
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-paper-muted">
-          Tier A x402 detection recognises a settlement when the transaction
-          fee-payer is a known facilitator. An address is only activated once
-          the operator publishes it <em>and</em> a captured fixture proves
-          detection. Addresses are never inferred from chain traffic.
+          Tier A x402 detection recognises a settlement when the transaction fee-payer is a known
+          facilitator. An address is only activated once the operator publishes it <em>and</em> a
+          captured fixture proves detection. Addresses are never inferred from chain traffic.
         </p>
         <div className="mt-4 inline-flex items-center gap-2 border border-bronze/60 bg-panel-deep px-4 py-2 font-mono text-xs uppercase tracking-widest text-paper-muted">
           <span className="text-amber">{activeFacilitators.length}</span>
@@ -522,9 +482,8 @@ function StatusPage() {
         <div className="mt-6 overflow-hidden border border-bronze/50">
           {facilitators.length === 0 ? (
             <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
-              No facilitator addresses registered. Tier A detection is
-              inactive; x402 settlements are detected via Tier B (memo /
-              protocol markers) only, at medium confidence.
+              No facilitator addresses registered. Tier A detection is inactive; x402 settlements
+              are detected via Tier B (memo / protocol markers) only, at medium confidence.
             </div>
           ) : (
             <>
@@ -541,16 +500,10 @@ function StatusPage() {
                     i % 2 ? "bg-panel" : "bg-background"
                   }`}
                 >
-                  <div className="col-span-4 font-mono text-xs text-paper">
-                    {f.name}
-                  </div>
-                  <div className="col-span-2 font-mono text-xs text-paper-muted">
-                    {f.chain}
-                  </div>
+                  <div className="col-span-4 font-mono text-xs text-paper">{f.name}</div>
+                  <div className="col-span-2 font-mono text-xs text-paper-muted">{f.chain}</div>
                   <div className="col-span-4 font-mono text-xs text-amber">
-                    {f.address
-                      ? `${f.address.slice(0, 6)}…${f.address.slice(-6)}`
-                      : "—"}
+                    {f.address ? `${f.address.slice(0, 6)}…${f.address.slice(-6)}` : "—"}
                   </div>
                   <div
                     className={`col-span-2 text-right font-mono text-[10px] uppercase tracking-widest ${
@@ -570,16 +523,14 @@ function StatusPage() {
         <div className="label-amber">Known parser limitations</div>
         <ul className="mt-3 space-y-2 text-sm text-paper-muted">
           <li>
-            • Custom buyback routes outside published Pump/PumpSwap IDLs surface
-            as low-confidence events.
+            • Custom buyback routes outside published Pump/PumpSwap IDLs surface as low-confidence
+            events.
           </li>
           <li>
-            • Multi-step burn sequences across multiple slots may be reconciled
-            with up to 90 seconds of delay.
+            • Multi-step burn sequences across multiple slots may be reconciled with up to 90
+            seconds of delay.
           </li>
-          <li>
-            • Off-chain operator activity is, by definition, invisible to SPX402.
-          </li>
+          <li>• Off-chain operator activity is, by definition, invisible to SPX402.</li>
         </ul>
       </section>
     </div>

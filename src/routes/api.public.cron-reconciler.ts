@@ -19,9 +19,7 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
         }
 
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const { data: agents } = await supabaseAdmin
-          .from("agents")
-          .select("mint");
+        const { data: agents } = await supabaseAdmin.from("agents").select("mint");
 
         let flagged = 0;
         for (const a of agents ?? []) {
@@ -36,9 +34,7 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
           const buybacks = (events ?? []).filter((e) => e.type === "BUYBACK_EXECUTED");
           const burns = (events ?? []).filter((e) => e.type === "BURN_CONFIRMED");
           const failed = new Set(
-            (events ?? [])
-              .filter((e) => e.type === "FAILED_WINDOW")
-              .map((e) => e.signature),
+            (events ?? []).filter((e) => e.type === "FAILED_WINDOW").map((e) => e.signature),
           );
 
           for (const b of buybacks) {
@@ -49,21 +45,19 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
               return t >= bTime && t - bTime <= TOLERANCE_MS;
             });
             if (!matched) {
-              await supabaseAdmin
-                .from("agent_events")
-                .upsert(
-                  {
-                    mint: a.mint,
-                    type: "FAILED_WINDOW",
-                    severity: "critical",
-                    signature: `failwin-${b.signature}`,
-                    occurred_at: new Date(bTime + TOLERANCE_MS).toISOString(),
-                    amount_sol: 0,
-                    amount_token: 0,
-                    raw: { sourceSignature: b.signature, reason: "no_burn_in_tolerance" },
-                  },
-                  { onConflict: "signature", ignoreDuplicates: true },
-                );
+              await supabaseAdmin.from("agent_events").upsert(
+                {
+                  mint: a.mint,
+                  type: "FAILED_WINDOW",
+                  severity: "critical",
+                  signature: `failwin-${b.signature}`,
+                  occurred_at: new Date(bTime + TOLERANCE_MS).toISOString(),
+                  amount_sol: 0,
+                  amount_token: 0,
+                  raw: { sourceSignature: b.signature, reason: "no_burn_in_tolerance" },
+                },
+                { onConflict: "signature", ignoreDuplicates: true },
+              );
               flagged++;
             }
           }
@@ -77,13 +71,7 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
   },
 });
 
-
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

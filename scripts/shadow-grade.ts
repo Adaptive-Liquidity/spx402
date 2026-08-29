@@ -31,7 +31,9 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const HELIUS_API_KEY = process.env.HELIUS_API_KEY!;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !HELIUS_API_KEY) {
-  console.error("❌ Missing required env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, HELIUS_API_KEY");
+  console.error(
+    "❌ Missing required env vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, HELIUS_API_KEY",
+  );
   process.exit(1);
 }
 
@@ -50,14 +52,22 @@ interface HeliusEnhancedTx {
   timestamp: number;
   feePayer: string;
   nativeTransfers: Array<{ fromUserAccount: string; toUserAccount: string; amount: number }>;
-  tokenTransfers: Array<{ mint: string; fromUserAccount: string; toUserAccount: string; tokenAmount: number }>;
+  tokenTransfers: Array<{
+    mint: string;
+    fromUserAccount: string;
+    toUserAccount: string;
+    tokenAmount: number;
+  }>;
   instructions: Array<{ programId: string; accounts: string[]; data: string }>;
   transactionError: string | null;
   source: string;
   description: string;
 }
 
-async function fetchAgentTransactions(mint: string, daysBack: number = 30): Promise<HeliusEnhancedTx[]> {
+async function fetchAgentTransactions(
+  mint: string,
+  daysBack: number = 30,
+): Promise<HeliusEnhancedTx[]> {
   const url = `https://api.helius.xyz/v0/addresses/${mint}/transactions?api-key=${HELIUS_API_KEY}&limit=1000`;
   const res = await fetch(url);
   if (!res.ok) {
@@ -138,7 +148,9 @@ async function fetchSupabaseDemoAgents(limit: number = 30): Promise<ShadowAgent[
   try {
     const { data, error } = await supabase
       .from("agents")
-      .select("mint, symbol, name, category, aeon_cri_address, active_bond_amount, total_slashed_usd, escrow_success_rate, total_escrows_completed, total_escrows_failed")
+      .select(
+        "mint, symbol, name, category, aeon_cri_address, active_bond_amount, total_slashed_usd, escrow_success_rate, total_escrows_completed, total_escrows_failed",
+      )
       .limit(limit);
 
     if (error) throw error;
@@ -194,23 +206,27 @@ async function backfillAgentCounters(agent: ShadowAgent): Promise<ShadowAgent> {
   for (const tx of txs) {
     // Count SOL deposits to the mint/deposit address
     const nativeReceived = tx.nativeTransfers
-      .filter(t => t.toUserAccount === agent.mint || t.toUserAccount === agent.depositAddress)
+      .filter((t) => t.toUserAccount === agent.mint || t.toUserAccount === agent.depositAddress)
       .reduce((sum, t) => sum + t.amount, 0);
     if (nativeReceived > 0) totalDeposits++;
 
     // Count SPL burns of this mint
-    const burns = tx.tokenTransfers
-      .filter(t => t.mint === agent.mint && t.tokenAmount < 0);
+    const burns = tx.tokenTransfers.filter((t) => t.mint === agent.mint && t.tokenAmount < 0);
     if (burns.length > 0) totalBurns += burns.length;
 
     // Count pump.fun buybacks (simplified)
-    if (tx.instructions.some(ix => ix.programId === "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")) {
-      const tokensIn = tx.tokenTransfers.filter(t => t.mint === agent.mint && t.tokenAmount > 0);
+    if (
+      tx.instructions.some((ix) => ix.programId === "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
+    ) {
+      const tokensIn = tx.tokenTransfers.filter((t) => t.mint === agent.mint && t.tokenAmount > 0);
       if (tokensIn.length > 0) totalBuybacks++;
     }
 
     // Failed transactions touching the mint
-    if (tx.transactionError && tx.instructions.some(ix => ix.programId === "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")) {
+    if (
+      tx.transactionError &&
+      tx.instructions.some((ix) => ix.programId === "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
+    ) {
       failedWindows++;
     }
   }
@@ -252,7 +268,7 @@ function generateTerminalCardSVG(agent: ShadowAgent): string {
   
   <!-- Scanlines -->
   <g opacity="0.08">
-    ${Array.from({length: 500}, (_, i) => i % 4 === 0 ? `<line x1="0" y1="${i}" x2="800" y2="${i}" stroke="#F5A623" stroke-width="0.5"/>` : "").join("")}
+    ${Array.from({ length: 500 }, (_, i) => (i % 4 === 0 ? `<line x1="0" y1="${i}" x2="800" y2="${i}" stroke="#F5A623" stroke-width="0.5"/>` : "")).join("")}
   </g>
 
   <!-- Border -->
@@ -282,20 +298,43 @@ function generateTerminalCardSVG(agent: ShadowAgent): string {
   <g font-family="'IBM Plex Mono', monospace">
     ${[
       ["ESCROWS SETTLED", agent.escrowsCompleted.toString(), "verified"],
-      ["SUCCESS RATE", `${(agent.escrowSuccessRate * 100).toFixed(1)}%`, agent.escrowSuccessRate >= 0.95 ? "verified" : "amber"],
-      ["ACTIVE BOND", `$${agent.activeBondAmount.toLocaleString()}`, agent.activeBondAmount > 0 ? "verified" : "critical"],
-      ["TOTAL SLASHED", `$${agent.totalSlashedUsd.toLocaleString()}`, agent.totalSlashedUsd > 0 ? "critical" : "verified"],
-      ["FAILED WINDOWS", agent.failedWindows.toString(), agent.failedWindows > 10 ? "critical" : "amber"],
-      ["OPERATOR", agent.operatorVerified ? "VERIFIED" : "UNVERIFIED", agent.operatorVerified ? "verified" : "critical"],
-    ].map(([label, value, tone], i) => {
-      const x = 50 + (i % 3) * 250;
-      const y = 290 + Math.floor(i / 3) * 90;
-      const valueColor = tone === "verified" ? "#27AE60" : tone === "amber" ? "#F5A623" : "#C0392B";
-      return `
+      [
+        "SUCCESS RATE",
+        `${(agent.escrowSuccessRate * 100).toFixed(1)}%`,
+        agent.escrowSuccessRate >= 0.95 ? "verified" : "amber",
+      ],
+      [
+        "ACTIVE BOND",
+        `$${agent.activeBondAmount.toLocaleString()}`,
+        agent.activeBondAmount > 0 ? "verified" : "critical",
+      ],
+      [
+        "TOTAL SLASHED",
+        `$${agent.totalSlashedUsd.toLocaleString()}`,
+        agent.totalSlashedUsd > 0 ? "critical" : "verified",
+      ],
+      [
+        "FAILED WINDOWS",
+        agent.failedWindows.toString(),
+        agent.failedWindows > 10 ? "critical" : "amber",
+      ],
+      [
+        "OPERATOR",
+        agent.operatorVerified ? "VERIFIED" : "UNVERIFIED",
+        agent.operatorVerified ? "verified" : "critical",
+      ],
+    ]
+      .map(([label, value, tone], i) => {
+        const x = 50 + (i % 3) * 250;
+        const y = 290 + Math.floor(i / 3) * 90;
+        const valueColor =
+          tone === "verified" ? "#27AE60" : tone === "amber" ? "#F5A623" : "#C0392B";
+        return `
         <text x="${x}" y="${y}" font-size="9" fill="#6F6F64">${label}</text>
         <text x="${x}" y="${y + 22}" font-size="18" font-weight="bold" fill="${valueColor}">${value}</text>
       `;
-    }).join("")}
+      })
+      .join("")}
   </g>
 
   <!-- Verdict -->
@@ -325,7 +364,7 @@ async function main() {
 
   // Parse CLI args
   const args = process.argv.slice(2);
-  const limit = parseInt(args.find(a => a.startsWith("--limit="))?.split("=")[1] ?? "50");
+  const limit = parseInt(args.find((a) => a.startsWith("--limit="))?.split("=")[1] ?? "50");
   const postToX = args.includes("--post-to-x");
 
   // Fetch demo agents from Supabase (for testing)
@@ -357,19 +396,26 @@ async function main() {
   const report = {
     generatedAt: new Date().toISOString(),
     totalAgents: gradedAgents.length,
-    gradeDistribution: gradedAgents.reduce((acc, a) => {
-      acc[a.grade] = (acc[a.grade] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>),
+    gradeDistribution: gradedAgents.reduce(
+      (acc, a) => {
+        acc[a.grade] = (acc[a.grade] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    ),
     agents: gradedAgents,
   };
   writeFileSync(resolve(OUTPUT_DIR, "shadow-grade-report.json"), JSON.stringify(report, null, 2));
 
   // Write CSV
-  const csvHeader = "Mint,Symbol,Name,Category,Grade,Score,Verdict,Escrows,SuccessRate,ActiveBond,TotalSlashed,FailedWindows,OperatorVerified\n";
-  const csvRows = gradedAgents.map(a => 
-    `${a.mint},${a.symbol},${a.name},${a.category},${a.grade},${a.score},"${a.verdict}",${a.escrowsCompleted},${(a.escrowSuccessRate*100).toFixed(1)},${a.activeBondAmount},${a.totalSlashedUsd},${a.failedWindows},${a.operatorVerified}`
-  ).join("\n");
+  const csvHeader =
+    "Mint,Symbol,Name,Category,Grade,Score,Verdict,Escrows,SuccessRate,ActiveBond,TotalSlashed,FailedWindows,OperatorVerified\n";
+  const csvRows = gradedAgents
+    .map(
+      (a) =>
+        `${a.mint},${a.symbol},${a.name},${a.category},${a.grade},${a.score},"${a.verdict}",${a.escrowsCompleted},${(a.escrowSuccessRate * 100).toFixed(1)},${a.activeBondAmount},${a.totalSlashedUsd},${a.failedWindows},${a.operatorVerified}`,
+    )
+    .join("\n");
   writeFileSync(resolve(OUTPUT_DIR, "shadow-grade-report.csv"), csvHeader + csvRows);
 
   // Summary
@@ -385,10 +431,15 @@ async function main() {
 
   // Top/bottom
   console.log("\n🏆 TOP 5 (Least Bad):");
-  gradedAgents.slice(0, 5).forEach((a, i) => console.log(`  ${i+1}. $${a.symbol} — ${a.grade} (${a.score})`));
+  gradedAgents
+    .slice(0, 5)
+    .forEach((a, i) => console.log(`  ${i + 1}. $${a.symbol} — ${a.grade} (${a.score})`));
 
   console.log("\n💀 BOTTOM 5 (Worst):");
-  gradedAgents.slice(-5).reverse().forEach((a, i) => console.log(`  ${i+1}. $${a.symbol} — ${a.grade} (${a.score})`));
+  gradedAgents
+    .slice(-5)
+    .reverse()
+    .forEach((a, i) => console.log(`  ${i + 1}. $${a.symbol} — ${a.grade} (${a.score})`));
 
   if (postToX) {
     console.log("\n🐦 Posting to X/Twitter... (not implemented in this version)");

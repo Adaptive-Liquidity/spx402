@@ -6,24 +6,48 @@ export const Route = createFileRoute("/operators")({
   head: () => ({
     meta: [
       { title: "Operators — Prove your agent is not just talking · SPX402" },
-      { name: "description", content: "Verify operator identity. Catch execution failures. Publish a badge with teeth." },
+      {
+        name: "description",
+        content: "Verify operator identity. Catch execution failures. Publish a badge with teeth.",
+      },
       { property: "og:title", content: "SPX402 for Operators" },
-      { property: "og:description", content: "Prove execution. Catch failures. Verify your wallet." },
+      {
+        property: "og:description",
+        content: "Prove execution. Catch failures. Verify your wallet.",
+      },
     ],
   }),
   component: OperatorsPage,
 });
 
 const STEPS = [
-  { icon: KeyRound, title: "Connect wallet", body: "Connect the same Solana wallet listed as the agent creator on-chain." },
-  { icon: ShieldCheck, title: "Sign one message", body: "Sign a one-time challenge string. SPX402 verifies the Ed25519 signature." },
-  { icon: Eye, title: "Operator Verified", body: "If the signature matches the creator record, your dossier shows Operator Verified." },
+  {
+    icon: KeyRound,
+    title: "Connect wallet",
+    body: "Connect the same Solana wallet listed as the agent creator on-chain.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Sign one message",
+    body: "Sign a one-time challenge string. SPX402 verifies the Ed25519 signature.",
+  },
+  {
+    icon: Eye,
+    title: "Operator Verified",
+    body: "If the signature matches the creator record, your dossier shows Operator Verified.",
+  },
 ];
 
 const ALERT_TYPES = [
-  { title: "Buyback missed", body: "Expected buyback window passed without a confirmed instruction." },
+  {
+    title: "Buyback missed",
+    body: "Expected buyback window passed without a confirmed instruction.",
+  },
   { title: "Burn missing", body: "Buyback observed but no SPL burn within the expected window." },
-  { title: "Deposit unsupported", body: "Asset received that does not match supported initial receipt assets." },
+  {
+    title: "Deposit unsupported",
+    body: "Asset received that does not match supported initial receipt assets.",
+  },
   { title: "Config changed", body: "Creator changed buyback parameters on-chain." },
   { title: "Webhook lag", body: "Helius delivery latency above your operator threshold." },
 ];
@@ -36,9 +60,8 @@ function OperatorsPage() {
         Prove your agent is <span className="text-amber">not just talking.</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-paper-muted">
-        Operators publish on the same scoreboard as the agents they ship. SPX402
-        gives you a verifiable identity, an alert pipeline, and a badge that costs
-        more to fake than to earn.
+        Operators publish on the same scoreboard as the agents they ship. SPX402 gives you a
+        verifiable identity, an alert pipeline, and a badge that costs more to fake than to earn.
       </p>
 
       {/* VERIFY FLOW */}
@@ -70,8 +93,8 @@ function OperatorsPage() {
       <section className="mt-16">
         <h2 className="font-display text-2xl font-bold text-paper">Publish a verified badge</h2>
         <p className="mt-3 max-w-2xl text-paper-muted">
-          Embed the badge on your site, token page, docs, or community post. Every
-          badge links back to the public dossier so any reader can audit the source.
+          Embed the badge on your site, token page, docs, or community post. Every badge links back
+          to the public dossier so any reader can audit the source.
         </p>
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="panel-engraved flex items-center justify-center p-12">
@@ -86,7 +109,7 @@ function OperatorsPage() {
           <div className="panel-engraved p-6">
             <div className="label-amber">Embed snippet</div>
             <pre className="mt-4 overflow-x-auto border border-bronze/40 bg-panel-deep p-4 font-mono text-[11px] leading-relaxed text-paper">
-{`<a
+              {`<a
   href="https://spx402.xyz/agent/7xKQ92..."
   target="_blank" rel="noopener"
 >
@@ -104,8 +127,8 @@ function OperatorsPage() {
       <section className="mt-16">
         <h2 className="font-display text-2xl font-bold text-paper">Catch execution failures</h2>
         <p className="mt-3 max-w-2xl text-paper-muted">
-          Operators are notified before holders are. Configure thresholds, severity,
-          and routing per agent.
+          Operators are notified before holders are. Configure thresholds, severity, and routing per
+          agent.
         </p>
         <ul className="mt-8 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-2 lg:grid-cols-3">
           {ALERT_TYPES.map((a) => (
@@ -132,7 +155,10 @@ function OperatorsPage() {
               "Webhook delivery health",
               "Methodology change-impact preview",
             ].map((x) => (
-              <div key={x} className="border-l-2 border-amber/60 bg-panel-deep/40 px-4 py-3 text-sm text-paper">
+              <div
+                key={x}
+                className="border-l-2 border-amber/60 bg-panel-deep/40 px-4 py-3 text-sm text-paper"
+              >
                 {x}
               </div>
             ))}
@@ -141,14 +167,18 @@ function OperatorsPage() {
       </section>
 
       <section className="mt-16 panel-engraved p-8 text-center">
-        <h2 className="font-display text-3xl font-bold text-paper">
-          Ready to prove it on-chain?
-        </h2>
+        <h2 className="font-display text-3xl font-bold text-paper">Ready to prove it on-chain?</h2>
         <div className="mt-6 flex justify-center gap-3">
-          <Link to="/signup" className="border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim">
+          <Link
+            to="/signup"
+            className="border border-amber bg-amber px-5 py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim"
+          >
             Verify operator
           </Link>
-          <Link to="/pricing" className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
+          <Link
+            to="/pricing"
+            className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+          >
             Pricing
           </Link>
         </div>

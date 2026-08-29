@@ -1,9 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import {
-  fetchChangelog,
-  formatReleaseDate,
-  type ChangelogEntry,
-} from "@/lib/live-data";
+import { fetchChangelog, formatReleaseDate, type ChangelogEntry } from "@/lib/live-data";
 
 export const Route = createFileRoute("/changelog")({
   head: () => ({
@@ -54,18 +50,15 @@ function ChangelogPage() {
         Every parser version, on the record.
       </h1>
       <p className="mt-4 text-paper-muted">
-        Every methodology change is timestamped. Old scores can be replayed against
-        the parser version that produced them.
+        Every methodology change is timestamped. Old scores can be replayed against the parser
+        version that produced them.
       </p>
 
       {entries.length === 0 ? (
         <div className="mt-12 border border-dashed border-bronze/60 bg-panel-deep/40 p-10 text-center">
-          <div className="font-mono text-sm text-paper-muted">
-            No changelog entries yet.
-          </div>
+          <div className="font-mono text-sm text-paper-muted">No changelog entries yet.</div>
           <div className="mt-2 font-mono text-xs text-wire">
-            New parser, methodology, and product releases will appear here as
-            they ship.
+            New parser, methodology, and product releases will appear here as they ship.
           </div>
         </div>
       ) : (
@@ -73,9 +66,7 @@ function ChangelogPage() {
           {entries.map((e) => (
             <li key={e.id}>
               <div className="flex items-center gap-3">
-                <span className="num-display text-3xl font-bold text-paper">
-                  {e.version}
-                </span>
+                <span className="num-display text-3xl font-bold text-paper">{e.version}</span>
                 <span
                   className={`border px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest ${
                     TYPE_COLORS[e.type] ?? "text-paper border-bronze/60"
@@ -89,10 +80,7 @@ function ChangelogPage() {
               </div>
               <ul className="mt-4 space-y-2 text-paper-muted">
                 {e.items.map((it) => (
-                  <li
-                    key={it}
-                    className="border-l-2 border-bronze pl-4 text-sm"
-                  >
+                  <li key={it} className="border-l-2 border-bronze pl-4 text-sm">
                     {it}
                   </li>
                 ))}

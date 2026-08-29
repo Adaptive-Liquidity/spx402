@@ -32,10 +32,7 @@ export async function addToWatchlist(
   return data as WatchlistRow;
 }
 
-export async function removeFromWatchlist(
-  userId: string,
-  mint: string,
-): Promise<void> {
+export async function removeFromWatchlist(userId: string, mint: string): Promise<void> {
   const { error } = await supabase
     .from("watchlist")
     .delete()
@@ -44,10 +41,7 @@ export async function removeFromWatchlist(
   if (error) throw error;
 }
 
-export async function isOnWatchlist(
-  userId: string,
-  mint: string,
-): Promise<boolean> {
+export async function isOnWatchlist(userId: string, mint: string): Promise<boolean> {
   const { data, error } = await supabase
     .from("watchlist")
     .select("id")

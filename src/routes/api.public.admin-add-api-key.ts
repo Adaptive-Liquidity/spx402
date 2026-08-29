@@ -44,7 +44,10 @@ export const Route = createFileRoute("/api/public/admin-add-api-key")({
         }
 
         const token = authHeader.slice(7);
-        const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+        const {
+          data: { user },
+          error: authError,
+        } = await supabaseAdmin.auth.getUser(token);
         if (authError || !user) {
           return new Response(JSON.stringify({ ok: false, error: "invalid token" }), {
             status: 401,
@@ -73,18 +76,21 @@ export const Route = createFileRoute("/api/public/admin-add-api-key")({
 
         const [result] = data as Array<{ key_id: string; api_key: string; key_hash: string }>;
 
-        return new Response(JSON.stringify({
-          ok: true,
-          keyId: result.key_id,
-          apiKey: result.api_key, // Only returned ONCE!
-          name,
-          tier,
-          expiresAt,
-          warning: "Store this key securely. It will not be shown again.",
-        }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            keyId: result.key_id,
+            apiKey: result.api_key, // Only returned ONCE!
+            name,
+            tier,
+            expiresAt,
+            warning: "Store this key securely. It will not be shown again.",
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       },
     },
   },

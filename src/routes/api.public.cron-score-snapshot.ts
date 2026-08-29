@@ -38,8 +38,7 @@ export const Route = createFileRoute("/api/public/cron-score-snapshot")({
           confidence_score: a.confidence_score ?? 0,
           grade: a.grade,
           methodology_version: a.methodology_version ?? RISK_SCORE_MODEL_VERSION,
-          confidence_model_version:
-            a.confidence_model_version ?? "spx-confidence-v0.2.0",
+          confidence_model_version: a.confidence_model_version ?? "spx-confidence-v0.2.0",
           taken_at: takenAt,
         }));
 
@@ -55,12 +54,7 @@ export const Route = createFileRoute("/api/public/cron-score-snapshot")({
         }
 
         const duration = Date.now() - started;
-        await heartbeat(
-          "score_snapshot",
-          true,
-          duration,
-          `snapshotted=${inserted}`,
-        );
+        await heartbeat("score_snapshot", true, duration, `snapshotted=${inserted}`);
         return Response.json({
           ok: true,
           snapshotted: inserted,
@@ -71,12 +65,7 @@ export const Route = createFileRoute("/api/public/cron-score-snapshot")({
   },
 });
 
-async function heartbeat(
-  worker: string,
-  ok: boolean,
-  durationMs: number,
-  notes: string,
-) {
+async function heartbeat(worker: string, ok: boolean, durationMs: number, notes: string) {
   try {
     await supabaseAdmin.from("indexer_runs").insert({
       worker,

@@ -71,11 +71,7 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
 
 type CategoryFilter = "all" | AgentCategory;
 
-function rankAgents(
-  agents: Agent[],
-  tab: Tab,
-  catFilter: CategoryFilter,
-): Agent[] {
+function rankAgents(agents: Agent[], tab: Tab, catFilter: CategoryFilter): Agent[] {
   // Quality gate first: leaderboard surfaces never include SPX D, SPX404,
   // or flagged agents. Those live on /explore and /flagged respectively.
   let qualified = agents.filter(qualifiesForLeaderboard);
@@ -93,7 +89,7 @@ function rankAgents(
     // For pump.fun fee-buyback agents there are no explicit deposit events,
     // so buybackExecutionRate stays 0. Fall back to a normalized buyback
     // count signal so those agents aren't unfairly buried.
-    const consistencySignal = (a: typeof qualified[number]) => {
+    const consistencySignal = (a: (typeof qualified)[number]) => {
       if (a.buybackExecutionRate > 0) return a.buybackExecutionRate;
       // Treat 20+ buybacks with zero deposits as ~"100% fee-routed".
       if (a.totalDepositsCount === 0 && a.totalBuybacksCount > 0) {
@@ -136,10 +132,7 @@ function LeaderboardPage() {
       .finally(() => setMoversLoading(false));
   }, [tab, movers]);
 
-  const ranked = useMemo(
-    () => rankAgents(agents, tab, catFilter),
-    [agents, tab, catFilter],
-  );
+  const ranked = useMemo(() => rankAgents(agents, tab, catFilter), [agents, tab, catFilter]);
   const active = TABS.find((t) => t.id === tab)!;
 
   // Per-category counts (qualified pool only) for the chip badges.
@@ -170,9 +163,8 @@ function LeaderboardPage() {
             Ranked by what the chain settles.
           </h1>
           <p className="mt-4 max-w-2xl text-paper-muted">
-            Not by holders. Not by sentiment. Not by who shouted the loudest.
-            SPX402 ranks Solana agents by the execution patterns it can verify
-            on-chain.
+            Not by holders. Not by sentiment. Not by who shouted the loudest. SPX402 ranks Solana
+            agents by the execution patterns it can verify on-chain.
           </p>
         </div>
         {topEarner && (
@@ -202,39 +194,35 @@ function LeaderboardPage() {
 
       {/* Category filter chips — narrow leaderboard scope to one agent type */}
       <div className="mt-10 flex flex-wrap gap-2">
-        {(["all", ...CATEGORIES.map((c) => c.id)] as CategoryFilter[]).map(
-          (id) => {
-            const isActive = catFilter === id;
-            const label =
-              id === "all"
-                ? "All Categories"
-                : CATEGORIES.find((c) => c.id === id)!.label;
-            const count = categoryCounts[id] ?? 0;
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setCatFilter(id)}
-                className={`flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+        {(["all", ...CATEGORIES.map((c) => c.id)] as CategoryFilter[]).map((id) => {
+          const isActive = catFilter === id;
+          const label =
+            id === "all" ? "All Categories" : CATEGORIES.find((c) => c.id === id)!.label;
+          const count = categoryCounts[id] ?? 0;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setCatFilter(id)}
+              className={`flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+                isActive
+                  ? "border-amber bg-amber/10 text-amber"
+                  : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
+              }`}
+            >
+              {label}
+              <span
+                className={`border px-1 py-0.5 text-[9px] ${
                   isActive
-                    ? "border-amber bg-amber/10 text-amber"
-                    : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
+                    ? "border-amber/60 bg-amber/10 text-amber"
+                    : "border-bronze/40 bg-panel-deep text-wire"
                 }`}
               >
-                {label}
-                <span
-                  className={`border px-1 py-0.5 text-[9px] ${
-                    isActive
-                      ? "border-amber/60 bg-amber/10 text-amber"
-                      : "border-bronze/40 bg-panel-deep text-wire"
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          },
-        )}
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="mt-6 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
@@ -273,9 +261,7 @@ function LeaderboardPage() {
           )}
         </div>
         <span className="font-mono text-xs uppercase tracking-widest text-wire">
-          {tab === "movers"
-            ? `${movers?.length ?? 0} movers`
-            : `${ranked.length} ranked`}
+          {tab === "movers" ? `${movers?.length ?? 0} movers` : `${ranked.length} ranked`}
         </span>
       </div>
 
@@ -330,8 +316,8 @@ function LeaderboardPage() {
           Want your agent on this board?
         </h2>
         <p className="mt-3 text-paper-muted">
-          Register your mint or Agent Registry PDA. SPX402 indexes your
-          execution and ranks you automatically — no email gate, no pay-to-rank.
+          Register your mint or Agent Registry PDA. SPX402 indexes your execution and ranks you
+          automatically — no email gate, no pay-to-rank.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -385,21 +371,15 @@ function MoverRow({ mover, rank }: { mover: ScoreMover; rank: number }) {
       </span>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-lg font-bold text-paper">
-            ${mover.symbol}
-          </span>
+          <span className="font-display text-lg font-bold text-paper">${mover.symbol}</span>
           <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
             {mover.grade}
           </span>
         </div>
-        <div className="mt-1 truncate font-mono text-[11px] text-paper-muted">
-          {mover.name}
-        </div>
+        <div className="mt-1 truncate font-mono text-[11px] text-paper-muted">{mover.name}</div>
       </div>
       <div className="text-right">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">
-          score
-        </div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-wire">score</div>
         <div className="num-display text-base text-paper">
           {mover.previousScore} → {mover.currentScore}
         </div>

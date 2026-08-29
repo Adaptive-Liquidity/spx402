@@ -18,8 +18,7 @@ export const Route = createFileRoute("/explore")({
       { property: "og:title", content: "Explore tokenized agents — SPX402" },
       {
         property: "og:description",
-        content:
-          "Filter by observable execution. Not by vibes. Includes the SPX404 archive.",
+        content: "Filter by observable execution. Not by vibes. Includes the SPX404 archive.",
       },
     ],
   }),
@@ -57,14 +56,12 @@ const GRADE_FILTERS: Array<{
     id: "high",
     label: "High Trust",
     description: "Grades SPX A through SPX AAA. Strongest execution evidence.",
-    match: (a) =>
-      a.grade === "SPX AAA" || a.grade === "SPX AA" || a.grade === "SPX A",
+    match: (a) => a.grade === "SPX AAA" || a.grade === "SPX AA" || a.grade === "SPX A",
   },
   {
     id: "mid",
     label: "Mid Trust",
-    description:
-      "Grades SPX BB and SPX BBB. Acceptable execution with some coverage gaps.",
+    description: "Grades SPX BB and SPX BBB. Acceptable execution with some coverage gaps.",
     match: (a) => a.grade === "SPX BBB" || a.grade === "SPX BB",
   },
   {
@@ -88,19 +85,13 @@ function ExplorePage() {
   const [filter, setFilter] = useState<GradeFilter>("all");
 
   // Flagged agents never appear on /explore — they live on /flagged only.
-  const visible = useMemo(
-    () => allAgents.filter((a: Agent) => !a.flagged),
-    [allAgents],
-  );
+  const visible = useMemo(() => allAgents.filter((a: Agent) => !a.flagged), [allAgents]);
 
   const flaggedCount = allAgents.length - visible.length;
 
   const active = GRADE_FILTERS.find((f) => f.id === filter)!;
   const filtered = useMemo(
-    () =>
-      [...visible]
-        .filter(active.match)
-        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
+    () => [...visible].filter(active.match).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
     [visible, active],
   );
 
@@ -132,10 +123,9 @@ function ExplorePage() {
             Every Solana agent we have heard.
           </h1>
           <p className="mt-4 max-w-xl text-paper-muted">
-            Filter by execution grade. The full index — including the SPX404
-            archive of agents we found but couldn&apos;t verify. The
-            leaderboard only shows high-trust grades; this page shows
-            everything else too.
+            Filter by execution grade. The full index — including the SPX404 archive of agents we
+            found but couldn&apos;t verify. The leaderboard only shows high-trust grades; this page
+            shows everything else too.
           </p>
         </div>
         <div className="lg:col-span-5">
@@ -176,9 +166,7 @@ function ExplorePage() {
       <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="label-amber">{active.label}</div>
-          <p className="mt-1 max-w-xl text-sm text-paper-muted">
-            {active.description}
-          </p>
+          <p className="mt-1 max-w-xl text-sm text-paper-muted">{active.description}</p>
         </div>
         <span className="font-mono text-xs uppercase tracking-widest text-wire">
           {filtered.length} agents
@@ -189,10 +177,9 @@ function ExplorePage() {
         <div className="mt-4 flex items-start gap-3 border border-critical/40 bg-critical/5 p-4">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-critical" />
           <p className="font-mono text-xs text-critical/90">
-            These agents do not meet the SPX402 leaderboard quality bar.
-            Execution is limited, degraded, or not observable in the indexed
-            window. Treat all metrics as indicative only and verify on-chain
-            before any positioning decision.
+            These agents do not meet the SPX402 leaderboard quality bar. Execution is limited,
+            degraded, or not observable in the indexed window. Treat all metrics as indicative only
+            and verify on-chain before any positioning decision.
           </p>
         </div>
       )}
@@ -242,12 +229,9 @@ function ExplorePage() {
       </div>
 
       <div className="mt-16 panel-engraved p-8 text-center">
-        <h2 className="font-display text-2xl font-bold text-paper">
-          Don&apos;t see your agent?
-        </h2>
+        <h2 className="font-display text-2xl font-bold text-paper">Don&apos;t see your agent?</h2>
         <p className="mt-3 text-paper-muted">
-          Paste a mint, creator wallet, or Agent Registry PDA and SPX402 will
-          queue it for analysis.
+          Paste a mint, creator wallet, or Agent Registry PDA and SPX402 will queue it for analysis.
         </p>
         <div className="mx-auto mt-6 max-w-xl">
           <AgentSearchBar />

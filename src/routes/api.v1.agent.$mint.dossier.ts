@@ -65,7 +65,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/dossier")({
             parserVersion: agent.parserVersion,
             methodologyVersion: agent.methodologyVersion,
             // Events
-            events: liveEvents.map(e => ({
+            events: liveEvents.map((e) => ({
               type: e.type,
               severity: e.severity,
               title: e.title,
@@ -80,18 +80,20 @@ export const Route = createFileRoute("/api/v1/agent/$mint/dossier")({
             // SVG Terminal Card for embedding
             svgCard,
             // Disclaimer
-            disclaimer: "SPX402 grades observable on-chain execution only. Not investment advice. Past performance ≠ future results.",
+            disclaimer:
+              "SPX402 grades observable on-chain execution only. Not investment advice. Past performance ≠ future results.",
           };
         });
       },
-      OPTIONS: async () => new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Payment, X-API-Key",
-        },
-      }),
+      OPTIONS: async () =>
+        new Response(null, {
+          status: 204,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Payment, X-API-Key",
+          },
+        }),
     },
   },
 });
@@ -102,8 +104,8 @@ function generateTerminalCardSVG(agent: any, events: any[]): string {
   const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
 
   // Count event types
-  const escrowEvents = events.filter(e => e.type.startsWith("ESCROW_")).length;
-  const bondEvents = events.filter(e => e.type.startsWith("BOND_")).length;
+  const escrowEvents = events.filter((e) => e.type.startsWith("ESCROW_")).length;
+  const bondEvents = events.filter((e) => e.type.startsWith("BOND_")).length;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
   <defs>
@@ -158,17 +160,27 @@ function generateTerminalCardSVG(agent: any, events: any[]): string {
   <!-- Recent Events -->
   <text x="50" y="410" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#F5A623" letter-spacing="1">RECENT EXECUTION LOG</text>
   <g font-family="'IBM Plex Mono', monospace" font-size="9">
-    ${events.slice(0, 10).map((e, i) => {
-      const color = e.severity === "success" ? "#27AE60" : e.severity === "warn" ? "#F5A623" : e.severity === "critical" ? "#C0392B" : "#B8B8AA";
-      const y = 430 + i * 16;
-      return `
+    ${events
+      .slice(0, 10)
+      .map((e, i) => {
+        const color =
+          e.severity === "success"
+            ? "#27AE60"
+            : e.severity === "warn"
+              ? "#F5A623"
+              : e.severity === "critical"
+                ? "#C0392B"
+                : "#B8B8AA";
+        const y = 430 + i * 16;
+        return `
         <text x="50" y="${y}" fill="#6F6F64">${e.occurredAt?.slice(0, 16) || ""}</text>
         <text x="180" y="${y}" fill="${color}">${e.type}</text>
         <text x="380" y="${y}" fill="${color}">${e.amount ? (e.amount > 0 ? "+" : "") + e.amount.toFixed(4) + " SOL" : ""}</text>
         <text x="520" y="${y}" fill="${color}">${e.tokenAmount ? e.tokenAmount.toLocaleString() + " tokens" : ""}</text>
         <text x="680" y="${y}" fill="#6F6F64">${e.signature?.slice(0, 12) || ""}…</text>
       `;
-    }).join("")}
+      })
+      .join("")}
   </g>
 
   <!-- Footer -->
