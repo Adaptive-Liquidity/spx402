@@ -59,12 +59,10 @@ export interface AgentEvent {
 }
 
 export interface AgentScoreBreakdown {
-  depositConsistency: number; // out of 20
-  buybackExecution: number; // out of 25
-  burnConfirmation: number; // out of 20
+  escrowCompletion: number; // out of 40
+  slashableBond: number; // out of 30
   failedTx: number; // out of 15
   recency: number; // out of 10
-  metadata: number; // out of 5
   operator: number; // out of 5
 }
 
@@ -115,6 +113,13 @@ export interface Agent {
   flagged: boolean;
   flagReason: string | null;
   flaggedAt: string | null;
+  // AEON primitives
+  aeonCriAddress: string | null;
+  totalSlashedUsd: number;
+  activeBondAmount: number;
+  escrowSuccessRate: number;
+  totalEscrowsCompleted: number;
+  totalEscrowsFailed: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────

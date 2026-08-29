@@ -76,6 +76,13 @@ const KNOWN_EVENT_TYPES: EventType[] = [
   "OC_FULFILLED",
   "OC_FAILED",
   "OC_SLASHED",
+  // AEON primitives
+  "ESCROW_CREATED",
+  "ESCROW_RELEASED",
+  "ESCROW_CANCELED",
+  "BOND_DEPOSITED",
+  "BOND_SLASHED",
+  "RECEIPT_CREATED",
 ];
 
 const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
@@ -112,6 +119,19 @@ function eventTitleFor(type: string): string {
       return "Outcome Contract failed";
     case "OC_SLASHED":
       return "Outcome Contract slashed";
+    // AEON primitives
+    case "ESCROW_CREATED":
+      return "Escrow created";
+    case "ESCROW_RELEASED":
+      return "Escrow released";
+    case "ESCROW_CANCELED":
+      return "Escrow canceled";
+    case "BOND_DEPOSITED":
+      return "Bond deposited";
+    case "BOND_SLASHED":
+      return "Bond slashed";
+    case "RECEIPT_CREATED":
+      return "Receipt created";
     default:
       return type;
   }
@@ -151,6 +171,19 @@ function eventDescFor(row: AgentEventRow): string {
       return "Outcome Contract missed, expired, or was rejected.";
     case "OC_SLASHED":
       return "Outcome Contract escrow was slashed.";
+    // AEON primitives
+    case "ESCROW_CREATED":
+      return `AEON escrow locked for ${row.amountSol.toFixed(4)} SOL. Awaiting completion.`;
+    case "ESCROW_RELEASED":
+      return `Escrow successfully released. ${row.amountSol.toFixed(4)} SOL settled on-chain.`;
+    case "ESCROW_CANCELED":
+      return `Escrow canceled. Funds returned to depositor.`;
+    case "BOND_DEPOSITED":
+      return `Slashable bond of ${row.amountSol.toFixed(4)} SOL deposited by operator.`;
+    case "BOND_SLASHED":
+      return `Operator bond of ${row.amountSol.toFixed(4)} SOL slashed due to failed execution.`;
+    case "RECEIPT_CREATED":
+      return `AEON hash-chained receipt recorded. Execution attested on-chain.`;
     default:
       return "Decoded program event.";
   }
@@ -548,6 +581,13 @@ const EVENT_ICON: Record<string, typeof Activity> = {
   OC_FULFILLED: ShieldCheck,
   OC_FAILED: AlertTriangle,
   OC_SLASHED: AlertTriangle,
+  // AEON primitives
+  ESCROW_CREATED: Activity,
+  ESCROW_RELEASED: ShieldCheck,
+  ESCROW_CANCELED: AlertTriangle,
+  BOND_DEPOSITED: ShieldCheck,
+  BOND_SLASHED: AlertTriangle,
+  RECEIPT_CREATED: CheckCircle2,
 };
 
 function shortMint(m: string) {
@@ -618,7 +658,9 @@ function Dossier({
     | "config"
     | "swap"
     | "x402"
-    | "outcome";
+    | "outcome"
+    | "escrow"
+    | "bond";
   const [filter, setFilter] = useState<FilterKey>("all");
   const filtered = agent.events.filter((e) => {
     if (filter === "all") return true;
@@ -630,17 +672,27 @@ function Dossier({
     if (filter === "swap") return e.type === "SWAP_EXECUTED";
     if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
     if (filter === "outcome") return e.type.startsWith("OC_");
+    if (filter === "escrow") return e.type.startsWith("ESCROW_");
+    if (filter === "bond") return e.type.startsWith("BOND_") || e.type === "RECEIPT_CREATED";
     return true;
   });
 
   // Category-aware filter chips: only show what's meaningful for the agent type.
   const filterKeys: FilterKey[] = isTokenized
     ? ["all", "buyback", "burn", "deposit", "anomaly", "config"]
-    : isTaskExecutor
-      ? ["all", "outcome", "anomaly"]
-      : isExecutor || isRegistered
-        ? ["all", "swap", "x402", "anomaly"]
-        : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
+    : hasAeonPrimitives
+      ? ["all", "escrow", "bond", "anomaly", "config"]
+      : isTaskExecutor
+        ? ["all", "outcome", "anomaly"]
+        : isExecutor || isRegistered
+          ? ["all", "swap", "x402", "anomaly"]
+          : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
+
+  // Detect if agent has AEON execution primitives
+  const hasAeonPrimitives = 
+    (agent.totalEscrowsCompleted ?? 0) > 0 || 
+    (agent.activeBondAmount ?? 0) > 0 || 
+    (agent.totalSlashedUsd ?? 0) > 0;
 
   // Aggregate counts for non-tokenized metric cards.
   const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
@@ -688,6 +740,37 @@ function Dossier({
           hint: "Public Capsule · operator signature",
           value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
           max: 10,
+          tone: "text-paper",
+        },
+      ]
+    : hasAeonPrimitives
+    ? [
+        {
+          pillar: "Escrow Completion",
+          hint: "Successful escrow releases / total escrows",
+          value: agent.scoreBreakdown.escrowCompletion,
+          max: 40,
+          tone: "text-verified",
+        },
+        {
+          pillar: "Slashable Bond",
+          hint: "Active bond amount · slashing history",
+          value: agent.scoreBreakdown.slashableBond,
+          max: 30,
+          tone: "text-amber",
+        },
+        {
+          pillar: "Reliability",
+          hint: "Failed windows · failed escrows · recency",
+          value: agent.scoreBreakdown.failedTx + agent.scoreBreakdown.recency,
+          max: 25,
+          tone: "text-amber",
+        },
+        {
+          pillar: "Verification",
+          hint: "Operator signature · on-chain identity",
+          value: agent.scoreBreakdown.operator,
+          max: 5,
           tone: "text-paper",
         },
       ]
@@ -1015,6 +1098,39 @@ function Dossier({
             </div>
           );
         })()
+      ) : hasAeonPrimitives ? (
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <MetricCard
+            label="Escrows Completed"
+            value={agent.totalEscrowsCompleted?.toLocaleString() ?? "—"}
+            tone="verified"
+          />
+          <MetricCard
+            label="Escrow Success Rate"
+            value={`${((agent.escrowSuccessRate ?? 0) * 100).toFixed(1)}%`}
+            tone={agent.escrowSuccessRate && agent.escrowSuccessRate >= 0.95 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="Active Bond"
+            value={`$${(agent.activeBondAmount ?? 0).toLocaleString()}`}
+            tone={agent.activeBondAmount && agent.activeBondAmount >= 10000 ? "verified" : "amber"}
+          />
+          <MetricCard
+            label="Total Slashed"
+            value={`$${(agent.totalSlashedUsd ?? 0).toLocaleString()}`}
+            tone={agent.totalSlashedUsd && agent.totalSlashedUsd > 0 ? "critical" : "verified"}
+          />
+          <MetricCard
+            label="Failed Windows"
+            value={agent.failedWindows.toString()}
+            tone={agent.failedWindows > 10 ? "critical" : "amber"}
+          />
+          <MetricCard
+            label="Escrows Failed"
+            value={agent.totalEscrowsFailed?.toLocaleString() ?? "—"}
+            tone={agent.totalEscrowsFailed && agent.totalEscrowsFailed > 0 ? "critical" : "verified"}
+          />
+        </div>
       ) : isTaskExecutor ? (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard

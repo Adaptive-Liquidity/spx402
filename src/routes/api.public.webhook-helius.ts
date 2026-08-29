@@ -16,6 +16,7 @@ import {
   type HeliusEnhancedTx,
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
+import { decodeAeonTx, type AeonLookup } from "@/lib/indexer/decode-aeon.server";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
 import {
@@ -63,9 +64,37 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           }));
         const executorWallets = executorAgents.map((e) => e.wallet);
 
+        // Build AEON lookup (mint -> CRI address)
+        const aeonAgents: AeonLookup[] = (agentsRows ?? [])
+          .filter((r) => !!r.aeon_cri_address)
+          .map((r) => ({
+            mint: r.mint,
+            aeonCriAddress: r.aeon_cri_address as string,
+          }));
+
         const events: DecodedEvent[] = [];
         for (const tx of txs) {
           events.push(...decodeTx(tx, agents));
+        }
+
+        // AEON Execution Primitive decoding
+        const aeonEvents: DecodedEvent[] = [];
+        if (aeonAgents.length > 0) {
+          for (const tx of txs) {
+            for (const ev of decodeAeonTx(tx, aeonAgents)) {
+              aeonEvents.push({
+                mint: ev.mint,
+                type: ev.type,
+                severity: ev.severity,
+                signature: ev.signature,
+                slot: ev.slot,
+                occurredAt: ev.occurredAt,
+                amountSol: ev.amountSol,
+                amountToken: ev.amountToken,
+                raw: ev.raw,
+              });
+            }
+          }
         }
 
         // Wallet-centric: SWAP_EXECUTED + X402_PAYMENT_RECEIVED.
@@ -144,7 +173,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           }
         }
 
-        const allEvents = [...events, ...walletEvents, ...failureEvents];
+        const allEvents = [...events, ...walletEvents, ...failureEvents, ...aeonEvents];
 
         let inserted = 0;
         if (allEvents.length > 0) {

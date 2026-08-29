@@ -1,0 +1,6 @@
+Mint,Symbol,Name,Category,Grade,Score,Verdict,Escrows,SuccessRate,ActiveBond,TotalSlashed,FailedWindows,OperatorVerified
+AEONNova11111111111111111111111111111111111111,NOVA,Agent Nova,tokenized_buyback,SPX AAA,95,"Verified execution. 142 escrows settled (99% success) with $12500.00 bonded.",142,99.0,12500,0,0,false
+SPX402Mint55555555555555555555555555555555555555,SPX,SPX402 Oracle,tokenized_buyback,SPX AAA,95,"Verified execution. 210 escrows settled (100% success) with $50000.00 bonded.",210,100.0,50000,0,0,false
+AEONAria22222222222222222222222222222222222222,ARIA,Agent Aria,tokenized_buyback,SPX AA,83,"Verified execution. 89 escrows settled (95% success) with $8500.00 bonded.",87,95.0,8500,0,0,false
+AEONFlux33333333333333333333333333333333333333,FLUX,Agent Flux,tokenized_buyback,SPX B,41,"Agent has had $2850.00 in bonds slashed due to failed execution. Extreme caution.",45,78.0,3000,2850,0,false
+AEONNull44444444444444444444444444444444444444,NULL404,Agent Null,tokenized_buyback,SPX404,25,"No verifiable AEON escrows or bonds observed. Agent operates in the dark.",0,0.0,0,0,0,false

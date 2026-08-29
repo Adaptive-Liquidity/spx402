@@ -46,6 +46,13 @@ type AgentRow = {
   flagged: boolean | null;
   flag_reason: string | null;
   flagged_at: string | null;
+  // AEON primitives
+  aeon_cri_address: string | null;
+  total_slashed_usd: number | string;
+  active_bond_amount: number | string;
+  escrow_success_rate: number | string;
+  total_escrows_completed: number | string;
+  total_escrows_failed: number | string;
 };
 
 const num = (v: unknown): number => {
@@ -104,18 +111,23 @@ function rowToAgent(r: AgentRow): Agent {
     flagged: Boolean(r.flagged),
     flagReason: r.flag_reason ?? null,
     flaggedAt: r.flagged_at ?? null,
+    // AEON primitives
+    aeonCriAddress: r.aeon_cri_address ?? null,
+    totalSlashedUsd: num(r.total_slashed_usd),
+    activeBondAmount: num(r.active_bond_amount),
+    escrowSuccessRate: num(r.escrow_success_rate),
+    totalEscrowsCompleted: num(r.total_escrows_completed),
+    totalEscrowsFailed: num(r.total_escrows_failed),
   };
 }
 
 function scoreBreakdown(value: unknown): AgentScoreBreakdown {
   const row = value && typeof value === "object" ? (value as Partial<AgentScoreBreakdown>) : {};
   return {
-    depositConsistency: num(row.depositConsistency),
-    buybackExecution: num(row.buybackExecution),
-    burnConfirmation: num(row.burnConfirmation),
+    escrowCompletion: num(row.escrowCompletion),
+    slashableBond: num(row.slashableBond),
     failedTx: num(row.failedTx),
     recency: num(row.recency),
-    metadata: num(row.metadata),
     operator: num(row.operator),
   };
 }

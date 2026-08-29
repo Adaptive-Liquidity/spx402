@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "shadow:grade": "bun run scripts/shadow-grade.ts",
+    "shadow:grade:post": "bun run scripts/shadow-grade.ts --post-to-x",
+    "shadow:grade:limit": "bun run scripts/shadow-grade.ts --limit"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -53,6 +56,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.575.0",

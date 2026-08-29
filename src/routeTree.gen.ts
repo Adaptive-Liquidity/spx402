@@ -54,11 +54,16 @@ import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
 import { Route as ApiPublicAdminSeedVaultRouteImport } from './routes/api.public.admin-seed-vault'
 import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
+import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public.admin-add-api-key'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
+import { Route as ApiPublicUserApiKeysRouteImport } from './routes/api.public.user.api-keys'
 import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
+import { Route as ApiV1AgentMintScoreRouteImport } from './routes/api.v1.agent.$mint.score'
+import { Route as ApiV1AgentMintEvidenceRouteImport } from './routes/api.v1.agent.$mint.evidence'
+import { Route as ApiV1AgentMintDossierRouteImport } from './routes/api.v1.agent.$mint.dossier'
 import { Route as ApiPublicAgentSubjectEvidenceRouteImport } from './routes/api.public.agent.$subject.evidence'
 
 const TapeRoute = TapeRouteImport.update({
@@ -295,6 +300,11 @@ const ApiPublicAdminAddServiceRoute =
     path: '/public/admin-add-service',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiPublicAdminAddApiKeyRoute = ApiPublicAdminAddApiKeyRouteImport.update({
+  id: '/public/admin-add-api-key',
+  path: '/public/admin-add-api-key',
+  getParentRoute: () => ApiRoute,
+} as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
     id: '/watchlist',
@@ -313,6 +323,11 @@ const AuthenticatedDashboardAlertsRoute =
     path: '/alerts',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiPublicUserApiKeysRoute = ApiPublicUserApiKeysRouteImport.update({
+  id: '/public/user/api-keys',
+  path: '/public/user/api-keys',
+  getParentRoute: () => ApiRoute,
+} as any)
 const ApiPublicEvidenceEventIdRoute =
   ApiPublicEvidenceEventIdRouteImport.update({
     id: '/public/evidence/$eventId',
@@ -325,6 +340,21 @@ const ApiPublicBadgeChar123mintChar125DotsvgRoute =
     path: '/public/badge/{$mint}.svg',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiV1AgentMintScoreRoute = ApiV1AgentMintScoreRouteImport.update({
+  id: '/v1/agent/$mint/score',
+  path: '/v1/agent/$mint/score',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiV1AgentMintEvidenceRoute = ApiV1AgentMintEvidenceRouteImport.update({
+  id: '/v1/agent/$mint/evidence',
+  path: '/v1/agent/$mint/evidence',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiV1AgentMintDossierRoute = ApiV1AgentMintDossierRouteImport.update({
+  id: '/v1/agent/$mint/dossier',
+  path: '/v1/agent/$mint/dossier',
+  getParentRoute: () => ApiRoute,
+} as any)
 const ApiPublicAgentSubjectEvidenceRoute =
   ApiPublicAgentSubjectEvidenceRouteImport.update({
     id: '/public/agent/$subject/evidence',
@@ -362,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
@@ -382,7 +413,11 @@ export interface FileRoutesByFullPath {
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
+  '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
+  '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
+  '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
+  '/api/v1/agent/$mint/score': typeof ApiV1AgentMintScoreRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -414,6 +449,7 @@ export interface FileRoutesByTo {
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
@@ -434,7 +470,11 @@ export interface FileRoutesByTo {
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
+  '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
+  '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
+  '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
+  '/api/v1/agent/$mint/score': typeof ApiV1AgentMintScoreRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -468,6 +508,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/admin-seed-vault': typeof ApiPublicAdminSeedVaultRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
@@ -488,7 +529,11 @@ export interface FileRoutesById {
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
+  '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
+  '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
+  '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
+  '/api/v1/agent/$mint/score': typeof ApiV1AgentMintScoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -522,6 +567,7 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
@@ -542,7 +588,11 @@ export interface FileRouteTypes {
     | '/api/public/x402-selftest'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
+    | '/api/public/user/api-keys'
     | '/api/public/agent/$subject/evidence'
+    | '/api/v1/agent/$mint/dossier'
+    | '/api/v1/agent/$mint/evidence'
+    | '/api/v1/agent/$mint/score'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -574,6 +624,7 @@ export interface FileRouteTypes {
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
+    | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
@@ -594,7 +645,11 @@ export interface FileRouteTypes {
     | '/api/public/x402-selftest'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
+    | '/api/public/user/api-keys'
     | '/api/public/agent/$subject/evidence'
+    | '/api/v1/agent/$mint/dossier'
+    | '/api/v1/agent/$mint/evidence'
+    | '/api/v1/agent/$mint/score'
   id:
     | '__root__'
     | '/'
@@ -627,6 +682,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/admin-seed-vault'
     | '/api/public/cron-backfill'
@@ -647,7 +703,11 @@ export interface FileRouteTypes {
     | '/api/public/x402-selftest'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
+    | '/api/public/user/api-keys'
     | '/api/public/agent/$subject/evidence'
+    | '/api/v1/agent/$mint/dossier'
+    | '/api/v1/agent/$mint/evidence'
+    | '/api/v1/agent/$mint/score'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -994,6 +1054,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAdminAddServiceRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/admin-add-api-key': {
+      id: '/api/public/admin-add-api-key'
+      path: '/public/admin-add-api-key'
+      fullPath: '/api/public/admin-add-api-key'
+      preLoaderRoute: typeof ApiPublicAdminAddApiKeyRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/_authenticated/dashboard/watchlist': {
       id: '/_authenticated/dashboard/watchlist'
       path: '/watchlist'
@@ -1015,6 +1082,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAlertsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/api/public/user/api-keys': {
+      id: '/api/public/user/api-keys'
+      path: '/public/user/api-keys'
+      fullPath: '/api/public/user/api-keys'
+      preLoaderRoute: typeof ApiPublicUserApiKeysRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/evidence/$eventId': {
       id: '/api/public/evidence/$eventId'
       path: '/public/evidence/$eventId'
@@ -1027,6 +1101,27 @@ declare module '@tanstack/react-router' {
       path: '/public/badge/{$mint}.svg'
       fullPath: '/api/public/badge/{$mint}.svg'
       preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/v1/agent/$mint/score': {
+      id: '/api/v1/agent/$mint/score'
+      path: '/v1/agent/$mint/score'
+      fullPath: '/api/v1/agent/$mint/score'
+      preLoaderRoute: typeof ApiV1AgentMintScoreRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/v1/agent/$mint/evidence': {
+      id: '/api/v1/agent/$mint/evidence'
+      path: '/v1/agent/$mint/evidence'
+      fullPath: '/api/v1/agent/$mint/evidence'
+      preLoaderRoute: typeof ApiV1AgentMintEvidenceRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/v1/agent/$mint/dossier': {
+      id: '/api/v1/agent/$mint/dossier'
+      path: '/v1/agent/$mint/dossier'
+      fullPath: '/api/v1/agent/$mint/dossier'
+      preLoaderRoute: typeof ApiV1AgentMintDossierRouteImport
       parentRoute: typeof ApiRoute
     }
     '/api/public/agent/$subject/evidence': {
@@ -1071,6 +1166,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
   ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
   ApiPublicAdminSeedVaultRoute: typeof ApiPublicAdminSeedVaultRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
@@ -1091,11 +1187,16 @@ interface ApiRouteChildren {
   ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
   ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
+  ApiPublicUserApiKeysRoute: typeof ApiPublicUserApiKeysRoute
   ApiPublicAgentSubjectEvidenceRoute: typeof ApiPublicAgentSubjectEvidenceRoute
+  ApiV1AgentMintDossierRoute: typeof ApiV1AgentMintDossierRoute
+  ApiV1AgentMintEvidenceRoute: typeof ApiV1AgentMintEvidenceRoute
+  ApiV1AgentMintScoreRoute: typeof ApiV1AgentMintScoreRoute
 }
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiPublicAdminAddApiKeyRoute: ApiPublicAdminAddApiKeyRoute,
   ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicAdminSeedVaultRoute: ApiPublicAdminSeedVaultRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
@@ -1117,7 +1218,11 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicBadgeChar123mintChar125DotsvgRoute:
     ApiPublicBadgeChar123mintChar125DotsvgRoute,
   ApiPublicEvidenceEventIdRoute: ApiPublicEvidenceEventIdRoute,
+  ApiPublicUserApiKeysRoute: ApiPublicUserApiKeysRoute,
   ApiPublicAgentSubjectEvidenceRoute: ApiPublicAgentSubjectEvidenceRoute,
+  ApiV1AgentMintDossierRoute: ApiV1AgentMintDossierRoute,
+  ApiV1AgentMintEvidenceRoute: ApiV1AgentMintEvidenceRoute,
+  ApiV1AgentMintScoreRoute: ApiV1AgentMintScoreRoute,
 }
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)

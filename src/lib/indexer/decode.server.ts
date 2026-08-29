@@ -21,6 +21,13 @@ export interface DecodedEvent {
     | "OPERATOR_VERIFIED"
     | "SWAP_EXECUTED"
     | "X402_PAYMENT_RECEIVED"
+    // AEON Execution Primitives
+    | "ESCROW_CREATED"
+    | "ESCROW_RELEASED"
+    | "ESCROW_CANCELED"
+    | "BOND_DEPOSITED"
+    | "BOND_SLASHED"
+    | "RECEIPT_CREATED"
     // Wave 1b — failure decoder negative-event taxonomy.
     | "FAILED_BUYBACK_WINDOW"
     | "PROMISED_BUYBACK_NOT_SETTLED"
