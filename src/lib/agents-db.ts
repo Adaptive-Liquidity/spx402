@@ -47,12 +47,12 @@ type AgentRow = {
   flag_reason: string | null;
   flagged_at: string | null;
   // AEON primitives
-  aeon_cri_address: string | null;
-  total_slashed_usd: number | string;
-  active_bond_amount: number | string;
-  escrow_success_rate: number | string;
-  total_escrows_completed: number | string;
-  total_escrows_failed: number | string;
+  aeon_cri_address?: string | null;
+  total_slashed_usd?: number | string;
+  active_bond_amount?: number | string;
+  escrow_success_rate?: number | string;
+  total_escrows_completed?: number | string;
+  total_escrows_failed?: number | string;
 };
 
 const num = (v: unknown): number => {
@@ -124,6 +124,10 @@ function rowToAgent(r: AgentRow): Agent {
 function scoreBreakdown(value: unknown): AgentScoreBreakdown {
   const row = value && typeof value === "object" ? (value as Partial<AgentScoreBreakdown>) : {};
   return {
+    depositConsistency: num(row.depositConsistency),
+    buybackExecution: num(row.buybackExecution),
+    burnConfirmation: num(row.burnConfirmation),
+    metadata: num(row.metadata),
     escrowCompletion: num(row.escrowCompletion),
     slashableBond: num(row.slashableBond),
     failedTx: num(row.failedTx),

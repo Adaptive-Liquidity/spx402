@@ -483,6 +483,29 @@ describe("F9 — task_executor Outcome Contract scoring", () => {
     });
   });
 
+  describe("F10 — AEON execution scoring dispatch", () => {
+    it("uses the AEON scoring branch when AEON primitives are present", () => {
+      const r = score(
+        base({
+          totalEscrowsCompleted: 8,
+          totalEscrowsFailed: 2,
+          escrowSuccessRate: 0.8,
+          activeBondAmount: 5_000,
+        }),
+      );
+      expect(r.breakdown).toEqual({
+        escrowCompletion: 32,
+        slashableBond: 15,
+        failedTx: 9,
+        recency: 10,
+        operator: 0,
+      });
+      expect(r.total).toBe(66);
+      expect(r.grade).toBe("SPX BBB");
+      expect(r.verdict).toContain("10 escrows settled");
+    });
+  });
+
   it("does not fall through to tokenized buyback math", () => {
     const task = score(
       base({
