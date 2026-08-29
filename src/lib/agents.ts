@@ -59,6 +59,10 @@ export interface AgentEvent {
 }
 
 export interface AgentScoreBreakdown {
+  depositConsistency: number; // out of 20
+  buybackExecution: number; // out of 25
+  burnConfirmation: number; // out of 20
+  metadata: number; // out of 5
   escrowCompletion: number; // out of 40
   slashableBond: number; // out of 30
   failedTx: number; // out of 15
