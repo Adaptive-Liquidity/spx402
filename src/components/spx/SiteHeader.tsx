@@ -45,6 +45,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <MobileNav signedIn={!!session} />
+
           {session ? (
             <Link
               to="/dashboard"
