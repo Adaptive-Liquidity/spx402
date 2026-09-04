@@ -69,7 +69,8 @@ const COMPONENT_ROWS: Array<{
   {
     key: "webhook_ingest",
     name: "Helius webhook stream",
-    description: "Decodes inbound Pump + SPL Token events.",
+    description:
+      "Decodes inbound AEON escrow, bond and receipt instructions plus Pump + SPL Token events.",
   },
   {
     key: "backfill",
@@ -79,12 +80,12 @@ const COMPONENT_ROWS: Array<{
   {
     key: "scoring",
     name: "Scoring worker",
-    description: "Recomputes Transparency Score per agent.",
+    description: "Recomputes the SPX Execution Score per agent across every lane.",
   },
   {
     key: "reconciler",
     name: "Reconciliation worker",
-    description: "Asserts buyback windows produced a burn.",
+    description: "Asserts escrow releases and buyback windows settled as promised.",
   },
   {
     key: "failure_reconciler",
