@@ -18,13 +18,13 @@ const ORDER: Grade[] = [
 ];
 
 const CX = 400;
-const CY = 252;
+const CY = 6;
 const R_OUTER = 262;
 const R_INNER = 232;
 
 function polar(r: number, deg: number) {
   const rad = (deg * Math.PI) / 180;
-  return { x: CX + r * Math.cos(rad), y: CY - r * Math.sin(rad) };
+  return { x: CX + r * Math.cos(rad), y: CY + r * Math.sin(rad) };
 }
 
 /** Etched arc segment between two angles (degrees, 180 → 0 left to right). */
@@ -69,7 +69,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
 
   return (
     <svg
-      viewBox="0 0 800 268"
+      viewBox="0 0 800 292"
       className="h-full w-full"
       role="img"
       aria-label={
@@ -77,7 +77,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
           ? `Live grade distribution across ${total} graded agents. Dominant grade ${dominant.grade}.`
           : "Grade distribution caliper"
       }
-      preserveAspectRatio="xMidYMax meet"
+      preserveAspectRatio="xMidYMin meet"
     >
       <defs>
         <radialGradient id={`${id}-caustic`}>
@@ -85,13 +85,13 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
           <stop offset="100%" stopColor="var(--amber)" stopOpacity="0" />
         </radialGradient>
         <linearGradient id={`${id}-rim`} x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0%" stopColor="var(--amber)" stopOpacity="0.05" />
-          <stop offset="100%" stopColor="var(--amber)" stopOpacity="0.5" />
+          <stop offset="0%" stopColor="var(--amber)" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="var(--amber)" stopOpacity="0.05" />
         </linearGradient>
       </defs>
 
       {halo && (
-        <circle cx={halo.x} cy={halo.y} r={190} fill={`url(#${id}-caustic)`} className="dial-halo" />
+        <circle cx={halo.x} cy={halo.y} r={150} fill={`url(#${id}-caustic)`} className="dial-halo" />
       )}
 
       {/* etched tick circumference */}
@@ -120,7 +120,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
             key={s.grade}
             d={arcPath(s.from, s.to, R_OUTER, R_INNER)}
             fill={s.count > 0 ? `var(--color-${gradeToken(s.grade)})` : "var(--bronze-dim)"}
-            opacity={s.count > 0 ? (s.grade === dominant.grade ? 0.62 : 0.3) : 0.22}
+            opacity={s.count > 0 ? (s.grade === dominant.grade ? 0.42 : 0.2) : 0.14}
             stroke="var(--panel-deep)"
             strokeWidth="1.5"
           />
@@ -144,10 +144,10 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
 
       {/* bucket labels on the outer edge */}
       <g fontFamily="var(--font-mono)" fontSize="11" letterSpacing="1.5" fill="var(--wire)">
-        <text x={CX - R_OUTER} y={CY + 18} textAnchor="start">
+        <text x={CX - R_OUTER - 14} y={CY + 4} textAnchor="end">
           AAA
         </text>
-        <text x={CX + R_OUTER} y={CY + 18} textAnchor="end">
+        <text x={CX + R_OUTER + 14} y={CY + 4} textAnchor="start">
           404
         </text>
       </g>

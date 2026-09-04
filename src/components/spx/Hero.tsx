@@ -44,7 +44,7 @@ export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlic
       <div className="hero-bound hero-bound-top" aria-hidden />
       <div className="hero-bound hero-bound-bottom" aria-hidden />
 
-      <div className="stage relative pb-16 pt-24 lg:pb-24 lg:pt-32">
+      <div className="stage relative pb-16 pt-16 lg:pb-24 lg:pt-24">
         <div className="hero-aperture">
           <div className="mx-auto max-w-4xl text-center">
             <span className="pill-badge inscribe">
