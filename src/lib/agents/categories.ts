@@ -8,6 +8,7 @@ export type AgentCategory =
   | "tokenized_buyback"
   | "registered_agent"
   | "x402_executor"
+  | "aeon_executor"
   | "copy_trader"
   | "task_executor"
   | "general";
@@ -51,6 +52,16 @@ export const CATEGORIES: CategoryMeta[] = [
     longLabel: "x402 Payment Executors",
     blurb:
       "Wallets receiving HTTP-402 micropayments — Coinbase / Linux Foundation x402 protocol on Solana.",
+    identifierKind: "executor_wallet",
+    identifierLabel: "Executor Wallet",
+    decoderLive: true,
+  },
+  {
+    id: "aeon_executor",
+    label: "AEON",
+    longLabel: "AEON Execution Agents",
+    blurb:
+      "Agents executing bonded escrow work on the AEON protocol — escrows, slashable bonds and hash-chained receipts.",
     identifierKind: "executor_wallet",
     identifierLabel: "Executor Wallet",
     decoderLive: true,
