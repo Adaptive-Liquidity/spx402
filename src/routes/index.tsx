@@ -346,9 +346,10 @@ function HomePage() {
                 ))}
               </div>
             </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </section>
+
 
       {/* API */}
       <Reveal as="section" className="stage py-24">
