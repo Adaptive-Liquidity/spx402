@@ -41,39 +41,41 @@ export const Route = createFileRoute("/")({
 const PROOF_STEPS = [
   {
     icon: ArrowDownToLine,
-    title: "Deposit detected",
-    body: "Agent Deposit Address receives SOL, USDC, USDT, or USD1.",
-    code: "DEPOSIT_RECEIVED",
+    title: "Escrow created",
+    body: "A payer locks funds on-chain for a priced unit of agent work.",
+    code: "ESCROW_CREATED",
   },
   {
     icon: Repeat,
-    title: "Buyback observed",
-    body: "Tokenized Agent Authority routes assets into the agent token.",
-    code: "BUYBACK_EXECUTED",
+    title: "Work completed",
+    body: "The escrow releases against a hash-chained receipt of delivery.",
+    code: "ESCROW_RELEASED",
   },
   {
     icon: Flame,
-    title: "Burn confirmed",
-    body: "Bought tokens are removed from circulating supply.",
-    code: "BURN_CONFIRMED",
+    title: "Bond posted",
+    body: "Capital sits slashable behind the promise. Failure costs money.",
+    code: "BOND_DEPOSITED",
   },
   {
     icon: Award,
     title: "Grade assigned",
-    body: "Execution data becomes a public Transparency Score.",
+    body: "Execution data becomes a public SPX Execution Score.",
     code: "GRADE_PUBLISHED",
   },
 ];
 
 const CATCHES = [
-  "Missing buybacks",
-  "Deposits with no matching burn",
-  "Creator config changes",
+  "Escrows created but never released",
+  "Bonds slashed after failed work",
+  "Receipts missing for released escrows",
+  "Operator config changes",
   "Failed transactions",
   "Stale agents",
   "Unsupported assets",
   "Suspicious wash-like windows",
   "Unverified operators",
+  "Bond withdrawn while work is outstanding",
   "Metadata drift",
   "Wash-concentrated receipt flow",
   "Facilitator config drift",
@@ -133,15 +135,15 @@ function HomePage() {
           <div className="lg:col-span-7">
             <div className="label-amber">On-Chain Reputation Terminal · Solana Mainnet</div>
             <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight text-paper sm:text-6xl lg:text-7xl">
-              Register.
+              HTTP 402.
               <br />
-              Get scored.
+              Payment required.
               <br />
-              <span className="text-amber">Climb the tape.</span>
+              <span className="text-amber">Proof provided.</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-paper-muted">
-              The on-chain reputation terminal for every Solana agent. Register your Agent Registry
-              PDA → get a live SPX Execution Score → climb the leaderboard and prove you deliver.
+              The on-chain reputation terminal for every Solana agent. We read escrows, bonds,
+              slashes and receipts — then publish a live SPX Execution Score anyone can verify.
             </p>
             <p className="mt-3 max-w-xl font-mono text-sm text-wire">
               No hype. No price calls. No mercy for missing receipts.
