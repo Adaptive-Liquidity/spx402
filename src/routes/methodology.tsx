@@ -399,8 +399,8 @@ function MethodologyPage() {
           The two-axis model: risk × confidence
         </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
-          A two-day-old agent with two confirmed buybacks may score 75 with a confidence of 0.18. A
-          six-month-old agent with hundreds of confirmed buybacks and zero failures may score 92
+          A two-day-old agent with two released escrows may score 75 with a confidence of 0.18. A
+          six-month-old agent with hundreds of released escrows and zero failures may score 92
           with a confidence of 0.91. Both are accurate. Filled grade badges denote high confidence
           (≥ 0.66). Outlined grade badges denote low/medium confidence — the score may be right, but
           the evidence is thin.
@@ -775,7 +775,7 @@ function MethodologyPage() {
             "Celebrity endorsement",
             "Holder count",
             "Vibes",
-            "Future buyback promises",
+            "Future revenue promises",
           ].map((x) => (
             <li
               key={x}
@@ -887,9 +887,9 @@ function MethodologyPage() {
           Why SPX402 can downgrade itself
         </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
-          SPX402's own tokenized agent is scored by the same methodology as every other tracked
-          agent. If our buybacks fail or our operator stops signing, the grade drops. The trust
-          layer dies the moment the rater grants itself an exception.
+          SPX402's own agent is scored by the same methodology as every other tracked agent. If our
+          escrows fail, our bond is slashed, or our operator stops signing, the grade drops. The
+          trust layer dies the moment the rater grants itself an exception.
         </p>
       </section>
 
