@@ -255,7 +255,7 @@ function HomePage() {
             </ol>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* X402 PROOF CHAIN */}
       <Reveal as="section" className="stage pb-24">
@@ -270,7 +270,7 @@ function HomePage() {
         <div className="mt-10">
           <ProofChainX402 />
         </div>
-      </section>
+      </Reveal>
 
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 bg-panel-deep">
@@ -290,7 +290,7 @@ function HomePage() {
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
       </section>
 
       {/* AUDIENCES */}
@@ -308,7 +308,7 @@ function HomePage() {
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
       {/* GRADE TAXONOMY */}
       <section className="border-t border-bronze/40 bg-panel-deep">
@@ -346,7 +346,7 @@ function HomePage() {
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -405,7 +405,7 @@ function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {/* PRICING PREVIEW */}
       <section className="border-y border-bronze/40 bg-panel-deep">
@@ -443,7 +443,7 @@ function HomePage() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* FEATURED AGENTS */}
@@ -506,7 +506,7 @@ function HomePage() {
             ))}
           </div>
         )}
-      </section>
+      </Reveal>
 
       {/* FINAL CTA */}
       <Reveal as="section" className="stage pb-28">
@@ -524,7 +524,7 @@ function HomePage() {
             SPX402 provides operational transparency only. Not investment advice.
           </p>
         </Panel>
-      </section>
+      </Reveal>
     </div>
   );
 }
