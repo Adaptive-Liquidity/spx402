@@ -1,35 +1,33 @@
-# Hero + Homepage: Award-Grade Treatment
+# Hero + Homepage: Architectural Horizon Aperture
 
-Goal: make the first five seconds unforgettable, then carry that craft down the whole landing page so it reads as one authored experience rather than a stack of sections. The design language stays exactly as chosen — deep emerald surfaces, ledger gold reserved for grades and actions, Sora over Manrope, full-width bands. Nothing new is invented about the product; every claim stays tied to what the ledger actually shows.
+Goal: an award-grade landing page that opens as one continuous mechanical gesture rather than a sequence of items popping in. No SaaS cascade, no retro-terminal tropes. The palette and type stay locked — obsidian emerald ground, ledger gold hairlines, Sora over Manrope — and every number on the page stays tied to what the ledger actually holds.
 
-## The hero, rebuilt as a moment
+## The hero, rebuilt as one gesture
 
-1. **A curtain-raise on load.** A brief, one-time opening sequence: the ticker line snaps in, the eyebrow pill lights, then the headline arrives line by line with the gold line last and a faint sweep of light across it. Under a second in total, never repeated on navigation, fully skipped for anyone who prefers reduced motion.
-2. **A living backdrop.** Behind the headline, a slow emerald aura plus a very faint engraved grid that drifts with the cursor. It should feel like glass over a terminal, not like a particle demo.
-3. **Numbers that count themselves in.** The four stat cells (agents indexed, settlements verified, services probed, active facilitators) roll up from zero once, in sequence, with the gold hairline underlining each as it settles.
-4. **One signature visual.** A live grade dial rendered beside or behind the search — the real distribution of grades we already hold — so the hero itself is evidence, not decoration.
-5. **The search as the hero's centre of gravity.** Larger field, gold focus ring that breathes, a rotating set of real example subjects as placeholder hints, and a clear "or browse the leaderboard" escape hatch.
-6. **Scroll invitation.** A quiet gold cue at the base of the hero that fades the moment scrolling starts.
+1. **Monolithic ingress — zero stagger.** Nothing moves position. At load, a single 1px gold hairline extends from the exact centre of the hero to both edges. At ~180ms it cleaves into an upper and lower rule that expand outward like a wide-format film aperture, revealing headline, console and dial through one synchronized clip — not six separate entrances. Whole gesture lands under 850ms with no layout shift.
+2. **Text inscription, not fade-in.** The headline converges optically: scale 1.02 → 1.00 with blur 6px → 0px in the same 400ms. It should read as stamped into dense banknote paper, never as sliding text.
+3. **Backdrop: micro-engraved banknote field.** Deep obsidian-emerald ground with a fine vector guilloche of non-repeating hairlines at ~4% opacity. Mouse movement tilts a specular highlight across the engraving — no floating glow orb.
+4. **Signature visual: the viewfinder dial.** One oversized 180° grade caliper that physically cradles the search bar, with grade buckets demarcated as etched arcs and tick marks. It reads live grade distribution from the data we already hold, and the dominant grade casts a soft gold caustic onto the rim of the console. The search sits on the dial's chord line, over a frosted optical-crystal slab so the ticks refract behind it.
+5. **Metrics: instant tabular registration.** No odometer. Real values appear fully formed as the aperture completes, in tabular figures, each cell settling with a single sub-pixel dampening snap while its label tightens its letter-spacing — instant, accurate, uncompromising.
+6. **Search: heavyweight ledger query console.** Wide-stance command bar framed in the same hairline coordinate system as the band. A `/` or `⌘K` hint cut into the right border as an engraved brass pill. Placeholder examples change by horizontal slide — old query exits left in condensed tracking, new one enters from the right behind a soft gold cursor. "Browse the leaderboard" becomes a mechanical tab integrated into the console's bottom border, not floating text.
 
-## Carrying it through the page
+## Carrying the language down the page
 
-Applied section by section so each band earns its scroll:
-
-- **Section rhythm.** Every band gets an eyebrow, a hairline rule, and consistent vertical air. Alternating alignment (centred, then left with a wide right column) so the eye keeps moving.
-- **Staggered reveals.** Grid cells enter in sequence rather than all at once — 60–80ms apart, direction matched to reading order.
-- **The proof chain becomes a sequence.** The five settlement steps light one after another as they enter view, with the connecting rule drawing itself between them.
-- **The failure panel gets teeth.** The fifteen failure patterns render as a dense, monospaced plate that highlights row by row — the most "terminal" moment on the page.
-- **Cards with physics.** Consistent lift, a border that warms to gold, and a soft inner glow on hover; the same feel on every card so the page has one hand behind it.
-- **Live tape.** Keep it alive but calmer: new rows slide in with a brief gold flash, older rows dim toward the bottom edge.
-- **Pricing and audiences.** Tighter columns, one clearly recommended tier, and the same hairline framing used in the hero.
-- **Closing band.** A full-width, quiet finale — large type, single gold action, the aura returning at low intensity to bookend the page.
-- **Perceived speed.** Everything above the fold renders immediately; heavier panels below fade in as they approach. Reduced-motion users get the full layout with no movement at all.
+- **Coordinate framing replaces card lifts.** Sections and cards are defined by hairline rules that extend and retract on hover, with internal glass refraction — no generic translate-up hover.
+- **Aperture, not cascade.** Each band reveals through a single clip expansion from its own median rule; grids inside a band open together, never one cell at a time.
+- **Proof chain as a caliper track.** The five settlement steps read as marks along one drawn rule rather than five separate cards arriving in turn.
+- **Failure patterns as a ledger plate.** The fifteen patterns render as one dense engraved plate with a hairline cursor sweeping the active row.
+- **Live tape, calmer.** New rows register with a single gold hairline flash; older rows recede toward the plate edge.
+- **Pricing and audiences.** Same hairline coordinate frame, one recommended tier, tabular figures throughout.
+- **Closing band.** The aperture reverses at low intensity — the horizon hairline returns to bookend the page under a single gold action.
+- **Discipline.** Everything above the fold is present at first paint; motion only reveals, never fetches. Reduced-motion users get the finished frame with zero animation.
 
 ## Technical notes
 
-- All motion lives in the existing shared layer in `src/styles.css` plus the `Reveal` component; no animation library is added.
-- The hero is extracted from `src/routes/index.tsx` into `src/components/spx/Hero.tsx` with the intro sequence, aura, cursor-reactive grid, count-up stats and grade dial as siblings, so the route file returns to a readable list of bands.
-- New shared pieces: `CountUp`, `GradeDial` (fed by the existing leaderboard query — no new tables or endpoints), `SectionHeader`, and a `Stagger` wrapper around `Reveal` for index-based delays.
-- Every animation is gated behind `prefers-reduced-motion` and the intro runs once per session.
-- Scoring math, decoders, cron pipelines, API responses and all copy claims are untouched; the only copy changes are placeholder hints and the scroll cue.
-- Verified with typecheck, the full test suite, and screenshots at phone, tablet and desktop widths.
+- Motion is CSS-only: `clip-path: inset()` aperture, transform/filter convergence, `cubic-bezier(0.16, 1, 0.3, 1)` throughout, driven by a single `hero-ingress` state class plus CSS custom-property delays. No animation library. The existing `Reveal` stagger stays available for lower-priority page furniture but is replaced by an `Aperture` wrapper on the homepage.
+- New components in `src/components/spx/`: `Hero.tsx` (ingress choreography, guilloche field, metrics registration), `GradeDial.tsx` (SVG caliper, arcs and ticks, fed by the existing leaderboard/grade query — no new tables or endpoints), `QueryConsole.tsx` (framed search, brass keyboard pill, ghost-typist placeholder, leaderboard tab), `Aperture.tsx` (per-band clip reveal).
+- The guilloche is an inline SVG pattern at low opacity with a CSS specular layer moved by pointer position through custom properties — no canvas, no per-frame JS layout work.
+- Glass uses Tailwind `backdrop-blur`/`backdrop-saturate` utilities only; no hand-written vendor-prefixed `backdrop-filter`.
+- Gold, obsidian and emerald values are added as tokens in `src/styles.css` only where the current scale lacks them; components keep using semantic tokens, never raw hex.
+- Scoring math, decoders, cron pipelines and API responses are untouched. Copy changes limited to placeholder examples and the console's tab label.
+- Verified with typecheck, the full test suite, and screenshots at phone, tablet and desktop widths, plus a reduced-motion pass.
