@@ -19,6 +19,7 @@ const FAILURE_DECODER_COVERAGE: Record<AgentCategory, number> = {
   tokenized_buyback: 1.0, // FAILED_BUYBACK_WINDOW + PROMISED_BUYBACK_NOT_SETTLED shipped
   registered_agent: 0.3, // partial — config/operator change decoders pending
   x402_executor: 0.6, // X402_PAYMENT_REVERTED shipped, refund-decoder pending
+  aeon_executor: 1.0, // ESCROW_CANCELED + BOND_SLASHED decoders shipped
   copy_trader: 0,
   task_executor: 0,
   general: 0,

@@ -63,6 +63,7 @@ const EXPECTED_EVENT_TYPES: Record<AgentCategory, number> = {
   tokenized_buyback: 4, // DEPOSIT, BUYBACK, BURN, FAILED_BUYBACK_WINDOW
   registered_agent: 3, // SWAP, X402, CONFIG_CHANGED
   x402_executor: 2, // X402_PAYMENT_RECEIVED, X402_PAYMENT_REVERTED
+  aeon_executor: 6, // ESCROW_CREATED/RELEASED/CANCELED, BOND_DEPOSITED/SLASHED, RECEIPT_CREATED
   copy_trader: 2,
   task_executor: 5, // OC_OPENED, OC_AWARDED, OC_FULFILLED, OC_FAILED, OC_SLASHED
   general: 2,
