@@ -32,6 +32,13 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
+import {
+  createSubscription,
+  deleteSubscription,
+  fetchSubscriptionForMint,
+  type AlertSubscription,
+} from "@/lib/alerts";
+
 import { useAuth } from "@/lib/auth";
 import { SCORING_VERSION } from "@/lib/versions";
 import {
