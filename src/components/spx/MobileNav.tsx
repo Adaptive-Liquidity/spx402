@@ -1,19 +1,9 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
+import { NAV_ITEMS } from "./nav-items";
 
-export interface MobileNavItem {
-  to: string;
-  label: string;
-}
-
-export function MobileNav({
-  items,
-  signedIn,
-}: {
-  items: readonly MobileNavItem[];
-  signedIn: boolean;
-}) {
+export function MobileNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -30,9 +20,9 @@ export function MobileNav({
       </button>
 
       {open && (
-        <div className="fixed inset-x-0 top-[57px] bottom-0 z-50 overflow-y-auto border-t border-bronze/40 bg-background/98 backdrop-blur-md">
+        <div className="fixed inset-x-0 bottom-0 top-[64px] z-50 overflow-y-auto border-t border-bronze/40 bg-background/98 backdrop-blur-md">
           <nav className="flex flex-col divide-y divide-bronze/25 px-4 py-2">
-            {items.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
@@ -44,7 +34,7 @@ export function MobileNav({
               </Link>
             ))}
           </nav>
-          <div className="flex flex-col gap-3 px-4 py-6">
+          <div className="flex flex-col gap-3 px-4 pb-10 pt-6">
             {signedIn ? (
               <Link
                 to="/dashboard"
