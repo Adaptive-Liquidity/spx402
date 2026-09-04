@@ -771,12 +771,12 @@
   /* --- viewfinder: dial cradles the console --- */
   .viewfinder {
     position: relative;
-    padding-bottom: 7.5rem;
+    padding-bottom: 8.5rem;
   }
   .viewfinder-dial {
     position: absolute;
-    inset: auto -7% 0 -7%;
-    height: 14rem;
+    inset: auto -4% 0 -4%;
+    height: 8rem;
     opacity: 0;
     transform: scale(0.985);
     transition:

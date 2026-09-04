@@ -69,7 +69,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
 
   return (
     <svg
-      viewBox="0 0 800 292"
+      viewBox="0 0 800 200"
       className="h-full w-full"
       role="img"
       aria-label={
@@ -77,7 +77,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
           ? `Live grade distribution across ${total} graded agents. Dominant grade ${dominant.grade}.`
           : "Grade distribution caliper"
       }
-      preserveAspectRatio="xMidYMin meet"
+      preserveAspectRatio="xMidYMin slice"
     >
       <defs>
         <radialGradient id={`${id}-caustic`}>
