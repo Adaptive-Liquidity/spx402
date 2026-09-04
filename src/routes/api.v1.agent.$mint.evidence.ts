@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
 
           // Time window
           const timestamps = executionEvents
-            .map((e) => new Date(e.iso).getTime())
+            .map((e) => new Date(e.occurredAt).getTime())
             .sort((a, b) => a - b);
           const windowStart =
             timestamps.length > 0
@@ -76,9 +76,9 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
               severity: e.severity,
               signature: e.signature,
               slot: e.slot,
-              occurredAt: e.iso,
-              amountSol: e.amount,
-              amountToken: e.tokenAmount,
+              occurredAt: e.occurredAt,
+              amountSol: e.amountSol,
+              amountToken: e.amountToken,
               leafHash: leaves[idx],
               proof: merkleProofs[idx],
             })),
@@ -128,9 +128,9 @@ function buildMerkleTree(events: any[]): {
       type: e.type,
       signature: e.signature,
       slot: e.slot,
-      occurredAt: e.iso,
-      amountSol: e.amount,
-      amountToken: e.tokenAmount,
+      occurredAt: e.occurredAt,
+      amountSol: e.amountSol,
+      amountToken: e.amountToken,
       severity: e.severity,
     });
     return "0x" + createHash("sha256").update(canonical).digest("hex");

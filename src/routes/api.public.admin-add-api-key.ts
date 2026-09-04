@@ -55,17 +55,32 @@ export const Route = createFileRoute("/api/public/admin-add-api-key")({
           });
         }
 
-        // Call the database function to create the key
+        // Mint the key here — the raw secret is returned once and only its
+        // SHA-256 hash is persisted.
         const expiresAt = expiresInDays
           ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000).toISOString()
           : null;
 
-        const { data, error } = await supabaseAdmin.rpc("create_api_key", {
-          p_user_id: user.id,
-          p_name: name,
-          p_tier: tier,
-          p_expires_at: expiresAt,
-        });
+        const rawKey = `spx_${crypto.randomUUID().replace(/-/g, "")}${crypto.randomUUID().replace(/-/g, "")}`;
+        const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(rawKey));
+        const keyHash = Array.from(new Uint8Array(digest))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+        const dailyLimit = tier === "team" ? 100000 : tier === "pro" ? 10000 : 100;
+
+        const { data, error } = await supabaseAdmin
+          .from("api_keys")
+          .insert({
+            user_id: user.id,
+            name,
+            tier,
+            key_hash: keyHash,
+            key_prefix: rawKey.slice(0, 12),
+            daily_limit: dailyLimit,
+            expires_at: expiresAt,
+          })
+          .select("id")
+          .single();
 
         if (error) {
           return new Response(JSON.stringify({ ok: false, error: error.message }), {
@@ -74,7 +89,8 @@ export const Route = createFileRoute("/api/public/admin-add-api-key")({
           });
         }
 
-        const [result] = data as Array<{ key_id: string; api_key: string; key_hash: string }>;
+        const result = { key_id: data.id, api_key: rawKey, key_hash: keyHash };
+
 
         return new Response(
           JSON.stringify({

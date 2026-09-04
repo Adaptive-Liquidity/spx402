@@ -111,6 +111,7 @@ export async function checkApiKeyAuth(
   tier: "free" | "pro" | "team";
   dailyLimit: number;
   usedToday: number;
+  keyId: string;
 } | null> {
   // Look up API key in database
   const { data: keyData, error } = await supabase
@@ -142,7 +143,7 @@ export async function checkApiKeyAuth(
 
   const usedToday = count ?? 0;
 
-  return { valid: true, tier, dailyLimit, usedToday };
+  return { valid: true, tier, dailyLimit, usedToday, keyId: keyData.id };
 }
 
 function hashApiKey(key: string): string {
@@ -286,7 +287,7 @@ export async function withX402Payment<T>(
           headers: { "Content-Type": "application/json" },
         });
       }
-      apiKeyContext = { ...auth, keyId: auth.dailyLimit.toString() }; // keyId stored in dailyLimit field temporarily
+      apiKeyContext = { ...auth };
     }
   }
 

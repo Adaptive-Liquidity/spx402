@@ -443,7 +443,7 @@ function scoreAeonExecution(inputs: ScoringInputs): ScoreResult {
     breakdown,
     grade,
     verdict: verdictForAeon(total, totalEscrows, successRate, activeBond, slashedUsd),
-    confidence: confidenceFor(totalEscrows, inputs.lastIndexedSeconds),
+    confidence: confidenceForAeon(totalEscrows, inputs.lastIndexedSeconds),
   };
 }
 

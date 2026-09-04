@@ -19,6 +19,7 @@ const FAILURE_DECODER_COVERAGE: Record<AgentCategory, number> = {
   tokenized_buyback: 1.0, // FAILED_BUYBACK_WINDOW + PROMISED_BUYBACK_NOT_SETTLED shipped
   registered_agent: 0.3, // partial — config/operator change decoders pending
   x402_executor: 0.6, // X402_PAYMENT_REVERTED shipped, refund-decoder pending
+  aeon_executor: 1.0, // ESCROW_CANCELED + BOND_SLASHED decoders shipped
   copy_trader: 0,
   task_executor: 0,
   general: 0,
@@ -52,7 +53,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const { data: agents } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset",
+            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset, aeon_cri_address, total_slashed_usd, active_bond_amount, escrow_success_rate, total_escrows_completed, total_escrows_failed",
           );
 
         if (!agents || agents.length === 0) {
@@ -68,6 +69,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               | "tokenized_buyback"
               | "registered_agent"
               | "x402_executor"
+              | "aeon_executor"
               | "copy_trader"
               | "task_executor"
               | "general"
@@ -97,6 +99,12 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             outcomeFulfillmentRate: counters.outcomeFulfillmentRate,
             outcomeAwardDensity: counters.outcomeAwardDensity,
             outcomeOnTimeRate: counters.outcomeOnTimeRate ?? undefined,
+            // AEON execution primitives (ignored by the non-AEON branches).
+            totalEscrowsCompleted: Number(a.total_escrows_completed ?? 0),
+            totalEscrowsFailed: Number(a.total_escrows_failed ?? 0),
+            escrowSuccessRate: Number(a.escrow_success_rate ?? 0),
+            activeBondAmount: Number(a.active_bond_amount ?? 0),
+            totalSlashedUsd: Number(a.total_slashed_usd ?? 0),
             hasPublicCapsule: counters.hasPublicCapsule,
             outcomeEvidenceComplete: counters.outcomeEvidenceComplete,
           });
@@ -133,6 +141,20 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             unresolvedAnomalies: counters.failedNegativeCount,
           });
           const publication = scorePublication(category, result, isLiveCategory(category));
+          // Persist the breakdown in the AEON pillar shape the UI reads,
+          // keeping the raw per-category slots alongside it for auditing.
+          const b = publication.breakdown;
+          const uiBreakdown =
+            b == null
+              ? null
+              : {
+                  escrowCompletion: b.depositConsistency + b.burnConfirmation,
+                  slashableBond: b.buybackExecution + b.metadata,
+                  failedTx: b.failedTx,
+                  recency: b.recency,
+                  operator: b.operator,
+                  raw: b,
+                };
           const { error } = await supabaseAdmin
             .from("agents")
             .update({
@@ -147,7 +169,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               score_breakdown:
                 publication.score == null
                   ? ({} as never)
-                  : (publication.breakdown as unknown as never),
+                  : (uiBreakdown as unknown as never),
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,

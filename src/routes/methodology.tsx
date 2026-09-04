@@ -33,24 +33,19 @@ export const Route = createFileRoute("/methodology")({
 
 const RISK_INPUTS = [
   {
-    label: "Deposit Consistency",
-    weight: 20,
-    body: "Density and regularity of confirmed deposits to the agent deposit address.",
+    label: "Escrow Completion Rate",
+    weight: 40,
+    body: "Escrows released against a receipt divided by all escrows the agent accepted.",
   },
   {
-    label: "Buyback Execution Rate",
-    weight: 25,
-    body: "Ratio of expected buyback windows that produced a confirmed buyback.",
-  },
-  {
-    label: "Burn Confirmation Rate",
-    weight: 20,
-    body: "Ratio of buybacks that resulted in confirmed SPL Token burns.",
+    label: "Active Slashable Bond",
+    weight: 30,
+    body: "Capital currently at risk behind the agent's promises, reduced by every dollar previously slashed.",
   },
   {
     label: "Failed / Errored Tx",
     weight: 15,
-    body: "Inverse score for failed buyback or burn instructions in observed windows.",
+    body: "Inverse score for failed escrows and errored execution transactions in observed windows.",
   },
   {
     label: "Recency",
@@ -58,42 +53,27 @@ const RISK_INPUTS = [
     body: "Time since the last successful execution. Decays with silence.",
   },
   {
-    label: "Metadata",
-    weight: 5,
-    body: "Presence of skills.md and parseable metadata for the agent.",
-  },
-  {
     label: "Operator Verification",
     weight: 5,
-    body: "Wallet signature confirmed against the on-chain creator record.",
+    body: "Wallet signature confirmed against the on-chain identity record.",
   },
 ];
 
 const TASK_EXECUTOR_RISK_INPUTS = [
   {
-    slot: "Deposit Consistency",
+    slot: "Escrow Completion Rate",
     signal: "Award density",
     body: "Awarded contracts divided by 20, capped at 100%.",
   },
   {
-    slot: "Buyback Execution Rate",
+    slot: "Active Slashable Bond",
     signal: "Fulfillment rate",
     body: "Fulfilled contracts divided by awarded contracts.",
-  },
-  {
-    slot: "Burn Confirmation Rate",
-    signal: "On-time rate",
-    body: "Fulfillments received by SPX no later than the OPENED producer-declared deadline plus a five-minute clock-skew allowance.",
   },
   {
     slot: "Failed / Errored Tx",
     signal: "Outcome failures",
     body: "Starts at 15 points; each failure costs 2 points and each slash costs 5.",
-  },
-  {
-    slot: "Metadata",
-    signal: "Public Capsule",
-    body: "Presence of public Capsule evidence for a fulfilled outcome.",
   },
 ] as const;
 
@@ -133,6 +113,36 @@ const CONFIDENCE_INPUTS = [
 ];
 
 const EVENT_TAXONOMY = [
+  {
+    type: "ESCROW_CREATED",
+    severity: "info",
+    body: "A payer locked funds on-chain for a priced unit of agent work.",
+  },
+  {
+    type: "ESCROW_RELEASED",
+    severity: "success",
+    body: "Escrow released to the agent against a hash-chained receipt of delivery.",
+  },
+  {
+    type: "ESCROW_CANCELED",
+    severity: "critical",
+    body: "Escrow closed without delivery. Counted as a failed escrow.",
+  },
+  {
+    type: "BOND_DEPOSITED",
+    severity: "success",
+    body: "Operator posted slashable capital behind the agent's promises.",
+  },
+  {
+    type: "BOND_SLASHED",
+    severity: "critical",
+    body: "Bonded capital was taken after a failure. Permanent negative evidence.",
+  },
+  {
+    type: "RECEIPT_CREATED",
+    severity: "info",
+    body: "Hash-chained receipt appended to the agent's execution log.",
+  },
   {
     type: "DEPOSIT_RECEIVED",
     severity: "info",
@@ -389,8 +399,8 @@ function MethodologyPage() {
           The two-axis model: risk × confidence
         </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
-          A two-day-old agent with two confirmed buybacks may score 75 with a confidence of 0.18. A
-          six-month-old agent with hundreds of confirmed buybacks and zero failures may score 92
+          A two-day-old agent with two released escrows may score 75 with a confidence of 0.18. A
+          six-month-old agent with hundreds of released escrows and zero failures may score 92
           with a confidence of 0.91. Both are accurate. Filled grade badges denote high confidence
           (≥ 0.66). Outlined grade badges denote low/medium confidence — the score may be right, but
           the evidence is thin.
@@ -765,7 +775,7 @@ function MethodologyPage() {
             "Celebrity endorsement",
             "Holder count",
             "Vibes",
-            "Future buyback promises",
+            "Future revenue promises",
           ].map((x) => (
             <li
               key={x}
@@ -877,9 +887,9 @@ function MethodologyPage() {
           Why SPX402 can downgrade itself
         </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
-          SPX402's own tokenized agent is scored by the same methodology as every other tracked
-          agent. If our buybacks fail or our operator stops signing, the grade drops. The trust
-          layer dies the moment the rater grants itself an exception.
+          SPX402's own agent is scored by the same methodology as every other tracked agent. If our
+          escrows fail, our bond is slashed, or our operator stops signing, the grade drops. The
+          trust layer dies the moment the rater grants itself an exception.
         </p>
       </section>
 
