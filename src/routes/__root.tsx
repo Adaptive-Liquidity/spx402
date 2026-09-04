@@ -4,6 +4,7 @@ import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/spx/SiteHeader";
 import { SiteFooter } from "@/components/spx/SiteFooter";
 import { TickerTape } from "@/components/spx/TickerTape";
+import { LedgerFrame } from "@/components/spx/LedgerFrame";
 import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
@@ -114,7 +115,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-      <div className="flex min-h-screen flex-col">
+      <div className="relative flex min-h-screen flex-col">
+        <LedgerFrame />
         <SiteHeader />
         <TickerTape />
         <main className="flex-1">

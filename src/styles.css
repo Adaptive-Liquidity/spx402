@@ -1002,3 +1002,555 @@
     color: var(--wire);
   }
 }
+
+/* ============================================================
+   Institutional ledger specification — global framing, instruments,
+   diagnostic plate, tape terminal
+   ============================================================ */
+
+@layer base {
+  .num-display,
+  .tabular-nums,
+  .font-mono,
+  pre,
+  code,
+  kbd {
+    font-feature-settings: "tnum" on, "zero" on;
+  }
+  h1,
+  h2,
+  h3 {
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  /* --- global coordinate spine (desktop-only, layout-bound) --- */
+  .ledger-spine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .spine-rule {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--bronze-dim);
+    opacity: 0.5;
+  }
+  .spine-left {
+    left: max(1.5rem, calc((100% - 1400px) / 2 + 2rem));
+  }
+  .spine-right {
+    right: max(1.5rem, calc((100% - 1400px) / 2 + 2rem));
+  }
+  .spine-mark {
+    position: absolute;
+    height: 5px;
+    width: 5px;
+    background:
+      linear-gradient(var(--amber), var(--amber)) center / 5px 1px no-repeat,
+      linear-gradient(var(--amber), var(--amber)) center / 1px 5px no-repeat;
+    opacity: 0.55;
+  }
+  .spine-mark-tl {
+    top: 96px;
+    left: max(1.5rem, calc((100% - 1400px) / 2 + 2rem));
+    transform: translateX(-2px);
+  }
+  .spine-mark-tr {
+    top: 96px;
+    right: max(1.5rem, calc((100% - 1400px) / 2 + 2rem));
+    transform: translateX(2px);
+  }
+
+  /* --- anti-banding micro-grain --- */
+  .ledger-grain {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.015;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='64' height='64' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 64px 64px;
+  }
+
+  /* --- telemetry pill --- */
+  .telemetry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--bronze);
+    background: var(--panel-deep);
+    padding: 0.3rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--wire);
+    white-space: nowrap;
+  }
+  .telemetry-dot {
+    height: 5px;
+    width: 5px;
+    border-radius: 9999px;
+    background: var(--verified);
+  }
+  .telemetry-sep {
+    margin: 0 0.4rem;
+    color: var(--bronze);
+  }
+  .telemetry-text {
+    display: none;
+  }
+  .telemetry-short {
+    display: inline;
+  }
+  @media (min-width: 1024px) {
+    .telemetry-text {
+      display: inline;
+    }
+    .telemetry-short {
+      display: none;
+    }
+  }
+
+  /* --- hero depth: horizon wash + vignette + compositing isolation --- */
+  .hero-horizon {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 68%;
+    pointer-events: none;
+    background: radial-gradient(
+      120% 100% at 50% 118%,
+      oklch(0.34 0.076 166 / 55%),
+      transparent 72%
+    );
+  }
+  .hero-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 45%, transparent 45%, oklch(0.06 0.012 168 / 72%));
+  }
+  .hero-aperture {
+    transform: translateZ(0);
+    will-change: clip-path;
+  }
+  .inscribe {
+    will-change: filter, transform, opacity;
+  }
+  .headline-glow {
+    position: relative;
+    display: inline-block;
+  }
+  .headline-glow::before {
+    content: "";
+    position: absolute;
+    inset: -18% -6%;
+    background: radial-gradient(60% 70% at 50% 50%, oklch(0.755 0.108 90 / 20%), transparent 70%);
+    filter: blur(14px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .guilloche-specular {
+    animation: specular-drift 12s ease-in-out infinite alternate;
+  }
+  @keyframes specular-drift {
+    from {
+      transform: translate3d(-2%, -1%, 0);
+    }
+    to {
+      transform: translate3d(2%, 1.5%, 0);
+    }
+  }
+
+  /* --- metric instruments --- */
+  .metric-cell {
+    position: relative;
+  }
+  .metric-bracket {
+    position: absolute;
+    height: 9px;
+    width: 9px;
+    border-color: var(--amber);
+    opacity: 0.45;
+  }
+  .metric-bracket-tl {
+    top: 6px;
+    left: 6px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .metric-bracket-br {
+    bottom: 6px;
+    right: 6px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+  .metric-awaiting {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--wire);
+    padding: 0.7rem 0;
+  }
+  .metric-spark {
+    display: block;
+    width: 100%;
+    height: 24px;
+    margin-top: 0.5rem;
+  }
+
+  /* --- caliper partition --- */
+  .caliper-track {
+    align-items: stretch;
+  }
+  .caliper-zone {
+    display: flex;
+    flex-basis: 0;
+    gap: 2px;
+    min-width: 0;
+  }
+  .caliper-notch {
+    width: 2px;
+    background: var(--amber);
+    opacity: 0.9;
+    flex: none;
+  }
+  .caliper-seg {
+    position: relative;
+  }
+  .caliper-hatch {
+    flex: 1;
+    background: repeating-linear-gradient(
+      -45deg,
+      oklch(0.55 0.04 168 / 85%) 0 2px,
+      oklch(0.2 0.02 168 / 90%) 2px 5px
+    );
+  }
+  .seg-pop {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%, 4px);
+    display: block;
+    min-width: 9.5rem;
+    border: 1px solid var(--bronze);
+    background: var(--panel-deep);
+    padding: 0.45rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper-muted);
+    box-shadow: var(--shadow-engraved);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+    z-index: 20;
+  }
+  .seg-pop em {
+    display: block;
+    font-style: normal;
+    color: var(--amber);
+  }
+  .seg-pop i {
+    display: block;
+    font-style: normal;
+    color: var(--wire);
+  }
+  .caliper-seg:hover .seg-pop {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  .caliper-label-awaiting {
+    color: var(--wire);
+  }
+  .caliper-caption-sep {
+    margin: 0 0.5rem;
+    color: var(--bronze);
+  }
+
+  /* --- console bevels + focus beam --- */
+  .console-slab {
+    box-shadow:
+      inset 0 1px 0 oklch(0.5 0.05 168 / 40%),
+      inset 0 -1px 0 oklch(0.05 0.01 168 / 70%),
+      var(--shadow-engraved);
+  }
+  .console-slab.is-focused {
+    box-shadow:
+      inset 0 0 0 1px oklch(0.755 0.108 90 / 55%),
+      inset 0 1px 0 oklch(0.5 0.05 168 / 40%);
+  }
+  .console-beam {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: 0;
+    background: linear-gradient(var(--amber), transparent);
+    opacity: 0;
+    transition:
+      height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .console-slab.is-focused .console-beam {
+    height: 7rem;
+    opacity: 0.5;
+  }
+
+  /* --- tape terminal --- */
+  .tape-window {
+    position: relative;
+    contain: layout paint style;
+    content-visibility: auto;
+  }
+  .tape-fade {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 40px;
+    background: linear-gradient(transparent, var(--panel-deep));
+    pointer-events: none;
+  }
+  .tape-row {
+    position: relative;
+  }
+  .tape-row.is-quiet {
+    opacity: 0.4;
+  }
+  .tape-row::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--amber);
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity;
+    transition: opacity 0.15s linear;
+  }
+  .tape-row.is-fresh::after {
+    opacity: 0.8;
+  }
+  .tape-tab {
+    display: block;
+    border-top: 1px solid var(--bronze);
+    background: var(--panel-deep);
+    padding: 0.7rem 1rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    transition: background-color 0.2s ease;
+  }
+  .tape-tab:hover {
+    background: oklch(0.755 0.108 90 / 9%);
+  }
+
+  /* --- section spines and scroll-linked dividers --- */
+  .band-spine {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--wire);
+  }
+  .band-spine b {
+    color: var(--amber);
+    font-weight: 600;
+  }
+  .band-rule {
+    height: 1px;
+    background: var(--bronze-dim);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .aperture.is-open .band-rule,
+  .is-open .band-rule {
+    transform: scaleX(1);
+  }
+  .plate-ground {
+    background: oklch(0.125 0.014 168);
+  }
+
+  /* --- diagnostic plate --- */
+  .failure-plate {
+    border: 1px solid var(--bronze);
+    background: var(--panel-deep);
+    font-family: var(--font-mono);
+  }
+  .failure-plate-head,
+  .failure-row {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.55rem 1rem;
+  }
+  @media (min-width: 640px) {
+    .failure-plate-head,
+    .failure-row {
+      grid-template-columns: 3rem 1fr 9rem;
+    }
+  }
+  .failure-plate-head {
+    border-bottom: 1px solid var(--bronze);
+    font-size: 0.625rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--wire);
+  }
+  .failure-row {
+    position: relative;
+    border-bottom: 1px solid oklch(0.3 0.03 168 / 45%);
+    font-size: 0.8125rem;
+    color: var(--paper-muted);
+    transition: color 0.18s ease;
+  }
+  .failure-row:last-child {
+    border-bottom: 0;
+  }
+  .failure-id {
+    color: var(--wire);
+    font-size: 0.6875rem;
+  }
+  .failure-class {
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--wire);
+    text-align: right;
+  }
+  .failure-crosshair {
+    position: absolute;
+    inset: 0 0 auto 0;
+    top: 50%;
+    height: 1px;
+    background: var(--amber);
+    opacity: 0;
+    transform: scaleX(0.2);
+    transform-origin: left;
+    transition:
+      opacity 0.2s ease,
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .failure-row:hover {
+    color: var(--paper);
+    background: oklch(0.755 0.108 90 / 5%);
+  }
+  .failure-row:hover .failure-crosshair {
+    opacity: 0.35;
+    transform: scaleX(1);
+  }
+  .failure-row:hover .failure-class,
+  .failure-row:hover .failure-id {
+    color: var(--amber);
+  }
+
+  /* --- proportional taxonomy scale --- */
+  .scale-bar {
+    display: flex;
+    height: 10px;
+    border: 1px solid var(--bronze-dim);
+    background: var(--panel-deep);
+    padding: 1px;
+    gap: 1px;
+  }
+  .scale-seg {
+    flex-basis: 0;
+    min-width: 3px;
+  }
+
+  /* --- terminal API block copy affordance --- */
+  .copy-tick {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--wire);
+    transition: color 0.18s ease;
+  }
+  .copy-tick:hover {
+    color: var(--amber);
+  }
+  .copy-flash {
+    animation: copy-flash 0.15s linear 2;
+  }
+  @keyframes copy-flash {
+    50% {
+      border-color: var(--amber);
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .guilloche-lines {
+    opacity: 0.28;
+  }
+  .caliper-ticks {
+    display: none;
+  }
+  .caliper-scale {
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    justify-content: center;
+  }
+  .console-tab {
+    padding: 0.85rem 1rem;
+    min-height: 44px;
+  }
+  .tape-tab {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guilloche-specular,
+  .copy-flash {
+    animation: none !important;
+  }
+  .band-rule,
+  .failure-crosshair,
+  .console-beam,
+  .seg-pop {
+    transition: none !important;
+  }
+  .band-rule {
+    transform: scaleX(1);
+  }
+}
+
+@layer components {
+  .closing-band .hero-bound {
+    opacity: 0.4;
+    transition: none;
+  }
+  .closing-band .hero-bound-top {
+    top: 0;
+  }
+  .closing-band .hero-bound-bottom {
+    bottom: 0;
+  }
+  .closing-band .guilloche-lines {
+    opacity: 0.3;
+  }
+}

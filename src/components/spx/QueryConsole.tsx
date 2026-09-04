@@ -106,6 +106,8 @@ export function QueryConsole() {
         </button>
       </div>
 
+      <span className="console-beam" aria-hidden />
+
       {/* mechanical escape tab, cut into the bottom border */}
       <div className="console-tabrail">
         <Link to="/leaderboard" className="console-tab">

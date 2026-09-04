@@ -4,10 +4,13 @@ import { Hero } from "@/components/spx/Hero";
 import { Aperture } from "@/components/spx/Aperture";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { fetchAllAgents } from "@/lib/agents-db";
-import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
+import { qualifiesForLeaderboard, gradeColor, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { ProofChainX402 } from "@/components/spx/ProofChainX402";
+import { FailurePlate } from "@/components/spx/FailurePlate";
+import { Guilloche } from "@/components/spx/Guilloche";
+import { CopyBlock } from "@/components/spx/CopyBlock";
 import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck } from "lucide-react";
 
@@ -114,6 +117,19 @@ const GRADES = [
   { g: "SPX404", r: "n/a", t: "Insufficient evidence to grade" },
 ] as const;
 
+function BandSpine({ n, code, label }: { n: string; code: string; label: string }) {
+  return (
+    <div>
+      <div className="band-spine">
+        <b>{n}</b>
+        <span>// {code}</span>
+      </div>
+      <div className="band-rule mt-3" />
+      <div className="label-amber mt-4">{label}</div>
+    </div>
+  );
+}
+
 function HomePage() {
   const {
     agents: allAgents,
@@ -131,6 +147,17 @@ function HomePage() {
   const featured = agents.slice(0, 3);
   // Live grade distribution for the viewfinder dial — read from the agents we
   // already loaded, no extra query.
+  // Settlement density bucketed hourly from the tape rows already loaded — no
+  // extra request. Anchored to the newest event so SSR and hydration agree.
+  const anchor = tape.length > 0 ? new Date(tape[0].occurredAt).getTime() : 0;
+  const settlementSeries = Array.from({ length: 24 }, (_, i) => {
+    const to = anchor - (23 - i) * 3_600_000;
+    const from = to - 3_600_000;
+    return tape.filter((r) => {
+      const t = new Date(r.occurredAt).getTime();
+      return t > from && t <= to;
+    }).length;
+  });
   const gradeSlices = Array.from(
     allAgents.reduce((m, a) => m.set(a.grade, (m.get(a.grade) ?? 0) + 1), new Map<Agent["grade"], number>()),
     ([grade, count]) => ({ grade, count }),
@@ -144,6 +171,7 @@ function HomePage() {
           {
             value: (stats.settlementsSolana + stats.settlementsBase).toLocaleString(),
             label: "Settlements verified",
+            series: settlementSeries,
             sub: `SOL ${stats.settlementsSolana.toLocaleString()} · BASE ${stats.settlementsBase.toLocaleString()}`,
           },
           { value: stats.servicesProbed.toLocaleString(), label: "Services probed" },
@@ -164,7 +192,7 @@ function HomePage() {
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <div className="label-amber">How proof works</div>
+            <BandSpine n="01" code="ENGINE" label="How proof works" />
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
               Talk is free.{" "}
               <span className="text-paper-muted">Proof has a price — we track who pays it.</span>
@@ -199,7 +227,7 @@ function HomePage() {
 
       {/* X402 PROOF CHAIN */}
       <Aperture as="section" className="stage pb-24">
-        <div className="label-amber">The x402 Chain</div>
+        <BandSpine n="02" code="SETTLEMENT" label="The x402 Chain" />
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
           Two chains. One question. <span className="text-paper-muted">Did the money move?</span>
         </h2>
@@ -213,29 +241,22 @@ function HomePage() {
       </Aperture>
 
       {/* WHAT SPX402 CATCHES */}
-      <section className="border-y border-bronze/40 bg-panel-deep">
+      <section className="border-y border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
-          <div className="label-amber">What SPX402 Catches</div>
+          <BandSpine n="03" code="DIAGNOSTICS" label="What SPX402 Catches" />
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
             The tape never blinks.{" "}
             <span className="text-paper-muted">Fifteen failure patterns, caught on-chain.</span>
           </h2>
-          <ul className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2 lg:grid-cols-3">
-            {CATCHES.map((c) => (
-              <li
-                key={c}
-                className="frame-cell bg-background p-5 font-mono text-sm uppercase tracking-wider text-paper"
-              >
-                <span className="mr-2 text-amber">✕</span> {c}
-              </li>
-            ))}
-          </ul>
+          <div className="mt-12">
+            <FailurePlate patterns={CATCHES} />
+          </div>
         </Aperture>
       </section>
 
       {/* AUDIENCES */}
       <Aperture as="section" className="stage py-24">
-        <div className="label-amber">Built for three users</div>
+        <BandSpine n="04" code="AUDIENCE" label="Built for three users" />
         <h2 className="mt-3 font-display text-4xl font-bold text-paper">
           Whoever you are, you need receipts.
         </h2>
@@ -251,11 +272,11 @@ function HomePage() {
       </Aperture>
 
       {/* GRADE TAXONOMY */}
-      <section className="border-t border-bronze/40 bg-panel-deep">
+      <section className="border-t border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
           <div className="grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-4">
-              <div className="label-amber">Execution Grade</div>
+              <BandSpine n="05" code="TAXONOMY" label="Execution Grade" />
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
                 Wall Street grades bonds.{" "}
                 <span className="text-paper-muted">We grade the machines.</span>
@@ -269,6 +290,23 @@ function HomePage() {
               </p>
             </div>
             <div className="lg:col-span-8">
+              <div className="scale-bar mb-6">
+                {GRADES.filter((g) => g.r !== "n/a").map((g) => {
+                  const [lo, hi] = g.r.split("–").map(Number);
+                  return (
+                    <div
+                      key={g.g}
+                      className="scale-seg"
+                      style={{
+                        flexGrow: hi - lo + 1,
+                        background: `var(--color-${gradeColor(g.g as Agent["grade"])})`,
+                        opacity: 0.65,
+                      }}
+                      title={`${g.g} · ${g.r}`}
+                    />
+                  );
+                })}
+              </div>
               <div className="overflow-hidden border border-bronze/40">
                 {GRADES.map((g, i) => (
                   <div
@@ -295,7 +333,7 @@ function HomePage() {
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-6">
-            <div className="label-amber">SPX402 API</div>
+            <BandSpine n="06" code="INTERFACE" label="SPX402 API" />
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
               Agents will not browse dashboards.{" "}
               <span className="text-paper-muted">Agents will query other agents.</span>
@@ -321,14 +359,10 @@ function HomePage() {
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div className="panel-engraved overflow-hidden">
-              <div className="flex items-center justify-between border-b border-bronze/50 bg-panel-deep/60 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest">
-                <span className="text-amber">GET</span>
-                <span className="text-wire">api.spx402.xyz/v1/agent/:mint</span>
-                <span className="text-verified">200 OK</span>
-              </div>
-              <pre className="overflow-x-auto bg-panel-deep/30 p-5 font-mono text-[12px] leading-relaxed text-paper">
-                {`{
+            <CopyBlock
+              method="GET"
+              endpoint="api.spx402.xyz/v1/agent/:mint"
+              body={`{
   "mint": "7xK...Q92",
   "symbol": "NOVA",
   "grade": "SPX AA",
@@ -342,18 +376,17 @@ function HomePage() {
   "status": "active",
   "confidence": "high"
 }`}
-              </pre>
-            </div>
+            />
           </div>
         </div>
       </Aperture>
 
       {/* PRICING PREVIEW */}
-      <section className="border-y border-bronze/40 bg-panel-deep">
+      <section className="border-y border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="label-amber">Pricing</div>
+              <BandSpine n="07" code="ACCESS" label="Pricing" />
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
                 Verification is free.{" "}
                 <span className="text-paper-muted">Vigilance is paid.</span>
@@ -391,7 +424,7 @@ function HomePage() {
       <Aperture as="section" className="stage py-24">
         <div className="flex items-end justify-between">
           <div>
-            <div className="label-amber">Currently watched</div>
+            <BandSpine n="08" code="INDEX" label="Currently watched" />
             <h2 className="mt-3 font-display text-3xl font-bold text-paper">
               {featured.length > 0 ? "Live on the tape right now." : "The tape is quiet."}
             </h2>
@@ -449,9 +482,12 @@ function HomePage() {
         )}
       </Aperture>
 
-      {/* FINAL CTA */}
-      <Aperture as="section" className="stage pb-28">
-        <Panel className="text-center" bodyClassName="px-6 py-16">
+      {/* FINAL CTA — the aperture closes */}
+      <Aperture as="section" className="closing-band relative overflow-hidden stage pb-28">
+        <Guilloche />
+        <div className="hero-bound hero-bound-top" aria-hidden />
+        <div className="hero-bound hero-bound-bottom" aria-hidden />
+        <Panel className="relative text-center" bodyClassName="px-6 py-16">
           <div className="label-amber">Final word</div>
           <h2 className="mt-4 font-display text-5xl font-bold text-paper sm:text-6xl">
             Paste the mint.
