@@ -1,49 +1,53 @@
-## Goal
+# SPX402 AEON Execution Grade — completion pass
 
-Bring the UI up to the backend reality (facilitator registry, wash-resistant scoring v0.3.0, EVM/Base lane, active prober, fixture suite) as a **frontend-only** pass. No worker, decoder, scoring, cron, or migration changes.
+## What the audit found
 
-## Current state (verified this session)
+The brief assumes "the backend is done, the database is seeded, this is a copy swap." Half of that is true.
 
-- Homepage hero stats are partly static: agent count is live, `Buybacks confirmed` is derived, `5m` reconcile cadence is hardcoded. There is one proof chain (deposit → buyback → burn → grade) and one flat "What SPX402 catches" list.
-- Dossier already has a chain badge, `via {facilitatorId}` chips on settlement rows, and a `ProbeStrip`. Missing: chip tooltip text per spec, payer diversity row, the four anomaly copy blocks, legacy-attribution note, ADDRESS-ONLY fallback.
-- `/service/$slug` exists (Wave 5) with transcript table + sparkline; needs the spec header line and CONFIG_DRIFT history.
-- Explore has grade-band chips only. Leaderboard has no chain/payer/facilitator columns.
-- Methodology is fully static and **links to** the registry rather than rendering it; it has no loader.
-- Status has a prober lane and a 24h telemetry panel, but not the per-lane heartbeat board.
-- Live table state right now: `facilitators` 3 rows (1 active, Solana; 2 Base inactive), `x402_service` 0, `probe_run` 0, Base events 0. So the Base lane, prober, and probe surfaces must render their honest empty/disabled states — that is the default view today, and it must look deliberate.
+**Already in the repo (verified):**
+- AEON scoring branch with the exact 40/30/15/10/5 weights, grade thresholds and verdict copy (`src/lib/indexer/scoring.server.ts`)
+- AEON on-chain decoder for escrow / bond / receipt instructions, program `TcZ9MKNw4eGvoe3K75e4M3zCwZCzEsb6WvrS8LqNgdm` (`src/lib/indexer/decode-aeon.server.ts`), wired into the Helius webhook
+- Agent dossier already branches on AEON primitives: escrow/bond metric cards, new pillars, escrow/bond filter chips, AEON event descriptions
+- The three paid v1 endpoints (score / dossier / evidence), the x402 + API-key paywall middleware, the API key management endpoint
+- `scripts/shadow-grade.ts` and the pricing page copy
 
-## Data plumbing
+**Missing (verified against the live database and file tree):**
+- The `20260829*` migrations were never applied. The `agents` table has none of `aeon_cri_address`, `total_slashed_usd`, `active_bond_amount`, `escrow_success_rate`, `total_escrows_completed`, `total_escrows_failed`.
+- Tables `aeon_receipts`, `api_keys` and `api_usage` do not exist. The paywall middleware and the key endpoint query tables that aren't there, so every paid call fails.
+- No NOVA / ARIA / FLUX / NULL404 / SPX Oracle rows. Current agents are the old tokenized and registered ones.
+- Homepage still reads "Register. Get scored. Climb the tape." with the deposit → buyback → burn proof chain and buyback-flavoured anomaly list.
+- Methodology page is still the buyback/x402 document.
 
-Extend read-only helpers only (`src/lib/live-data.ts`, `src/lib/prober-data.ts`, plus a new `src/lib/registry-data.ts`):
+Net effect today: the AEON code paths are dead. Nothing can populate them, so every agent renders through the legacy tokenomics path.
 
-- `fetchHomeStats()` — agents indexed, settlements verified split by `agent_events.chain`, services probed (`x402_service` count + distinct probed), active facilitators.
-- `fetchPayerDiversity(mint)` — unique payers, top-payer share, high-confidence share derived from `agent_events.raw` payer + `detection_method`, plus a count of pre-v0.2.0 rows for the legacy note.
-- `fetchFacilitatorRegistry()` — already have `fetchFacilitators()`; add per-chain active counts and registry version.
-- `fetchLaneHeartbeats()` — group `indexer_runs` by worker into the six lanes with last run, ok state, duration, and the Base cursor / prober budget parsed from `notes`.
-- `fetchFixtureCoverage()` — counts by suite section from the fixture modules; if not derivable client-side, expose via a read-only server route `/api/public/fixture-coverage` (read-only, no worker changes).
-- Ticker source extended to `X402_PAYMENT_RECEIVED` (high-confidence only), `WASH_PATTERN_SUSPECTED`, `CONFIG_DRIFT`, and `settled_no_delivery` probe runs, formatted `[BASE] X402 SETTLED 0.01 USDC via PayAI · 1.8s`.
+## Plan
 
-## New components (`src/components/spx/`)
+### 1. Database (the actual blocker)
+One migration adding the six AEON columns to `agents`, plus the `aeon_receipts` hash-chain table and the `api_keys` / `api_usage` tables the paywall already expects. Public read where the rest of the site is public read; keys and usage scoped to their owner; grants on every new table.
 
-`ChainBadge`, `FacilitatorChip`, `PayerDiversityStat`, `ProbeStatusPanel`, `SettleRateSparkline`, `LaneHeartbeatCard`, `FacilitatorRegistryTable`, `FixtureCoverageTable`, `BudgetGauge`, `ServiceTranscriptTable`, `ProofChainX402` — all in the existing engraved-bronze/amber terminal language, mono numerals, no gradients, no emoji. The dossier's inline chip/strip/sparkline code is refactored into these so there is one implementation each.
+### 2. Event taxonomy
+Allow `ESCROW_CREATED`, `ESCROW_RELEASED`, `ESCROW_CANCELED`, `BOND_DEPOSITED`, `BOND_SLASHED`, `RECEIPT_CREATED` through the event type constraint and the shared TypeScript union so decoded AEON events can actually be stored and shown on the tape.
 
-## Page work
+### 3. Scoring pipeline
+Feed the new columns into the scoring cron so `category = 'aeon_executor'` agents are graded by the AEON branch, and register `aeon_executor` in the shared category list so it appears in filters and tabs alongside Tokenized / Registered / x402.
 
-1. **Homepage** — live hero stat row (4 stats, SOL/BASE split); `ProofChainX402` section under the existing chain with header _"Two chains. One question. Did it settle."_; four new catch cards (wash-concentrated receipt flow, facilitator config drift, delivery without settlement, probe/organic divergence); extended ticker.
-2. **Dossier** — chain badge styling per spec (SOL amber / BASE bronze outline), facilitator chip tooltip _"Detected by facilitator fee-payer match · confidence high · parser v0.2.0"_, payer diversity row with the v0.3.0 sub-caption, `ProbeStatusPanel` with ADDRESS-ONLY fallback (_"Settlement observed. Endpoint not yet probed."_), the four anomaly copy blocks verbatim, legacy note.
-3. **/service/$slug** — spec header `SERVICE TRANSCRIPT · probed by SPX402 · wallet {truncated}`, advertised price/facilitator/payTo (linked to dossier when matched), 30-day outcomes table, sparkline, CONFIG_DRIFT history.
-4. **Explore + Leaderboard** — chain / category / grade band / operator-verified / wash-flagged / probed filters; leaderboard gains chain badge, unique-payer column, `via` chip, and the x402 score tooltip _"Diversity-discounted per methodology v0.3.0."_; section headers stay non-speculative.
-5. **Methodology** — restructure into the 8 numbered sections with version tags, add a loader so section 6 renders the `facilitators` table from the database (add/remove a row and the page changes), full prober wallet addresses, fixture coverage counts, version changelog, and the verbatim sentences (_"A service with one customer may be excellent. It has not proven a market."_, _"Probe data is displayed. It is not yet scored."_, _"Anyone can audit who we trust."_, _"Every decoder claim above is pinned to captured mainnet transactions."_).
-6. **Status** — six `LaneHeartbeatCard`s from `indexer_runs` (solana settlement, base settlement + cursor, prober + `BudgetGauge`, scoring, verifier, reconcilers), registry version + per-chain active counts, fixture count, parser versions; breaker card copy _"Prober halted at daily budget. Discipline is the product."_
+### 4. Homepage
+New hero: "HTTP 402. Payment required. Proof provided." with the escrows / bonds / slashes / receipts subcopy. Proof chain becomes Escrow Created → Work Completed → Bond Posted → Grade Assigned. Anomaly list becomes missing escrow releases, bonds slashed, receipts missing, operator unverified. No colour, font or layout changes.
 
-## Honest states
+### 5. Methodology
+Rewrite around the 40/30/15/10/5 formula, the grade table, the confidence model, what SPX402 measures and refuses to measure, why price is excluded, and the self-downgrade clause. Existing chain and prober sections stay.
 
-All five render with exact labels: `REPORT-ONLY — detection live, registry empty` (status + methodology), `DISABLED — awaiting operator keys` (status prober), `ADDRESS-ONLY` (dossier), `PROBER_BUDGET_HALT` (status + ticker), `legacy — predates payer attribution` (dossier). With today's data, three of these are the live state, not a hypothetical.
+### 6. API docs
+Table of the three paid endpoints with their USDC prices and the AEON fields each returns, plus the dual auth story (HTTP 402 or API key).
 
-## Invariants
+### 7. Demo agents — decision needed
+Project memory says SPX402 never seeds off-chain or unverified agents; honest empty states only. The brief wants five demo rows. Default in this plan: **no seeded demo agents.** The AEON surfaces render honest empty states until a real AEON agent is indexed, and I verify the UI by pointing the shadow-grade script at real data. Say the word and I'll seed the five instead, labelled as demo.
 
-No touching `scoring.server.ts`, decoders, crons, or migrations. No unlabeled mock data — empty tables render empty states. Legal copy discipline preserved: no investment language, no "safe"/"yield"/"guaranteed"/"credit rating", no S&P implication, price excluded from scores, disclaimer links intact. Final voice pass: zero exclamation marks in new copy.
+## Old lanes
+
+Kept as a fallback, not deleted. Agents with AEON primitives get the escrow/bond cards and pillars; the existing tokenized, registered, x402 and prober agents keep working as they do now. Deleting those paths would blank out every agent currently in the database.
 
 ## Verification
-
-`bunx vitest run` + typecheck, then a Playwright walk of `/`, a dossier, `/service/...`, `/explore`, `/leaderboard`, `/methodology`, `/status` at desktop and mobile widths, checking each honest state renders and confirming a facilitators-row change moves the methodology table. Report per page which table each element reads from, plus anything stubbed and why.
+- Full test suite green
+- A real agent page renders through the AEON branch once a row carries primitives
+- A paid endpoint returns 402 with a quote, then 200 after payment / with a key
