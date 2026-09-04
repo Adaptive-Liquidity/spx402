@@ -715,18 +715,15 @@ function Dossier({
   const outcomeOnTimePillar =
     agent.score == null || agent.grade === "SPX404"
       ? null
-      : (agent.scoreBreakdown.burnConfirmation / 20) * 100;
+      : (agent.scoreBreakdown.escrowCompletion / 40) * 100;
 
   const scorePillars = isTaskExecutor
     ? [
         {
           pillar: "Outcome execution",
           hint: "Award density · fulfillment · on-time performance",
-          value:
-            agent.scoreBreakdown.depositConsistency +
-            agent.scoreBreakdown.buybackExecution +
-            agent.scoreBreakdown.burnConfirmation,
-          max: 65,
+          value: agent.scoreBreakdown.escrowCompletion + agent.scoreBreakdown.slashableBond,
+          max: 70,
           tone: "text-verified",
         },
         {
@@ -739,8 +736,8 @@ function Dossier({
         {
           pillar: "Verification",
           hint: "Public Capsule · operator signature",
-          value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
-          max: 10,
+          value: agent.scoreBreakdown.operator,
+          max: 5,
           tone: "text-paper",
         },
       ]
@@ -778,12 +775,9 @@ function Dossier({
       : [
           {
             pillar: "Execution",
-            hint: "Deposits → buybacks → burns",
-            value:
-              agent.scoreBreakdown.depositConsistency +
-              agent.scoreBreakdown.buybackExecution +
-              agent.scoreBreakdown.burnConfirmation,
-            max: 65,
+            hint: "Observed settlement work",
+            value: agent.scoreBreakdown.escrowCompletion + agent.scoreBreakdown.slashableBond,
+            max: 70,
             tone: "text-verified",
           },
           {
@@ -795,11 +789,12 @@ function Dossier({
           },
           {
             pillar: "Identity",
-            hint: "Metadata · operator signature",
-            value: agent.scoreBreakdown.metadata + agent.scoreBreakdown.operator,
-            max: 10,
+            hint: "Operator signature",
+            value: agent.scoreBreakdown.operator,
+            max: 5,
             tone: "text-paper",
           },
+
         ];
 
   const isSPX404 = agent.grade === "SPX404";
