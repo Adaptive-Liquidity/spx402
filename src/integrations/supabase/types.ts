@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      aeon_receipts: {
+        Row: {
+          created_at: string
+          id: string
+          mint: string
+          occurred_at: string
+          payload: Json
+          prev_hash: string | null
+          receipt_address: string | null
+          receipt_hash: string
+          sequence: number
+          signature: string
+          slot: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mint: string
+          occurred_at?: string
+          payload?: Json
+          prev_hash?: string | null
+          receipt_address?: string | null
+          receipt_hash: string
+          sequence?: number
+          signature: string
+          slot?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mint?: string
+          occurred_at?: string
+          payload?: Json
+          prev_hash?: string | null
+          receipt_address?: string | null
+          receipt_hash?: string
+          sequence?: number
+          signature?: string
+          slot?: number | null
+        }
+        Relationships: []
+      }
       agent_events: {
         Row: {
           amount_sol: number
@@ -97,6 +139,8 @@ export type Database = {
       }
       agents: {
         Row: {
+          active_bond_amount: number
+          aeon_cri_address: string | null
           burn_confirmation_rate: number
           buyback_bps: number
           buyback_execution_rate: number
@@ -110,6 +154,7 @@ export type Database = {
           core_asset: string | null
           created_at: string
           deposit_address: string | null
+          escrow_success_rate: number
           events: Json
           executor_wallet: string | null
           failed_windows: number
@@ -142,10 +187,15 @@ export type Database = {
           total_buybacks_count: number
           total_deposited_sol: number
           total_deposits_count: number
+          total_escrows_completed: number
+          total_escrows_failed: number
+          total_slashed_usd: number
           updated_at: string
           verdict: string | null
         }
         Insert: {
+          active_bond_amount?: number
+          aeon_cri_address?: string | null
           burn_confirmation_rate?: number
           buyback_bps?: number
           buyback_execution_rate?: number
@@ -159,6 +209,7 @@ export type Database = {
           core_asset?: string | null
           created_at?: string
           deposit_address?: string | null
+          escrow_success_rate?: number
           events?: Json
           executor_wallet?: string | null
           failed_windows?: number
@@ -191,10 +242,15 @@ export type Database = {
           total_buybacks_count?: number
           total_deposited_sol?: number
           total_deposits_count?: number
+          total_escrows_completed?: number
+          total_escrows_failed?: number
+          total_slashed_usd?: number
           updated_at?: string
           verdict?: string | null
         }
         Update: {
+          active_bond_amount?: number
+          aeon_cri_address?: string | null
           burn_confirmation_rate?: number
           buyback_bps?: number
           buyback_execution_rate?: number
@@ -208,6 +264,7 @@ export type Database = {
           core_asset?: string | null
           created_at?: string
           deposit_address?: string | null
+          escrow_success_rate?: number
           events?: Json
           executor_wallet?: string | null
           failed_windows?: number
@@ -240,6 +297,9 @@ export type Database = {
           total_buybacks_count?: number
           total_deposited_sol?: number
           total_deposits_count?: number
+          total_escrows_completed?: number
+          total_escrows_failed?: number
+          total_slashed_usd?: number
           updated_at?: string
           verdict?: string | null
         }
@@ -298,6 +358,92 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      api_keys: {
+        Row: {
+          created_at: string
+          daily_limit: number
+          expires_at: string | null
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          metadata: Json
+          name: string
+          revoked_at: string | null
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_limit?: number
+          expires_at?: string | null
+          id?: string
+          key_hash: string
+          key_prefix?: string
+          last_used_at?: string | null
+          metadata?: Json
+          name?: string
+          revoked_at?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_limit?: number
+          expires_at?: string | null
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          metadata?: Json
+          name?: string
+          revoked_at?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      api_usage: {
+        Row: {
+          api_key_id: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          payer: string | null
+          status: string
+        }
+        Insert: {
+          api_key_id?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          payer?: string | null
+          status?: string
+        }
+        Update: {
+          api_key_id?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          payer?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_usage_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       candidate_agents: {
         Row: {
@@ -786,6 +932,14 @@ export type Database = {
     }
     Functions: {
       enqueue_candidate_agent: { Args: { p_mint: string }; Returns: Json }
+      get_api_key_usage: {
+        Args: { p_key_id: string }
+        Returns: {
+          total_calls: number
+          used_this_month: number
+          used_today: number
+        }[]
+      }
       x402_service_base_slug: {
         Args: { p_id: string; p_pay_to: string; p_url: string }
         Returns: string
