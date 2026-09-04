@@ -1597,7 +1597,7 @@ function AlertSubscribeButton({ mint }: { mint: string }) {
       return;
     }
     fetchSubscriptionForMint(user.id, mint)
-      .then((s) => setSubId(s?.id ?? null))
+      .then((s: AlertSubscription | null) => setSubId(s?.id ?? null))
       .catch(() => setSubId(null))
       .finally(() => setReady(true));
   }, [user, mint]);
