@@ -68,14 +68,12 @@ export const Route = createFileRoute("/api/v1/agent/$mint/dossier")({
             events: liveEvents.map((e) => ({
               type: e.type,
               severity: e.severity,
-              title: e.title,
-              description: e.description,
               signature: e.signature,
-              amount: e.amount,
-              tokenAmount: e.tokenAmount,
+              amount: e.amountSol,
+              tokenAmount: e.amountToken,
               slot: e.slot,
-              confidence: e.confidence,
-              occurredAt: e.iso,
+              facilitatorId: e.facilitatorId,
+              occurredAt: e.occurredAt,
             })),
             // SVG Terminal Card for embedding
             svgCard,

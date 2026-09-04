@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         // Load the agent lookup table once.
         const { data: agentsRows } = await supabaseAdmin
           .from("agents")
-          .select("mint, deposit_address, executor_wallet, identifier_kind, category");
+          .select("mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address");
         const agents = (agentsRows ?? []).map((r) => ({
           mint: r.mint,
           depositAddress: r.deposit_address ?? null,
