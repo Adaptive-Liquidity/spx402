@@ -13,7 +13,8 @@ Structural depth, typographic precision and calibrated feedback across the landi
 ## 2. Hero: horizon aperture and physical depth
 
 - **Monolithic ingress, zero stagger.** 0–180ms: a single gold hairline expands from centre to bounds on `cubic-bezier(0.16, 1, 0.3, 1)`. 180–650ms: it cleaves into top and bottom perimeter rules and the headline, console and caliper reveal through one synchronized `clip-path: inset()` expansion.
-- **Text settlement.** Headline resolves from `blur(6px)` to `0` with optical scale 1.02 → 1.00. No per-line pop-in.
+- **Text settlement.** Headline resolves from `blur(6px)` to `0` with optical scale 1.02 → 1.00. No per-line pop-in. The blur runs on a dedicated text layer, never as an inherited filter over the expanding bounding box.
+- **Compositing safeguards.** The aperture clipping container is isolated with `transform: translateZ(0)` and `will-change: clip-path` so the clip, the guilloche backdrop and the text convergence do not fight for the same paint pass on integrated GPUs.
 - **Physical ground.** Wide emerald horizon wash low in the band plus a vertical vignette; guilloche engraving set to a quiet tactile baseline with a 12s ambient specular drift that disables under reduced motion.
 - **Rhythm.** Compress the gaps between badge, headline, console and metrics so the full hero deck fits 1280x800 with the live tape header teasing above the fold. Headline drops to two weights; line three carries a localized gold back-glow.
 
