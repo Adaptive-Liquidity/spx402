@@ -4,15 +4,17 @@ Structural depth, typographic precision and calibrated feedback across the landi
 
 ## 1. Global framing and foundations
 
-- **Coordinate spine.** Fixed vertical hairlines pinned at the desktop content bounds, with a 5px gold registration mark (`+`) at every intersection where a section rule crosses a margin.
-- **Telemetry pill.** Persistent fixed top-right readout: `SYSTEM: NOMINAL · UTC 00:00:00` in 10px monospace.
+- **Coordinate spine.** Vertical hairlines at the desktop content bounds, with a 5px gold registration mark (`+`) at every intersection where a section rule crosses a margin. Rendered as a desktop-only, non-interactive frame tied to the layout container (`hidden lg:block pointer-events-none inset-y-0`) — never viewport-fixed chrome, so it cannot collide with mobile widths, the sticky header or horizontal scroll bounds.
+- **Telemetry pill.** Top-right readout `SYSTEM: NOMINAL · UTC 00:00:00` in 10px monospace, collapsing to a compact `● NOMINAL` dot below 1024px so it never crowds the navigation.
+
 - **Anti-banding grain.** Fixed repeating 64x64 SVG micro-grain at 1.5% opacity, `pointer-events: none`, overlay blend — kills gradient banding on the deep emerald surfaces.
 - **Numeric precision.** `font-feature-settings: "tnum" on, "zero" on` on all figures and hashes; `text-rendering: geometricPrecision` and antialiasing on headings for hairline sharpness on dark ground.
 
 ## 2. Hero: horizon aperture and physical depth
 
 - **Monolithic ingress, zero stagger.** 0–180ms: a single gold hairline expands from centre to bounds on `cubic-bezier(0.16, 1, 0.3, 1)`. 180–650ms: it cleaves into top and bottom perimeter rules and the headline, console and caliper reveal through one synchronized `clip-path: inset()` expansion.
-- **Text settlement.** Headline resolves from `blur(6px)` to `0` with optical scale 1.02 → 1.00. No per-line pop-in.
+- **Text settlement.** Headline resolves from `blur(6px)` to `0` with optical scale 1.02 → 1.00. No per-line pop-in. The blur runs on a dedicated text layer, never as an inherited filter over the expanding bounding box.
+- **Compositing safeguards.** The aperture clipping container is isolated with `transform: translateZ(0)` and `will-change: clip-path` so the clip, the guilloche backdrop and the text convergence do not fight for the same paint pass on integrated GPUs.
 - **Physical ground.** Wide emerald horizon wash low in the band plus a vertical vignette; guilloche engraving set to a quiet tactile baseline with a 12s ambient specular drift that disables under reduced motion.
 - **Rhythm.** Compress the gaps between badge, headline, console and metrics so the full hero deck fits 1280x800 with the live tape header teasing above the fold. Headline drops to two weights; line three carries a localized gold back-glow.
 
@@ -39,7 +41,8 @@ Structural depth, typographic precision and calibrated feedback across the landi
 
 - Terminal header chrome: pulsing status dot with polling interval, aggregate event counter, UTC arrival stamp.
 - Truncate to 8 rows with a 40px linear fade to the page ground and an anchored mechanical tab: `[ OPEN FULL REPOSITORY TAPE ↗ ]`.
-- Values right-aligned in tabular mono; zero-value rows dropped to 40% opacity to push noise back; new arrivals flash a 1px gold hairline border for 150ms before settling.
+- Values right-aligned in tabular mono; zero-value rows dropped to 40% opacity to push noise back; new arrivals flash gold for 150ms before settling.
+- **Repaint safeguards.** The flash never animates a border. Row borders stay static and the flash runs on a `::after` pseudo-element driven by `opacity`/`transform` with `will-change: opacity`; the 8-row container gets `contain: strict` (or `content-visibility: auto`) so live updates cannot trigger layout passes on the hero above.
 
 ## 7. Down-page cadence
 
