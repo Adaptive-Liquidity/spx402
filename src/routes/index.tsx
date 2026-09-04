@@ -87,7 +87,7 @@ const AUDIENCES = [
   {
     label: "Token communities",
     title: "One public URL.",
-    body: "Verify whether an agent’s buyback and burn loop is visible on-chain. Share the dossier. Stop arguing in the replies.",
+    body: "Verify whether an agent’s escrow and bond loop is visible on-chain. Share the dossier. Stop arguing in the replies.",
   },
   {
     label: "Operators",
@@ -226,7 +226,7 @@ function HomePage() {
               <span className="text-paper-muted">Execution is expensive.</span>
             </h2>
             <p className="mt-5 max-w-sm text-paper-muted">
-              SPX402 follows the trail from deposit to buyback to burn. If the flow breaks, stalls,
+              SPX402 follows the trail from escrow to receipt to bond. If the flow breaks, stalls,
               or disappears, the grade changes.
             </p>
           </div>
@@ -384,12 +384,13 @@ function HomePage() {
   "mint": "7xK...Q92",
   "symbol": "NOVA",
   "grade": "SPX AA",
-  "transparencyScore": 87,
+  "executionScore": 87,
   "operatorVerified": true,
-  "lastBuybackAt": "2026-04-24T16:42:11Z",
-  "lastBurnAt": "2026-04-24T16:42:11Z",
-  "buybackExecutionRate": 0.964,
-  "burnConfirmationRate": 1,
+  "escrowSuccessRate": 0.964,
+  "escrowsCompleted": 214,
+  "escrowsFailed": 8,
+  "activeBondAmount": 7500,
+  "totalSlashedUsd": 0,
   "status": "active",
   "confidence": "high"
 }`}
