@@ -328,14 +328,10 @@ function HomePage() {
             </div>
           </div>
           <div className="lg:col-span-6">
-            <div className="panel-engraved overflow-hidden">
-              <div className="flex items-center justify-between border-b border-bronze/50 bg-panel-deep/60 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest">
-                <span className="text-amber">GET</span>
-                <span className="text-wire">api.spx402.xyz/v1/agent/:mint</span>
-                <span className="text-verified">200 OK</span>
-              </div>
-              <pre className="overflow-x-auto bg-panel-deep/30 p-5 font-mono text-[12px] leading-relaxed text-paper">
-                {`{
+            <CopyBlock
+              method="GET"
+              endpoint="api.spx402.xyz/v1/agent/:mint"
+              body={`{
   "mint": "7xK...Q92",
   "symbol": "NOVA",
   "grade": "SPX AA",
@@ -349,8 +345,7 @@ function HomePage() {
   "status": "active",
   "confidence": "high"
 }`}
-              </pre>
-            </div>
+            />
           </div>
         </div>
       </Aperture>
