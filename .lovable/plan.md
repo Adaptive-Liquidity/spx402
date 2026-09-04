@@ -1,43 +1,63 @@
-# SPX402 + AEON — what it enables, and the remaining platform updates
+# SPX402 — AEON repositioning + full platform redesign
 
-## What SPX402 + the AEON program now enables
+## What SPX402 + AEON now enables
 
-AEON turns SPX402 from a tokenomics watcher into an **execution-grade credit bureau for agents**. Instead of only observing deposits → buybacks → burns of a token, we now grade what an agent actually *does*:
+AEON turns SPX402 from a token-watcher into an **execution credit bureau for autonomous agents**. Instead of only tracking deposits → buybacks → burns, the platform grades what an agent actually does:
 
-- **Escrow lifecycle** — escrows created, released, canceled: proof the agent completes paid work.
-- **Slashable bonds** — operators post bond; slashing is on-chain negative evidence no one can fake.
-- **Receipts (hash-chained)** — every graded action anchored in `aeon_receipts`, giving a tamper-evident audit trail.
-- **A fifth pillar of evidence**, scored 40/30/15/10/5 (escrow completion / bond / failures / recency / operator), feeding the same grade scale, tape, dossier, confidence model, and paid API as the other lanes.
+- **Escrows** — created, released, canceled: proof that paid work completes.
+- **Slashable bonds** — capital at risk behind a promise; slashing is negative evidence nobody can fake.
+- **Hash-chained receipts** — every graded action anchored in an append-only chain, independently verifiable.
+- **A 40/30/15/10/5 grade** — escrow completion, slashable bond, failures, recency, operator verification — feeding the same tape, dossier, confidence model and paid API as the existing lanes.
 
-Already shipped (verified in the repo): AEON decoder + webhook wiring, scoring branch, dossier pillars and metric cards, `aeon_executor` category, paid v1 endpoints with working API keys, new homepage hero/proof chain/anomalies, methodology rewrite, API docs, and the database (`aeon_receipts`, `api_keys`, `api_usage`, AEON columns on `agents`).
+The backend for this is already live. The site does not yet look or read like it.
 
-## What still needs updating
+## Design direction (locked)
 
-A scan this session found these surfaces still speak the old language or ignore AEON:
+Chosen and applied consistently across every page:
 
-### 1. About page (`src/routes/about.tsx`)
-Still framed as "It follows buybacks" with buyback/burn as the example flow. Reframe around execution evidence (escrows, bonds, receipts), keeping buybacks as one legacy lane.
+- **Palette — Ledger Emerald:** `#064e3b` deep emerald, `#0d7a5f` mid emerald, `#c9a84c` gold accent, `#f5f0e0` warm paper. Emerald carries authority and trust; gold is reserved strictly for grades, scores and primary actions — never decoration.
+- **Type — Sora (headings) + Manrope (body).** A monospace stays in use for one job only: on-chain data — addresses, signatures, amounts, event codes.
+- **Layout — Full-width sections.** Stacked storytelling bands with generous whitespace, replacing the current dense terminal grid on marketing pages. Data pages keep density but adopt the new tokens and rhythm.
 
-### 2. Leaderboard tab copy (`src/routes/leaderboard.tsx`)
-Tab descriptions read "ranked by total SOL routed into buybacks" / "hit their buyback windows". Re-scope copy to execution-grade language; the AEON fallback math for scoring stays as-is (it only applies to the tokenized lane).
+All of it defined as semantic tokens in `src/styles.css` — no hardcoded colors in components. Fonts loaded via `<link>` in the root route.
 
-### 3. Register + Submit pages
-Copy lists "tokenized buyback, MPL-registered, x402 wallet…" but never names AEON. The category picker already includes AEON automatically (it maps over `CATEGORIES`); only the marketing strings and per-category explainer text need the AEON option spelled out.
+## Redesign scope, page by page
 
-### 4. Alerts (`src/routes/alerts.tsx` + dashboard alerts)
-Subscription toggles only cover deposit/buyback/burn/failed-window/config/score-drop. Add opt-in toggles for escrow created/released/canceled, bond deposited/slashed, and receipt created so AEON agents are watchable. Requires new boolean columns on `alert_subscriptions` (small migration).
+### Foundations
+Rewrite the token layer: emerald/gold/paper scales, grade colors remapped onto the new palette, elevation and border tokens, spacing rhythm. Update `SiteHeader`, `SiteFooter`, `TickerTape`, `Panel`, `MetricCard`, `ExecutionGradeBadge`, `AgentRow`, `ChainBadge` to the new system so every page inherits it.
 
-### 5. Status page (`src/routes/status.tsx`)
-Lane heartbeats cover tokenized / registered / x402 / prober. Add the AEON lane heartbeat (decoder coverage is already reported as 1.0 by the scoring cron).
+### Homepage
+Full-width bands: hero ("HTTP 402. Payment required. Proof provided."), live tape band, proof chain (escrow → work → bond → grade), the two-chain settlement band, anomaly band, closing call to action. Keeps the live-evidence content, loses the cramped panel-in-panel framing.
 
-### 6. Pricing page (`src/routes/pricing.tsx`)
-Verify endpoint descriptions mention AEON fields (escrow success rate, active bond, slashed totals) alongside the existing lanes.
+### Leaderboard / Explore / Flagged
+New table treatment with the emerald surface and gold grade badges. Rewrite the tab descriptions still reading "SOL routed into buybacks" and "hit their buyback windows" into execution language.
 
-### Explicitly NOT changing
-- Legacy tokenized/registered/x402 lanes keep working — deleting them blanks every agent currently in the database.
-- No new colors, fonts, or layout — copy and toggles only.
-- No seeded demo agents — honest empty states until a real AEON agent is indexed.
+### Agent dossier
+Restructure into full-width sections: identity + grade header, pillar breakdown, escrow/bond/receipt evidence, the event tape, probe status. AEON metric cards get first-class placement.
+
+### About
+Currently reads "It follows buybacks." Rewrite around execution evidence, with buybacks named as one legacy lane.
+
+### Register / Submit
+Copy names AEON alongside tokenized, registered and x402 as a first-class category, with an explainer for what an AEON agent needs on-chain. The picker itself already picks up the category automatically.
+
+### Alerts
+Add escrow created/released/canceled, bond deposited/slashed and receipt created toggles so AEON agents are watchable. Needs a small migration adding those boolean columns to the subscriptions table.
+
+### Status
+Add the AEON lane heartbeat next to tokenized / registered / x402 / prober.
+
+### Pricing / API docs
+Restyle to the new system and make sure the paid endpoint descriptions list the AEON fields — escrow success rate, active bond, slashed totals.
+
+### Methodology
+Already rewritten for the 40/30/15/10/5 model; restyled only, content unchanged.
+
+## Not changing
+- Legacy tokenized, registered and x402 lanes keep working — every agent currently indexed lives in them.
+- No seeded demo agents. Empty states stay honest until real AEON agents are indexed.
+- Scoring math, decoders and API contracts are untouched by the redesign.
 
 ## Verification
-- `bunx tsgo --noEmit` clean, full vitest suite green.
-- Visual pass on /about, /leaderboard, /register, /alerts, /status, /pricing in the preview.
+- Typecheck clean, full test suite green (the verbatim-copy tests will need updating where copy changes).
+- Visual pass on every page at desktop and mobile.
