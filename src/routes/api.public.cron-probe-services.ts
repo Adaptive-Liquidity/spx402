@@ -43,7 +43,7 @@ export const Route = createFileRoute("/api/public/cron-probe-services")({
     handlers: {
       POST: async ({ request }) => {
         const startedAt = Date.now();
-        if (!checkCronAuth(request)) {
+        if (!(await checkCronAuth(request))) {
           return new Response("unauthorized", { status: 401 });
         }
 

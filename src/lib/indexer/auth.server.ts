@@ -45,10 +45,26 @@ function authHeaderMatches(req: Request, secret: string): boolean {
  * fallback was removed in the security-hardening pass (April 2026) — that
  * value was hardcoded in a migration and is treated as compromised.
  */
-export function checkCronAuth(req: Request): boolean {
+export async function checkCronAuth(req: Request): Promise<boolean> {
+  const presented = extractBearer(req.headers.get("authorization"));
+  if (!presented || presented.length < 16) return false;
+
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return false;
-  return authHeaderMatches(req, cronSecret);
+  if (cronSecret && safeEq(presented, cronSecret)) return true;
+
+  // Fallback: pg_cron signs its calls with the bearer stored in the database
+  // vault. Ask the database whether the presented token matches, so the two
+  // copies of the credential can never drift out of sync.
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.rpc("verify_cron_bearer" as never, {
+      p_token: presented,
+    } as never);
+    if (error) return false;
+    return data === true;
+  } catch {
+    return false;
+  }
 }
 
 /**
