@@ -221,7 +221,7 @@ function HomePage() {
 
 
       {/* PROOF CHAIN */}
-      <section className="stage py-24">
+      <Reveal as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <div className="label-amber">How proof works</div>
@@ -258,7 +258,7 @@ function HomePage() {
       </section>
 
       {/* X402 PROOF CHAIN */}
-      <section className="stage pb-24">
+      <Reveal as="section" className="stage pb-24">
         <div className="label-amber">The x402 Chain</div>
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
           Two chains. One question. <span className="text-paper-muted">Did the money move?</span>
@@ -274,7 +274,7 @@ function HomePage() {
 
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 bg-panel-deep">
-        <div className="stage py-24">
+        <Reveal className="stage py-24">
           <div className="label-amber">What SPX402 Catches</div>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
             The tape never blinks.{" "}
@@ -294,7 +294,7 @@ function HomePage() {
       </section>
 
       {/* AUDIENCES */}
-      <section className="stage py-24">
+      <Reveal as="section" className="stage py-24">
         <div className="label-amber">Built for three users</div>
         <h2 className="mt-3 font-display text-4xl font-bold text-paper">
           Whoever you are, you need receipts.
@@ -312,7 +312,7 @@ function HomePage() {
 
       {/* GRADE TAXONOMY */}
       <section className="border-t border-bronze/40 bg-panel-deep">
-        <div className="stage py-24">
+        <Reveal className="stage py-24">
           <div className="grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-4">
               <div className="label-amber">Execution Grade</div>
@@ -351,7 +351,7 @@ function HomePage() {
       </section>
 
       {/* API */}
-      <section className="stage py-24">
+      <Reveal as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-6">
             <div className="label-amber">SPX402 API</div>
@@ -409,7 +409,7 @@ function HomePage() {
 
       {/* PRICING PREVIEW */}
       <section className="border-y border-bronze/40 bg-panel-deep">
-        <div className="stage py-24">
+        <Reveal className="stage py-24">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <div className="label-amber">Pricing</div>
@@ -447,7 +447,7 @@ function HomePage() {
       </section>
 
       {/* FEATURED AGENTS */}
-      <section className="stage py-24">
+      <Reveal as="section" className="stage py-24">
         <div className="flex items-end justify-between">
           <div>
             <div className="label-amber">Currently watched</div>
@@ -509,7 +509,7 @@ function HomePage() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="stage pb-28">
+      <Reveal as="section" className="stage pb-28">
         <Panel className="text-center" bodyClassName="px-6 py-16">
           <div className="label-amber">Final word</div>
           <h2 className="mt-4 font-display text-5xl font-bold text-paper sm:text-6xl">
