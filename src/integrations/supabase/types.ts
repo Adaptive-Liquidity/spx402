@@ -309,11 +309,17 @@ export type Database = {
         Row: {
           channel: string
           created_at: string
+          event_bond_deposited: boolean
+          event_bond_slashed: boolean
           event_burn: boolean
           event_buyback: boolean
           event_config_change: boolean
           event_deposit: boolean
+          event_escrow_canceled: boolean
+          event_escrow_created: boolean
+          event_escrow_released: boolean
           event_failed_window: boolean
+          event_receipt_created: boolean
           event_score_drop: boolean
           id: string
           min_sol_threshold: number
@@ -326,11 +332,17 @@ export type Database = {
         Insert: {
           channel?: string
           created_at?: string
+          event_bond_deposited?: boolean
+          event_bond_slashed?: boolean
           event_burn?: boolean
           event_buyback?: boolean
           event_config_change?: boolean
           event_deposit?: boolean
+          event_escrow_canceled?: boolean
+          event_escrow_created?: boolean
+          event_escrow_released?: boolean
           event_failed_window?: boolean
+          event_receipt_created?: boolean
           event_score_drop?: boolean
           id?: string
           min_sol_threshold?: number
@@ -343,11 +355,17 @@ export type Database = {
         Update: {
           channel?: string
           created_at?: string
+          event_bond_deposited?: boolean
+          event_bond_slashed?: boolean
           event_burn?: boolean
           event_buyback?: boolean
           event_config_change?: boolean
           event_deposit?: boolean
+          event_escrow_canceled?: boolean
+          event_escrow_created?: boolean
+          event_escrow_released?: boolean
           event_failed_window?: boolean
+          event_receipt_created?: boolean
           event_score_drop?: boolean
           id?: string
           min_sol_threshold?: number
