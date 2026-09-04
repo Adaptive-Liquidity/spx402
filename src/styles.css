@@ -1538,3 +1538,19 @@
     transform: scaleX(1);
   }
 }
+
+@layer components {
+  .closing-band .hero-bound {
+    opacity: 0.4;
+    transition: none;
+  }
+  .closing-band .hero-bound-top {
+    top: 0;
+  }
+  .closing-band .hero-bound-bottom {
+    bottom: 0;
+  }
+  .closing-band .guilloche-lines {
+    opacity: 0.3;
+  }
+}

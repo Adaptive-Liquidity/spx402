@@ -9,6 +9,7 @@ import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { ProofChainX402 } from "@/components/spx/ProofChainX402";
 import { FailurePlate } from "@/components/spx/FailurePlate";
+import { Guilloche } from "@/components/spx/Guilloche";
 import { CopyBlock } from "@/components/spx/CopyBlock";
 import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck } from "lucide-react";
@@ -481,9 +482,12 @@ function HomePage() {
         )}
       </Aperture>
 
-      {/* FINAL CTA */}
-      <Aperture as="section" className="stage pb-28">
-        <Panel className="text-center" bodyClassName="px-6 py-16">
+      {/* FINAL CTA — the aperture closes */}
+      <Aperture as="section" className="closing-band relative overflow-hidden stage pb-28">
+        <Guilloche />
+        <div className="hero-bound hero-bound-top" aria-hidden />
+        <div className="hero-bound hero-bound-bottom" aria-hidden />
+        <Panel className="relative text-center" bodyClassName="px-6 py-16">
           <div className="label-amber">Final word</div>
           <h2 className="mt-4 font-display text-5xl font-bold text-paper sm:text-6xl">
             Paste the mint.
