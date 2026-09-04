@@ -1763,3 +1763,25 @@
     background: oklch(0.755 0.108 90 / 7%);
   }
 }
+
+@utility matrix-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 1px solid oklch(0.5 0.03 168 / 35%);
+  background: var(--panel-deep);
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    border-color: oklch(0.7 0.09 85 / 45%);
+  }
+
+  &[data-on="true"] {
+    border-color: oklch(0.7 0.09 85 / 55%);
+    background: oklch(0.7 0.09 85 / 8%);
+  }
+}
