@@ -1,12 +1,20 @@
+import { gradeColor, type Grade } from "@/lib/agents";
+
 export type GradeSlice = { grade: string; count: number };
 
-const ORDER = ["AAA", "AA", "A", "BBB", "BB", "B", "D", "404"];
+const ORDER = [
+  "SPX AAA",
+  "SPX AA",
+  "SPX A",
+  "SPX BBB",
+  "SPX BB",
+  "SPX B",
+  "SPX D",
+  "SPX404",
+];
 
 function toneFor(grade: string) {
-  if (grade === "AAA" || grade === "AA" || grade === "A") return "var(--color-verified)";
-  if (grade === "BBB" || grade === "BB") return "var(--color-amber)";
-  if (grade === "B") return "var(--color-amber-dim)";
-  return "var(--color-critical)";
+  return `var(--color-${gradeColor(grade as Grade)})`;
 }
 
 /**
@@ -46,7 +54,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
             key={r.grade}
             className={r.grade === dominant.grade ? "caliper-label is-dominant" : "caliper-label"}
           >
-            {r.grade}
+            {r.grade.replace("SPX", "").trim() || "404"}
             <em>{r.count}</em>
           </span>
         ))}
