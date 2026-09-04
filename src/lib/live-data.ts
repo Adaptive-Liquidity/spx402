@@ -1070,3 +1070,36 @@ export async function fetchPayerDiversity(mint: string): Promise<PayerDiversity>
     highConfidenceShare: data.length === 0 ? null : highConfidence / data.length,
   };
 }
+
+export interface WatchedEvent {
+  id: string;
+  mint: string;
+  type: string;
+  severity: string;
+  occurredAt: string;
+  agentSymbol: string | null;
+}
+
+/** Recent tape events across a set of watched mints (operator dashboard). */
+export async function fetchRecentEventsForMints(
+  mints: string[],
+  limit = 6,
+): Promise<WatchedEvent[]> {
+  if (mints.length === 0) return [];
+  const { data, error } = await supabase
+    .from("agent_events")
+    .select("id, mint, type, severity, occurred_at")
+    .in("mint", Array.from(new Set(mints)))
+    .order("occurred_at", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  const lookup = await loadAgentLookup(data.map((r) => r.mint));
+  return data.map((r) => ({
+    id: r.id,
+    mint: r.mint,
+    type: r.type,
+    severity: r.severity,
+    occurredAt: r.occurred_at,
+    agentSymbol: lookup.get(r.mint)?.symbol ?? null,
+  }));
+}

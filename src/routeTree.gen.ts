@@ -59,6 +59,7 @@ import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
+import { Route as AuthenticatedDashboardAccountRouteImport } from './routes/_authenticated.dashboard.account'
 import { Route as ApiPublicUserApiKeysRouteImport } from './routes/api.public.user.api-keys'
 import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
@@ -330,6 +331,12 @@ const AuthenticatedDashboardAlertsRoute =
     path: '/alerts',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardAccountRoute =
+  AuthenticatedDashboardAccountRouteImport.update({
+    id: '/account',
+    path: '/account',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const ApiPublicUserApiKeysRoute = ApiPublicUserApiKeysRouteImport.update({
   id: '/public/user/api-keys',
   path: '/public/user/api-keys',
@@ -396,6 +403,7 @@ export interface FileRoutesByFullPath {
   '/operator/$wallet': typeof OperatorWalletRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
@@ -453,6 +461,7 @@ export interface FileRoutesByTo {
   '/operator/$wallet': typeof OperatorWalletRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
@@ -513,6 +522,7 @@ export interface FileRoutesById {
   '/operator/$wallet': typeof OperatorWalletRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/_authenticated/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/operator/$wallet'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
@@ -630,6 +641,7 @@ export interface FileRouteTypes {
     | '/operator/$wallet'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
     | '/dashboard/watchlist'
@@ -689,6 +701,7 @@ export interface FileRouteTypes {
     | '/operator/$wallet'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/_authenticated/dashboard/account'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/watchlist'
@@ -1100,6 +1113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAlertsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/account': {
+      id: '/_authenticated/dashboard/account'
+      path: '/account'
+      fullPath: '/dashboard/account'
+      preLoaderRoute: typeof AuthenticatedDashboardAccountRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/api/public/user/api-keys': {
       id: '/api/public/user/api-keys'
       path: '/public/user/api-keys'
@@ -1153,6 +1173,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardAccountRoute: typeof AuthenticatedDashboardAccountRoute
   AuthenticatedDashboardAlertsRoute: typeof AuthenticatedDashboardAlertsRoute
   AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
   AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
@@ -1161,6 +1182,7 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardAccountRoute: AuthenticatedDashboardAccountRoute,
     AuthenticatedDashboardAlertsRoute: AuthenticatedDashboardAlertsRoute,
     AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
     AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,

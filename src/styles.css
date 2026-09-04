@@ -1554,3 +1554,234 @@
     opacity: 0.3;
   }
 }
+
+@layer components {
+  /* --- operator terminal shell --- */
+  .reg-frame {
+    position: relative;
+    border: 1px solid var(--bronze-dim);
+    background: var(--panel);
+  }
+  .reg-mark {
+    position: absolute;
+    height: 8px;
+    width: 8px;
+    border-color: var(--amber);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .reg-mark-tl {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  .reg-mark-tr {
+    top: -1px;
+    right: -1px;
+    border-top: 1px solid;
+    border-right: 1px solid;
+  }
+  .reg-mark-bl {
+    bottom: -1px;
+    left: -1px;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+  }
+  .reg-mark-br {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+  .reg-tabs {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-top: 1px solid var(--bronze-dim);
+    border-bottom: 1px solid var(--bronze-dim);
+  }
+  .reg-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .reg-tab {
+    position: relative;
+    flex: 1 0 auto;
+    white-space: nowrap;
+    padding: 0.85rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--paper-muted);
+    transition:
+      color 0.18s ease,
+      background-color 0.18s ease;
+  }
+  .reg-tab:hover {
+    color: var(--paper);
+    background: oklch(0.755 0.108 90 / 5%);
+  }
+  .reg-tab b {
+    color: var(--wire);
+    font-weight: 500;
+    margin-right: 0.5rem;
+  }
+  .reg-tab[data-active="true"] {
+    color: var(--amber);
+  }
+  .reg-tab[data-active="true"] b {
+    color: var(--amber);
+  }
+  .reg-tab[data-active="true"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  /* --- loading skeletons --- */
+  .skel {
+    display: block;
+    background: oklch(0.32 0.02 168 / 45%);
+    animation: skel-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes skel-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.75;
+    }
+  }
+
+  /* --- engraved records --- */
+  .record-row {
+    position: relative;
+    transition: background-color 0.15s ease;
+  }
+  .record-row:hover {
+    background: oklch(0.755 0.108 90 / 5%);
+  }
+  .record-row .record-reveal {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .record-row:hover .record-reveal,
+  .record-row:focus-within .record-reveal {
+    opacity: 1;
+  }
+  .record-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--amber);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .record-row:hover::before {
+    opacity: 0.7;
+  }
+
+  /* --- caliper controls --- */
+  .btn-caliper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--bronze);
+    padding: 0.65rem 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--paper-muted);
+    transition:
+      color 0.18s ease,
+      border-color 0.18s ease,
+      background-color 0.18s ease;
+  }
+  .btn-caliper:hover {
+    color: var(--amber);
+    border-color: var(--amber);
+    background: oklch(0.755 0.108 90 / 7%);
+  }
+  .btn-caliper:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .btn-caliper-primary {
+    color: var(--amber);
+    border-color: color-mix(in oklab, var(--amber) 80%, transparent);
+    background: oklch(0.755 0.108 90 / 10%);
+  }
+  .btn-caliper-danger:hover {
+    color: var(--critical);
+    border-color: var(--critical);
+    background: oklch(0.62 0.2 25 / 8%);
+  }
+
+  /* --- field inputs --- */
+  .field-terminal {
+    width: 100%;
+    border: 1px solid var(--bronze-dim);
+    background: oklch(0.115 0.014 168);
+    padding: 0.6rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--paper);
+    outline: none;
+    transition: border-color 0.18s ease;
+  }
+  .field-terminal:focus {
+    border-color: var(--amber);
+  }
+
+  /* --- event matrix --- */
+  .matrix-cell {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.6rem;
+    border: 1px solid var(--bronze-dim);
+    background: oklch(0.115 0.014 168 / 70%);
+    padding: 0.55rem 0.75rem;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .matrix-cell:hover {
+    border-color: color-mix(in oklab, var(--amber) 60%, transparent);
+  }
+  .matrix-cell[data-on="true"] {
+    background: oklch(0.755 0.108 90 / 7%);
+  }
+}
+
+@utility matrix-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 1px solid oklch(0.5 0.03 168 / 35%);
+  background: var(--panel-deep);
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    border-color: oklch(0.7 0.09 85 / 45%);
+  }
+
+  &[data-on="true"] {
+    border-color: oklch(0.7 0.09 85 / 55%);
+    background: oklch(0.7 0.09 85 / 8%);
+  }
+}
