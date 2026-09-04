@@ -6,6 +6,7 @@ import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { ProofChainX402 } from "@/components/spx/ProofChainX402";
+import { Reveal } from "@/components/spx/Reveal";
 import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "lucide-react";
 
