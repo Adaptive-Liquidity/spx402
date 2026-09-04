@@ -144,9 +144,9 @@ function HomePage() {
 
             <Reveal delay={80}>
               <h1 className="mt-8 font-display text-5xl font-bold leading-[1.03] tracking-tight sm:text-6xl lg:text-7xl">
-                <span className="headline-lit">Agents lie. The ledger doesn't.</span>
+                <span className="headline-lit bg-clip-text text-transparent">Agents lie. The ledger doesn't.</span>
                 <br />
-                <span className="headline-gold">We read the ledger.</span>
+                <span className="headline-gold bg-clip-text text-transparent">We read the ledger.</span>
               </h1>
             </Reveal>
 
