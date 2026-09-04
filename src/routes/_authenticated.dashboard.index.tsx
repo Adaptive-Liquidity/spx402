@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useOperatorCounts } from "@/lib/operator-counts";
 import { fetchWatchlist } from "@/lib/watchlist";
-import { fetchRecentEventsForMints, type TapeEvent } from "@/lib/live-data";
+import {
+  fetchRecentEventsForMints,
+  relativeFromNow,
+  type WatchedEvent,
+} from "@/lib/live-data";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -54,7 +58,7 @@ function DashboardOverview() {
   const { user } = useAuth();
   const counts = useOperatorCounts(user?.id);
   const loading = counts === null;
-  const [recent, setRecent] = useState<TapeEvent[] | null>(null);
+  const [recent, setRecent] = useState<WatchedEvent[] | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -166,14 +170,14 @@ function DashboardOverview() {
                 >
                   <div className="min-w-0">
                     <div className="truncate font-mono text-xs uppercase tracking-[0.16em] text-paper">
-                      {e.kindLabel}
+                      {e.type.replace(/_/g, " ")}
                     </div>
                     <div className="mt-0.5 truncate font-mono text-[10px] text-wire">
-                      {e.subjectLabel}
+                      {e.agentSymbol ? `$${e.agentSymbol}` : `${e.mint.slice(0, 6)}…${e.mint.slice(-4)}`}
                     </div>
                   </div>
                   <div className="text-right font-mono text-[10px] uppercase tracking-[0.16em] text-wire">
-                    {e.ageLabel}
+                    {relativeFromNow(e.occurredAt)}
                   </div>
                 </li>
               ))}
