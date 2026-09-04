@@ -301,7 +301,7 @@ function HomePage() {
         </h2>
         <div className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
           {AUDIENCES.map((a) => (
-            <div key={a.label} className="bg-panel p-7">
+            <div key={a.label} className="lift bg-panel p-7 hover:bg-panel-deep">
               <div className="label-amber">{a.label}</div>
               <h3 className="mt-4 font-display text-2xl font-bold text-paper">{a.title}</h3>
               <p className="mt-3 leading-relaxed text-paper-muted">{a.body}</p>
@@ -368,13 +368,13 @@ function HomePage() {
             <div className="mt-8 flex gap-3">
               <Link
                 to="/api"
-                className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+                className="btn-gold"
               >
                 API Overview
               </Link>
               <Link
                 to="/api/docs"
-                className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper hover:border-amber"
+                className="btn-ghost"
               >
                 Endpoints
               </Link>
@@ -437,7 +437,7 @@ function HomePage() {
               { p: "Team", price: "$149", body: "REST API, webhooks, multi-wallet operator." },
               { p: "x402 API", price: "per call", body: "Pay-per-request HTTP 402 endpoints." },
             ].map((x) => (
-              <div key={x.p} className="bg-background p-6">
+              <div key={x.p} className="lift bg-background p-6 hover:bg-panel">
                 <div className="label-amber">{x.p}</div>
                 <div className="mt-3 num-display text-3xl font-bold text-paper">{x.price}</div>
                 <p className="mt-3 text-sm text-paper-muted">{x.body}</p>
@@ -481,7 +481,7 @@ function HomePage() {
                 key={a.mint}
                 to="/agent/$mint"
                 params={{ mint: a.mint }}
-                className="group bg-panel p-6 transition-colors hover:bg-panel-deep"
+                className="lift group bg-panel p-6 hover:bg-panel-deep"
               >
                 <div className="flex items-start justify-between">
                   <div>
