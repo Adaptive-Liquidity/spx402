@@ -3,13 +3,21 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { fetchWatchlist, removeFromWatchlist, type WatchlistRow } from "@/lib/watchlist";
 import { fetchAgentsByMints } from "@/lib/agents-db";
+import { invalidateOperatorCounts } from "@/lib/operator-counts";
 import type { Agent } from "@/lib/agents";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
+import { EmptyState } from "@/components/spx/EmptyState";
 import { Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/watchlist")({
   head: () => ({
-    meta: [{ title: "Watchlist — SPX402" }],
+    meta: [
+      { title: "Watchlist — SPX402 Operator Terminal" },
+      {
+        name: "description",
+        content: "The agents you track — grade, execution score and last settlement in one register.",
+      },
+    ],
   }),
   component: WatchlistPage,
 });
@@ -17,6 +25,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/watchlist")({
 interface WatchedItem {
   row: WatchlistRow;
   agent: Agent | null;
+}
+
+function shortMint(mint: string) {
+  return `${mint.slice(0, 6)}…${mint.slice(-4)}`;
 }
 
 function WatchlistPage() {
@@ -50,22 +62,27 @@ function WatchlistPage() {
     try {
       await removeFromWatchlist(user.id, mint);
       setItems((prev) => prev?.filter((i) => i.row.mint !== mint) ?? null);
+      invalidateOperatorCounts(user.id);
     } finally {
       setRemoving(null);
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between gap-4">
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="label-amber">Watchlist</div>
-          <h2 className="mt-2 font-display text-2xl font-bold text-paper">Tracked agents</h2>
+          <div className="band-spine">
+            <b>01</b>
+            <span>// REGISTER</span>
+          </div>
+          <h2 className="mt-4 font-display text-2xl font-bold text-paper">Agents under watch</h2>
+          <p className="mt-2 max-w-xl text-sm text-paper-muted">
+            Everything you track, graded on observable execution only. Figures update as evidence
+            lands on the tape.
+          </p>
         </div>
-        <Link
-          to="/explore"
-          className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
+        <Link to="/explore" className="btn-caliper btn-caliper-primary">
           + Add agent
         </Link>
       </div>
@@ -77,34 +94,47 @@ function WatchlistPage() {
       )}
 
       {items === null ? (
-        <div className="panel-engraved p-12 text-center font-mono text-xs uppercase tracking-widest text-wire">
-          Loading…
+        <div className="panel-engraved space-y-3 p-5">
+          {[0, 1, 2, 3].map((i) => (
+            <span key={i} className="skel h-5 w-full" />
+          ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="panel-engraved p-12 text-center">
-          <div className="label-mono text-wire">Empty watchlist</div>
-          <p className="mt-3 max-w-md mx-auto text-sm text-paper-muted">
-            Open the{" "}
-            <Link to="/explore" className="text-amber hover:underline">
-              Explorer
-            </Link>{" "}
-            or any agent dossier and tap <span className="text-amber">Add to watchlist</span> to
-            start tracking.
-          </p>
-        </div>
+        <EmptyState
+          label="No agents under watch"
+          title="The register is empty."
+          body={
+            <>
+              Open the{" "}
+              <Link to="/explore" className="text-amber underline underline-offset-4">
+                Explorer
+              </Link>{" "}
+              or any dossier and use <span className="text-amber">Add to watchlist</span> to start
+              tracking execution.
+            </>
+          }
+          action={
+            <Link to="/explore" className="btn-caliper btn-caliper-primary">
+              Browse agents →
+            </Link>
+          }
+        />
       ) : (
         <div className="panel-engraved overflow-hidden">
-          <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep/60 px-5 py-3 font-mono text-[10px] uppercase tracking-widest text-wire">
-            <div className="col-span-3">Symbol</div>
+          <div className="hidden grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep/60 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-wire min-[900px]:grid">
+            <div className="col-span-3">Subject</div>
             <div className="col-span-3">Grade</div>
-            <div className="col-span-2">Score</div>
-            <div className="col-span-2">Last buyback</div>
-            <div className="col-span-2 text-right">Actions</div>
+            <div className="col-span-2 text-right">Score</div>
+            <div className="col-span-2 text-right">Last settlement</div>
+            <div className="col-span-2 text-right">Action</div>
           </div>
           <ul className="divide-y divide-bronze/30">
             {items.map(({ row, agent }) => (
-              <li key={row.id} className="grid grid-cols-12 items-center gap-4 px-5 py-4">
-                <div className="col-span-3">
+              <li
+                key={row.id}
+                className="record-row grid grid-cols-1 gap-3 px-5 py-4 min-[900px]:grid-cols-12 min-[900px]:items-center min-[900px]:gap-4"
+              >
+                <div className="min-[900px]:col-span-3">
                   {agent ? (
                     <Link
                       to="/agent/$mint"
@@ -112,9 +142,9 @@ function WatchlistPage() {
                       className="font-mono text-sm text-paper hover:text-amber"
                     >
                       ${agent.symbol}
-                      <div className="mt-0.5 font-mono text-[10px] text-wire">
-                        {agent.mint.slice(0, 6)}…{agent.mint.slice(-4)}
-                      </div>
+                      <span className="mt-0.5 block font-mono text-[10px] text-wire">
+                        {shortMint(agent.mint)}
+                      </span>
                     </Link>
                   ) : (
                     <div>
@@ -122,12 +152,16 @@ function WatchlistPage() {
                         {row.label ?? "Unknown"}
                       </div>
                       <div className="mt-0.5 font-mono text-[10px] text-wire">
-                        {row.mint.slice(0, 6)}…{row.mint.slice(-4)}
+                        {shortMint(row.mint)}
                       </div>
                     </div>
                   )}
                 </div>
-                <div className="col-span-3">
+
+                <div className="flex items-center gap-3 min-[900px]:col-span-3 min-[900px]:block">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-wire min-[900px]:hidden">
+                    Grade
+                  </span>
                   {agent ? (
                     <ExecutionGradeBadge
                       grade={agent.grade}
@@ -138,15 +172,30 @@ function WatchlistPage() {
                     <span className="font-mono text-xs text-wire">—</span>
                   )}
                 </div>
-                <div className="col-span-2 font-mono text-sm text-paper">{agent?.score ?? "—"}</div>
-                <div className="col-span-2 font-mono text-xs text-paper-muted">
-                  {agent?.lastBuybackLabel ?? "—"}
+
+                <div className="flex items-center justify-between gap-3 min-[900px]:col-span-2 min-[900px]:justify-end">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-wire min-[900px]:hidden">
+                    Score
+                  </span>
+                  <span className="font-mono text-sm tabular-nums text-paper">
+                    {agent?.score ?? "—"}
+                  </span>
                 </div>
-                <div className="col-span-2 flex justify-end">
+
+                <div className="flex items-center justify-between gap-3 min-[900px]:col-span-2 min-[900px]:justify-end">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-wire min-[900px]:hidden">
+                    Last settlement
+                  </span>
+                  <span className="font-mono text-xs text-paper-muted">
+                    {agent?.lastBuybackLabel ?? "—"}
+                  </span>
+                </div>
+
+                <div className="flex min-[900px]:col-span-2 min-[900px]:justify-end">
                   <button
                     onClick={() => remove(row.mint)}
                     disabled={removing === row.mint}
-                    className="inline-flex items-center gap-1.5 border border-bronze/60 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-critical hover:text-critical disabled:opacity-50"
+                    className="btn-caliper btn-caliper-danger record-reveal !px-2.5 !py-1.5 max-[899px]:!opacity-100"
                   >
                     <Trash2 className="h-3 w-3" />
                     Remove
