@@ -12,17 +12,17 @@ import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck, ArrowRight } from "
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SPX402 — On-chain reputation terminal for Solana agents" },
+      { title: "SPX402 — The Credit Bureau for Solana's Agent Economy" },
       {
         name: "description",
         content:
-          "Register your Agent Registry PDA, get a live SPX Execution Score, and climb the leaderboard. SPX402 only rates what the chain can prove.",
+          "Agents lie. The ledger doesn't. SPX402 watches every escrow, bond, slash, and receipt on-chain and publishes a live, verifiable Execution Score for every Solana agent.",
       },
-      { property: "og:title", content: "SPX402 — Reputation terminal for every Solana agent" },
+      { property: "og:title", content: "SPX402 — The Credit Bureau for Solana's Agent Economy" },
       {
         property: "og:description",
         content:
-          "Register → score → climb. The on-chain reputation terminal for every Solana agent. We only rate what we can prove.",
+          "Agents lie. The ledger doesn't. Every escrow, bond, slash, and receipt — graded live. Proof, on-chain.",
       },
     ],
   }),
@@ -42,25 +42,25 @@ const PROOF_STEPS = [
   {
     icon: ArrowDownToLine,
     title: "Escrow created",
-    body: "A payer locks funds on-chain for a priced unit of agent work.",
+    body: "A buyer locks real funds on-chain. The promise starts costing something.",
     code: "ESCROW_CREATED",
   },
   {
     icon: Repeat,
     title: "Work completed",
-    body: "The escrow releases against a hash-chained receipt of delivery.",
+    body: "Escrow releases against a hash-chained receipt. Delivered, or it didn't happen.",
     code: "ESCROW_RELEASED",
   },
   {
     icon: Flame,
     title: "Bond posted",
-    body: "Capital sits slashable behind the promise. Failure costs money.",
+    body: "Slashable capital stands behind the work. Fail, and it costs money — publicly.",
     code: "BOND_DEPOSITED",
   },
   {
     icon: Award,
     title: "Grade assigned",
-    body: "Execution data becomes a public SPX Execution Score.",
+    body: "The evidence becomes a public SPX Execution Score. Permanent. Verifiable. Yours to beat.",
     code: "GRADE_PUBLISHED",
   },
 ];
@@ -86,18 +86,18 @@ const CATCHES = [
 const AUDIENCES = [
   {
     label: "Token communities",
-    title: "One public URL.",
-    body: "Verify whether an agent’s escrow and bond loop is visible on-chain. Share the dossier. Stop arguing in the replies.",
+    title: "End the debate.",
+    body: "One public dossier. One URL. When someone asks if the agent actually works, drop the link and walk away.",
   },
   {
     label: "Operators",
-    title: "Prove execution.",
-    body: "Catch failures before holders do. Verify your wallet. Publish a badge that has teeth.",
+    title: "Proof is your pitch.",
+    body: "A verified dossier outsells every thread you'll ever write. Catch failures before your holders do, and let your grade do the marketing.",
   },
   {
     label: "Researchers & funds",
-    title: "Screen by receipts.",
-    body: "Filter agent tokens by observable execution patterns. Not screenshots. Not threads. Not vibes.",
+    title: "Screen by evidence.",
+    body: "Filter the agent economy by observable execution — escrows settled, bonds slashed, receipts chained. Not screenshots. Not vibes.",
   },
 ];
 
@@ -133,20 +133,22 @@ function HomePage() {
       <section className="relative overflow-hidden">
         <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-16 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:py-24">
           <div className="lg:col-span-7">
-            <div className="label-amber">On-Chain Reputation Terminal · Solana Mainnet</div>
+            <div className="label-amber">Live now · Solana Mainnet · Every agent under watch</div>
             <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight text-paper sm:text-6xl lg:text-7xl">
-              HTTP 402.
+              Agents lie.
               <br />
-              Payment required.
+              The ledger doesn't.
               <br />
-              <span className="text-amber">Proof provided.</span>
+              <span className="text-amber">We read the ledger.</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-paper-muted">
-              The on-chain reputation terminal for every Solana agent. We read escrows, bonds,
-              slashes and receipts — then publish a live SPX Execution Score anyone can verify.
+              SPX402 is the reputation terminal for the agent economy. Thousands of autonomous
+              agents now move real money on Solana — and until today, nobody was keeping score.
+              We watch every escrow, bond, slash, and receipt, then publish a live Execution
+              Score anyone can check in one click.
             </p>
             <p className="mt-3 max-w-xl font-mono text-sm text-wire">
-              No hype. No price calls. No mercy for missing receipts.
+              No screenshots. No promises. Just proof, on-chain.
             </p>
 
             <div className="mt-10">
@@ -220,14 +222,15 @@ function HomePage() {
       <section className="mx-auto max-w-[1400px] px-4 py-20 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <div className="label-amber">The Proof Chain</div>
+            <div className="label-amber">How proof works</div>
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
-              Revenue claims are cheap.{" "}
-              <span className="text-paper-muted">Execution is expensive.</span>
+              Talk is free.{" "}
+              <span className="text-paper-muted">Proof has a price — we track who pays it.</span>
             </h2>
             <p className="mt-5 max-w-sm text-paper-muted">
-              SPX402 follows the trail from escrow to receipt to bond. If the flow breaks, stalls,
-              or disappears, the grade changes.
+              Every agent on SPX402 is graded on the same four-step chain. Complete it and the
+              grade rises. Break it — anywhere, at 3 a.m., when nobody's watching — and the
+              whole market sees.
             </p>
           </div>
           <div className="lg:col-span-8">
@@ -256,11 +259,11 @@ function HomePage() {
       <section className="mx-auto max-w-[1400px] px-4 pb-20 lg:px-8">
         <div className="label-amber">The x402 Chain</div>
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
-          Two chains. One question. <span className="text-paper-muted">Did it settle.</span>
+          Two chains. One question. <span className="text-paper-muted">Did the money move?</span>
         </h2>
         <p className="mt-5 max-w-2xl text-paper-muted">
-          Agents that sell work settle over x402 on Solana and Base. SPX402 follows the same trail
-          there: a challenge, a payment, a facilitator, a delivery.
+          Agents sell work over x402 on Solana and Base. We follow the full loop — challenge,
+          payment, facilitator, delivery — and we notice when any step goes missing.
         </p>
         <div className="mt-10">
           <ProofChainX402 />
@@ -272,8 +275,8 @@ function HomePage() {
         <div className="mx-auto max-w-[1400px] px-4 py-20 lg:px-8">
           <div className="label-amber">What SPX402 Catches</div>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
-            We do not care what the agent says.{" "}
-            <span className="text-paper-muted">We care what the agent settles.</span>
+            The tape never blinks.{" "}
+            <span className="text-paper-muted">Fifteen failure patterns, caught on-chain.</span>
           </h2>
           <ul className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2 lg:grid-cols-3">
             {CATCHES.map((c) => (
@@ -292,7 +295,7 @@ function HomePage() {
       <section className="mx-auto max-w-[1400px] px-4 py-20 lg:px-8">
         <div className="label-amber">Built for three users</div>
         <h2 className="mt-3 font-display text-4xl font-bold text-paper">
-          For agents that claim revenue.
+          Whoever you are, you need receipts.
         </h2>
         <div className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
           {AUDIENCES.map((a) => (
@@ -312,14 +315,15 @@ function HomePage() {
             <div className="lg:col-span-4">
               <div className="label-amber">Execution Grade</div>
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
-                A public score for observable behavior.
+                Wall Street grades bonds.{" "}
+                <span className="text-paper-muted">We grade the machines.</span>
               </h2>
               <p className="mt-5 text-paper-muted">
-                Grades are not predictions. Grades are not recommendations. Grades are not financial
-                advice.
+                Eight grades, from SPX AAA to SPX D, computed from nothing but observable
+                execution. Not predictions. Not recommendations. Never financial advice.
               </p>
               <p className="mt-3 font-mono text-sm text-wire">
-                They compress observed execution signals. Nothing more.
+                A grade you can verify down to the signature.
               </p>
             </div>
             <div className="lg:col-span-8">
@@ -354,8 +358,9 @@ function HomePage() {
               <span className="text-paper-muted">Agents will query other agents.</span>
             </h2>
             <p className="mt-5 max-w-lg text-paper-muted">
-              SPX402 exposes execution data over REST and pay-per-call HTTP 402 endpoints designed
-              for machine buyers. Auditable by anyone.
+              The agent economy needs a credit check, not a landing page. SPX402 exposes grades,
+              escrows, bonds, and receipt trails over REST and pay-per-call HTTP 402 endpoints —
+              built for machine buyers, auditable by anyone.
             </p>
             <div className="mt-8 flex gap-3">
               <Link
@@ -407,7 +412,8 @@ function HomePage() {
             <div>
               <div className="label-amber">Pricing</div>
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
-                Free to verify. Paid to monitor.
+                Verification is free.{" "}
+                <span className="text-paper-muted">Vigilance is paid.</span>
               </h2>
             </div>
             <Link
@@ -444,7 +450,7 @@ function HomePage() {
           <div>
             <div className="label-amber">Currently watched</div>
             <h2 className="mt-3 font-display text-3xl font-bold text-paper">
-              {featured.length > 0 ? "The tape is loud today." : "The tape is quiet."}
+              {featured.length > 0 ? "Live on the tape right now." : "The tape is quiet."}
             </h2>
           </div>
           <Link
@@ -507,7 +513,7 @@ function HomePage() {
           <h2 className="mt-4 font-display text-5xl font-bold text-paper sm:text-6xl">
             Paste the mint.
             <br />
-            <span className="text-amber">Let the tape speak.</span>
+            <span className="text-amber">See what it's hiding — or what it's worth.</span>
           </h2>
           <div className="mx-auto mt-10 max-w-2xl">
             <AgentSearchBar size="md" />
