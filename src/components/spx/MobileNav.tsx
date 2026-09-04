@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { NAV_ITEMS } from "./nav-items";
@@ -6,6 +7,8 @@ import { NAV_ITEMS } from "./nav-items";
 export function MobileNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="lg:hidden">
@@ -19,7 +22,7 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
         {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
       </button>
 
-      {open && (
+      {open && mounted && createPortal(
         <div className="fixed inset-x-0 bottom-0 top-[64px] z-50 overflow-y-auto border-t border-bronze/40 bg-background/98 backdrop-blur-md">
           <nav className="flex flex-col divide-y divide-bronze/25 px-4 py-2">
             {NAV_ITEMS.map((item) => (
@@ -62,7 +65,8 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
