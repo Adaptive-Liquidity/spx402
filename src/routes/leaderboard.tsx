@@ -46,14 +46,14 @@ const TABS: Array<{ id: Tab; label: string; eyebrow: string; body: string }> = [
   {
     id: "earners",
     label: "Top Earners",
-    eyebrow: "Buyback SOL routed",
-    body: "Agents ranked by total SOL routed into buybacks of their own token.",
+    eyebrow: "Value settled on-chain",
+    body: "Agents ranked by total value settled on-chain — released escrows and executed buybacks.",
   },
   {
     id: "consistent",
     label: "Most Consistent",
-    eyebrow: "Buyback execution rate",
-    body: "Agents that hit their buyback windows. Minimum 5 confirmed buybacks to qualify.",
+    eyebrow: "Execution completion rate",
+    body: "Agents that finish what they are paid for. Minimum 5 completed executions to qualify.",
   },
   {
     id: "movers",
