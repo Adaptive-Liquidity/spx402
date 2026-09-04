@@ -36,6 +36,7 @@ import { Route as EmbedSubjectRouteImport } from './routes/embed.$subject'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated.dashboard.index'
 import { Route as ApiPublicX402SelftestRouteImport } from './routes/api.public.x402-selftest'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
 import { Route as ApiPublicVerifiedRouteImport } from './routes/api.public.verified'
@@ -200,6 +201,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const ApiPublicX402SelftestRoute = ApiPublicX402SelftestRouteImport.update({
   id: '/public/x402-selftest',
   path: '/public/x402-selftest',
@@ -411,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
@@ -439,7 +447,6 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
@@ -468,6 +475,7 @@ export interface FileRoutesByTo {
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
@@ -527,6 +535,7 @@ export interface FileRoutesById {
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
@@ -586,6 +595,7 @@ export interface FileRouteTypes {
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
+    | '/dashboard/'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/user/api-keys'
@@ -614,7 +624,6 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
-    | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
     | '/embed/$subject'
@@ -643,6 +652,7 @@ export interface FileRouteTypes {
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
+    | '/dashboard'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/user/api-keys'
@@ -701,6 +711,7 @@ export interface FileRouteTypes {
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
+    | '/_authenticated/dashboard/'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/user/api-keys'
@@ -928,6 +939,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/api/public/x402-selftest': {
       id: '/api/public/x402-selftest'
       path: '/public/x402-selftest'
@@ -1138,6 +1156,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAlertsRoute: typeof AuthenticatedDashboardAlertsRoute
   AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
   AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
@@ -1145,6 +1164,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardAlertsRoute: AuthenticatedDashboardAlertsRoute,
     AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
     AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   }
 
 const AuthenticatedDashboardRouteWithChildren =
