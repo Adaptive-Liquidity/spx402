@@ -35,7 +35,14 @@ export type EventType =
   | "FAILED_BUYBACK_WINDOW"
   | "PROMISED_BUYBACK_NOT_SETTLED"
   | "X402_PAYMENT_REVERTED"
-  | "WINDOW_MISSED";
+  | "WINDOW_MISSED"
+  // AEON execution primitives.
+  | "ESCROW_CREATED"
+  | "ESCROW_RELEASED"
+  | "ESCROW_CANCELED"
+  | "BOND_DEPOSITED"
+  | "BOND_SLASHED"
+  | "RECEIPT_CREATED";
 
 export type Severity = "info" | "warn" | "critical" | "success";
 
