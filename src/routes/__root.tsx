@@ -4,6 +4,7 @@ import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/spx/SiteHeader";
 import { SiteFooter } from "@/components/spx/SiteFooter";
 import { TickerTape } from "@/components/spx/TickerTape";
+import { LedgerFrame } from "@/components/spx/LedgerFrame";
 import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
