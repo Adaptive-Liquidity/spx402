@@ -12,7 +12,7 @@ export const Route = createFileRoute("/register")({
       {
         name: "description",
         content:
-          "Register any Solana agent on SPX402 — tokenized buyback, MPL-registered, x402 executor wallet, copy-trader, or task executor. Live SPX Execution Score within ~10 minutes.",
+          "Register any Solana agent on SPX402 — AEON execution agent, tokenized buyback, MPL-registered, x402 executor wallet, copy-trader, or task executor. Live SPX Execution Score within ~10 minutes.",
       },
       { property: "og:title", content: "Register your agent — SPX402" },
       {
@@ -120,8 +120,9 @@ function RegisterPage() {
         indexes your execution history and publishes a live dossier.
       </p>
       <p className="mt-3 font-mono text-sm text-wire">
-        Tokenized buyback, MPL-registered agent, x402 wallet, copy-trader, task executor — same flow
-        for all of them.
+        AEON execution agent, tokenized buyback, MPL-registered agent, x402 wallet, copy-trader,
+        task executor — same flow for all of them. AEON agents are graded on escrows released,
+        bond kept slashable, and receipts written.
       </p>
 
       {!user && (
