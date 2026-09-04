@@ -36,9 +36,13 @@ import {
   writeCursor,
 } from "@/lib/indexer/evm.server";
 
-const FIRST_RUN_LOOKBACK = 5000;
-/** Max blocks per run so a cold cursor cannot stall the worker. */
-const MAX_BLOCKS_PER_RUN = 20_000;
+const FIRST_RUN_LOOKBACK = 2000;
+/**
+ * Max blocks per run. Base produces a block every ~2s, so 2,000 blocks is
+ * roughly an hour of chain time — comfortably inside one run's time budget
+ * while the every-15-minutes cadence keeps the cursor catching up.
+ */
+const MAX_BLOCKS_PER_RUN = 2_000;
 /** Tier B sender volume that flags a candidate facilitator. */
 const CANDIDATE_FACILITATOR_THRESHOLD = 50;
 
