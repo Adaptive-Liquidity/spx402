@@ -129,94 +129,95 @@ function HomePage() {
   const featured = agents.slice(0, 3);
   return (
     <div>
-      {/* HERO */}
+      {/* HERO — centered stage, framed rails, aura glow */}
       <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-16 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:py-24">
-          <div className="lg:col-span-7">
-            <div className="label-amber">Live now · Solana Mainnet · Every agent under watch</div>
-            <h1 className="mt-6 font-display text-5xl font-bold leading-[1.02] tracking-tight text-paper sm:text-6xl lg:text-7xl">
-              Agents lie.
-              <br />
-              The ledger doesn't.
-              <br />
-              <span className="text-amber">We read the ledger.</span>
-            </h1>
-            <p className="mt-8 max-w-xl text-lg leading-relaxed text-paper-muted">
-              SPX402 is the reputation terminal for the agent economy. Thousands of autonomous
-              agents now move real money on Solana — and until today, nobody was keeping score.
-              We watch every escrow, bond, slash, and receipt, then publish a live Execution
-              Score anyone can check in one click.
-            </p>
-            <p className="mt-3 max-w-xl font-mono text-sm text-wire">
-              No screenshots. No promises. Just proof, on-chain.
-            </p>
+        <div className="aura" aria-hidden />
+        <div className="stage rails relative py-20 lg:py-28">
+          <div className="mx-auto max-w-4xl text-center">
+            <Reveal>
+              <span className="pill-badge">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-amber" aria-hidden />
+                Live · Solana Mainnet · Every agent under watch
+              </span>
+            </Reveal>
 
-            <div className="mt-10">
-              <AgentSearchBar size="lg" />
-            </div>
+            <Reveal delay={80}>
+              <h1 className="mt-8 font-display text-5xl font-bold leading-[1.03] tracking-tight sm:text-6xl lg:text-7xl">
+                <span className="headline-lit">Agents lie. The ledger doesn't.</span>
+                <br />
+                <span className="headline-gold">We read the ledger.</span>
+              </h1>
+            </Reveal>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link
-                to="/register"
-                className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-              >
-                Register your agent
-              </Link>
-              <Link
-                to="/leaderboard"
-                className="border border-bronze/70 bg-transparent px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
-              >
-                Browse leaderboard
-              </Link>
-              <Link
-                to="/methodology"
-                className="border border-bronze/70 bg-transparent px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
-              >
-                Methodology
-              </Link>
-            </div>
+            <Reveal delay={160}>
+              <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-paper-muted">
+                SPX402 is the reputation terminal for the agent economy. Thousands of autonomous
+                agents now move real money on Solana — and until today, nobody was keeping score.
+                We watch every escrow, bond, slash, and receipt, then publish a live Execution
+                Score anyone can check in one click.
+              </p>
+              <p className="mt-3 font-mono text-sm text-wire">
+                No screenshots. No promises. Just proof, on-chain.
+              </p>
+            </Reveal>
 
-            <div className="mt-10 grid max-w-xl grid-cols-2 gap-6 sm:grid-cols-4">
-              <div>
-                <div className="num-display text-2xl font-bold text-paper">
-                  {stats.agentsIndexed.toLocaleString()}
-                </div>
-                <div className="label-mono mt-1">Agents indexed</div>
+            <Reveal delay={240}>
+              <div className="mx-auto mt-10 max-w-2xl">
+                <AgentSearchBar size="lg" />
               </div>
-              <div>
-                <div className="num-display text-2xl font-bold text-paper">
-                  {(stats.settlementsSolana + stats.settlementsBase).toLocaleString()}
-                </div>
-                <div className="label-mono mt-1">Settlements verified</div>
-                <div className="mt-1 font-mono text-[10px] text-wire">
-                  SOL {stats.settlementsSolana.toLocaleString()} · BASE{" "}
-                  {stats.settlementsBase.toLocaleString()}
-                </div>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link to="/register" className="btn-gold">
+                  Register your agent <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                </Link>
+                <Link to="/leaderboard" className="btn-ghost">
+                  Browse leaderboard
+                </Link>
+                <Link to="/methodology" className="btn-ghost">
+                  Methodology
+                </Link>
               </div>
-              <div>
-                <div className="num-display text-2xl font-bold text-paper">
-                  {stats.servicesProbed.toLocaleString()}
-                </div>
-                <div className="label-mono mt-1">Services probed</div>
-              </div>
-              <div>
-                <div className="num-display text-2xl font-bold text-paper">
-                  {stats.activeFacilitators.toLocaleString()}
-                </div>
-                <div className="label-mono mt-1">Active facilitators</div>
-              </div>
-            </div>
+            </Reveal>
           </div>
 
-          <div className="lg:col-span-5">
+          <Reveal delay={320}>
+            <div className="mt-16 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  v: stats.agentsIndexed.toLocaleString(),
+                  l: "Agents indexed",
+                  s: null as string | null,
+                },
+                {
+                  v: (stats.settlementsSolana + stats.settlementsBase).toLocaleString(),
+                  l: "Settlements verified",
+                  s: `SOL ${stats.settlementsSolana.toLocaleString()} · BASE ${stats.settlementsBase.toLocaleString()}`,
+                },
+                { v: stats.servicesProbed.toLocaleString(), l: "Services probed", s: null },
+                {
+                  v: stats.activeFacilitators.toLocaleString(),
+                  l: "Active facilitators",
+                  s: null,
+                },
+              ].map((x) => (
+                <div key={x.l} className="lift bg-panel p-6 text-center hover:bg-panel-deep">
+                  <div className="num-display text-3xl font-bold text-paper">{x.v}</div>
+                  <div className="label-mono mt-2">{x.l}</div>
+                  {x.s && <div className="mt-1 font-mono text-[10px] text-wire">{x.s}</div>}
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal delay={120} className="mt-10">
             <LiveTapeHero initialRows={tape} />
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1400px] px-4 lg:px-8">
+      <div className="stage">
         <div className="rule-amber" />
       </div>
+
 
       {/* PROOF CHAIN */}
       <section className="mx-auto max-w-[1400px] px-4 py-20 lg:px-8">
