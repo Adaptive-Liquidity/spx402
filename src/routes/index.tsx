@@ -4,7 +4,7 @@ import { Hero } from "@/components/spx/Hero";
 import { Aperture } from "@/components/spx/Aperture";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { fetchAllAgents } from "@/lib/agents-db";
-import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
+import { qualifiesForLeaderboard, gradeColor, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { ProofChainX402 } from "@/components/spx/ProofChainX402";
@@ -116,6 +116,19 @@ const GRADES = [
   { g: "SPX404", r: "n/a", t: "Insufficient evidence to grade" },
 ] as const;
 
+function BandSpine({ n, code, label }: { n: string; code: string; label: string }) {
+  return (
+    <div>
+      <div className="band-spine">
+        <b>{n}</b>
+        <span>// {code}</span>
+      </div>
+      <div className="band-rule mt-3" />
+      <div className="label-amber mt-4">{label}</div>
+    </div>
+  );
+}
+
 function HomePage() {
   const {
     agents: allAgents,
@@ -178,7 +191,7 @@ function HomePage() {
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <div className="label-amber">How proof works</div>
+            <BandSpine n="01" code="ENGINE" label="How proof works" />
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
               Talk is free.{" "}
               <span className="text-paper-muted">Proof has a price — we track who pays it.</span>
@@ -213,7 +226,7 @@ function HomePage() {
 
       {/* X402 PROOF CHAIN */}
       <Aperture as="section" className="stage pb-24">
-        <div className="label-amber">The x402 Chain</div>
+        <BandSpine n="02" code="SETTLEMENT" label="The x402 Chain" />
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
           Two chains. One question. <span className="text-paper-muted">Did the money move?</span>
         </h2>
@@ -229,7 +242,7 @@ function HomePage() {
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
-          <div className="label-amber">What SPX402 Catches</div>
+          <BandSpine n="03" code="DIAGNOSTICS" label="What SPX402 Catches" />
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
             The tape never blinks.{" "}
             <span className="text-paper-muted">Fifteen failure patterns, caught on-chain.</span>
@@ -242,7 +255,7 @@ function HomePage() {
 
       {/* AUDIENCES */}
       <Aperture as="section" className="stage py-24">
-        <div className="label-amber">Built for three users</div>
+        <BandSpine n="04" code="AUDIENCE" label="Built for three users" />
         <h2 className="mt-3 font-display text-4xl font-bold text-paper">
           Whoever you are, you need receipts.
         </h2>
@@ -262,7 +275,7 @@ function HomePage() {
         <Aperture className="stage py-24">
           <div className="grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-4">
-              <div className="label-amber">Execution Grade</div>
+              <BandSpine n="05" code="TAXONOMY" label="Execution Grade" />
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
                 Wall Street grades bonds.{" "}
                 <span className="text-paper-muted">We grade the machines.</span>
@@ -276,6 +289,23 @@ function HomePage() {
               </p>
             </div>
             <div className="lg:col-span-8">
+              <div className="scale-bar mb-6">
+                {GRADES.filter((g) => g.r !== "n/a").map((g) => {
+                  const [lo, hi] = g.r.split("–").map(Number);
+                  return (
+                    <div
+                      key={g.g}
+                      className="scale-seg"
+                      style={{
+                        flexGrow: hi - lo + 1,
+                        background: `var(--color-${gradeColor(g.g as Agent["grade"])})`,
+                        opacity: 0.65,
+                      }}
+                      title={`${g.g} · ${g.r}`}
+                    />
+                  );
+                })}
+              </div>
               <div className="overflow-hidden border border-bronze/40">
                 {GRADES.map((g, i) => (
                   <div
@@ -302,7 +332,7 @@ function HomePage() {
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-6">
-            <div className="label-amber">SPX402 API</div>
+            <BandSpine n="06" code="INTERFACE" label="SPX402 API" />
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
               Agents will not browse dashboards.{" "}
               <span className="text-paper-muted">Agents will query other agents.</span>
@@ -355,7 +385,7 @@ function HomePage() {
         <Aperture className="stage py-24">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="label-amber">Pricing</div>
+              <BandSpine n="07" code="ACCESS" label="Pricing" />
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
                 Verification is free.{" "}
                 <span className="text-paper-muted">Vigilance is paid.</span>
@@ -393,7 +423,7 @@ function HomePage() {
       <Aperture as="section" className="stage py-24">
         <div className="flex items-end justify-between">
           <div>
-            <div className="label-amber">Currently watched</div>
+            <BandSpine n="08" code="INDEX" label="Currently watched" />
             <h2 className="mt-3 font-display text-3xl font-bold text-paper">
               {featured.length > 0 ? "Live on the tape right now." : "The tape is quiet."}
             </h2>
