@@ -8,6 +8,8 @@ import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { ProofChainX402 } from "@/components/spx/ProofChainX402";
+import { FailurePlate } from "@/components/spx/FailurePlate";
+import { CopyBlock } from "@/components/spx/CopyBlock";
 import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck } from "lucide-react";
 
@@ -131,6 +133,17 @@ function HomePage() {
   const featured = agents.slice(0, 3);
   // Live grade distribution for the viewfinder dial — read from the agents we
   // already loaded, no extra query.
+  // Settlement density over the last 24h, bucketed hourly from the tape rows
+  // already loaded — no extra request.
+  const now = Date.now();
+  const settlementSeries = Array.from({ length: 24 }, (_, i) => {
+    const from = now - (24 - i) * 3_600_000;
+    const to = from + 3_600_000;
+    return tape.filter((r) => {
+      const t = new Date(r.occurredAt).getTime();
+      return t >= from && t < to;
+    }).length;
+  });
   const gradeSlices = Array.from(
     allAgents.reduce((m, a) => m.set(a.grade, (m.get(a.grade) ?? 0) + 1), new Map<Agent["grade"], number>()),
     ([grade, count]) => ({ grade, count }),
@@ -144,6 +157,7 @@ function HomePage() {
           {
             value: (stats.settlementsSolana + stats.settlementsBase).toLocaleString(),
             label: "Settlements verified",
+            series: settlementSeries,
             sub: `SOL ${stats.settlementsSolana.toLocaleString()} · BASE ${stats.settlementsBase.toLocaleString()}`,
           },
           { value: stats.servicesProbed.toLocaleString(), label: "Services probed" },
@@ -213,23 +227,16 @@ function HomePage() {
       </Aperture>
 
       {/* WHAT SPX402 CATCHES */}
-      <section className="border-y border-bronze/40 bg-panel-deep">
+      <section className="border-y border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
           <div className="label-amber">What SPX402 Catches</div>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
             The tape never blinks.{" "}
             <span className="text-paper-muted">Fifteen failure patterns, caught on-chain.</span>
           </h2>
-          <ul className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2 lg:grid-cols-3">
-            {CATCHES.map((c) => (
-              <li
-                key={c}
-                className="frame-cell bg-background p-5 font-mono text-sm uppercase tracking-wider text-paper"
-              >
-                <span className="mr-2 text-amber">✕</span> {c}
-              </li>
-            ))}
-          </ul>
+          <div className="mt-12">
+            <FailurePlate patterns={CATCHES} />
+          </div>
         </Aperture>
       </section>
 
@@ -251,7 +258,7 @@ function HomePage() {
       </Aperture>
 
       {/* GRADE TAXONOMY */}
-      <section className="border-t border-bronze/40 bg-panel-deep">
+      <section className="border-t border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
           <div className="grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-4">
@@ -349,7 +356,7 @@ function HomePage() {
       </Aperture>
 
       {/* PRICING PREVIEW */}
-      <section className="border-y border-bronze/40 bg-panel-deep">
+      <section className="border-y border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
