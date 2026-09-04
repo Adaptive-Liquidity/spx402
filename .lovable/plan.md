@@ -4,8 +4,9 @@ Structural depth, typographic precision and calibrated feedback across the landi
 
 ## 1. Global framing and foundations
 
-- **Coordinate spine.** Fixed vertical hairlines pinned at the desktop content bounds, with a 5px gold registration mark (`+`) at every intersection where a section rule crosses a margin.
-- **Telemetry pill.** Persistent fixed top-right readout: `SYSTEM: NOMINAL · UTC 00:00:00` in 10px monospace.
+- **Coordinate spine.** Vertical hairlines at the desktop content bounds, with a 5px gold registration mark (`+`) at every intersection where a section rule crosses a margin. Rendered as a desktop-only, non-interactive frame tied to the layout container (`hidden lg:block pointer-events-none inset-y-0`) — never viewport-fixed chrome, so it cannot collide with mobile widths, the sticky header or horizontal scroll bounds.
+- **Telemetry pill.** Top-right readout `SYSTEM: NOMINAL · UTC 00:00:00` in 10px monospace, collapsing to a compact `● NOMINAL` dot below 1024px so it never crowds the navigation.
+
 - **Anti-banding grain.** Fixed repeating 64x64 SVG micro-grain at 1.5% opacity, `pointer-events: none`, overlay blend — kills gradient banding on the deep emerald surfaces.
 - **Numeric precision.** `font-feature-settings: "tnum" on, "zero" on` on all figures and hashes; `text-rendering: geometricPrecision` and antialiasing on headings for hairline sharpness on dark ground.
 
