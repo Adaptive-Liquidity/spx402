@@ -1092,6 +1092,7 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--wire);
+    white-space: nowrap;
   }
   .telemetry-dot {
     height: 5px;
@@ -1229,8 +1230,8 @@
     flex: 1;
     background: repeating-linear-gradient(
       -45deg,
-      oklch(0.42 0.03 168 / 60%) 0 2px,
-      transparent 2px 5px
+      oklch(0.55 0.04 168 / 85%) 0 2px,
+      oklch(0.2 0.02 168 / 90%) 2px 5px
     );
   }
   .seg-pop {
