@@ -114,7 +114,8 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AuthProvider>
-      <div className="flex min-h-screen flex-col">
+      <div className="relative flex min-h-screen flex-col">
+        <LedgerFrame />
         <SiteHeader />
         <TickerTape />
         <main className="flex-1">
