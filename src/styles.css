@@ -48,72 +48,82 @@
   --color-bronze-dim: var(--bronze-dim);
   --color-panel: var(--panel);
   --color-panel-deep: var(--panel-deep);
+  --color-emerald: var(--emerald);
+  --color-emerald-deep: var(--emerald-deep);
 
-  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-display: "Sora", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Manrope", system-ui, sans-serif;
 }
 
 :root {
-  --radius: 0.125rem;
+  --radius: 0.25rem;
 
-  /* Core surfaces */
-  --background: oklch(0.165 0.005 80); /* #1A1A18 */
-  --foreground: oklch(0.92 0.012 85); /* aged paper */
+  /* Core surfaces — Ledger Emerald */
+  --background: oklch(0.155 0.018 168);
+  --foreground: oklch(0.955 0.018 95);
 
-  --panel: oklch(0.205 0.006 80); /* #24231F */
-  --panel-deep: oklch(0.12 0.004 80); /* #0B0B0A */
+  --panel: oklch(0.205 0.024 168);
+  --panel-deep: oklch(0.115 0.016 168);
 
-  --card: oklch(0.205 0.006 80);
-  --card-foreground: oklch(0.92 0.012 85);
+  --card: oklch(0.205 0.024 168);
+  --card-foreground: oklch(0.955 0.018 95);
 
-  --popover: oklch(0.165 0.005 80);
-  --popover-foreground: oklch(0.92 0.012 85);
+  --popover: oklch(0.175 0.02 168);
+  --popover-foreground: oklch(0.955 0.018 95);
 
-  --primary: oklch(0.78 0.16 75); /* amber #F5A623 */
-  --primary-foreground: oklch(0.12 0.004 80);
+  --primary: oklch(0.755 0.108 90); /* ledger gold #C9A84C */
+  --primary-foreground: oklch(0.115 0.016 168);
 
-  --secondary: oklch(0.25 0.008 80);
-  --secondary-foreground: oklch(0.92 0.012 85);
+  --secondary: oklch(0.255 0.03 168);
+  --secondary-foreground: oklch(0.955 0.018 95);
 
-  --muted: oklch(0.22 0.006 80);
-  --muted-foreground: oklch(0.65 0.012 85);
+  --muted: oklch(0.225 0.026 168);
+  --muted-foreground: oklch(0.74 0.016 95);
 
-  --accent: oklch(0.78 0.16 75);
-  --accent-foreground: oklch(0.12 0.004 80);
+  --accent: oklch(0.505 0.095 168); /* mid emerald #0D7A5F */
+  --accent-foreground: oklch(0.955 0.018 95);
 
-  --destructive: oklch(0.55 0.21 28); /* critical red #C0392B */
-  --destructive-foreground: oklch(0.96 0.012 85);
+  --destructive: oklch(0.58 0.19 25);
+  --destructive-foreground: oklch(0.965 0.012 95);
 
-  --border: oklch(0.42 0.06 65); /* bronze border */
-  --input: oklch(0.25 0.008 80);
-  --ring: oklch(0.78 0.16 75);
+  --border: oklch(0.325 0.042 168);
+  --input: oklch(0.255 0.03 168);
+  --ring: oklch(0.755 0.108 90);
 
-  /* SPX402 named tokens */
-  --amber: oklch(0.78 0.16 75); /* #F5A623 */
-  --amber-dim: oklch(0.62 0.13 75);
-  --paper: oklch(0.92 0.012 85); /* #E8E8E0 */
-  --paper-muted: oklch(0.74 0.012 85); /* #B8B8AA */
-  --critical: oklch(0.55 0.21 28); /* #C0392B */
-  --verified: oklch(0.62 0.16 145); /* #27AE60 */
-  --wire: oklch(0.48 0.008 80); /* #6F6F64 */
-  --bronze: oklch(0.42 0.06 65); /* #7A5A28 */
-  --bronze-dim: oklch(0.32 0.04 65);
+  /* SPX402 named tokens — gold is reserved for grade, score, primary action */
+  --amber: oklch(0.755 0.108 90); /* ledger gold */
+  --amber-dim: oklch(0.60 0.085 90);
+  --paper: oklch(0.955 0.018 95); /* #F5F0E0 */
+  --paper-muted: oklch(0.745 0.016 95);
+  --critical: oklch(0.58 0.19 25);
+  --verified: oklch(0.66 0.135 163);
+  --wire: oklch(0.50 0.022 168);
+  --bronze: oklch(0.36 0.055 168); /* emerald rule */
+  --bronze-dim: oklch(0.265 0.036 168);
+
+  /* Emerald scale */
+  --emerald-deep: oklch(0.345 0.078 166); /* #064E3B */
+  --emerald: oklch(0.505 0.095 168); /* #0D7A5F */
+  --color-emerald-deep: var(--emerald-deep);
+  --color-emerald: var(--emerald);
 
   /* Gradients & effects */
-  --gradient-amber: linear-gradient(180deg, oklch(0.82 0.17 75), oklch(0.68 0.14 70));
-  --gradient-panel: linear-gradient(180deg, oklch(0.215 0.007 80), oklch(0.185 0.006 80));
+  --gradient-amber: linear-gradient(180deg, oklch(0.80 0.11 92), oklch(0.665 0.095 88));
+  --gradient-panel: linear-gradient(180deg, oklch(0.215 0.026 168), oklch(0.182 0.021 168));
+  --gradient-emerald: linear-gradient(135deg, oklch(0.345 0.078 166), oklch(0.185 0.026 168));
   --shadow-engraved:
-    inset 0 1px 0 oklch(0.32 0.04 65 / 60%), inset 0 -1px 0 oklch(0.08 0.004 80 / 80%),
-    0 1px 0 oklch(0.08 0.004 80 / 60%);
-  --shadow-amber-glow: 0 0 24px oklch(0.78 0.16 75 / 18%);
+    inset 0 1px 0 oklch(0.42 0.06 168 / 45%), inset 0 -1px 0 oklch(0.08 0.01 168 / 70%),
+    0 1px 0 oklch(0.08 0.01 168 / 55%);
+  --shadow-elevated: 0 24px 60px -24px oklch(0.06 0.02 168 / 85%);
+  --shadow-amber-glow: 0 0 32px oklch(0.755 0.108 90 / 16%);
 
   --scanlines: repeating-linear-gradient(
     0deg,
     transparent 0px,
-    transparent 2px,
-    oklch(0 0 0 / 6%) 2px,
-    oklch(0 0 0 / 6%) 3px
+    transparent 3px,
+    oklch(0 0 0 / 3%) 3px,
+    oklch(0 0 0 / 3%) 4px
   );
 
   --noise: radial-gradient(oklch(0 0 0 / 12%) 1px, transparent 1px);
@@ -121,8 +131,8 @@
 
 .dark {
   /* SPX402 is dark by default; .dark is identical */
-  --background: oklch(0.165 0.005 80);
-  --foreground: oklch(0.92 0.012 85);
+  --background: oklch(0.155 0.018 168);
+  --foreground: oklch(0.955 0.018 95);
 }
 
 @layer base {
@@ -140,7 +150,9 @@
 
   body {
     background-image:
-      var(--scanlines), radial-gradient(ellipse at top, oklch(0.22 0.01 75 / 30%), transparent 60%);
+      var(--scanlines),
+      radial-gradient(ellipse 90% 50% at 50% -10%, oklch(0.345 0.078 166 / 42%), transparent 70%);
+    -webkit-font-smoothing: antialiased;
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -151,7 +163,12 @@
   h4,
   h5 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+
+  h1 {
+    line-height: 1.02;
   }
 
   ::selection {
@@ -272,6 +289,37 @@
     height: 1px;
     background: var(--bronze-dim);
   }
+}
+
+@utility section-band {
+  padding-block: clamp(4rem, 9vw, 8rem);
+  position: relative;
+}
+
+@utility section-inner {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+}
+
+@utility band-rule {
+  border-top: 1px solid var(--bronze-dim);
+}
+
+@utility surface-raised {
+  background: var(--gradient-panel);
+  border: 1px solid var(--bronze-dim);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevated);
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--emerald);
 }
 
 @keyframes blink {

@@ -7,7 +7,8 @@ export const Route = createFileRoute("/alerts")({
       { title: "Alerts — SPX402" },
       {
         name: "description",
-        content: "Email, Telegram, and webhook alerts on tokenized agent execution.",
+        content:
+          "Email, Telegram, and webhook alerts on agent execution — escrows, bonds, receipts, and score moves.",
       },
       { property: "og:title", content: "SPX402 Alerts" },
       { property: "og:description", content: "When the tape changes, you hear it first." },
@@ -36,24 +37,49 @@ const CHANNELS = [
 
 const SAMPLES = [
   {
-    eyebrow: "BUYBACK EXECUTED",
-    body: "SPX402 ALERT — NOVA: Buyback executed. 2.1 SOL routed via Tokenized Agent Authority. 142,000 NOVA burned. Confirmed on-chain.",
+    eyebrow: "ESCROW RELEASED",
+    body: "SPX402 ALERT — Escrow released. 240 USDC settled to executor after work acceptance. Receipt #418 appended to the chain. Confirmed on-chain.",
     color: "verified" as const,
   },
   {
-    eyebrow: "NO BUYBACK OVERDUE",
-    body: "SPX402 ALERT — FLUX: Expected buyback window missed. 4 consecutive failures. Score downgraded to SPX BB.",
-    color: "amber" as const,
-  },
-  {
-    eyebrow: "CONFIG CHANGED",
-    body: "SPX402 ALERT — NOVA: buyback_bps changed from 2500 to 3000 by creator wallet. Operator notified.",
-    color: "amber" as const,
-  },
-  {
-    eyebrow: "ANOMALY DETECTED",
-    body: "SPX402 ALERT — UNKNOWN: Large deposit observed (1,200 USDC). No matching buyback after expected window. SPX402 has opened a file.",
+    eyebrow: "BOND SLASHED",
+    body: "SPX402 ALERT — Bond slashed. 1.5 SOL removed from the executor's slashable bond after a disputed escrow. Score downgraded to SPX BB.",
     color: "critical" as const,
+  },
+  {
+    eyebrow: "ESCROW CANCELED",
+    body: "SPX402 ALERT — Escrow canceled before release. Third cancellation in 24h from the same operator wallet.",
+    color: "amber" as const,
+  },
+  {
+    eyebrow: "OPERATOR CHANGED",
+    body: "SPX402 ALERT — Operator authority rotated to a new wallet while escrows were outstanding. SPX402 has opened a file.",
+    color: "amber" as const,
+  },
+];
+
+const EVENT_TOGGLES: Array<{ group: string; events: string[] }> = [
+  {
+    group: "AEON execution",
+    events: [
+      "Escrow created",
+      "Escrow released",
+      "Escrow canceled",
+      "Bond deposited",
+      "Bond slashed",
+      "Receipt created",
+    ],
+  },
+  {
+    group: "Legacy lanes",
+    events: [
+      "Deposit received",
+      "Buyback executed",
+      "Burn confirmed",
+      "Missed window",
+      "Config changed",
+      "Score drop",
+    ],
   },
 ];
 
@@ -71,8 +97,9 @@ function AlertsPage() {
         <span className="text-amber">you hear it first.</span>
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-paper-muted">
-        Subscribe to event-level alerts on any agent. Filter by severity, type, and threshold.
-        Operators get notified before holders do.
+        Subscribe to event-level alerts on any agent — escrow lifecycle, bond movement, receipts,
+        and score changes. Filter by severity, type, and threshold. Operators get notified before
+        holders do.
       </p>
 
       {/* CHANNELS */}
@@ -84,6 +111,26 @@ function AlertsPage() {
               <c.icon className="h-7 w-7 text-amber" />
               <h3 className="mt-5 font-display text-xl font-semibold text-paper">{c.name}</h3>
               <p className="mt-2 text-sm text-paper-muted">{c.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* EVENT COVERAGE */}
+      <section className="mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">What you can subscribe to</h2>
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {EVENT_TOGGLES.map((g) => (
+            <div key={g.group} className="surface-raised p-6">
+              <div className="eyebrow">{g.group}</div>
+              <ul className="mt-4 space-y-2.5">
+                {g.events.map((e) => (
+                  <li key={e} className="flex items-center gap-3 font-mono text-sm text-paper">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald" />
+                    {e}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
