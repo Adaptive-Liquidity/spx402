@@ -1,17 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { MobileNav } from "./MobileNav";
+import { NAV_ITEMS as NAV } from "./nav-items";
 
-const NAV = [
-  { to: "/", label: "Terminal" },
-  { to: "/tape", label: "Tape" },
-  { to: "/pulse", label: "Pulse" },
-  { to: "/leaderboard", label: "Leaderboard" },
-  { to: "/explore", label: "Explore" },
-  { to: "/methodology", label: "Methodology" },
-  { to: "/api", label: "API" },
-  { to: "/operators", label: "Operators" },
-] as const;
 
 export function SiteHeader() {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -53,6 +45,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <MobileNav signedIn={!!session} />
+
           {session ? (
             <Link
               to="/dashboard"

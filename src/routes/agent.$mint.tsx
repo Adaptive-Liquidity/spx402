@@ -3,7 +3,6 @@ import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
 import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
-import { ComingSoon } from "@/components/spx/ComingSoon";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
 import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
@@ -32,6 +31,13 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { addToWatchlist, isOnWatchlist, removeFromWatchlist } from "@/lib/watchlist";
+import {
+  createSubscription,
+  deleteSubscription,
+  fetchSubscriptionForMint,
+  type AlertSubscription,
+} from "@/lib/alerts";
+
 import { useAuth } from "@/lib/auth";
 import { SCORING_VERSION } from "@/lib/versions";
 import {
@@ -1578,12 +1584,64 @@ function WatchlistButton({ mint, symbol }: { mint: string; symbol: string }) {
   );
 }
 
-function AlertSubscribeButton({ mint: _mint }: { mint: string }) {
+function AlertSubscribeButton({ mint }: { mint: string }) {
+  const { user } = useAuth();
+  const [subId, setSubId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setReady(true);
+      return;
+    }
+    fetchSubscriptionForMint(user.id, mint)
+      .then((s: AlertSubscription | null) => setSubId(s?.id ?? null))
+      .catch(() => setSubId(null))
+      .finally(() => setReady(true));
+  }, [user, mint]);
+
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        <Bell className="h-3.5 w-3.5" /> Sign in for alerts
+      </Link>
+    );
+  }
+
+  const onClick = async () => {
+    setBusy(true);
+    try {
+      if (subId) {
+        await deleteSubscription(subId);
+        setSubId(null);
+      } else {
+        const row = await createSubscription(user.id, mint);
+        setSubId(row.id);
+      }
+    } catch {
+      /* surfaced by the dashboard on next load */
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <ComingSoon label="Alerts coming soon">
-      <span className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber">
-        <Bell className="h-3.5 w-3.5" /> Subscribe to alerts
-      </span>
-    </ComingSoon>
+    <button
+      onClick={onClick}
+      disabled={busy || !ready}
+      className={
+        subId
+          ? "inline-flex items-center gap-2 border border-verified/80 bg-verified/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-verified hover:border-critical hover:text-critical disabled:opacity-50"
+          : "inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
+      }
+    >
+      <Bell className="h-3.5 w-3.5" />
+      {subId ? "Alerts on" : "Subscribe to alerts"}
+    </button>
   );
 }
+
