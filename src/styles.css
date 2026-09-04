@@ -604,3 +604,347 @@
     animation: none !important;
   }
 }
+
+/* ============================================================
+   Architectural Horizon Aperture — hero + band choreography
+   ============================================================ */
+
+@layer components {
+  /* --- band aperture: one clip expansion from the median rule --- */
+  .aperture > * {
+    clip-path: inset(50% 0 50% 0);
+    opacity: 0;
+    transition:
+      clip-path 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .aperture.is-open > * {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+
+  /* --- hero band --- */
+  .hero-band {
+    --mx: 50%;
+    --my: 40%;
+    background:
+      radial-gradient(
+        1100px 520px at var(--mx) var(--my),
+        oklch(0.345 0.078 166 / 26%),
+        transparent 70%
+      ),
+      var(--panel-deep);
+    border-bottom: 1px solid var(--bronze-dim);
+  }
+
+  /* the golden seed: 1px hairline that shoots out from centre */
+  .hero-seed {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    transform: scaleX(0);
+    transform-origin: center;
+    opacity: 0.9;
+    transition:
+      transform 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.4s ease 0.42s;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .hero-band.is-open .hero-seed {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+
+  /* the seed cleaves into the hero's bounding rules */
+  .hero-bound {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--amber-dim) 12%,
+      var(--amber) 50%,
+      var(--amber-dim) 88%,
+      transparent
+    );
+    opacity: 0;
+    transition:
+      top 0.62s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
+      bottom 0.62s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
+      opacity 0.3s ease 0.18s;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .hero-bound-top {
+    top: 50%;
+  }
+  .hero-bound-bottom {
+    bottom: 50%;
+  }
+  .hero-band.is-open .hero-bound {
+    opacity: 0.55;
+  }
+  .hero-band.is-open .hero-bound-top {
+    top: 0;
+  }
+  .hero-band.is-open .hero-bound-bottom {
+    bottom: 0;
+  }
+
+  /* the frame opens as one aperture, not six entrances */
+  .hero-aperture {
+    clip-path: inset(50% 0 50% 0);
+    transition: clip-path 0.66s cubic-bezier(0.16, 1, 0.3, 1) 0.18s;
+  }
+  .hero-band.is-open .hero-aperture {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* optical convergence — stamped, never slid */
+  .inscribe {
+    opacity: 0;
+    transform: scale(1.02);
+    filter: blur(6px);
+    transition:
+      opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.22s,
+      transform 0.44s cubic-bezier(0.16, 1, 0.3, 1) 0.22s,
+      filter 0.44s cubic-bezier(0.16, 1, 0.3, 1) 0.22s;
+  }
+  .is-open .inscribe {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  /* instant tabular registration with a single dampening snap */
+  .register-cell {
+    opacity: 0;
+    transform: translateY(-3px);
+    transition:
+      opacity 0.18s linear 0.3s,
+      transform 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) 0.3s;
+  }
+  .is-open .register-cell {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .register-label {
+    letter-spacing: 0.15em;
+    transition: letter-spacing 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.34s;
+  }
+  .is-open .register-label {
+    letter-spacing: 0.05em;
+  }
+
+  /* --- guilloche banknote field --- */
+  .guilloche-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .guilloche-lines {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 0.55;
+  }
+  .guilloche-specular {
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(
+      620px 420px at var(--mx) var(--my),
+      oklch(0.755 0.108 90 / 9%),
+      transparent 68%
+    );
+    mix-blend-mode: screen;
+    transition: background 0.5s ease-out;
+  }
+
+  /* --- viewfinder: dial cradles the console --- */
+  .viewfinder {
+    position: relative;
+    padding-bottom: 6.5rem;
+  }
+  .viewfinder-dial {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 13rem;
+    opacity: 0;
+    transform: scale(0.985);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s,
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+  }
+  .is-open .viewfinder-dial {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .viewfinder-console {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* --- the console slab --- */
+  .console-slab {
+    background: color-mix(in oklab, var(--panel) 72%, transparent);
+    border: 1px solid var(--bronze);
+    box-shadow: var(--shadow-engraved);
+    transition:
+      border-color 0.24s ease,
+      background-color 0.24s ease;
+  }
+  .console-slab.is-focused {
+    border-color: var(--amber);
+  }
+  .console-tabrail {
+    display: flex;
+    border-top: 1px solid var(--bronze);
+    margin-bottom: -1px;
+  }
+  .console-tab {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-muted);
+    text-align: center;
+    border-right: 1px solid var(--bronze);
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+  }
+  .console-tab:last-child {
+    border-right: 0;
+  }
+  .console-tab:hover {
+    color: var(--amber);
+    background: oklch(0.755 0.108 90 / 7%);
+  }
+  .console-tab.is-primary {
+    color: var(--amber);
+  }
+  .brass-pill {
+    border: 1px solid var(--bronze);
+    background: var(--panel-deep);
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--wire);
+    box-shadow: inset 0 1px 0 oklch(0.42 0.06 168 / 45%);
+  }
+
+  /* --- ghost typist placeholder --- */
+  .ghost-typist {
+    position: relative;
+    overflow: hidden;
+  }
+  .ghost-line {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--wire);
+    opacity: 0;
+    transform: translateX(-14px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ghost-line.is-live {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .ghost-caret {
+    display: inline-block;
+    width: 1px;
+    height: 1rem;
+    margin-right: 0.5rem;
+    background: var(--amber);
+    opacity: 0.8;
+  }
+  .dial-halo {
+    opacity: 0.9;
+  }
+
+  /* --- coordinate framing replaces card lifts --- */
+  .frame-cell {
+    position: relative;
+    transition: background-color 0.28s ease;
+  }
+  .frame-cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border: 1px solid var(--amber);
+    clip-path: polygon(
+      0 0,
+      14px 0,
+      14px 1px,
+      1px 1px,
+      1px 14px,
+      0 14px,
+      0 100%,
+      14px 100%,
+      14px calc(100% - 1px),
+      1px calc(100% - 1px),
+      1px calc(100% - 14px),
+      0 calc(100% - 14px)
+    );
+    opacity: 0;
+    transition: opacity 0.28s ease;
+  }
+  .frame-cell:hover::after {
+    opacity: 0.7;
+  }
+  .frame-cell:hover {
+    background-color: var(--panel-deep);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aperture > *,
+  .hero-aperture,
+  .inscribe,
+  .register-cell,
+  .viewfinder-dial,
+  .ghost-line.is-live {
+    clip-path: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .hero-seed {
+    display: none;
+  }
+  .hero-bound {
+    transition: none !important;
+    opacity: 0.55;
+  }
+  .hero-bound-top {
+    top: 0;
+  }
+  .hero-bound-bottom {
+    bottom: 0;
+  }
+  .register-label {
+    transition: none !important;
+    letter-spacing: 0.05em;
+  }
+}
