@@ -15,7 +15,7 @@ export const Route = createFileRoute("/pulse")({
       {
         property: "og:description",
         content:
-          "Score moves, failed buybacks, reverted x402 settlements. The chain's read on agent execution, in chronological order.",
+          "Score moves, slashed bonds, canceled escrows, reverted x402 settlements. The chain's read on agent execution, in chronological order.",
       },
     ],
   }),
