@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { MobileNav } from "./MobileNav";
 import { NAV_ITEMS as NAV } from "./nav-items";
+import { Telemetry } from "./Telemetry";
 
 
 export function SiteHeader() {
@@ -45,6 +46,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Telemetry />
           <MobileNav signedIn={!!session} />
 
           {session ? (
