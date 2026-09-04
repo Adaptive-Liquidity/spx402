@@ -133,15 +133,15 @@ function HomePage() {
   const featured = agents.slice(0, 3);
   // Live grade distribution for the viewfinder dial — read from the agents we
   // already loaded, no extra query.
-  // Settlement density over the last 24h, bucketed hourly from the tape rows
-  // already loaded — no extra request.
-  const now = Date.now();
+  // Settlement density bucketed hourly from the tape rows already loaded — no
+  // extra request. Anchored to the newest event so SSR and hydration agree.
+  const anchor = tape.length > 0 ? new Date(tape[0].occurredAt).getTime() : 0;
   const settlementSeries = Array.from({ length: 24 }, (_, i) => {
-    const from = now - (24 - i) * 3_600_000;
-    const to = from + 3_600_000;
+    const to = anchor - (23 - i) * 3_600_000;
+    const from = to - 3_600_000;
     return tape.filter((r) => {
       const t = new Date(r.occurredAt).getTime();
-      return t >= from && t < to;
+      return t > from && t <= to;
     }).length;
   });
   const gradeSlices = Array.from(
