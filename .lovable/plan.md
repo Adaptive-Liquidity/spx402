@@ -41,7 +41,8 @@ Structural depth, typographic precision and calibrated feedback across the landi
 
 - Terminal header chrome: pulsing status dot with polling interval, aggregate event counter, UTC arrival stamp.
 - Truncate to 8 rows with a 40px linear fade to the page ground and an anchored mechanical tab: `[ OPEN FULL REPOSITORY TAPE ↗ ]`.
-- Values right-aligned in tabular mono; zero-value rows dropped to 40% opacity to push noise back; new arrivals flash a 1px gold hairline border for 150ms before settling.
+- Values right-aligned in tabular mono; zero-value rows dropped to 40% opacity to push noise back; new arrivals flash gold for 150ms before settling.
+- **Repaint safeguards.** The flash never animates a border. Row borders stay static and the flash runs on a `::after` pseudo-element driven by `opacity`/`transform` with `will-change: opacity`; the 8-row container gets `contain: strict` (or `content-visibility: auto`) so live updates cannot trigger layout passes on the hero above.
 
 ## 7. Down-page cadence
 
