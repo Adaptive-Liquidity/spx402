@@ -958,6 +958,7 @@ export type Database = {
           used_today: number
         }[]
       }
+      verify_cron_bearer: { Args: { p_token: string }; Returns: boolean }
       x402_service_base_slug: {
         Args: { p_id: string; p_pay_to: string; p_url: string }
         Returns: string
