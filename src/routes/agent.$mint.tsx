@@ -677,6 +677,12 @@ function Dossier({
     return true;
   });
 
+  // Detect if agent has AEON execution primitives
+  const hasAeonPrimitives =
+    (agent.totalEscrowsCompleted ?? 0) > 0 ||
+    (agent.activeBondAmount ?? 0) > 0 ||
+    (agent.totalSlashedUsd ?? 0) > 0;
+
   // Category-aware filter chips: only show what's meaningful for the agent type.
   const filterKeys: FilterKey[] = isTokenized
     ? ["all", "buyback", "burn", "deposit", "anomaly", "config"]
@@ -688,11 +694,6 @@ function Dossier({
           ? ["all", "swap", "x402", "anomaly"]
           : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
 
-  // Detect if agent has AEON execution primitives
-  const hasAeonPrimitives =
-    (agent.totalEscrowsCompleted ?? 0) > 0 ||
-    (agent.activeBondAmount ?? 0) > 0 ||
-    (agent.totalSlashedUsd ?? 0) > 0;
 
   // Aggregate counts for non-tokenized metric cards.
   const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
