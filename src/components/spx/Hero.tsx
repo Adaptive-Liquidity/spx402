@@ -73,15 +73,16 @@ export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlic
             </p>
           </div>
 
-          {/* viewfinder: the dial cradles the console on its chord */}
+          {/* viewfinder: the console sits on the caliper's chord line */}
           <div className="viewfinder mx-auto mt-14 max-w-4xl">
-            <div className="viewfinder-dial" aria-hidden={false}>
-              <GradeDial slices={slices} />
-            </div>
             <div className="viewfinder-console">
               <QueryConsole />
             </div>
+            <div className="viewfinder-dial">
+              <GradeDial slices={slices} />
+            </div>
           </div>
+
 
           {/* instant tabular registration */}
           <div className="register-grid mt-16 grid gap-px border border-bronze/40 bg-bronze/40 sm:grid-cols-2 lg:grid-cols-4">
