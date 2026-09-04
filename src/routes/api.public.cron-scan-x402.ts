@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/public/cron-scan-x402")({
     handlers: {
       POST: async ({ request }) => {
         const startedAt = Date.now();
-        if (!checkCronAuth(request)) {
+        if (!(await checkCronAuth(request))) {
           return new Response("unauthorized", { status: 401 });
         }
         const heliusKey = process.env.HELIUS_API_KEY;

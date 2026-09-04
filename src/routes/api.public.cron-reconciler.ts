@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
     handlers: {
       POST: async ({ request }) => {
         const started = Date.now();
-        if (!checkCronAuth(request)) {
+        if (!(await checkCronAuth(request))) {
           return new Response("unauthorized", { status: 401 });
         }
 

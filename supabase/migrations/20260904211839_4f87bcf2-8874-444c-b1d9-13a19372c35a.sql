@@ -1,0 +1,1 @@
+select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'spx_cron_secret', 'SPX402 cron bearer token');
