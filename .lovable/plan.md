@@ -19,7 +19,7 @@ Our paid endpoints (`/api/v1/agent/:mint/dossier`, `/score`, `/evidence`) alread
 - A **Coinbase AgentKit Action Provider** package so ElizaOS, Agentic Wallets, and CDP-based agents get SPX402 lookups as native actions with built-in payment handling.
 - Both are thin wrappers over the existing paid endpoints; no new data exposure, billing stays on the existing key/x402 paths.
 
-**Explicit policy:** SPX402 does **not** sponsor user or agent gas fees via a Paymaster. We are a strictly pay-per-call product with zero free tier — clients and agents bring their own funds. This is stated on the pricing page, API docs, and Bazaar manifest so no agent discovers the policy at settlement time.
+**Explicit policy:** SPX402 does **not** sponsor user or agent gas fees via a Paymaster. We are a strictly pay-per-call product with zero free tier — clients and agents bring their own funds. This is stated on the pricing page, API docs, and Bazaar manifest so no agent discovers the policy at settlement time. The docs state it precisely for the EIP-3009 path: even where a facilitator relays `transferWithAuthorization` settlement, **the caller supplies their own USDC and covers all execution fees** — SPX402 provides no free compute and no subsidized gas envelopes.
 
 ### 2. Sign in with Base (one-tap wallet login)
 - Add "Continue with Base" on the login/signup pages alongside Google/Apple.
@@ -82,5 +82,6 @@ Our paid endpoints (`/api/v1/agent/:mint/dossier`, `/score`, `/evidence`) alread
 - MCP server: read-only tools mapped 1:1 to existing public data functions, published as an open-source package; AgentKit provider wraps the same endpoints with x402 payment handling.
 - Bazaar manifest + 402 self-description live in the existing `x402-middleware.ts` and a new public route under `src/routes/api/public/`.
 - EAS attestations: schema registered on Base, attestations signed from a dedicated SPX402 attester key held in the vault; badge subscription state in a new table with RLS + GRANTs in the same migration.
+- Attester gas reserve: the server-side attester key pays its own microscopic Base ETH gas to stamp attestations (this is our infrastructure cost, not user sponsorship). The key gets a low-balance monitor — a balance check in the existing pipeline health sweep plus an operator alert (and automated re-up hook) so badge minting can never silently stall on an empty attester.
 - New tables/columns (linked wallet on profiles, `alert_channels` type for Base, badge subscriptions, spend-permission grants) get RLS + GRANTs in the same migration.
 - No new colors, fonts, or layout — Base elements inherit the existing terminal design system.
