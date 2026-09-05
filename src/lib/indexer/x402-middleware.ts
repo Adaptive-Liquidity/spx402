@@ -162,7 +162,13 @@ export async function checkApiKeyAuth(apiKey: string): Promise<{
   usedToday: number;
   keyId: string;
 } | null> {
-  const supabase = admin();
+  let supabase;
+  try {
+    supabase = admin();
+  } catch (e) {
+    console.error("[x402] supabase client unavailable", e);
+    return null;
+  }
   const { data: keyData, error } = await supabase
     .from("api_keys")
     .select("id, tier, status, revoked_at, expires_at, daily_limit")
@@ -329,7 +335,16 @@ export async function withX402Payment<T>(
   // ── 1. API key path.
   const apiKey = request.headers.get("x-api-key") ?? bearerKey(request);
   if (apiKey) {
-    const auth = await checkApiKeyAuth(apiKey);
+    let auth: Awaited<ReturnType<typeof checkApiKeyAuth>> = null;
+    try {
+      auth = await checkApiKeyAuth(apiKey);
+    } catch (e) {
+      console.error("[x402] key lookup failed", e);
+      return new Response(JSON.stringify({ error: "Key verification unavailable" }), {
+        status: 503,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
+    }
     if (!auth) {
       return new Response(JSON.stringify({ error: "Invalid or revoked API key" }), {
         status: 401,
