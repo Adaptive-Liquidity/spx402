@@ -9,6 +9,7 @@ const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }>
       { to: "/explore", label: "Explore" },
       { to: "/register", label: "Register agent" },
       { to: "/operators", label: "Operators" },
+      { to: "/badge", label: "Live badge" },
       { to: "/alerts", label: "Alerts" },
       { to: "/api", label: "API" },
     ],
