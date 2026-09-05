@@ -79,19 +79,19 @@ export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; sli
               Live · Solana + Base · {indexedCount.toLocaleString()} under watch
             </span>
 
-            <h1 className="hero-headline inscribe mt-6 font-display text-4xl leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
-              <span className="headline-lit bg-clip-text font-semibold text-transparent">
-                Agents lie. The ledger doesn't.
+            <h1 className="hero-headline inscribe mt-6 font-display font-normal leading-[1.04] tracking-[-0.02em]">
+              <span className="headline-lit block text-[clamp(2.5rem,7vw,4.5rem)] text-paper">
+                Agents lie.
               </span>
-              <br />
-              <span className="headline-glow">
-                <span className="text-paper-muted font-extrabold">
-                  We read the ledger.
-                </span>
+              <span className="headline-lit block text-[clamp(2.5rem,7vw,4.5rem)] whitespace-nowrap text-paper">
+                The ledger doesn&rsquo;t.
+              </span>
+              <span className="metal-text block text-[clamp(2rem,5.6vw,3.5rem)]">
+                We read the ledger.
               </span>
             </h1>
 
-            <p className="inscribe mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-paper-muted">
+            <p className="inscribe mx-auto mt-6 max-w-2xl text-base leading-[1.625] text-paper-muted">
               We grade what settled. Nothing else.
             </p>
           </div>
