@@ -3,6 +3,8 @@ import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
 import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
+import { ShareCard } from "@/components/spx/ShareCard";
+import { buildGradeCard, cardImageUrl, cardShareTitle, SITE_ORIGIN } from "@/lib/grade-card";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
 import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
@@ -306,18 +308,27 @@ export const Route = createFileRoute("/agent/$mint")({
       };
     }
     const a = loaderData.agent;
+    const card = buildGradeCard(a);
+    const title = cardShareTitle(card);
+    const image = cardImageUrl(a.mint);
+    const url = `${SITE_ORIGIN}/agent/${a.mint}`;
     return {
       meta: [
-        { title: `$${a.symbol} — ${a.grade} · SPX402` },
+        { title: `${card.ticker} — ${card.grade} · SPX402` },
         {
           name: "description",
           content: `${a.name}: Transparency Score ${a.score ?? "n/a"}. ${a.totalBuybacksCount} buybacks confirmed. ${a.verdict}`,
         },
-        { property: "og:title", content: `$${a.symbol} — ${a.grade} on SPX402` },
+        { property: "og:title", content: title },
         { property: "og:description", content: a.verdict },
         { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:image", content: image },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   loader: async ({ params }): Promise<LoaderData> => {
@@ -976,9 +987,6 @@ function Dossier({
           <div className="mt-8 flex flex-wrap gap-3">
             <WatchlistButton mint={agent.mint} symbol={agent.symbol} />
             <AlertSubscribeButton mint={agent.mint} />
-            <button className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
-              <Share2 className="h-3.5 w-3.5" /> Share dossier
-            </button>
             {/* Wave 1c — machine-readable evidence bundle (Merkle-rooted). */}
             <a
               href={`/api/public/agent/${agent.mint}/evidence`}
@@ -1002,7 +1010,10 @@ function Dossier({
           </div>
         </div>
 
-        <Panel className="lg:col-span-4" eyebrow="SPX Execution Score" title="Reputation pillars">
+        <div className="lg:col-span-4 space-y-6">
+          <ShareCard card={buildGradeCard(agent)} />
+
+        <Panel eyebrow="SPX Execution Score" title="Reputation pillars">
           <div className="flex flex-col items-center">
             <TransparencyScoreRing score={agent.score} />
           </div>
@@ -1033,6 +1044,7 @@ function Dossier({
             Pillars compose the SPX Execution Score. Methodology · {SCORING_VERSION}
           </div>
         </Panel>
+        </div>
       </div>
 
       {/* CATEGORY + CLAIM STRIP */}

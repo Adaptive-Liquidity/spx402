@@ -68,6 +68,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as ApiPublicUserApiKeysRouteImport } from './routes/api.public.user.api-keys'
 import { Route as ApiPublicOgChar123subjectChar125DotsvgRouteImport } from './routes/api.public.og.{$subject}[.]svg'
 import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
+import { Route as ApiPublicCardChar123subjectChar125DotpngRouteImport } from './routes/api.public.card.{$subject}[.]png'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
 import { Route as ApiV1AgentMintScoreRouteImport } from './routes/api.v1.agent.$mint.score'
 import { Route as ApiV1AgentMintEvidenceRouteImport } from './routes/api.v1.agent.$mint.evidence'
@@ -388,6 +389,12 @@ const ApiPublicEvidenceEventIdRoute =
     path: '/public/evidence/$eventId',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiPublicCardChar123subjectChar125DotpngRoute =
+  ApiPublicCardChar123subjectChar125DotpngRouteImport.update({
+    id: '/public/card/{$subject}.png',
+    path: '/public/card/{$subject}.png',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicBadgeChar123mintChar125DotsvgRoute =
   ApiPublicBadgeChar123mintChar125DotsvgRouteImport.update({
     id: '/public/badge/{$mint}.svg',
@@ -472,6 +479,7 @@ export interface FileRoutesByFullPath {
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
@@ -536,6 +544,7 @@ export interface FileRoutesByTo {
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
@@ -603,6 +612,7 @@ export interface FileRoutesById {
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
@@ -670,6 +680,7 @@ export interface FileRouteTypes {
     | '/api/public/x402-selftest'
     | '/dashboard/'
     | '/api/public/badge/{$mint}.svg'
+    | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
@@ -734,6 +745,7 @@ export interface FileRouteTypes {
     | '/api/public/x402-selftest'
     | '/dashboard'
     | '/api/public/badge/{$mint}.svg'
+    | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
@@ -800,6 +812,7 @@ export interface FileRouteTypes {
     | '/api/public/x402-selftest'
     | '/_authenticated/dashboard/'
     | '/api/public/badge/{$mint}.svg'
+    | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
@@ -1255,6 +1268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEvidenceEventIdRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/card/{$subject}.png': {
+      id: '/api/public/card/{$subject}.png'
+      path: '/public/card/{$subject}.png'
+      fullPath: '/api/public/card/{$subject}.png'
+      preLoaderRoute: typeof ApiPublicCardChar123subjectChar125DotpngRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/badge/{$mint}.svg': {
       id: '/api/public/badge/{$mint}.svg'
       path: '/public/badge/{$mint}.svg'
@@ -1351,6 +1371,7 @@ interface ApiRouteChildren {
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
   ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
   ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  ApiPublicCardChar123subjectChar125DotpngRoute: typeof ApiPublicCardChar123subjectChar125DotpngRoute
   ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
   ApiPublicOgChar123subjectChar125DotsvgRoute: typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   ApiPublicUserApiKeysRoute: typeof ApiPublicUserApiKeysRoute
@@ -1385,6 +1406,8 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicX402SelftestRoute: ApiPublicX402SelftestRoute,
   ApiPublicBadgeChar123mintChar125DotsvgRoute:
     ApiPublicBadgeChar123mintChar125DotsvgRoute,
+  ApiPublicCardChar123subjectChar125DotpngRoute:
+    ApiPublicCardChar123subjectChar125DotpngRoute,
   ApiPublicEvidenceEventIdRoute: ApiPublicEvidenceEventIdRoute,
   ApiPublicOgChar123subjectChar125DotsvgRoute:
     ApiPublicOgChar123subjectChar125DotsvgRoute,

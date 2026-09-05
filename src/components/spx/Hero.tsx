@@ -76,7 +76,7 @@ export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; sli
           <div className="mx-auto max-w-4xl text-center">
             <span className="pill-badge metal-text inscribe">
               <span className="h-1.5 w-1.5 rounded-full bg-amber" aria-hidden />
-              Live · Solana + Base · {indexedCount.toLocaleString()} under watch
+              Live · Solana · Pump buybacks
             </span>
 
             <h1 className="hero-headline inscribe mt-6 font-display font-normal leading-[1.04] tracking-[-0.02em]">
