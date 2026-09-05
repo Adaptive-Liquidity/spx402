@@ -1,6 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
+import { mintApiKey } from "@/lib/api-keys.functions";
+import { TIER_LIMITS, type ApiTier } from "@/lib/api-tiers";
 
-export type ApiTier = "free" | "pro" | "team";
+export type { ApiTier };
+export { TIER_LIMITS };
 
 export interface ApiKeyRow {
   id: string;
@@ -14,12 +17,6 @@ export interface ApiKeyRow {
   last_used_at: string | null;
 }
 
-export const TIER_LIMITS: Record<ApiTier, number> = {
-  free: 100,
-  pro: 10000,
-  team: 100000,
-};
-
 export async function fetchApiKeys(userId: string): Promise<ApiKeyRow[]> {
   const { data, error } = await supabase
     .from("api_keys")
@@ -30,40 +27,15 @@ export async function fetchApiKeys(userId: string): Promise<ApiKeyRow[]> {
   return (data ?? []) as ApiKeyRow[];
 }
 
-async function sha256Hex(input: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 /**
- * Mints a key in the browser. Only the SHA-256 hash is persisted; the raw
- * secret is returned once to the caller and never stored.
+ * Mints a key server-side. The raw secret is returned once and never stored;
+ * only its SHA-256 hash is persisted.
  */
 export async function createApiKey(
-  userId: string,
   name: string,
-  tier: ApiTier = "free",
 ): Promise<{ row: ApiKeyRow; secret: string }> {
-  const secret = `spx_${crypto.randomUUID().replace(/-/g, "")}${crypto.randomUUID().replace(/-/g, "")}`;
-  const keyHash = await sha256Hex(secret);
-  const { data, error } = await supabase
-    .from("api_keys")
-    .insert({
-      user_id: userId,
-      name: name.trim() || "default",
-      tier,
-      key_hash: keyHash,
-      key_prefix: secret.slice(0, 12),
-      daily_limit: TIER_LIMITS[tier],
-    })
-    .select(
-      "id, name, tier, status, key_prefix, daily_limit, created_at, revoked_at, last_used_at",
-    )
-    .single();
-  if (error) throw error;
-  return { row: data as ApiKeyRow, secret };
+  const res = await mintApiKey({ data: { name } });
+  return { row: res.row as ApiKeyRow, secret: res.secret };
 }
 
 export async function revokeApiKey(id: string): Promise<void> {
@@ -72,4 +44,24 @@ export async function revokeApiKey(id: string): Promise<void> {
     .update({ status: "revoked", revoked_at: new Date().toISOString() })
     .eq("id", id);
   if (error) throw error;
+}
+
+export interface ApiUsageRow {
+  endpoint: string;
+  status: string;
+  created_at: string;
+}
+
+export async function fetchRecentUsage(userId: string): Promise<ApiUsageRow[]> {
+  const { data: keys } = await supabase.from("api_keys").select("id").eq("user_id", userId);
+  const ids = (keys ?? []).map((k) => k.id);
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from("api_usage")
+    .select("endpoint, status, created_at")
+    .in("api_key_id", ids)
+    .order("created_at", { ascending: false })
+    .limit(25);
+  if (error) throw error;
+  return (data ?? []) as ApiUsageRow[];
 }

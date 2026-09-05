@@ -212,7 +212,7 @@ function ApiDocsPage() {
           title="REST Score — API Key Auth"
         >
           <p className="text-paper-muted">
-            Same data as x402 score endpoint, but authenticated via API key. Free tier: 10
+            Same data as x402 score endpoint, but authenticated via API key. Free tier: 100
             calls/day.
           </p>
           <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
@@ -225,7 +225,7 @@ function ApiDocsPage() {
           title="REST Dossier — API Key Auth"
         >
           <p className="text-paper-muted">
-            Same data as x402 dossier endpoint. Pro tier: 1,000 calls/day.
+            Same data as x402 dossier endpoint. Pro tier: 10,000 calls/day.
           </p>
           <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
             {curl_rest_dossier}
@@ -249,21 +249,21 @@ function ApiDocsPage() {
                 <tr>
                   <td className="p-3 text-verified font-bold">Free</td>
                   <td className="p-3">$0</td>
-                  <td className="p-3">10 calls/day</td>
+                  <td className="p-3">100 calls/day</td>
                   <td className="p-3">0.01 / 0.05 USDC</td>
                   <td className="p-3">Testing, individual devs</td>
                 </tr>
                 <tr>
                   <td className="p-3 text-amber font-bold">Pro</td>
                   <td className="p-3">$49/mo</td>
-                  <td className="p-3">1,000 calls/day</td>
+                  <td className="p-3">10,000 calls/day</td>
                   <td className="p-3">0.01 / 0.05 USDC</td>
                   <td className="p-3">Serious builders, bots</td>
                 </tr>
                 <tr>
                   <td className="p-3 text-paper font-bold">Team</td>
                   <td className="p-3">$149/mo</td>
-                  <td className="p-3">10,000 calls/day</td>
+                  <td className="p-3">100,000 calls/day</td>
                   <td className="p-3">0.01 / 0.05 USDC</td>
                   <td className="p-3">DEXs, wallets, platforms</td>
                 </tr>

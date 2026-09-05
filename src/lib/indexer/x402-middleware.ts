@@ -1,34 +1,44 @@
-// x402 Middleware — HTTP 402 Payment Required flow for SPX402 API
-// Server-only. Handles payment verification, API key auth, and rate limiting.
+// x402 Middleware — HTTP 402 Payment Required flow for SPX402 API.
+// Server-only.
+//
+// Two ways to be authorised:
+//   1. A valid, active API key (`x-api-key`) inside its daily quota. Access
+//      is granted immediately; every call is metered.
+//   2. A keyless x402 payment (`x-payment`) carrying a Base transaction hash.
+//      The transaction is verified ON-CHAIN — right recipient, right asset,
+//      sufficient amount, confirmed, recent, and not already spent on another
+//      call. Self-declared payment payloads are never trusted.
 
 import { createClient } from "@supabase/supabase-js";
-import type { Address } from "viem";
+import { createPublicClient, decodeEventLog, http, parseAbiItem, type Address } from "viem";
+import { ENDPOINT_PRICES, TIER_LIMITS, type ApiTier, type X402Endpoint } from "@/lib/api-tiers";
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export type { X402Endpoint };
 
-// x402 Configuration
+/** USDC on Base mainnet. */
+export const BASE_USDC_ADDRESS = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" as const;
+
+const TRANSFER_EVENT = parseAbiItem(
+  "event Transfer(address indexed from, address indexed to, uint256 value)",
+);
+
 export const X402_CONFIG = {
-  // Pricing in USDC (6 decimals)
-  PRICES: {
-    score: 10_000, // 0.01 USDC
-    dossier: 50_000, // 0.05 USDC
-    evidence: 50_000, // 0.05 USDC
-  } as const,
-
-  // USDC on Base (mainnet)
-  PAY_TO: process.env.X402_PAY_TO_ADDRESS as Address,
+  PRICES: ENDPOINT_PRICES,
   NETWORK: "base",
-  MAX_DEADLINE_SECONDS: 60 * 60 * 24, // 24 hours
-
-  // Free tier limits (per API key per day)
-  FREE_TIER_DAILY_LIMIT: 10,
-  PRO_TIER_DAILY_LIMIT: 1_000,
-  TEAM_TIER_DAILY_LIMIT: 10_000,
+  /** A settlement older than this is not accepted as payment for a new call. */
+  MAX_PAYMENT_AGE_SECONDS: 60 * 60 * 24,
+  MAX_DEADLINE_SECONDS: 60 * 60 * 24,
+  TIER_LIMITS,
 } as const;
 
-export type X402Endpoint = keyof typeof X402_CONFIG.PRICES;
+function payToAddress(): string | null {
+  const v = process.env["X402_PAY_TO_ADDRESS"];
+  return v ? v.toLowerCase() : null;
+}
+
+function admin() {
+  return createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_SERVICE_ROLE_KEY"]!);
+}
 
 export interface X402PaymentPayload {
   x402Version: 1;
@@ -40,145 +50,171 @@ export interface X402PaymentPayload {
   mimeType: "application/json";
   outputSchema: Record<string, unknown>;
   asset: Address;
-  payTo: Address;
+  payTo: Address | null;
   maxDeadline: number;
   extra: Record<string, unknown>;
 }
 
-export interface X402PaymentResponse {
-  x402Version: 1;
-  scheme: "exact";
-  network: string;
-  payer: Address;
-  payload: X402PaymentPayload;
+/** Pulls a Base tx hash out of whatever shape the caller sent. */
+function extractTxHash(header: string): string | null {
+  const direct = header.trim();
+  if (/^0x[0-9a-fA-F]{64}$/.test(direct)) return direct.toLowerCase();
+  try {
+    const decoded = JSON.parse(Buffer.from(header, "base64").toString()) as Record<string, unknown>;
+    const candidates = [
+      decoded["txHash"],
+      decoded["transactionHash"],
+      (decoded["payload"] as Record<string, unknown> | undefined)?.["txHash"],
+      ((decoded["payload"] as Record<string, unknown> | undefined)?.["extra"] as
+        | Record<string, unknown>
+        | undefined)?.["txHash"],
+    ];
+    for (const c of candidates) {
+      if (typeof c === "string" && /^0x[0-9a-fA-F]{64}$/.test(c)) return c.toLowerCase();
+    }
+  } catch {
+    // fall through
+  }
+  return null;
 }
 
 /**
- * Verify an x402 payment by checking the transaction on-chain.
- * In production, this would use a proper x402 verifier library.
- * For now, we trust the payment header and verify via Supabase logging.
+ * Verify an x402 payment against Base. Returns the payer when the settlement
+ * is real, unspent and sufficient.
  */
 export async function verifyX402Payment(
   paymentHeader: string,
   expectedAmount: number,
   endpoint: X402Endpoint,
+  resource: string,
 ): Promise<{ valid: boolean; payer?: Address; error?: string }> {
+  const payTo = payToAddress();
+  if (!payTo) return { valid: false, error: "Payments are not configured on this deployment" };
+
+  const rpcUrl = process.env["BASE_RPC_URL"];
+  if (!rpcUrl) return { valid: false, error: "Payments are not configured on this deployment" };
+
+  const txHash = extractTxHash(paymentHeader);
+  if (!txHash) return { valid: false, error: "x-payment must carry a Base transaction hash" };
+
+  const client = createPublicClient({ transport: http(rpcUrl) });
+
+  let receipt;
   try {
-    // Parse the payment header (base64 encoded JSON)
-    const decoded = JSON.parse(
-      Buffer.from(paymentHeader, "base64").toString(),
-    ) as X402PaymentResponse;
-
-    // Basic validation
-    if (decoded.x402Version !== 1) {
-      return { valid: false, error: "Unsupported x402 version" };
-    }
-    if (decoded.scheme !== "exact") {
-      return { valid: false, error: "Only 'exact' scheme supported" };
-    }
-    if (decoded.network !== X402_CONFIG.NETWORK) {
-      return { valid: false, error: `Wrong network. Expected ${X402_CONFIG.NETWORK}` };
-    }
-    if (decoded.payload.maxAmountRequired !== expectedAmount.toString()) {
-      return { valid: false, error: `Amount mismatch. Expected ${expectedAmount}` };
-    }
-    if (decoded.payload.payTo.toLowerCase() !== X402_CONFIG.PAY_TO.toLowerCase()) {
-      return { valid: false, error: "Invalid payee address" };
-    }
-
-    // Check deadline
-    const now = Math.floor(Date.now() / 1000);
-    if (decoded.payload.maxDeadline < now) {
-      return { valid: false, error: "Payment deadline expired" };
-    }
-
-    // TODO: In production, verify the actual transaction on Base using a RPC
-    // For now, we accept validly structured payments and log them
-
-    return { valid: true, payer: decoded.payer };
-  } catch (e) {
-    return { valid: false, error: `Invalid payment header: ${e}` };
+    receipt = await client.getTransactionReceipt({ hash: txHash as `0x${string}` });
+  } catch {
+    return { valid: false, error: "Transaction not found on Base" };
   }
+  if (receipt.status !== "success") return { valid: false, error: "Transaction reverted" };
+
+  // Sum USDC actually delivered to our address in this transaction.
+  let paid = 0n;
+  let payer: string | null = null;
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== BASE_USDC_ADDRESS) continue;
+    try {
+      const parsed = decodeEventLog({ abi: [TRANSFER_EVENT], data: log.data, topics: log.topics });
+      const args = parsed.args as unknown as { from: string; to: string; value: bigint };
+      if (args.to.toLowerCase() !== payTo) continue;
+      paid += args.value;
+      payer ??= args.from.toLowerCase();
+    } catch {
+      continue;
+    }
+  }
+  if (paid === 0n) return { valid: false, error: "No USDC payment to the SPX402 address" };
+  if (paid < BigInt(expectedAmount)) {
+    return { valid: false, error: `Underpaid. Expected ${expectedAmount} USDC base units` };
+  }
+
+  // Freshness.
+  try {
+    const block = await client.getBlock({ blockNumber: receipt.blockNumber });
+    const age = Math.floor(Date.now() / 1000) - Number(block.timestamp);
+    if (age > X402_CONFIG.MAX_PAYMENT_AGE_SECONDS) {
+      return { valid: false, error: "Payment is too old" };
+    }
+  } catch {
+    return { valid: false, error: "Could not read the settlement block" };
+  }
+
+  // Replay protection — a settlement buys exactly one call.
+  const { error: claimError } = await admin().from("x402_payments").insert({
+    tx_hash: txHash,
+    chain: "base",
+    payer,
+    pay_to: payTo,
+    amount: Number(paid),
+    endpoint,
+    resource,
+  });
+  if (claimError) {
+    return { valid: false, error: "This payment has already been used" };
+  }
+
+  return { valid: true, payer: (payer ?? "0x") as Address };
 }
 
-/**
- * Check API key tier and rate limits
- */
-export async function checkApiKeyAuth(
-  apiKey: string,
-): Promise<{
+export async function checkApiKeyAuth(apiKey: string): Promise<{
   valid: boolean;
-  tier: "free" | "pro" | "team";
+  tier: ApiTier;
   dailyLimit: number;
   usedToday: number;
   keyId: string;
 } | null> {
-  // Look up API key in database
+  const supabase = admin();
   const { data: keyData, error } = await supabase
     .from("api_keys")
-    .select("id, tier, user_id, name, revoked_at")
-    .eq("key_hash", hashApiKey(apiKey))
+    .select("id, tier, status, revoked_at, expires_at, daily_limit")
+    .eq("key_hash", await hashApiKey(apiKey))
     .maybeSingle();
 
-  if (error || !keyData || keyData.revoked_at) {
-    return null;
-  }
+  if (error || !keyData || keyData.revoked_at || keyData.status !== "active") return null;
+  if (keyData.expires_at && new Date(keyData.expires_at).getTime() < Date.now()) return null;
 
-  const tier = keyData.tier as "free" | "pro" | "team";
-  const dailyLimit =
-    tier === "free"
-      ? X402_CONFIG.FREE_TIER_DAILY_LIMIT
-      : tier === "pro"
-        ? X402_CONFIG.PRO_TIER_DAILY_LIMIT
-        : X402_CONFIG.TEAM_TIER_DAILY_LIMIT;
+  const tier = (keyData.tier as ApiTier) ?? "free";
+  const dailyLimit = (keyData.daily_limit as number) || TIER_LIMITS[tier];
 
-  // Count usage today
-  const today = new Date().toISOString().split("T")[0];
+  const since = new Date();
+  since.setUTCHours(0, 0, 0, 0);
   const { count } = await supabase
     .from("api_usage")
     .select("*", { count: "exact", head: true })
     .eq("api_key_id", keyData.id)
-    .gte("created_at", `${today}T00:00:00Z`)
-    .lt("created_at", `${today}T23:59:59Z`);
+    .gte("created_at", since.toISOString());
 
-  const usedToday = count ?? 0;
-
-  return { valid: true, tier, dailyLimit, usedToday, keyId: keyData.id };
+  return { valid: true, tier, dailyLimit, usedToday: count ?? 0, keyId: keyData.id };
 }
 
-function hashApiKey(key: string): string {
-  // Simple hash for storage - in production use bcrypt or argon2
-  const crypto = require("crypto");
-  return crypto.createHash("sha256").update(key).digest("hex");
+async function hashApiKey(key: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-/**
- * Record API usage for rate limiting
- */
 export async function recordApiUsage(
-  apiKeyId: string,
+  apiKeyId: string | null,
   endpoint: X402Endpoint,
-  payer: Address | null,
+  payer: string | null,
   status: "success" | "payment_required" | "rate_limited" | "error",
 ): Promise<void> {
-  await supabase.from("api_usage").insert({
+  if (!apiKeyId) return;
+  await admin().from("api_usage").insert({
     api_key_id: apiKeyId,
     endpoint,
-    payer: payer ?? null,
+    payer,
     status,
-    created_at: new Date().toISOString(),
   });
 }
 
-/**
- * Create the HTTP 402 response with payment details
- */
 export function createPaymentRequiredResponse(
   endpoint: X402Endpoint,
   resource: string,
   description: string,
 ): Response {
   const amount = X402_CONFIG.PRICES[endpoint];
+  const payTo = payToAddress();
 
   const payload: X402PaymentPayload = {
     x402Version: 1,
@@ -189,23 +225,31 @@ export function createPaymentRequiredResponse(
     description,
     mimeType: "application/json",
     outputSchema: getOutputSchema(endpoint),
-    asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Address, // USDC on Base
-    payTo: X402_CONFIG.PAY_TO,
+    asset: BASE_USDC_ADDRESS as Address,
+    payTo: (payTo as Address) ?? null,
     maxDeadline: Math.floor(Date.now() / 1000) + X402_CONFIG.MAX_DEADLINE_SECONDS,
     extra: {
       endpoint,
       spx402: true,
+      settlement: "Send USDC on Base to payTo, then retry with x-payment: <txHash>",
+      alternative: "Or send a free-tier API key as x-api-key",
     },
   };
 
-  return new Response(JSON.stringify({ x402: payload }), {
-    status: 402,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Payment-Required": "true",
-      "Access-Control-Allow-Origin": "*",
+  return new Response(
+    JSON.stringify({
+      x402: payload,
+      ...(payTo ? {} : { note: "Keyless payment is not enabled yet — use an API key." }),
+    }),
+    {
+      status: 402,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Payment-Required": "true",
+        "Access-Control-Allow-Origin": "*",
+      },
     },
-  });
+  );
 }
 
 function getOutputSchema(endpoint: X402Endpoint): Record<string, unknown> {
@@ -230,16 +274,9 @@ function getOutputSchema(endpoint: X402Endpoint): Record<string, unknown> {
         type: "object",
         properties: {
           mint: { type: "string" },
-          symbol: { type: "string" },
-          name: { type: "string" },
           grade: { type: "string" },
           score: { type: "number" },
           verdict: { type: "string" },
-          activeBond: { type: "number" },
-          escrowSuccessRate: { type: "number" },
-          totalSlashed: { type: "number" },
-          escrowsCompleted: { type: "number" },
-          escrowsFailed: { type: "number" },
           events: { type: "array" },
           svgCard: { type: "string" },
         },
@@ -261,68 +298,111 @@ function getOutputSchema(endpoint: X402Endpoint): Record<string, unknown> {
   }
 }
 
+const DESCRIPTIONS: Record<X402Endpoint, string> = {
+  score: "SPX402 Execution Grade — lightweight score, bond, and success rate",
+  dossier: "SPX402 Full Agent Dossier — complete terminal data with events and SVG card",
+  evidence: "SPX402 Evidence Bundle — Merkle-rooted proof of execution for a subject",
+};
+
+function ok(result: unknown, extraHeaders: Record<string, string> = {}): Response {
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      ...extraHeaders,
+    },
+  });
+}
+
 /**
- * Main middleware wrapper for x402-protected endpoints
+ * Main middleware wrapper for x402-protected endpoints.
  */
 export async function withX402Payment<T>(
   request: Request,
   endpoint: X402Endpoint,
-  handler: (context: { payer: Address; apiKeyId?: string }) => Promise<T>,
+  handler: (context: { payer: Address | null; apiKeyId?: string }) => Promise<T>,
 ): Promise<Response> {
   const url = new URL(request.url);
   const resource = url.pathname;
 
-  // Check for API key (for authenticated/rate-limited access)
-  const apiKey = request.headers.get("x-api-key");
-  let apiKeyContext: { tier: string; dailyLimit: number; usedToday: number; keyId: string } | null =
-    null;
-
+  // ── 1. API key path.
+  const apiKey = request.headers.get("x-api-key") ?? bearerKey(request);
   if (apiKey) {
     const auth = await checkApiKeyAuth(apiKey);
-    if (auth) {
-      if (auth.usedToday >= auth.dailyLimit) {
-        await recordApiUsage(auth.keyId, endpoint, null, "rate_limited");
-        return new Response(JSON.stringify({ error: "Daily rate limit exceeded" }), {
+    if (!auth) {
+      return new Response(JSON.stringify({ error: "Invalid or revoked API key" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
+    }
+    if (auth.usedToday >= auth.dailyLimit) {
+      await recordApiUsage(auth.keyId, endpoint, null, "rate_limited");
+      return new Response(
+        JSON.stringify({
+          error: "Daily rate limit exceeded",
+          dailyLimit: auth.dailyLimit,
+          usedToday: auth.usedToday,
+        }),
+        {
           status: 429,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-      apiKeyContext = { ...auth };
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "X-RateLimit-Limit": String(auth.dailyLimit),
+            "X-RateLimit-Remaining": "0",
+          },
+        },
+      );
+    }
+    try {
+      const result = await handler({ payer: null, apiKeyId: auth.keyId });
+      await recordApiUsage(auth.keyId, endpoint, null, "success");
+      return ok(result, {
+        "X-RateLimit-Limit": String(auth.dailyLimit),
+        "X-RateLimit-Remaining": String(Math.max(0, auth.dailyLimit - auth.usedToday - 1)),
+      });
+    } catch {
+      await recordApiUsage(auth.keyId, endpoint, null, "error");
+      return new Response(JSON.stringify({ error: "Internal error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
   }
 
-  // Check for x402 payment
+  // ── 2. Keyless pay-per-call path.
   const paymentHeader = request.headers.get("x-payment");
-  const expectedAmount = X402_CONFIG.PRICES[endpoint];
-
   if (paymentHeader) {
-    const payment = await verifyX402Payment(paymentHeader, expectedAmount, endpoint);
-    if (payment.valid && payment.payer) {
-      // Payment valid - execute handler
-      if (apiKeyContext) {
-        await recordApiUsage(apiKeyContext.keyId, endpoint, payment.payer, "success");
-      }
-      try {
-        const result = await handler({ payer: payment.payer, apiKeyId: apiKeyContext?.keyId });
-        return new Response(JSON.stringify(result), {
-          status: 200,
-          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
-        });
-      } catch (e) {
-        return new Response(JSON.stringify({ error: String(e) }), {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+    const payment = await verifyX402Payment(
+      paymentHeader,
+      X402_CONFIG.PRICES[endpoint],
+      endpoint,
+      resource,
+    );
+    if (!payment.valid) {
+      return new Response(JSON.stringify({ error: payment.error ?? "Payment not verified" }), {
+        status: 402,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
+    }
+    try {
+      const result = await handler({ payer: payment.payer ?? null });
+      return ok(result);
+    } catch {
+      return new Response(JSON.stringify({ error: "Internal error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
   }
 
-  // No valid payment - return 402
-  const descriptions: Record<X402Endpoint, string> = {
-    score: "SPX402 Execution Grade — lightweight score, bond, and success rate",
-    dossier: "SPX402 Full Agent Dossier — complete terminal data with events and SVG card",
-    evidence: "SPX402 Evidence Bundle — Merkle-rooted proof of execution for audit",
-  };
+  return createPaymentRequiredResponse(endpoint, resource, DESCRIPTIONS[endpoint]);
+}
 
-  return createPaymentRequiredResponse(endpoint, resource, descriptions[endpoint]);
+function bearerKey(request: Request): string | null {
+  const h = request.headers.get("authorization");
+  if (!h?.startsWith("Bearer ")) return null;
+  const v = h.slice(7).trim();
+  return v.startsWith("spx_") ? v : null;
 }
