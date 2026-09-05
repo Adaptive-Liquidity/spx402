@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ImageResponse } from "@cf-wasm/og";
 import { fetchAgent } from "@/lib/agents-db";
 import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 
 // Dynamic Open Graph card for any subject (agent mint, executor wallet, service payee).
 // Rendered as a real PNG so X, Discord, Slack, Farcaster and the Base App all unfurl it.
+//
+// `@cf-wasm/og` initialises its WASM engines with a top-level await. It MUST be
+// loaded lazily inside this handler: a static import hoists that await into the
+// shared SSR router chunk, and every page (including "/") then 500s with
+// "Top-level await in module is unsettled" on the edge runtime.
 export const Route = createFileRoute("/api/public/og/{$subject}.png")({
   server: {
     handlers: {
@@ -21,6 +25,14 @@ export const Route = createFileRoute("/api/public/og/{$subject}.png")({
         const score = agent?.score == null ? "—" : String(agent.score);
         const accent = pickGradeColor(grade);
         const short = subject.length > 16 ? `${subject.slice(0, 8)}…${subject.slice(-6)}` : subject;
+
+        let ImageResponse: typeof import("@cf-wasm/og").ImageResponse;
+        try {
+          ({ ImageResponse } = await import("@cf-wasm/og"));
+        } catch (e) {
+          console.error("[og] image engine unavailable", e);
+          return new Response("image renderer unavailable", { status: 503 });
+        }
 
         const image = new ImageResponse(
           (
