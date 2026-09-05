@@ -1,0 +1,1 @@
+CREATE POLICY "Schema registry is server-only" ON public.eas_schema FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);

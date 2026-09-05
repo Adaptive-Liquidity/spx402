@@ -53,13 +53,27 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const { data: agents } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset, aeon_cri_address, total_slashed_usd, active_bond_amount, escrow_success_rate, total_escrows_completed, total_escrows_failed",
+            "mint, operator_verified, grade, name, tagline, category, identifier_kind, executor_wallet, core_asset, aeon_cri_address, total_slashed_usd, active_bond_amount, escrow_success_rate, total_escrows_completed, total_escrows_failed",
           );
 
         if (!agents || agents.length === 0) {
           await heartbeat("scoring", true, Date.now() - started, "no agents");
           return Response.json({ ok: true, scored: 0 });
         }
+
+        // Subjects with a paid, unexpired badge get an on-chain EAS stamp
+        // whenever their grade actually changes. Monitoring is what the
+        // subscription buys — it never touches the grade itself.
+        const { data: subs } = await supabaseAdmin
+          .from("badge_subscriptions" as never)
+          .select("mint")
+          .eq("status", "active")
+          .gt("granted_until", new Date().toISOString());
+        const attestable = new Set(
+          ((subs ?? []) as unknown as Array<{ mint: string }>).map((s) => s.mint),
+        );
+        let attested = 0;
+
 
         let scored = 0;
         for (const a of agents) {
@@ -184,11 +198,33 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             })
             .eq("mint", a.mint);
           if (!error) scored++;
+
+          // Grade change on a badge-subscribed subject → stamp it on Base.
+          if (
+            !error &&
+            attestable.has(a.mint) &&
+            publication.grade != null &&
+            publication.grade !== a.grade
+          ) {
+            try {
+              const { attestSubject } = await import("@/lib/eas.server");
+              const res = await attestSubject(
+                a.mint,
+                "grade",
+                publication.grade,
+                publication.score ?? 0,
+              );
+              if (res.ok) attested++;
+            } catch (e) {
+              console.error("[scoring] attestation failed", a.mint, String(e).slice(0, 200));
+            }
+          }
         }
 
         const duration = Date.now() - started;
-        await heartbeat("scoring", true, duration, `scored=${scored}`);
-        return Response.json({ ok: true, scored, duration_ms: duration });
+        await heartbeat("scoring", true, duration, `scored=${scored} attested=${attested}`);
+        return Response.json({ ok: true, scored, attested, duration_ms: duration });
+
       },
     },
   },

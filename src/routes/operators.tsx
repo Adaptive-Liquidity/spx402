@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, KeyRound, AlertTriangle, Eye } from "lucide-react";
 import { Panel } from "@/components/spx/Panel";
+import { BadgeSubscribe } from "@/components/spx/BadgeSubscribe";
 
 export const Route = createFileRoute("/operators")({
   head: () => ({
@@ -121,7 +122,22 @@ function OperatorsPage() {
             </pre>
           </div>
         </div>
+
+        <div className="mt-10">
+          <h3 className="font-display text-xl font-semibold text-paper">
+            Live badge · attested on Base
+          </h3>
+          <p className="mt-2 max-w-2xl text-sm text-paper-muted">
+            A subscribed badge reflects your current grade in real time, and SPX402 publishes a
+            cryptographic attestation on Base (via the Ethereum Attestation Service) every time
+            your grade changes — verifiable on-chain, not just by trusting our servers.
+          </p>
+          <div className="mt-6">
+            <BadgeSubscribe />
+          </div>
+        </div>
       </section>
+
 
       {/* ALERTS */}
       <section className="mt-16">
