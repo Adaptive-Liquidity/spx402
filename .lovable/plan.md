@@ -19,7 +19,7 @@ Our paid endpoints (`/api/v1/agent/:mint/dossier`, `/score`, `/evidence`) alread
 - A **Coinbase AgentKit Action Provider** package so ElizaOS, Agentic Wallets, and CDP-based agents get SPX402 lookups as native actions with built-in payment handling.
 - Both are thin wrappers over the existing paid endpoints; no new data exposure, billing stays on the existing key/x402 paths.
 
-**Explicit policy:** SPX402 does **not** sponsor user or agent gas fees via a Paymaster. We are a strictly pay-per-call product with zero free tier — clients and agents bring their own funds. This is stated on the pricing page, API docs, and Bazaar manifest so no agent discovers the policy at settlement time.
+**Explicit policy:** SPX402 does **not** sponsor user or agent gas fees via a Paymaster. We are a strictly pay-per-call product with zero free tier — clients and agents bring their own funds. This is stated on the pricing page, API docs, and Bazaar manifest so no agent discovers the policy at settlement time. The docs state it precisely for the EIP-3009 path: even where a facilitator relays `transferWithAuthorization` settlement, **the caller supplies their own USDC and covers all execution fees** — SPX402 provides no free compute and no subsidized gas envelopes.
 
 ### 2. Sign in with Base (one-tap wallet login)
 - Add "Continue with Base" on the login/signup pages alongside Google/Apple.
