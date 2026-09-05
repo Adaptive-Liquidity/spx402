@@ -8,7 +8,7 @@ export const Route = createFileRoute("/alerts")({
       {
         name: "description",
         content:
-          "Email, Telegram, and webhook alerts on agent execution — escrows, bonds, receipts, and score moves.",
+          "Signed webhook and Slack alerts on agent execution — escrows, bonds, receipts, and score moves.",
       },
       { property: "og:title", content: "SPX402 Alerts" },
       { property: "og:description", content: "When the tape changes, you hear it first." },
@@ -19,19 +19,19 @@ export const Route = createFileRoute("/alerts")({
 
 const CHANNELS = [
   {
-    icon: Mail,
-    name: "Email",
-    body: "Plain text, no marketing. Designed to be read at 3am during a launch.",
+    icon: Webhook,
+    name: "Webhooks",
+    body: "Live. JSON straight off the ingest pipeline, signed with HMAC-SHA256 so you can prove it came from us.",
   },
   {
     icon: MessageSquare,
-    name: "Telegram",
-    body: "Bot delivery to a private channel. Markdown formatted, signature-linked.",
+    name: "Slack",
+    body: "Live. Paste an incoming webhook URL, send a test, and notices land in the channel you choose.",
   },
   {
-    icon: Webhook,
-    name: "Webhooks",
-    body: "Team plan only. Idempotent JSON, retries with exponential backoff.",
+    icon: Mail,
+    name: "Email and text",
+    body: "Not yet delivering. Both need a sending address and number we do not have configured — they are listed as unavailable rather than quietly dropping notices.",
   },
 ];
 
