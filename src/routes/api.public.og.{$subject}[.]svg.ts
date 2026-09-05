@@ -2,14 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { fetchAgent } from "@/lib/agents-db";
 import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 
-// Dynamic Open Graph card for any subject (agent mint, executor wallet, service payee).
-// Rendered as a real PNG so X, Discord, Slack, Farcaster and the Base App all unfurl it.
+// Share card for any subject (agent mint, executor wallet, service payee).
 //
-// `@cf-wasm/og` initialises its WASM engines with a top-level await. It MUST be
-// loaded lazily inside this handler: a static import hoists that await into the
-// shared SSR router chunk, and every page (including "/") then 500s with
-// "Top-level await in module is unsettled" on the edge runtime.
-export const Route = createFileRoute("/api/public/og/{$subject}.png")({
+// Rendered as pure SVG on purpose. The previous PNG renderer (@cf-wasm/og)
+// initialises satori/resvg WASM with a top-level await; nitro inlines every
+// dynamic import into the SSR bundle, so that await was hoisted into the shared
+// router chunk and EVERY page (including "/") 500'd on the edge runtime with
+// "Top-level await in module is unsettled". SVG needs no engine and is used by
+// the same badge/embeds pipeline as /api/public/badge.
+export const Route = createFileRoute("/api/public/og/{$subject}.svg")({
   server: {
     handlers: {
       GET: async ({ params, request }) => {
@@ -19,87 +20,34 @@ export const Route = createFileRoute("/api/public/og/{$subject}.png")({
         const subject = params.subject;
         const agent = await fetchAgent(subject).catch(() => null);
 
-        const symbol = (agent?.symbol ?? "AGENT").slice(0, 12).toUpperCase();
-        const name = (agent?.name ?? "Unindexed subject").slice(0, 42);
+        const symbol = esc((agent?.symbol ?? "AGENT").slice(0, 12).toUpperCase());
+        const name = esc((agent?.name ?? "Unindexed subject").slice(0, 42));
         const grade = agent?.grade ?? "SPX404";
         const score = agent?.score == null ? "—" : String(agent.score);
         const accent = pickGradeColor(grade);
-        const short = subject.length > 16 ? `${subject.slice(0, 8)}…${subject.slice(-6)}` : subject;
-
-        let ImageResponse: typeof import("@cf-wasm/og").ImageResponse;
-        try {
-          ({ ImageResponse } = await import("@cf-wasm/og"));
-        } catch (e) {
-          console.error("[og] image engine unavailable", e);
-          return new Response("image renderer unavailable", { status: 503 });
-        }
-
-        const image = new ImageResponse(
-          (
-            <div
-              style={{
-                width: "1200px",
-                height: "630px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                backgroundColor: "#07100c",
-                padding: "64px",
-                fontFamily: "sans-serif",
-                color: "#e8f2ec",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", fontSize: 28, letterSpacing: 6, color: "#3ecf8e" }}>
-                  SPX402
-                </div>
-                <div style={{ display: "flex", fontSize: 22, letterSpacing: 4, color: "#7f9a8c" }}>
-                  EXECUTION GRADE
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", fontSize: 76, fontWeight: 700 }}>${symbol}</div>
-                <div style={{ display: "flex", fontSize: 30, color: "#9fb5a9", marginTop: 8 }}>
-                  {name}
-                </div>
-                <div style={{ display: "flex", fontSize: 24, color: "#5f7a6c", marginTop: 16 }}>
-                  {short}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    border: `3px solid ${accent}`,
-                    borderRadius: 12,
-                    padding: "18px 32px",
-                    fontSize: 56,
-                    fontWeight: 700,
-                    color: accent,
-                  }}
-                >
-                  {grade}
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                  <div style={{ display: "flex", fontSize: 22, letterSpacing: 4, color: "#7f9a8c" }}>
-                    SCORE
-                  </div>
-                  <div style={{ display: "flex", fontSize: 88, fontWeight: 700 }}>{score}</div>
-                </div>
-              </div>
-            </div>
-          ),
-          { width: 1200, height: 630 },
+        const short = esc(
+          subject.length > 16 ? `${subject.slice(0, 8)}…${subject.slice(-6)}` : subject,
         );
 
-        const png = await image.arrayBuffer();
-        return new Response(png, {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="${symbol} ${esc(grade)} on SPX402">
+<rect width="1200" height="630" fill="#07100c"/>
+<g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <text x="64" y="92" font-size="28" letter-spacing="6" fill="#3ecf8e">SPX402</text>
+  <text x="1136" y="92" font-size="22" letter-spacing="4" fill="#7f9a8c" text-anchor="end">EXECUTION GRADE</text>
+  <text x="64" y="330" font-size="76" font-weight="700" fill="#e8f2ec">$${symbol}</text>
+  <text x="64" y="376" font-size="30" fill="#9fb5a9">${name}</text>
+  <text x="64" y="416" font-size="24" fill="#5f7a6c">${short}</text>
+  <rect x="64" y="470" width="${Math.max(220, grade.length * 34 + 64)}" height="96" rx="12" fill="none" stroke="${accent}" stroke-width="3"/>
+  <text x="${64 + Math.max(220, grade.length * 34 + 64) / 2}" y="536" font-size="56" font-weight="700" fill="${accent}" text-anchor="middle">${esc(grade)}</text>
+  <text x="1136" y="470" font-size="22" letter-spacing="4" fill="#7f9a8c" text-anchor="end">SCORE</text>
+  <text x="1136" y="566" font-size="88" font-weight="700" fill="#e8f2ec" text-anchor="end">${esc(score)}</text>
+</g>
+</svg>`;
+
+        return new Response(svg, {
           status: 200,
           headers: {
-            "Content-Type": "image/png",
+            "Content-Type": "image/svg+xml; charset=utf-8",
             "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
             ...limited.headers,
           },
@@ -108,6 +56,14 @@ export const Route = createFileRoute("/api/public/og/{$subject}.png")({
     },
   },
 });
+
+function esc(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function pickGradeColor(grade: string): string {
   if (grade === "SPX AAA" || grade === "SPX AA") return "#3ecf8e";
