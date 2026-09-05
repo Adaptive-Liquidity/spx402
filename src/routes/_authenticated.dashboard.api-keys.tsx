@@ -218,7 +218,53 @@ function ApiKeysPage() {
         </div>
       )}
 
+      {upgradeFor && (
+        <div className="panel-engraved space-y-4 p-5">
+          <div>
+            <div className="label-amber">Upgrade with Base Pay</div>
+            <p className="mt-2 max-w-xl text-sm text-paper-muted">
+              Pay in USDC on Base and this key jumps to the plan quota for 30 days. Payment buys
+              quota and monitoring only — it never buys or changes an execution grade.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {(Object.keys(PLANS) as PlanId[]).map((id) => (
+              <div key={id} className="border border-bronze/50 bg-panel-deep/40 p-4">
+                <div className="flex items-baseline justify-between">
+                  <span className="font-display text-lg font-semibold text-paper">
+                    {PLANS[id].name}
+                  </span>
+                  <span className="num-display text-xl text-paper">
+                    ${formatUsdc(PLANS[id].priceUsdc)}
+                  </span>
+                </div>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-wire">
+                  {TIER_LIMITS[PLANS[id].tier].toLocaleString()} calls / day · 30 days
+                </p>
+                <div className="mt-4">
+                  <BasePayButton
+                    plan={id}
+                    apiKeyId={upgradeFor}
+                    onPaid={() => {
+                      setUpgradeFor(null);
+                      void load();
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setUpgradeFor(null)}
+            className="font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:text-amber"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
       <div className="border-l-2 border-amber/70 bg-amber/5 p-4 text-sm text-paper-muted">
+
         <span className="font-mono text-[10px] uppercase tracking-widest text-amber">Note · </span>
         {active.length} active {active.length === 1 ? "key" : "keys"}. Send it as{" "}
         <span className="font-mono text-paper">Authorization: Bearer &lt;key&gt;</span>.
