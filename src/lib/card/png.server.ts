@@ -5,7 +5,7 @@
 // the edge runtime supports) — no WASM, no image library, no top-level await.
 
 import { deflateSync } from "node:zlib";
-import { CARD_COLORS, type GradeCardModel } from "@/lib/grade-card";
+import { CARD_COLORS, type GradeCardModel } from "/dev-server/src/lib/grade-card";
 import { GLYPH_H, GLYPH_W, glyph, textWidth } from "./font";
 
 const PALETTE: readonly string[] = [
