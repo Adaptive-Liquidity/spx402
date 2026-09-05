@@ -315,6 +315,16 @@ export const Route = createFileRoute("/agent/$mint")({
         },
         { property: "og:title", content: `$${a.symbol} — ${a.grade} on SPX402` },
         { property: "og:description", content: a.verdict },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        {
+          property: "og:image",
+          content: `https://spx402.com/api/public/og/${a.mint}.png`,
+        },
+        {
+          name: "twitter:image",
+          content: `https://spx402.com/api/public/og/${a.mint}.png`,
+        },
       ],
     };
   },
