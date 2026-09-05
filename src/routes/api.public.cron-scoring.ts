@@ -198,11 +198,33 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             })
             .eq("mint", a.mint);
           if (!error) scored++;
+
+          // Grade change on a badge-subscribed subject → stamp it on Base.
+          if (
+            !error &&
+            attestable.has(a.mint) &&
+            publication.grade != null &&
+            publication.grade !== a.grade
+          ) {
+            try {
+              const { attestSubject } = await import("@/lib/eas.server");
+              const res = await attestSubject(
+                a.mint,
+                "grade",
+                publication.grade,
+                publication.score ?? 0,
+              );
+              if (res.ok) attested++;
+            } catch (e) {
+              console.error("[scoring] attestation failed", a.mint, String(e).slice(0, 200));
+            }
+          }
         }
 
         const duration = Date.now() - started;
-        await heartbeat("scoring", true, duration, `scored=${scored}`);
-        return Response.json({ ok: true, scored, duration_ms: duration });
+        await heartbeat("scoring", true, duration, `scored=${scored} attested=${attested}`);
+        return Response.json({ ok: true, scored, attested, duration_ms: duration });
+
       },
     },
   },
