@@ -44,15 +44,15 @@ export const Route = createFileRoute("/service/$slug")({
         },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
-        ...(d?.service.payee
+        ...(d?.service.payTo
           ? [
               {
                 property: "og:image",
-                content: `https://spx402.com/api/public/og/${d.service.payee}.png`,
+                content: `https://spx402.com/api/public/og/${d.service.payTo}.png`,
               },
               {
                 name: "twitter:image",
-                content: `https://spx402.com/api/public/og/${d.service.payee}.png`,
+                content: `https://spx402.com/api/public/og/${d.service.payTo}.png`,
               },
             ]
           : []),
