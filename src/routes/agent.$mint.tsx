@@ -308,18 +308,27 @@ export const Route = createFileRoute("/agent/$mint")({
       };
     }
     const a = loaderData.agent;
+    const card = buildGradeCard(a);
+    const title = cardShareTitle(card);
+    const image = cardImageUrl(a.mint);
+    const url = `${SITE_ORIGIN}/agent/${a.mint}`;
     return {
       meta: [
-        { title: `$${a.symbol} — ${a.grade} · SPX402` },
+        { title: `${card.ticker} — ${card.grade} · SPX402` },
         {
           name: "description",
           content: `${a.name}: Transparency Score ${a.score ?? "n/a"}. ${a.totalBuybacksCount} buybacks confirmed. ${a.verdict}`,
         },
-        { property: "og:title", content: `$${a.symbol} — ${a.grade} on SPX402` },
+        { property: "og:title", content: title },
         { property: "og:description", content: a.verdict },
         { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:image", content: image },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   loader: async ({ params }): Promise<LoaderData> => {

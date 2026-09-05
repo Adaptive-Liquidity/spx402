@@ -66,16 +66,6 @@ export const Route = createRootRoute({
         content:
           "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
       },
-      {
-        property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/I7YmU8IgqxZ3J8UORUMA2UpyL7Z2/social-images/social-1777245368096-8K_unreal_engine_202604241532_(1).webp",
-      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
