@@ -1,11 +1,12 @@
 // Alert delivery. Server-only.
 //
-// Channels that work today: webhook (HMAC-signed) and Slack (incoming
-// webhook URL). Email needs a verified sending domain on this deployment and
-// SMS needs a sending number — until those exist the dispatcher records an
-// honest "skipped" delivery with the reason instead of pretending to send.
+// Channels that work today: webhook (HMAC-signed), Slack (incoming webhook
+// URL), and email (Lovable managed sending on notify.spx402.com, From
+// support@spx402.com). SMS still needs a sending number — until one exists
+// the dispatcher records an honest "skipped" delivery with the reason.
 
 import { createHmac } from "node:crypto";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 
 export type ChannelKind = "email" | "webhook" | "slack" | "sms";
 
@@ -40,11 +41,6 @@ export interface DeliveryResult {
 
 /** Channels whose transport is not provisioned on this deployment. */
 export function channelUnavailableReason(kind: ChannelKind): string | null {
-  if (kind === "email") {
-    return process.env["RESEND_API_KEY"]
-      ? null
-      : "Email delivery needs a verified sending domain on this deployment.";
-  }
   if (kind === "sms") return "Text delivery needs a sending number — not configured yet.";
   return null;
 }
@@ -93,19 +89,18 @@ export async function deliverAlert(
   }
 
   if (channel.kind === "email") {
-    const apiKey = process.env["RESEND_API_KEY"];
-    if (!apiKey) return { status: "skipped", error: "Email sending is not configured." };
-    const from = process.env["ALERTS_FROM_EMAIL"] ?? "alerts@spx402.com";
-    return postJson(
-      "https://api.resend.com/emails",
-      JSON.stringify({
-        from,
-        to: [channel.target],
-        subject: `SPX402 — ${payload.event}`,
-        text: `${payload.summary}\n\n${payload.url}`,
-      }),
-      { Authorization: `Bearer ${apiKey}` },
-    );
+    try {
+      const result = await sendTemplateEmail("spx-alert", channel.target, {
+        templateData: payload,
+        idempotencyKey: `spx-alert-${payload.event}-${payload.mint}-${payload.signature ?? payload.occurredAt}`,
+      });
+      if (!result.sent) {
+        return { status: "skipped", error: "Recipient has unsubscribed or bounced." };
+      }
+      return { status: "sent" };
+    } catch (e) {
+      return { status: "failed", error: e instanceof Error ? e.message : "email send failed" };
+    }
   }
 
   return { status: "skipped", error: "Unsupported channel" };

@@ -60,6 +60,7 @@ import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_a
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 import { Route as AuthenticatedDashboardAccountRouteImport } from './routes/_authenticated.dashboard.account'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as ApiPublicUserApiKeysRouteImport } from './routes/api.public.user.api-keys'
 import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
@@ -338,6 +339,12 @@ const AuthenticatedDashboardAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicUserApiKeysRoute = ApiPublicUserApiKeysRouteImport.update({
   id: '/public/user/api-keys',
   path: '/public/user/api-keys',
@@ -431,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -489,6 +497,7 @@ export interface FileRoutesByTo {
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -550,6 +559,7 @@ export interface FileRoutesById {
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -611,6 +621,7 @@ export interface FileRouteTypes {
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/user/api-keys'
+    | '/lovable/email/transactional/preview'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -669,6 +680,7 @@ export interface FileRouteTypes {
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/user/api-keys'
+    | '/lovable/email/transactional/preview'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -729,6 +741,7 @@ export interface FileRouteTypes {
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/evidence/$eventId'
     | '/api/public/user/api-keys'
+    | '/lovable/email/transactional/preview'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -760,6 +773,7 @@ export interface RootRouteChildren {
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1121,6 +1135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAccountRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/user/api-keys': {
       id: '/api/public/user/api-keys'
       path: '/public/user/api-keys'
@@ -1305,6 +1326,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
   ServiceSlugRoute: ServiceSlugRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

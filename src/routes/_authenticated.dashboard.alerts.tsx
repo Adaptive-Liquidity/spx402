@@ -417,8 +417,8 @@ function ChannelsPanel() {
     <div className="mt-6 space-y-6">
       <p className="max-w-xl text-sm leading-relaxed text-paper-muted">
         Alerts go where you tell them. Webhooks are signed with HMAC-SHA256 so you can prove the
-        notice came from us. Email and text need a sending domain and number that this deployment
-        does not have yet — they stay listed as unavailable rather than silently dropping notices.
+        notice came from us. Email alerts send from support@spx402.com. Text messages stay listed
+        as unavailable until a sending number is connected.
       </p>
 
       {err && (

@@ -50,8 +50,8 @@ export const CHANNEL_KINDS: {
   {
     kind: "email",
     label: "Email",
-    hint: "Needs a verified sending domain — not available yet.",
-    available: false,
+    hint: "Sent from support@spx402.com.",
+    available: true,
   },
   {
     kind: "sms",
