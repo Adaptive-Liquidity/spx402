@@ -53,13 +53,27 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const { data: agents } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, operator_verified, name, tagline, category, identifier_kind, executor_wallet, core_asset, aeon_cri_address, total_slashed_usd, active_bond_amount, escrow_success_rate, total_escrows_completed, total_escrows_failed",
+            "mint, operator_verified, grade, name, tagline, category, identifier_kind, executor_wallet, core_asset, aeon_cri_address, total_slashed_usd, active_bond_amount, escrow_success_rate, total_escrows_completed, total_escrows_failed",
           );
 
         if (!agents || agents.length === 0) {
           await heartbeat("scoring", true, Date.now() - started, "no agents");
           return Response.json({ ok: true, scored: 0 });
         }
+
+        // Subjects with a paid, unexpired badge get an on-chain EAS stamp
+        // whenever their grade actually changes. Monitoring is what the
+        // subscription buys — it never touches the grade itself.
+        const { data: subs } = await supabaseAdmin
+          .from("badge_subscriptions" as never)
+          .select("mint")
+          .eq("status", "active")
+          .gt("granted_until", new Date().toISOString());
+        const attestable = new Set(
+          ((subs ?? []) as unknown as Array<{ mint: string }>).map((s) => s.mint),
+        );
+        let attested = 0;
+
 
         let scored = 0;
         for (const a of agents) {

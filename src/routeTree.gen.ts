@@ -55,6 +55,7 @@ import { Route as ApiPublicCronReconcilerRouteImport } from './routes/api.public
 import { Route as ApiPublicCronProbeServicesRouteImport } from './routes/api.public.cron-probe-services'
 import { Route as ApiPublicCronFailureReconcilerRouteImport } from './routes/api.public.cron-failure-reconciler'
 import { Route as ApiPublicCronBackfillRouteImport } from './routes/api.public.cron-backfill'
+import { Route as ApiPublicCronAttesterHealthRouteImport } from './routes/api.public.cron-attester-health'
 import { Route as ApiPublicCronAlertDispatchRouteImport } from './routes/api.public.cron-alert-dispatch'
 import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public.admin-add-api-key'
@@ -311,6 +312,12 @@ const ApiPublicCronBackfillRoute = ApiPublicCronBackfillRouteImport.update({
   path: '/public/cron-backfill',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiPublicCronAttesterHealthRoute =
+  ApiPublicCronAttesterHealthRouteImport.update({
+    id: '/public/cron-attester-health',
+    path: '/public/cron-attester-health',
+    getParentRoute: () => ApiRoute,
+  } as any)
 const ApiPublicCronAlertDispatchRoute =
   ApiPublicCronAlertDispatchRouteImport.update({
     id: '/public/cron-alert-dispatch',
@@ -438,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
+  '/api/public/cron-attester-health': typeof ApiPublicCronAttesterHealthRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
@@ -500,6 +508,7 @@ export interface FileRoutesByTo {
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
+  '/api/public/cron-attester-health': typeof ApiPublicCronAttesterHealthRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
@@ -565,6 +574,7 @@ export interface FileRoutesById {
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
+  '/api/public/cron-attester-health': typeof ApiPublicCronAttesterHealthRoute
   '/api/public/cron-backfill': typeof ApiPublicCronBackfillRoute
   '/api/public/cron-failure-reconciler': typeof ApiPublicCronFailureReconcilerRoute
   '/api/public/cron-probe-services': typeof ApiPublicCronProbeServicesRoute
@@ -630,6 +640,7 @@ export interface FileRouteTypes {
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
+    | '/api/public/cron-attester-health'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-probe-services'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
+    | '/api/public/cron-attester-health'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-probe-services'
@@ -756,6 +768,7 @@ export interface FileRouteTypes {
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
+    | '/api/public/cron-attester-health'
     | '/api/public/cron-backfill'
     | '/api/public/cron-failure-reconciler'
     | '/api/public/cron-probe-services'
@@ -1138,6 +1151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCronBackfillRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/cron-attester-health': {
+      id: '/api/public/cron-attester-health'
+      path: '/public/cron-attester-health'
+      fullPath: '/api/public/cron-attester-health'
+      preLoaderRoute: typeof ApiPublicCronAttesterHealthRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-alert-dispatch': {
       id: '/api/public/cron-alert-dispatch'
       path: '/public/cron-alert-dispatch'
@@ -1292,6 +1312,7 @@ interface ApiRouteChildren {
   ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
   ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
   ApiPublicCronAlertDispatchRoute: typeof ApiPublicCronAlertDispatchRoute
+  ApiPublicCronAttesterHealthRoute: typeof ApiPublicCronAttesterHealthRoute
   ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
   ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
   ApiPublicCronProbeServicesRoute: typeof ApiPublicCronProbeServicesRoute
@@ -1324,6 +1345,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicAdminAddApiKeyRoute: ApiPublicAdminAddApiKeyRoute,
   ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicCronAlertDispatchRoute: ApiPublicCronAlertDispatchRoute,
+  ApiPublicCronAttesterHealthRoute: ApiPublicCronAttesterHealthRoute,
   ApiPublicCronBackfillRoute: ApiPublicCronBackfillRoute,
   ApiPublicCronFailureReconcilerRoute: ApiPublicCronFailureReconcilerRoute,
   ApiPublicCronProbeServicesRoute: ApiPublicCronProbeServicesRoute,
