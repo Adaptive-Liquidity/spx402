@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth";
 import { getWalletAuthMessage, verifyWalletSignature } from "@/lib/wallet-auth.functions";
+import { WalletPicker } from "@/components/WalletPicker";
+import type { DetectedWallet, InjectedProvider } from "@/lib/wallets";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
