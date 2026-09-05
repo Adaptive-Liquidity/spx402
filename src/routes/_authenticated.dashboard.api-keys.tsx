@@ -36,6 +36,8 @@ function ApiKeysPage() {
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
+  const [upgradeFor, setUpgradeFor] = useState<string | null>(null);
+
 
   const load = async () => {
     if (!user) return;
