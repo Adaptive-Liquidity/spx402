@@ -205,8 +205,8 @@ export function renderGradeCardPng(
   );
 
   const rowScale = Math.max(1, Math.round(s * 1.4));
-  const rowsTop = Math.round(height * 0.57);
-  const rowGap = Math.round(height * 0.082);
+  const rowsTop = Math.round(height * 0.545);
+  const rowGap = Math.round(height * 0.072);
   const valueX = pad + Math.round(width * 0.34);
   card.rows.forEach((row, i) => {
     const y = rowsTop + i * rowGap;

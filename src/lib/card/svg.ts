@@ -25,7 +25,7 @@ export function renderGradeCardSvg(
 
   const rows = card.rows
     .map((row, i) => {
-      const y = Math.round(height * 0.63) + i * Math.round(height * 0.082);
+      const y = Math.round(height * 0.63) + i * Math.round(height * 0.072);
       return `<text x="${pad}" y="${y}" font-size="${Math.round(26 * u)}" fill="${CARD_COLORS.mute}">${esc(row.label.toUpperCase())}</text>
   <text x="${pad + Math.round(width * 0.34)}" y="${y}" font-size="${Math.round(26 * u)}" fill="${CARD_COLORS.bone}">${esc(row.value.toUpperCase())}</text>`;
     })
