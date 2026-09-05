@@ -1,64 +1,101 @@
-# Homepage copy cleanup — institutional tone, multi-chain, simplified
+# Homepage — graphite terminal polish
 
-Goal: apply the provided polished copy to `/` (and its hero component) so the page reads like a clearinghouse, not a crypto project; strip Solana-only wording; keep every claim provable and every layout/component intact.
+Goal: keep the current sharp positioning, remove the emerald/pub feeling, and turn `/` into a restrained institutional terminal. The homepage stays data-led and multi-chain; no invented capabilities or decorative casino chrome.
 
-## 1. Hero (`src/components/spx/Hero.tsx`)
+## 1. Graphite design system
 
-- H1: `The on-chain reputation terminal for autonomous intelligence.`
-- Sub: `We provide verifiable proof of execution for the agent economy. No social metrics. No screenshots. We only rate what the chain can prove.`
-- Remove the mono kicker ("No screenshots. No promises…") — now redundant with the sub.
-- Eyebrow pill: `Live · Solana + Base · Every agent under watch` (multi-chain, still true).
-- Add the two primary actions directly under the sub, above the query console:
-  - `[ Connect Wallet ]` → `/login` (our connect/sign-in entry point)
-  - `[ Explore Terminal ]` → `/explore`
-- Query console, grade dial, and metrics strip stay exactly as-is.
+Replace the emerald-led core palette with the supplied restrained tokens, expressed as OKLCH values in `src/styles.css`:
 
-## 2. New band: "What we offer" (`src/routes/index.tsx`)
+- page `#08090B`
+- panels `#101114`
+- hairlines `#2A2D32`
+- primary type `#E7E2D6`
+- muted type `#8B9098`
+- metal accent `#C4A574`
+- failure/unverified `#C4453A`
+- pass `#7D9B8A`, reserved for AAA/pass states only
 
-A three-cell modular grid (same gap-px/bronze-frame pattern as the audiences grid), inserted after the Live Tape band, replacing the current "Talk is free." proof-chain band copy block. Cells, verbatim from the provided copy:
+Remove the green radial wash, emerald gradients, green glow, and green-tinted shadows. Preserve scanlines, engraving, aperture motion, typography, and the existing graphite/brutalist structure. Metal appears only on LIVE, ANALYZE, and the ticker; ordinary rules and labels remain grey.
 
-1. **The SPX Score — Verifiable Execution.** `An immutable grade based strictly on on-chain behavior. We index deposits, automated buybacks, and verifiable burns. If an agent breaks its programmed invariants, the score drops.`
-2. **The Verified Operator Badge.** `A cryptographic, dynamic trust seal for your agent. Embed the badge on your site; we back it with a tamper-proof Ethereum Attestation Service (EAS) receipt on Base. It costs more to fake than to earn.` — links to `/badge`.
-3. **Paid Agent Endpoints (x402).** `Machine-readable dossiers, scores, and execution evidence. Built for autonomous agent consumption via native USDC x402 settlement. Your bot pays per call; no human required.` — links to `/api`.
+Because these are shared semantic tokens, the palette correction will also remove green from the common header/footer and prevent old page components from reintroducing it. This pass otherwise changes homepage content only.
 
-## 3. Band: "How we grade" (simplified methodology)
+## 2. Header and ticker
 
-Replaces the "The tape never blinks / What SPX402 Catches" intro copy (the 15-pattern FailurePlate itself stays — it is real and specific):
+- Logo lockup: `REPUTATION TERMINAL · SOLANA + BASE`.
+- Keep `SYSTEM: NOMINAL`.
+- Signed-in Dashboard and signed-out Open Terminal controls become hairline/text treatments, not gold boxes.
+- Keep the full-bleed ticker as the only continuously moving metal element.
 
-- H2: `The tape is the only truth.`
-- Body: `SPX402 is a receipt compression algorithm. We evaluate observable on-chain execution. We do not measure token price, social momentum, vibes, or future promises.`
-- Four input rows above the plate (label + one line each, verbatim):
+## 3. Hero — keep the knife
+
+- Eyebrow uses the live indexed-agent count: `LIVE · SOLANA + BASE · {count} UNDER WATCH` (it will show `660` when the ledger count is 660 rather than freezing a stale number into copy).
+- H1: `Agents lie. The ledger doesn’t.`
+- H1b: `We read the ledger.`
+- Sub: `We grade what settled. Nothing else.`
+- No Connect Wallet or other hero button row.
+- Keep one query field and one metal `ANALYZE` action.
+- Replace the three heavy console tabs with quiet text links: `Tape` · `Methodology` · `Claim an agent`.
+- Move the 11px kicker below the complete query instrument: `NO SCREENSHOTS. NO PROMISES. JUST PROOF.`
+- Keep the aperture ingress, dial, query behavior, and responsive geometry; remove the green horizon/specular glow.
+
+## 4. Grade strip — make the evidence the screenshot
+
+- Double the strip height.
+- Grade D renders in blood red and receives its true data-proportional width; AAA–B remain dead grey except AAA may use the restrained pass token.
+- Labels show grade + count directly (for example `D 647`).
+- Remove gold dominance treatment and gold caption.
+- Keep SPX404/awaiting evidence visually separate and muted rather than presenting it as a healthy grade.
+
+## 5. Metrics — no empty theater
+
+- Numeric zero renders as `0`; remove `Awaiting first probe`.
+- Keep only cells backed by current live data.
+- Preserve the current four operational metrics and settlement sparkline; no fabricated values.
+
+## 6. What we offer — three live cells, not essays
+
+Replace the current long proof-intro presentation with three compact, live ledger cells:
+
+1. **Grade / unverified:** current grade distribution plus count of agents whose operator is not verified.
+2. **Last tape print:** newest available tape event and timestamp; honest `NO PRINT` state if none exists.
+3. **Bonded / slashed:** aggregate `activeBondAmount` and `totalSlashedUsd` from the loaded agents; `NO BOOK` when both are zero.
+
+The cells use data already loaded by the homepage. No new endpoint or table.
+
+## 7. How we grade
+
+- H2: `If it didn’t settle, it didn’t happen.`
+- Positioning: `SPX402 evaluates observable on-chain execution. We do not measure token price, social momentum, vibes, or future promises.`
+- Four concise inputs:
   - Deposit Consistency — Regularity of capital flowing into the agent.
   - Execution Rate — Ratio of successful buybacks within expected windows.
   - Burn Confirmation — Direct on-chain proof of destroyed supply.
   - Operator Identity — Wallet signature matching the on-chain creator.
+- Keep the 15-pattern failure plate below the inputs.
+- Keep the x402 settlement band as its own proof mechanism.
 
-The four-step PROOF_STEPS chain (escrow/receipt/bond/grade) is kept but its intro headline changes to the new "How we grade" framing; step bodies stay (they describe the x402 lane accurately).
+## 8. Operators
 
-## 4. Band: "For operators" (conversion)
+Replace the generic three-audience band with a focused conversion band:
 
-Replaces the three-audiences band ("Whoever you are, you need receipts."):
+- H2: `Unverified is the default. The badge is the exit.`
+- One short support line explaining that an operator signs once, claims the dossier, and can deploy the dynamic attested badge.
+- Primary action: `[ Claim Your Agent ]` → `/register`.
+- No routing, visibility, institutional adoption, or other capability claims the product does not currently support.
 
-- H2: `Stop begging for trust. Prove it on-chain.`
-- Body: `Institutions and autonomous capital networks do not invest in screenshots. They require cryptographic proof.`
-- Four numbered steps (verbatim): Sign Once · Claim Your Identity · Deploy the Badge · Access the Network.
-- CTA `[ Claim Your Agent ]` → `/register`.
-- **Accuracy edits to the provided copy** (we only publish what is true today): step 4 line becomes `Access the Network: Verified agents earn the attested badge, an on-chain EAS receipt, and priority review in the verification queue.` — "order routing visibility" is not a shipped feature and is dropped.
+## 9. Keep, tighten, and de-Solana
 
-## 5. Kept as-is (still accurate, on-tone)
+- Keep the x402 band, grade taxonomy, API, pricing, featured agents, and final query CTA.
+- Sweep Solana-only homepage wording and examples; refer to Solana + Base or chain-neutral identifiers where appropriate.
+- Final CTA becomes `Paste the identifier.` rather than `Paste the mint.`
+- Remove `Thousands of agents… until today` and similar inflated copy.
+- Homepage metadata becomes chain-neutral and uses the retained hero line:
+  - Title: `SPX402 — On-Chain Reputation for Autonomous Agents`
+  - Description: `Agents lie. The ledger doesn’t. SPX402 grades settled execution, verifies operators, and exposes machine-readable evidence across Solana and Base.`
 
-- x402 Chain band ("Two chains. One question."), grade taxonomy ("Wall Street grades bonds."), API band, pricing preview, featured agents, final CTA. The final CTA gets a small multi-chain tweak: `Paste the identifier.` with supporting line covering mint / wallet / service.
-- Solana-only phrases are swept from homepage copy only; other routes keep their current wording for later passes.
+## Technical scope
 
-## 6. Head metadata (`src/routes/index.tsx`)
-
-- Title: `SPX402 — The On-Chain Reputation Terminal for Autonomous Intelligence`
-- Description: `Verifiable proof of execution for the agent economy. SPX402 grades agents on what the chain can prove — scores, operator badges on Base, and pay-per-call x402 endpoints.`
-- og:title / og:description updated to match.
-
-## Technical notes
-
-- Files touched: `src/components/spx/Hero.tsx`, `src/routes/index.tsx` only.
-- No layout, color, font, motion, or component changes; new bands reuse existing `BandSpine`, `Aperture`, grid-frame patterns. Renumber band spines (01–0x) after insertion/removal.
-- No new tables, endpoints, or dependencies. Metrics, tape, dial all still read live data.
-- Verification: `bunx tsgo --noEmit` clean, full vitest suite green (verbatim-copy test targets methodology/anomaly pages — expected unaffected), visual pass at desktop + mobile to confirm no line overflows its panel.
+- Primary files: `src/styles.css`, `src/components/spx/Hero.tsx`, `src/components/spx/GradeDial.tsx`, `src/components/spx/QueryConsole.tsx`, `src/components/spx/SiteHeader.tsx`, `src/components/spx/TickerTape.tsx`, `src/routes/index.tsx`.
+- Existing components and live loader data remain authoritative. No backend, schema, billing, scoring, or API changes.
+- Metadata on `/` will include title, description, `og:title`, `og:description`, `og:type`, and `twitter:card`.
+- Verify with the TypeScript check, full tests, and screenshots at desktop and mobile widths, including reduced motion and zero-data states.
