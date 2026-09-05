@@ -60,13 +60,13 @@ export function SiteHeader() {
             <>
               <Link
                 to="/login"
-                className="hidden px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper md:inline-flex"
+                className="hidden px-3 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper xl:inline-flex"
               >
                 Sign in
               </Link>
               <Link
                 to="/signup"
-                className="hidden border border-bronze px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted transition-colors hover:border-paper-muted hover:text-paper sm:inline-flex"
+                className="hidden border border-bronze px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted transition-colors hover:border-paper-muted hover:text-paper xl:inline-flex"
               >
                 Open Terminal
               </Link>

@@ -983,6 +983,9 @@
 }
 
 @layer components {
+  .metal-text {
+    color: var(--amber);
+  }
   .home-terminal .text-amber:not(.metal-text):not(.metal-action),
   .home-terminal .label-amber {
     color: var(--paper-muted);
