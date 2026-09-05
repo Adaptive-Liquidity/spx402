@@ -31,6 +31,10 @@ export const X402_CONFIG = {
   TIER_LIMITS,
 } as const;
 
+/** Base blocks are ~2s; 2 confirmations is cheap insurance against a reorg. */
+const MIN_CONFIRMATIONS = 2;
+
+
 function payToAddress(): string | null {
   const v = process.env["X402_PAY_TO_ADDRESS"];
   return v ? v.toLowerCase() : null;
