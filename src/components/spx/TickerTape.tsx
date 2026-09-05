@@ -43,11 +43,11 @@ export function TickerTape() {
   const stream = [...lines, ...lines, ...lines];
   return (
     <div
-      className="relative overflow-hidden border-y border-bronze/40 bg-panel-deep py-2"
+      className="relative overflow-hidden flex h-9 items-center border-y border-bronze/40 bg-panel-deep"
       role="marquee"
       aria-label="SPX402 live ticker"
     >
-      <div className="ticker-track gap-12 text-xs font-mono text-amber/90">
+      <div className="ticker-track gap-12 font-mono text-[12px] text-amber/90">
         {stream.map((line, i) => (
           <span key={i} className="inline-flex items-center gap-3 tracking-widest">
             <span aria-hidden className="text-bronze">

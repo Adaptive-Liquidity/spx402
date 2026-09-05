@@ -101,8 +101,8 @@ export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; sli
             <div className="viewfinder-console">
               <QueryConsole />
             </div>
-            <p className="inscribe mt-3 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-wire">
-              No screenshots. No promises. Just proof.
+            <p className="inscribe mt-4 text-center font-mono text-[12px] uppercase tracking-[0.18em] text-wire">
+              No screenshots.&nbsp; No promises.&nbsp; Just proof.
             </p>
             <div className="viewfinder-dial">
               <GradeDial slices={slices} />
