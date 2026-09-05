@@ -3,6 +3,8 @@ import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
 import { MetricCard } from "@/components/spx/MetricCard";
 import { Panel } from "@/components/spx/Panel";
+import { ShareCard } from "@/components/spx/ShareCard";
+import { buildGradeCard, cardImageUrl, cardShareTitle, SITE_ORIGIN } from "@/lib/grade-card";
 import { type Agent, type AgentEvent, type EventType, type Severity } from "@/lib/agents";
 import { categoryMeta } from "@/lib/agents/categories";
 import { fetchAgent } from "@/lib/agents-db";
@@ -976,9 +978,6 @@ function Dossier({
           <div className="mt-8 flex flex-wrap gap-3">
             <WatchlistButton mint={agent.mint} symbol={agent.symbol} />
             <AlertSubscribeButton mint={agent.mint} />
-            <button className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber">
-              <Share2 className="h-3.5 w-3.5" /> Share dossier
-            </button>
             {/* Wave 1c — machine-readable evidence bundle (Merkle-rooted). */}
             <a
               href={`/api/public/agent/${agent.mint}/evidence`}
@@ -1000,6 +999,10 @@ function Dossier({
               Embed widget ↗
             </a>
           </div>
+        </div>
+
+        <div className="lg:col-span-4 space-y-6">
+          <ShareCard card={buildGradeCard(agent)} />
         </div>
 
         <Panel className="lg:col-span-4" eyebrow="SPX Execution Score" title="Reputation pillars">
