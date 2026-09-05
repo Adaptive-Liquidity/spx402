@@ -9,6 +9,7 @@ export const sendChannelTest = createServerFn({ method: "POST" })
   .inputValidator((input: { channelId: string }) => ({ channelId: String(input.channelId) }))
   .handler(async ({ data, context }) => {
     const { deliverAlert, channelUnavailableReason } = await import("@/lib/alerts/deliver.server");
+    type Row = import("@/lib/alerts/deliver.server").AlertChannelRow;
 
     const { data: channel, error } = await context.supabase
       .from("alert_channels")
@@ -16,13 +17,14 @@ export const sendChannelTest = createServerFn({ method: "POST" })
       .eq("id", data.channelId)
       .maybeSingle();
     if (error || !channel) throw new Error("Channel not found");
+    const row = channel as unknown as Row;
 
-    const unavailable = channelUnavailableReason(channel.kind);
+    const unavailable = channelUnavailableReason(row.kind);
     if (unavailable) {
       return { ok: false, status: "skipped" as const, error: unavailable };
     }
 
-    const result = await deliverAlert(channel, {
+    const result = await deliverAlert(row, {
       event: "TEST_ALERT",
       mint: "SPX402TEST",
       occurredAt: new Date().toISOString(),
@@ -33,7 +35,7 @@ export const sendChannelTest = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.from("alert_deliveries").insert({
       user_id: context.userId,
-      channel_id: channel.id,
+      channel_id: row.id,
       status: result.status === "sent" ? "test" : "failed",
       event_type: "TEST_ALERT",
       http_status: result.httpStatus ?? null,
@@ -47,7 +49,7 @@ export const sendChannelTest = createServerFn({ method: "POST" })
         last_delivery_at: new Date().toISOString(),
         last_error: result.status === "sent" ? null : (result.error ?? null),
       })
-      .eq("id", channel.id);
+      .eq("id", row.id);
 
     return { ok: result.status === "sent", status: result.status, error: result.error ?? null };
   });
