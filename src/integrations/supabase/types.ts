@@ -881,6 +881,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_counters: {
+        Row: {
+          bucket: string
+          hits: number
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          updated_at?: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       watchlist: {
         Row: {
           created_at: string
@@ -1108,6 +1129,14 @@ export type Database = {
           total_calls: number
           used_this_month: number
           used_today: number
+        }[]
+      }
+      rate_limit_hit: {
+        Args: { p_bucket: string; p_limit: number; p_window_seconds: number }
+        Returns: {
+          allowed: boolean
+          hits: number
+          reset_at: string
         }[]
       }
       verify_cron_bearer: { Args: { p_token: string }; Returns: boolean }
