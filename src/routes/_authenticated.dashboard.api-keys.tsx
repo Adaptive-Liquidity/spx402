@@ -218,13 +218,15 @@ function ApiKeysPage() {
         </div>
       )}
 
-      {upgradeFor && (
+      {(upgradeFor || active.length === 0) && (
         <div className="panel-engraved space-y-4 p-5">
           <div>
-            <div className="label-amber">Upgrade with Base Pay</div>
+            <div className="label-amber">Plans · pay with USDC on Base</div>
             <p className="mt-2 max-w-xl text-sm text-paper-muted">
-              Pay in USDC on Base and this key jumps to the plan quota for 30 days. Payment buys
-              quota and monitoring only — it never buys or changes an execution grade.
+              {upgradeFor
+                ? "Pay in USDC on Base and this key jumps to the plan quota for 30 days."
+                : "Pay in USDC on Base to start a 30-day plan. A key is issued for the plan automatically — you can also generate one above first."}{" "}
+              Payment buys quota and monitoring only — it never buys or changes an execution grade.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -254,12 +256,14 @@ function ApiKeysPage() {
               </div>
             ))}
           </div>
-          <button
-            onClick={() => setUpgradeFor(null)}
-            className="font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:text-amber"
-          >
-            Cancel
-          </button>
+          {upgradeFor && (
+            <button
+              onClick={() => setUpgradeFor(null)}
+              className="font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:text-amber"
+            >
+              Cancel
+            </button>
+          )}
         </div>
       )}
 

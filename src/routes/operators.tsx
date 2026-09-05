@@ -135,6 +135,12 @@ function OperatorsPage() {
           <div className="mt-6">
             <BadgeSubscribe />
           </div>
+          <Link
+            to="/badge"
+            className="mt-5 inline-flex font-mono text-[11px] uppercase tracking-widest text-amber hover:underline"
+          >
+            How the live badge works →
+          </Link>
         </div>
       </section>
 

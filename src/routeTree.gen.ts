@@ -24,6 +24,7 @@ import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AboutRouteImport } from './routes/about'
@@ -146,6 +147,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BadgeRoute = BadgeRouteImport.update({
+  id: '/badge',
+  path: '/badge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRoute = ApiRouteImport.update({
@@ -415,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
+  '/badge': typeof BadgeRoute
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
@@ -479,6 +486,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
+  '/badge': typeof BadgeRoute
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
@@ -544,6 +552,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
+  '/badge': typeof BadgeRoute
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
@@ -610,6 +619,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/alerts'
     | '/api'
+    | '/badge'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
@@ -674,6 +684,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/alerts'
     | '/api'
+    | '/badge'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
@@ -738,6 +749,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/alerts'
     | '/api'
+    | '/badge'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
@@ -804,6 +816,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
+  BadgeRoute: typeof BadgeRoute
   ChangelogRoute: typeof ChangelogRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
@@ -932,6 +945,13 @@ declare module '@tanstack/react-router' {
       path: '/changelog'
       fullPath: '/changelog'
       preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/badge': {
+      id: '/badge'
+      path: '/badge'
+      fullPath: '/badge'
+      preLoaderRoute: typeof BadgeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api': {
@@ -1393,6 +1413,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
+  BadgeRoute: BadgeRoute,
   ChangelogRoute: ChangelogRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
