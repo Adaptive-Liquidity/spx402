@@ -256,12 +256,14 @@ function ApiKeysPage() {
               </div>
             ))}
           </div>
-          <button
-            onClick={() => setUpgradeFor(null)}
-            className="font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:text-amber"
-          >
-            Cancel
-          </button>
+          {upgradeFor && (
+            <button
+              onClick={() => setUpgradeFor(null)}
+              className="font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:text-amber"
+            >
+              Cancel
+            </button>
+          )}
         </div>
       )}
 
