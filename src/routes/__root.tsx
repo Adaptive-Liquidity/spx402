@@ -90,7 +90,7 @@ export const Route = createRootRoute({
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
       },
     ],
   }),
