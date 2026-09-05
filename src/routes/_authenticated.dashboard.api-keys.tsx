@@ -7,7 +7,6 @@ import {
   revokeApiKey,
   TIER_LIMITS,
   type ApiKeyRow,
-  type ApiTier,
 } from "@/lib/api-keys";
 import { EmptyState } from "@/components/spx/EmptyState";
 import { CopyButton } from "@/components/spx/CopyButton";
@@ -35,7 +34,6 @@ function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKeyRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [tier, setTier] = useState<ApiTier>("free");
   const [creating, setCreating] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
 
@@ -59,7 +57,7 @@ function ApiKeysPage() {
     setCreating(true);
     setError(null);
     try {
-      const { row, secret: raw } = await createApiKey(user.id, name, tier);
+      const { row, secret: raw } = await createApiKey(name);
       setKeys((prev) => [row, ...(prev ?? [])]);
       setSecret(raw);
       setName("");
@@ -132,16 +130,9 @@ function ApiKeysPage() {
             className="mt-2 w-full border border-bronze/50 bg-panel-deep/60 px-3 py-2 font-mono text-sm text-paper outline-none focus:border-amber"
           />
         </label>
-        <label>
-          <span className="label-mono">Tier</span>
-          <select
-            value={tier}
-            onChange={(e) => setTier(e.target.value as ApiTier)}
-            className="mt-2 border border-bronze/50 bg-panel-deep/60 px-3 py-2 font-mono text-sm text-paper outline-none focus:border-amber"
-          >
-            <option value="free">Free · {TIER_LIMITS.free}/day</option>
-          </select>
-        </label>
+        <div className="pb-1 font-mono text-[10px] uppercase tracking-widest text-wire">
+          Free tier · {TIER_LIMITS.free}/day
+        </div>
         <button
           onClick={generate}
           disabled={creating}
