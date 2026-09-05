@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, KeyRound, AlertTriangle, Eye } from "lucide-react";
 import { Panel } from "@/components/spx/Panel";
+import { BadgeSubscribe } from "@/components/spx/BadgeSubscribe";
 
 export const Route = createFileRoute("/operators")({
   head: () => ({
