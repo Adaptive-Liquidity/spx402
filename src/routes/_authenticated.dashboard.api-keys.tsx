@@ -185,18 +185,27 @@ function ApiKeysPage() {
                   </td>
                   <td className="px-5 py-4 text-right">
                     {k.status === "active" ? (
-                      <button
-                        onClick={() => revoke(k.id)}
-                        className="border border-bronze/60 px-2.5 py-1.5 text-[10px] uppercase tracking-widest hover:border-critical hover:text-critical"
-                      >
-                        Revoke
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setUpgradeFor(upgradeFor === k.id ? null : k.id)}
+                          className="border border-bronze/60 px-2.5 py-1.5 text-[10px] uppercase tracking-widest hover:border-amber hover:text-amber"
+                        >
+                          Upgrade
+                        </button>
+                        <button
+                          onClick={() => revoke(k.id)}
+                          className="border border-bronze/60 px-2.5 py-1.5 text-[10px] uppercase tracking-widest hover:border-critical hover:text-critical"
+                        >
+                          Revoke
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-[10px] uppercase tracking-widest text-wire">
                         Revoked {fmtDate(k.revoked_at)}
                       </span>
                     )}
                   </td>
+
                 </tr>
               ))}
             </tbody>
