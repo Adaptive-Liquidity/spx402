@@ -40,6 +40,7 @@ export const Route = createRootRoute({
           "Verify tokenized agent deposits, buybacks, burns, anomalies, and operator execution. No hype. Just receipts.",
       },
       { name: "author", content: "SPX402" },
+      { name: "base:app_id", content: "6a9bfa7f5b96801a9c026083" },
       { property: "og:title", content: "SPX402 — Execution Grade for Tokenized AI Agents" },
       {
         property: "og:description",
