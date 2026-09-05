@@ -10,6 +10,9 @@ import {
 } from "@/lib/api-keys";
 import { EmptyState } from "@/components/spx/EmptyState";
 import { CopyButton } from "@/components/spx/CopyButton";
+import { BasePayButton } from "@/components/spx/BasePayButton";
+import { PLANS, formatUsdc, type PlanId } from "@/lib/plans";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/api-keys")({
   head: () => ({
