@@ -2,7 +2,7 @@
 // Used by the badge route and in-page embeds (browsers render SVG fine; link
 // unfurlers do not, which is what the PNG route is for).
 
-import { CARD_COLORS, type GradeCardModel } from "/dev-server/src/lib/grade-card";
+import { CARD_COLORS, type GradeCardModel } from "@/lib/grade-card";
 
 function esc(s: string): string {
   return s
