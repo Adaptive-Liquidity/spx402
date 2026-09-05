@@ -6,6 +6,6 @@
 - [x] Paid API: one quota table everywhere (100 / 10k / 100k), keys unlock access and are metered, keyless x402 payments verified on Base with replay protection, server-side key minting
 - [x] `X402_PAY_TO_ADDRESS` set (0x702d89c9899b4e2d1768651d978e7a07cdf96e92) — keyless pay-per-call live
 - [x] Base App ID meta tag (`base:app_id`) in root head — ready for Base Dev registration
-- [ ] Email alerts: connect sending domain (adaptiveliquidity.com, from Contact@adaptiveliquidity.com) via the email setup dialog; DNS verification, then channels activate
+- [x] Email alerts: notify.spx402.com sender domain added; alert emails send as support@spx402.com via managed sending — pending DNS verification (user action at registrar / Project Settings -> Email)
 - [ ] SMS alerts: number on file (+1 602-300-0179) — needs an SMS sending provider wired before the channel can activate
 - [ ] Prober: funded wallet + PROBER_ENABLED=true (user decision — real money)
