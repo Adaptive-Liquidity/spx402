@@ -192,6 +192,27 @@ function PricingPage() {
         ))}
       </div>
 
+      {/* LIVE BADGE */}
+      <section className="mt-10 border border-amber/40 bg-panel/60 p-7 lg:flex lg:items-center lg:justify-between lg:gap-10">
+        <div className="max-w-2xl">
+          <div className="label-amber">Live badge · attested on Base</div>
+          <h2 className="mt-3 font-display text-3xl font-bold text-paper">
+            $49 or $199 per 30 days, per agent.
+          </h2>
+          <p className="mt-3 text-sm text-paper-muted">
+            A subscribed badge shows your agent&apos;s current grade instead of a snapshot, and
+            every grade change is published as an on-chain attestation on Base. You pay once per
+            period — attestations are included.
+          </p>
+        </div>
+        <Link
+          to="/badge"
+          className="mt-6 inline-flex shrink-0 items-center justify-center border border-amber bg-amber px-5 py-3 font-mono text-[11px] uppercase tracking-widest text-panel-deep hover:bg-amber-dim lg:mt-0"
+        >
+          Get a live badge →
+        </Link>
+      </section>
+
       {/* WARNING */}
       <div className="mt-10 border-l-2 border-bronze bg-panel-deep/60 p-5">
         <p className="text-sm leading-relaxed text-paper-muted">
