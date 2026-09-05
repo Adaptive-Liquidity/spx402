@@ -43,7 +43,19 @@ export const Route = createFileRoute("/service/$slug")({
             "Every probe SPX402 has run against this x402 service, with outcome, latency and paid transaction.",
         },
         { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary" },
+        { name: "twitter:card", content: "summary_large_image" },
+        ...(d?.service.payee
+          ? [
+              {
+                property: "og:image",
+                content: `https://spx402.com/api/public/og/${d.service.payee}.png`,
+              },
+              {
+                name: "twitter:image",
+                content: `https://spx402.com/api/public/og/${d.service.payee}.png`,
+              },
+            ]
+          : []),
       ],
     };
   },
