@@ -69,14 +69,16 @@ export const getWalletAuthMessage = createServerFn({ method: "POST" })
     } as never);
 
     const nonce = crypto.randomUUID().replace(/-/g, "");
+    const message = buildMessage(data.wallet, nonce, data.origin);
     const { error } = await sb.from("wallet_auth_nonces" as never).upsert({
       wallet: data.wallet,
       nonce,
+      message,
       expires_at: new Date(Date.now() + NONCE_TTL_MS).toISOString(),
     } as never);
     if (error) throw new Error("Could not create sign-in challenge");
 
-    return { message: buildMessage(data.wallet, nonce, data.origin) };
+    return { message };
   });
 
 export const verifyWalletSignature = createServerFn({ method: "POST" })
@@ -95,18 +97,20 @@ export const verifyWalletSignature = createServerFn({ method: "POST" })
     // Burn the nonce first — one challenge, one attempt window.
     const { data: nonceRow } = await sb
       .from("wallet_auth_nonces" as never)
-      .select("nonce, expires_at")
+      .select("nonce, message, expires_at")
       .eq("wallet", data.wallet)
       .maybeSingle();
     await sb.from("wallet_auth_nonces" as never).delete().eq("wallet", data.wallet);
 
-    const row = nonceRow as { nonce: string; expires_at: string } | null;
+    const row = nonceRow as { nonce: string; message: string | null; expires_at: string } | null;
     if (!row) throw new Error("No sign-in challenge found — request a new one");
     if (new Date(row.expires_at).getTime() < Date.now()) {
       throw new Error("Sign-in challenge expired — request a new one");
     }
 
-    const message = buildMessage(data.wallet, row.nonce, data.origin);
+    // Verify against the exact issued message, byte-for-byte (fallback:
+    // rebuild for challenges issued before message storage shipped).
+    const message = row.message ?? buildMessage(data.wallet, row.nonce, data.origin);
     const rpcUrl = process.env["BASE_RPC_URL"] ?? "https://mainnet.base.org";
     const client = createPublicClient({ chain: base, transport: http(rpcUrl) });
 
