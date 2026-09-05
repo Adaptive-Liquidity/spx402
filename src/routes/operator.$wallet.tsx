@@ -18,6 +18,16 @@ export const Route = createFileRoute("/operator/$wallet")({
         property: "og:description",
         content: "Multi-agent operator profile. Aggregate execution. Public accountability.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        property: "og:image",
+        content: `https://spx402.com/api/public/og/${params.wallet}.png`,
+      },
+      {
+        name: "twitter:image",
+        content: `https://spx402.com/api/public/og/${params.wallet}.png`,
+      },
     ],
   }),
   loader: async ({ params }) => {
