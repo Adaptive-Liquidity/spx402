@@ -122,7 +122,7 @@ export const verifyWalletSignature = createServerFn({ method: "POST" })
         message,
         signature: data.signature as `0x${string}`,
       });
-      if (!valid) console.error("[wallet-auth] verifyMessage false", JSON.stringify({ wallet: data.wallet, origin: data.origin, message, sig: data.signature }).slice(0, 600));
+      if (!valid) console.error("[wallet-auth] verifyMessage false", data.wallet);
     } catch (e) {
       console.error("[wallet-auth] verifyMessage threw:", String(e).slice(0, 300));
       valid = false;
