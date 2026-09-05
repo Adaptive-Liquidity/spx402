@@ -22,7 +22,7 @@ export function SiteHeader() {
               SPX402<span className="text-amber">.</span>
             </div>
             <div className="label-mono mt-0.5 hidden text-[9px] sm:block">
-              REPUTATION TERMINAL · SOLANA MAINNET
+              REPUTATION TERMINAL · SOLANA + BASE
             </div>
           </div>
         </Link>
@@ -52,7 +52,7 @@ export function SiteHeader() {
           {session ? (
             <Link
               to="/dashboard"
-              className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber hover:text-panel-deep"
+              className="border border-bronze px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted transition-colors hover:border-paper-muted hover:text-paper"
             >
               Dashboard
             </Link>
@@ -66,7 +66,7 @@ export function SiteHeader() {
               </Link>
               <Link
                 to="/signup"
-                className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber transition-colors hover:bg-amber hover:text-panel-deep"
+                className="hidden border border-bronze px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted transition-colors hover:border-paper-muted hover:text-paper sm:inline-flex"
               >
                 Open Terminal
               </Link>

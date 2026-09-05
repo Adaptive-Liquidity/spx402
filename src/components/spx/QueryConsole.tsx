@@ -100,7 +100,7 @@ export function QueryConsole() {
 
         <button
           type="submit"
-          className="border-l border-bronze/60 bg-amber/10 px-7 font-mono text-xs uppercase tracking-[0.2em] text-amber transition-colors hover:bg-amber hover:text-panel-deep"
+          className="metal-action border-l border-bronze/60 bg-amber/10 px-7 font-mono text-xs uppercase tracking-[0.2em] text-amber transition-colors hover:bg-amber hover:text-panel-deep"
         >
           Analyze
         </button>
@@ -108,16 +108,15 @@ export function QueryConsole() {
 
       <span className="console-beam" aria-hidden />
 
-      {/* mechanical escape tab, cut into the bottom border */}
-      <div className="console-tabrail">
-        <Link to="/leaderboard" className="console-tab">
-          Browse the leaderboard
+      <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 border-t border-bronze/60 px-4 py-3">
+        <Link to="/tape" className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper">
+          Tape
         </Link>
-        <Link to="/methodology" className="console-tab">
+        <Link to="/methodology" className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper">
           Methodology
         </Link>
-        <Link to="/register" className="console-tab is-primary">
-          Register an agent
+        <Link to="/register" className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper">
+          Claim an agent
         </Link>
       </div>
     </form>

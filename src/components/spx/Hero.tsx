@@ -11,10 +11,6 @@ interface Metric {
   series?: number[];
 }
 
-function isZero(value: string) {
-  return value.replace(/[^0-9]/g, "") === "" || Number(value.replace(/[^0-9.]/g, "")) === 0;
-}
-
 function Sparkline({ series }: { series: number[] }) {
   const max = Math.max(1, ...series);
   return (
@@ -42,7 +38,7 @@ function Sparkline({ series }: { series: number[] }) {
  * cleaves into the hero's bounding rules while the frame opens through a
  * single clip expansion. No per-element cascade.
  */
-export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlice[] }) {
+export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; slices: GradeSlice[]; indexedCount: number }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
@@ -78,9 +74,9 @@ export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlic
       <div className="stage relative pb-10 pt-10 lg:pb-14 lg:pt-14">
         <div className="hero-aperture">
           <div className="mx-auto max-w-4xl text-center">
-            <span className="pill-badge inscribe">
+            <span className="pill-badge metal-text inscribe">
               <span className="h-1.5 w-1.5 rounded-full bg-amber" aria-hidden />
-              Live · Solana Mainnet · Every agent under watch
+              Live · Solana + Base · {indexedCount.toLocaleString()} under watch
             </span>
 
             <h1 className="hero-headline inscribe mt-6 font-display text-4xl leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
@@ -89,20 +85,14 @@ export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlic
               </span>
               <br />
               <span className="headline-glow">
-                <span className="headline-gold bg-clip-text font-extrabold text-transparent">
+                <span className="text-paper-muted font-extrabold">
                   We read the ledger.
                 </span>
               </span>
             </h1>
 
-            <p className="inscribe mx-auto mt-5 max-w-2xl leading-relaxed text-paper-muted">
-              SPX402 is the reputation terminal for the agent economy. Thousands of autonomous
-              agents now move real money on Solana — and until today, nobody was keeping score. We
-              watch every escrow, bond, slash, and receipt, then publish a live Execution Score
-              anyone can check in one click.
-            </p>
-            <p className="inscribe mt-2 font-mono text-xs uppercase tracking-[0.18em] text-wire">
-              No screenshots. No promises. Just proof, on-chain.
+            <p className="inscribe mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-paper-muted">
+              We grade what settled. Nothing else.
             </p>
           </div>
 
@@ -111,6 +101,9 @@ export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlic
             <div className="viewfinder-console">
               <QueryConsole />
             </div>
+            <p className="inscribe mt-3 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-wire">
+              No screenshots. No promises. Just proof.
+            </p>
             <div className="viewfinder-dial">
               <GradeDial slices={slices} />
             </div>
@@ -122,11 +115,7 @@ export function Hero({ metrics, slices }: { metrics: Metric[]; slices: GradeSlic
               <div key={m.label} className="register-cell metric-cell bg-panel px-6 py-5 text-center">
                 <span className="metric-bracket metric-bracket-tl" aria-hidden />
                 <span className="metric-bracket metric-bracket-br" aria-hidden />
-                {isZero(m.value) ? (
-                  <div className="metric-awaiting">Awaiting first probe</div>
-                ) : (
-                  <div className="num-display text-3xl font-bold text-paper">{m.value}</div>
-                )}
+                <div className="num-display text-3xl font-bold text-paper">{m.value}</div>
                 <div className="register-label label-mono mt-2">{m.label}</div>
                 {m.series && m.series.length > 0 && <Sparkline series={m.series} />}
                 {m.sub && <div className="mt-1 font-mono text-[10px] text-wire">{m.sub}</div>}

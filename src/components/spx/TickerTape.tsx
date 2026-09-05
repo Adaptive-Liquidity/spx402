@@ -4,7 +4,7 @@ import { fetchProberTickerLines } from "@/lib/prober-data";
 
 const FALLBACK_LINES = [
   "SPX402 · pre-launch · indexer warming up",
-  "Awaiting first verified executions on-chain",
+  "Awaiting first verified settlement",
   "Methodology v0.1.7 · operator weight 5%",
   "Helius webhook bus · armed",
   "Reconciler · standing by",

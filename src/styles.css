@@ -59,64 +59,63 @@
 :root {
   --radius: 0.25rem;
 
-  /* Core surfaces — Ledger Emerald */
-  --background: oklch(0.155 0.018 168);
-  --foreground: oklch(0.955 0.018 95);
+  /* Core surfaces — graphite, bone, one restrained metal accent */
+  --background: oklch(0.1395 0.0048 262.8);
+  --foreground: oklch(0.9134 0.017 88);
 
-  --panel: oklch(0.205 0.024 168);
-  --panel-deep: oklch(0.115 0.016 168);
+  --panel: oklch(0.1779 0.0064 271);
+  --panel-deep: oklch(0.1395 0.0048 262.8);
 
-  --card: oklch(0.205 0.024 168);
-  --card-foreground: oklch(0.955 0.018 95);
+  --card: oklch(0.1779 0.0064 271);
+  --card-foreground: oklch(0.9134 0.017 88);
 
-  --popover: oklch(0.175 0.02 168);
-  --popover-foreground: oklch(0.955 0.018 95);
+  --popover: oklch(0.1779 0.0064 271);
+  --popover-foreground: oklch(0.9134 0.017 88);
 
-  --primary: oklch(0.755 0.108 90); /* ledger gold #C9A84C */
-  --primary-foreground: oklch(0.115 0.016 168);
+  --primary: oklch(0.738 0.0747 78.6);
+  --primary-foreground: oklch(0.1395 0.0048 262.8);
 
-  --secondary: oklch(0.255 0.03 168);
-  --secondary-foreground: oklch(0.955 0.018 95);
+  --secondary: oklch(0.225 0.008 265);
+  --secondary-foreground: oklch(0.9134 0.017 88);
 
-  --muted: oklch(0.225 0.026 168);
-  --muted-foreground: oklch(0.74 0.016 95);
+  --muted: oklch(0.225 0.008 265);
+  --muted-foreground: oklch(0.6518 0.0132 259.8);
 
-  --accent: oklch(0.505 0.095 168); /* mid emerald #0D7A5F */
-  --accent-foreground: oklch(0.955 0.018 95);
+  --accent: oklch(0.2962 0.01 260.7);
+  --accent-foreground: oklch(0.9134 0.017 88);
 
-  --destructive: oklch(0.58 0.19 25);
-  --destructive-foreground: oklch(0.965 0.012 95);
+  --destructive: oklch(0.5654 0.1644 28.3);
+  --destructive-foreground: oklch(0.9134 0.017 88);
 
-  --border: oklch(0.325 0.042 168);
-  --input: oklch(0.255 0.03 168);
-  --ring: oklch(0.755 0.108 90);
+  --border: oklch(0.2962 0.01 260.7);
+  --input: oklch(0.225 0.008 265);
+  --ring: oklch(0.738 0.0747 78.6);
 
-  /* SPX402 named tokens — gold is reserved for grade, score, primary action */
-  --amber: oklch(0.755 0.108 90); /* ledger gold */
-  --amber-dim: oklch(0.60 0.085 90);
-  --paper: oklch(0.955 0.018 95); /* #F5F0E0 */
-  --paper-muted: oklch(0.745 0.016 95);
-  --critical: oklch(0.58 0.19 25);
-  --verified: oklch(0.66 0.135 163);
-  --wire: oklch(0.50 0.022 168);
-  --bronze: oklch(0.36 0.055 168); /* emerald rule */
-  --bronze-dim: oklch(0.265 0.036 168);
+  --amber: oklch(0.738 0.0747 78.6);
+  --amber-dim: oklch(0.53 0.04 78.6);
+  --paper: oklch(0.9134 0.017 88);
+  --paper-muted: oklch(0.6518 0.0132 259.8);
+  --critical: oklch(0.5654 0.1644 28.3);
+  --verified: oklch(0.6616 0.0419 160.2);
+  --wire: oklch(0.51 0.011 260.7);
+  --bronze: oklch(0.2962 0.01 260.7);
+  --bronze-dim: oklch(0.235 0.008 265);
 
-  /* Emerald scale */
-  --emerald-deep: oklch(0.345 0.078 166); /* #064E3B */
-  --emerald: oklch(0.505 0.095 168); /* #0D7A5F */
+  /* Legacy aliases resolve to neutral graphite. */
+  --emerald-deep: oklch(0.1779 0.0064 271);
+  --emerald: oklch(0.6518 0.0132 259.8);
   --color-emerald-deep: var(--emerald-deep);
   --color-emerald: var(--emerald);
 
   /* Gradients & effects */
-  --gradient-amber: linear-gradient(180deg, oklch(0.80 0.11 92), oklch(0.665 0.095 88));
-  --gradient-panel: linear-gradient(180deg, oklch(0.215 0.026 168), oklch(0.182 0.021 168));
-  --gradient-emerald: linear-gradient(135deg, oklch(0.345 0.078 166), oklch(0.185 0.026 168));
+  --gradient-amber: linear-gradient(180deg, oklch(0.76 0.072 79), oklch(0.66 0.058 77));
+  --gradient-panel: linear-gradient(180deg, oklch(0.188 0.007 270), oklch(0.164 0.006 267));
+  --gradient-emerald: linear-gradient(135deg, var(--panel), var(--panel-deep));
   --shadow-engraved:
-    inset 0 1px 0 oklch(0.42 0.06 168 / 45%), inset 0 -1px 0 oklch(0.08 0.01 168 / 70%),
-    0 1px 0 oklch(0.08 0.01 168 / 55%);
-  --shadow-elevated: 0 24px 60px -24px oklch(0.06 0.02 168 / 85%);
-  --shadow-amber-glow: 0 0 32px oklch(0.755 0.108 90 / 16%);
+    inset 0 1px 0 oklch(0.35 0.01 265 / 35%), inset 0 -1px 0 oklch(0.08 0.004 265 / 70%),
+    0 1px 0 oklch(0.08 0.004 265 / 55%);
+  --shadow-elevated: 0 24px 60px -24px oklch(0.06 0.004 265 / 85%);
+  --shadow-amber-glow: none;
 
   --scanlines: repeating-linear-gradient(
     0deg,
@@ -131,8 +130,8 @@
 
 .dark {
   /* SPX402 is dark by default; .dark is identical */
-  --background: oklch(0.155 0.018 168);
-  --foreground: oklch(0.955 0.018 95);
+  --background: oklch(0.1395 0.0048 262.8);
+  --foreground: oklch(0.9134 0.017 88);
 }
 
 @layer base {
@@ -149,9 +148,7 @@
   }
 
   body {
-    background-image:
-      var(--scanlines),
-      radial-gradient(ellipse 90% 50% at 50% -10%, oklch(0.345 0.078 166 / 42%), transparent 70%);
+    background-image: var(--scanlines);
     -webkit-font-smoothing: antialiased;
     background-attachment: fixed;
     min-height: 100vh;
@@ -467,7 +464,7 @@
     align-items: center;
     gap: 0.5rem;
     border: 1px solid var(--bronze);
-    background: oklch(0.24 0.03 168 / 70%);
+    background: color-mix(in oklab, var(--panel) 82%, transparent);
     border-radius: 999px;
     padding: 0.4rem 0.9rem;
     font-family: var(--font-mono);
@@ -571,9 +568,7 @@
   inset: -20% -10% auto -10%;
   height: 120%;
   pointer-events: none;
-  background:
-    radial-gradient(50% 45% at 50% 22%, oklch(0.505 0.095 168 / 30%), transparent 72%),
-    radial-gradient(38% 32% at 62% 12%, oklch(0.755 0.108 90 / 14%), transparent 70%);
+  background: none;
   filter: blur(12px);
   animation: aura-drift 18s ease-in-out infinite alternate;
 }
@@ -627,13 +622,7 @@
   .hero-band {
     --mx: 50%;
     --my: 40%;
-    background:
-      radial-gradient(
-        1100px 520px at var(--mx) var(--my),
-        oklch(0.345 0.078 166 / 26%),
-        transparent 70%
-      ),
-      var(--panel-deep);
+    background: var(--panel-deep);
     border-bottom: 1px solid var(--bronze-dim);
   }
 
@@ -759,11 +748,7 @@
   .guilloche-specular {
     position: absolute;
     inset: -20%;
-    background: radial-gradient(
-      620px 420px at var(--mx) var(--my),
-      oklch(0.755 0.108 90 / 9%),
-      transparent 68%
-    );
+    background: none;
     mix-blend-mode: screen;
     transition: background 0.5s ease-out;
   }
@@ -949,7 +934,7 @@
 @layer components {
   .caliper-track {
     display: flex;
-    height: 6px;
+    height: 12px;
     gap: 2px;
     border: 1px solid var(--bronze-dim);
     background: var(--panel-deep);
@@ -983,14 +968,12 @@
     letter-spacing: 0.16em;
     color: var(--wire);
   }
+  .caliper-label.is-failure { color: var(--critical); }
+  .caliper-label.is-pass { color: var(--verified); }
   .caliper-label em {
     font-style: normal;
     margin-left: 0.35rem;
     color: var(--paper-muted);
-  }
-  .caliper-label.is-dominant,
-  .caliper-label.is-dominant em {
-    color: var(--amber);
   }
   .caliper-caption {
     margin-top: 0.75rem;
@@ -1000,6 +983,19 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--wire);
+  }
+}
+
+@layer components {
+  .home-terminal .text-amber:not(.metal-text):not(.metal-action),
+  .home-terminal .label-amber {
+    color: var(--paper-muted);
+  }
+  .home-terminal .rule-amber {
+    background: var(--bronze-dim);
+  }
+  .home-terminal .frame-cell::after {
+    border-color: var(--bronze);
   }
 }
 
@@ -1125,17 +1121,13 @@
     inset: auto 0 0 0;
     height: 68%;
     pointer-events: none;
-    background: radial-gradient(
-      120% 100% at 50% 118%,
-      oklch(0.34 0.076 166 / 55%),
-      transparent 72%
-    );
+    background: none;
   }
   .hero-vignette {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(120% 90% at 50% 45%, transparent 45%, oklch(0.06 0.012 168 / 72%));
+    background: radial-gradient(120% 90% at 50% 45%, transparent 45%, oklch(0.06 0.004 265 / 72%));
   }
   .hero-aperture {
     transform: translateZ(0);
@@ -1148,15 +1140,7 @@
     position: relative;
     display: inline-block;
   }
-  .headline-glow::before {
-    content: "";
-    position: absolute;
-    inset: -18% -6%;
-    background: radial-gradient(60% 70% at 50% 50%, oklch(0.755 0.108 90 / 20%), transparent 70%);
-    filter: blur(14px);
-    pointer-events: none;
-    z-index: -1;
-  }
+  .headline-glow::before { content: none; }
   .guilloche-specular {
     animation: specular-drift 12s ease-in-out infinite alternate;
   }
