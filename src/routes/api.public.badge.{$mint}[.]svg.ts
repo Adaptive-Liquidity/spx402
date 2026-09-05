@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchAgent } from "@/lib/agents-db";
+import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 
 // Embeddable SVG badge for an agent.
 // Usage: <img src="https://spx402.com/api/public/badge/<MINT>.svg" />
@@ -9,7 +10,10 @@ import { fetchAgent } from "@/lib/agents-db";
 export const Route = createFileRoute("/api/public/badge/{$mint}.svg")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ params, request }) => {
+        const limited = await enforceRateLimit(request, RATE_LIMITS.badge);
+        if (limited.response) return limited.response;
+
         const mint = params.mint;
         const agent = await fetchAgent(mint).catch(() => null);
 
@@ -35,6 +39,7 @@ export const Route = createFileRoute("/api/public/badge/{$mint}.svg")({
             "Content-Type": "image/svg+xml; charset=utf-8",
             // 5 min edge cache, 1 hour stale-while-revalidate.
             "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=3600",
+            ...limited.headers,
           },
         });
       },

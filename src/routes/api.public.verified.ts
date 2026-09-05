@@ -19,6 +19,7 @@
 
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 
 const MAX_LIMIT = 200;
 const DEFAULT_LIMIT = 50;
@@ -27,6 +28,9 @@ export const Route = createFileRoute("/api/public/verified")({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        const limited = await enforceRateLimit(request, RATE_LIMITS.verifiedFeed);
+        if (limited.response) return limited.response;
+
         const url = new URL(request.url);
         const params = url.searchParams;
 
@@ -140,6 +144,7 @@ export const Route = createFileRoute("/api/public/verified")({
         return jsonResponse(body, 200, {
           // Snapshots refresh after scoring cron — 5min edge cache, 1h SWR.
           "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+          ...limited.headers,
         });
       },
       OPTIONS: async () =>

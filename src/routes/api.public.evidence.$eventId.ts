@@ -21,11 +21,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { canonicalJsonStringify, sha256Hex } from "@/lib/evidence/hash.server";
 import { isOcEventType } from "@/lib/indexer/oc-evidence.server";
+import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 
 export const Route = createFileRoute("/api/public/evidence/$eventId")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ params, request }) => {
+        const limited = await enforceRateLimit(request, RATE_LIMITS.evidence);
+        if (limited.response) return limited.response;
+
         const eventId = params.eventId;
         if (!isUuid(eventId)) {
           return errorJson(400, "invalid_event_id");
@@ -124,6 +128,7 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
             // Immutable evidence rows — safe to cache aggressively.
             "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
             "Access-Control-Allow-Origin": "*",
+            ...limited.headers,
           },
         });
       },
