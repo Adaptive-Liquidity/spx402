@@ -909,18 +909,21 @@ export type Database = {
         Row: {
           created_at: string
           expires_at: string
+          message: string | null
           nonce: string
           wallet: string
         }
         Insert: {
           created_at?: string
           expires_at: string
+          message?: string | null
           nonce: string
           wallet: string
         }
         Update: {
           created_at?: string
           expires_at?: string
+          message?: string | null
           nonce?: string
           wallet?: string
         }
