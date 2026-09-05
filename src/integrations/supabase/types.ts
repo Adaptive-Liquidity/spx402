@@ -305,6 +305,125 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_channels: {
+        Row: {
+          created_at: string
+          digest: string
+          id: string
+          kind: string
+          label: string
+          last_delivery_at: string | null
+          last_error: string | null
+          paused: boolean
+          secret: string | null
+          target: string
+          user_id: string
+          verified: boolean
+          verify_token: string | null
+        }
+        Insert: {
+          created_at?: string
+          digest?: string
+          id?: string
+          kind: string
+          label?: string
+          last_delivery_at?: string | null
+          last_error?: string | null
+          paused?: boolean
+          secret?: string | null
+          target: string
+          user_id: string
+          verified?: boolean
+          verify_token?: string | null
+        }
+        Update: {
+          created_at?: string
+          digest?: string
+          id?: string
+          kind?: string
+          label?: string
+          last_delivery_at?: string | null
+          last_error?: string | null
+          paused?: boolean
+          secret?: string | null
+          target?: string
+          user_id?: string
+          verified?: boolean
+          verify_token?: string | null
+        }
+        Relationships: []
+      }
+      alert_deliveries: {
+        Row: {
+          attempt: number
+          channel_id: string | null
+          created_at: string
+          error: string | null
+          event_id: string | null
+          event_type: string | null
+          http_status: number | null
+          id: string
+          mint: string | null
+          status: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          attempt?: number
+          channel_id?: string | null
+          created_at?: string
+          error?: string | null
+          event_id?: string | null
+          event_type?: string | null
+          http_status?: number | null
+          id?: string
+          mint?: string | null
+          status: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          attempt?: number
+          channel_id?: string | null
+          created_at?: string
+          error?: string | null
+          event_id?: string | null
+          event_type?: string | null
+          http_status?: number | null
+          id?: string
+          mint?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_deliveries_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "alert_channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alert_dispatch_state: {
+        Row: {
+          id: number
+          last_event_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          last_event_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          last_event_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alert_subscriptions: {
         Row: {
           channel: string
@@ -783,6 +902,39 @@ export type Database = {
           label?: string | null
           mint?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      x402_payments: {
+        Row: {
+          amount: number
+          chain: string
+          endpoint: string
+          pay_to: string
+          payer: string | null
+          resource: string | null
+          tx_hash: string
+          verified_at: string
+        }
+        Insert: {
+          amount: number
+          chain?: string
+          endpoint: string
+          pay_to: string
+          payer?: string | null
+          resource?: string | null
+          tx_hash: string
+          verified_at?: string
+        }
+        Update: {
+          amount?: number
+          chain?: string
+          endpoint?: string
+          pay_to?: string
+          payer?: string | null
+          resource?: string | null
+          tx_hash?: string
+          verified_at?: string
         }
         Relationships: []
       }
