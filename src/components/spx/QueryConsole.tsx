@@ -100,7 +100,7 @@ export function QueryConsole() {
 
         <button
           type="submit"
-          className="border-l border-bronze/60 bg-amber/10 px-7 font-mono text-xs uppercase tracking-[0.2em] text-amber transition-colors hover:bg-amber hover:text-panel-deep"
+          className="metal-action border-l border-bronze/60 bg-amber/10 px-7 font-mono text-xs uppercase tracking-[0.2em] text-amber transition-colors hover:bg-amber hover:text-panel-deep"
         >
           Analyze
         </button>

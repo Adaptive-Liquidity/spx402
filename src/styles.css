@@ -968,6 +968,8 @@
     letter-spacing: 0.16em;
     color: var(--wire);
   }
+  .caliper-label.is-failure { color: var(--critical); }
+  .caliper-label.is-pass { color: var(--verified); }
   .caliper-label em {
     font-style: normal;
     margin-left: 0.35rem;
@@ -981,6 +983,19 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--wire);
+  }
+}
+
+@layer components {
+  .home-terminal .text-amber:not(.metal-text):not(.metal-action),
+  .home-terminal .label-amber {
+    color: var(--paper-muted);
+  }
+  .home-terminal .rule-amber {
+    background: var(--bronze-dim);
+  }
+  .home-terminal .frame-cell::after {
+    border-color: var(--bronze);
   }
 }
 

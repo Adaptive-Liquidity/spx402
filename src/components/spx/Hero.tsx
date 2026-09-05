@@ -74,7 +74,7 @@ export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; sli
       <div className="stage relative pb-10 pt-10 lg:pb-14 lg:pt-14">
         <div className="hero-aperture">
           <div className="mx-auto max-w-4xl text-center">
-            <span className="pill-badge inscribe">
+            <span className="pill-badge metal-text inscribe">
               <span className="h-1.5 w-1.5 rounded-full bg-amber" aria-hidden />
               Live · Solana + Base · {indexedCount.toLocaleString()} under watch
             </span>

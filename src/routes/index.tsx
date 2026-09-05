@@ -142,7 +142,7 @@ const GRADES = [
 
 function BandSpine({ n, code, label }: { n: string; code: string; label: string }) {
   return (
-    <div>
+    <div className="home-terminal">
       <div className="band-spine">
         <b>{n}</b>
         <span>// {code}</span>
