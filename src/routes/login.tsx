@@ -77,20 +77,14 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     }
   };
 
-  interface InjectedEthereum {
-    request(args: { method: string; params?: unknown[] }): Promise<unknown>;
-  }
+  const [showWalletPicker, setShowWalletPicker] = useState(false);
 
-  const walletSignIn = async () => {
+  const walletSignIn = async (selected: DetectedWallet) => {
     setError(null);
     setInfo(null);
-    const eth = (window as unknown as { ethereum?: InjectedEthereum }).ethereum;
-    if (!eth) {
-      setError("No wallet found. Install Coinbase Wallet or any Base-compatible wallet.");
-      return;
-    }
     setBusy(true);
     try {
+      const eth: InjectedProvider = selected.provider;
       const accounts = (await eth.request({ method: "eth_requestAccounts" })) as string[];
       const wallet = accounts[0];
       if (!wallet) throw new Error("No wallet account selected.");
