@@ -789,6 +789,45 @@ export type Database = {
         }
         Relationships: []
       }
+      plan_purchases: {
+        Row: {
+          amount_usdc: number
+          api_key_id: string | null
+          chain: string
+          created_at: string
+          granted_until: string
+          id: string
+          payer: string | null
+          plan: string
+          tx_hash: string
+          user_id: string
+        }
+        Insert: {
+          amount_usdc: number
+          api_key_id?: string | null
+          chain?: string
+          created_at?: string
+          granted_until: string
+          id?: string
+          payer?: string | null
+          plan: string
+          tx_hash: string
+          user_id: string
+        }
+        Update: {
+          amount_usdc?: number
+          api_key_id?: string | null
+          chain?: string
+          created_at?: string
+          granted_until?: string
+          id?: string
+          payer?: string | null
+          plan?: string
+          tx_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       probe_run: {
         Row: {
           chain: string

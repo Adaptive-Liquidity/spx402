@@ -42,8 +42,8 @@ const TIERS = [
     price: "$49",
     cadence: "/month",
     body: "For serious holders, operators, and communities.",
-    cta: "Upgrade to Pro",
-    href: "/signup" as const,
+    cta: "Pay with USDC on Base",
+    href: "/dashboard/api-keys" as const,
     highlighted: true,
     features: [
       "Unlimited watchlist",
@@ -61,8 +61,8 @@ const TIERS = [
     price: "$149",
     cadence: "/month",
     body: "For protocols, funds, and multi-agent operators.",
-    cta: "Contact team",
-    href: "/signup" as const,
+    cta: "Pay with USDC on Base",
+    href: "/dashboard/api-keys" as const,
     features: [
       "Everything in Pro",
       "REST API access",
@@ -112,6 +112,10 @@ const FAQ = [
   {
     q: "Why is there a pay-per-call API?",
     a: "Agents will not browse dashboards. Agents will query other agents. The x402 API lets machine clients pay for a single response over HTTP without accounts or API key management. Settlement is always caller-funded — SPX402 sponsors no gas and runs no paymaster; callers and agents bring their own USDC and execution fees.",
+  },
+  {
+    q: "How do I pay?",
+    a: "Pro and Team are paid in USDC on Base from your own wallet, one tap from the API keys page in your dashboard. No wallet balance? Coinbase Onramp funds it with a card or Apple Pay. Payment buys quota, alerts, and monitoring — never a grade.",
   },
   {
     q: "Can I cancel anytime?",
