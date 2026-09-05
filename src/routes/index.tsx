@@ -12,6 +12,7 @@ import { FailurePlate } from "@/components/spx/FailurePlate";
 import { Guilloche } from "@/components/spx/Guilloche";
 import { CopyBlock } from "@/components/spx/CopyBlock";
 import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
+import { safe } from "@/lib/safe";
 import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -32,16 +33,58 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async () => {
+    // Each section degrades independently: a transient upstream error must
+    // never blank the homepage (previous behavior: one throw crashed the
+    // whole route).
+    const emptyStats: HomeStats = {
+      agentsIndexed: 0,
+      settlementsSolana: 0,
+      settlementsBase: 0,
+      servicesProbed: 0,
+      activeFacilitators: 0,
+    };
     const [agents, tape, stats] = await Promise.all([
-      fetchAllAgents(),
-      fetchTape({ limit: 18 }),
-      fetchHomeStats(),
+      safe<Agent[]>(fetchAllAgents(), []),
+      safe<TapeRow[]>(fetchTape({ limit: 18 }), []),
+      safe<HomeStats>(fetchHomeStats(), emptyStats),
     ]);
     return { agents, tape, stats };
   },
   staleTime: 30_000,
   component: HomePage,
+  errorComponent: HomeError,
 });
+
+function HomeError({ reset }: { reset: () => void }) {
+  return (
+    <div className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center">
+      <div className="border border-critical/70 bg-critical/10 px-4 py-2 font-mono text-xs uppercase tracking-widest text-critical">
+        Terminal degraded
+      </div>
+      <h1 className="mt-8 font-display text-4xl font-bold text-paper">
+        The ledger blinked. It does that never — almost.
+      </h1>
+      <p className="mt-4 max-w-lg font-mono text-sm text-paper-muted">
+        A data feed failed to answer. The chain is fine; our read of it hiccuped. Retry, or check
+        system status.
+      </p>
+      <div className="mt-8 flex gap-3">
+        <button
+          onClick={reset}
+          className="inline-flex border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
+          Retry
+        </button>
+        <a
+          href="/status"
+          className="inline-flex border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+        >
+          System status
+        </a>
+      </div>
+    </div>
+  );
+}
 
 const PROOF_STEPS = [
   {

@@ -218,7 +218,9 @@ export async function recordApiUsage(
   payer: string | null,
   status: "success" | "payment_required" | "rate_limited" | "error",
 ): Promise<void> {
-  if (!apiKeyId) return;
+  // Keyed calls record against the key; keyless paid calls record against the
+  // payer so the traction dashboard sees real network usage either way.
+  if (!apiKeyId && !payer) return;
   await admin().from("api_usage").insert({
     api_key_id: apiKeyId,
     endpoint,
@@ -250,8 +252,16 @@ export function createPaymentRequiredResponse(
     extra: {
       endpoint,
       spx402: true,
-      settlement: "Send USDC on Base to payTo, then retry with x-payment: <txHash>",
-      alternative: "Or send a free-tier API key as x-api-key",
+      settlement:
+        "Send USDC on Base to payTo (direct transfer or EIP-3009 transferWithAuthorization relayed by any facilitator), then retry with x-payment: <txHash>",
+      alternative: "Or send an API key as x-api-key",
+      // Explicit policy: SPX402 sponsors nothing. The caller funds their own
+      // USDC settlement and all execution/gas fees — no paymaster, no free
+      // compute, no subsidized gas envelopes.
+      gasPolicy:
+        "Caller-funded settlement only. SPX402 does not sponsor gas via any paymaster; callers and agents bring their own funds.",
+      inputSchema: getInputSchema(endpoint),
+      discoverable: true,
     },
   };
 
@@ -269,6 +279,22 @@ export function createPaymentRequiredResponse(
       },
     },
   );
+}
+
+function getInputSchema(endpoint: X402Endpoint): Record<string, unknown> {
+  return {
+    type: "object",
+    properties: {
+      mint: {
+        type: "string",
+        description:
+          "Agent identifier — Solana mint, MPL core asset, or executor wallet, depending on the agent's identifier_kind.",
+      },
+    },
+    required: ["mint"],
+    additionalProperties: false,
+    _endpoint: endpoint,
+  };
 }
 
 function getOutputSchema(endpoint: X402Endpoint): Record<string, unknown> {
@@ -416,8 +442,10 @@ export async function withX402Payment<T>(
     }
     try {
       const result = await handler({ payer: payment.payer ?? null });
+      await recordApiUsage(null, endpoint, payment.payer ?? null, "success");
       return ok(result);
     } catch {
+      await recordApiUsage(null, endpoint, payment.payer ?? null, "error");
       return new Response(JSON.stringify({ error: "Internal error" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },

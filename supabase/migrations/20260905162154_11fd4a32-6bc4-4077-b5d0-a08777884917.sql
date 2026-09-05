@@ -1,0 +1,1 @@
+ALTER TABLE public.wallet_auth_nonces ADD COLUMN IF NOT EXISTS message text;

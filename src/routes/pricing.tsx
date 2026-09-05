@@ -111,7 +111,7 @@ const FAQ = [
   },
   {
     q: "Why is there a pay-per-call API?",
-    a: "Agents will not browse dashboards. Agents will query other agents. The x402 API lets machine clients pay for a single response over HTTP without accounts or API key management.",
+    a: "Agents will not browse dashboards. Agents will query other agents. The x402 API lets machine clients pay for a single response over HTTP without accounts or API key management. Settlement is always caller-funded — SPX402 sponsors no gas and runs no paymaster; callers and agents bring their own USDC and execution fees.",
   },
   {
     q: "Can I cancel anytime?",

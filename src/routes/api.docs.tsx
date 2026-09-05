@@ -108,16 +108,58 @@ function ApiDocsPage() {
           </Panel>
           <Panel eyebrow="x402 Pay-per-Call">
             <p className="text-paper-muted">
-              No API key needed. Client receives HTTP 402 with payment quote, pays on Base, retries
-              with payment proof. Uses{" "}
+              No API key needed. Client receives HTTP 402 with payment quote, pays USDC on Base
+              (direct transfer or EIP-3009{" "}
+              <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">
+                transferWithAuthorization
+              </code>{" "}
+              relayed by any facilitator), retries with the settlement hash. Uses the{" "}
               <a href="https://x402.org" target="_blank" className="text-amber hover:underline">
                 x402 protocol
               </a>
               .
             </p>
+            <p className="mt-2 text-[12px] text-paper-muted">
+              <strong className="text-paper">Settlement is caller-funded.</strong> SPX402 sponsors
+              no gas — no paymaster, no free tier on pay-per-call, no subsidized compute. Callers
+              and agents supply their own USDC settlement and Base execution fees. One settlement
+              buys exactly one call.
+            </p>
             <pre className="mt-3 overflow-x-auto border border-bronze/50 bg-panel-deep p-3 font-mono text-[11px] leading-relaxed text-paper">
               {curl_x402}
             </pre>
+          </Panel>
+        </div>
+
+        <div className="mt-4">
+          <Panel eyebrow="Agent integrations — MCP + AgentKit">
+            <p className="text-paper-muted">
+              Agent runtimes (Claude, Cursor, ElizaOS, Agentic Wallets) can consume SPX402 natively
+              — no manual 402-retry or payment-signing code:
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] text-paper-muted">
+              <li>
+                <strong className="text-paper">Discovery manifest</strong> — the machine-readable
+                catalog of every paid resource lives at{" "}
+                <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">
+                  /.well-known/x402
+                </code>
+                , built for the x402 Bazaar.
+              </li>
+              <li>
+                <strong className="text-paper">MCP server</strong> — read-only Model Context
+                Protocol endpoint at{" "}
+                <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">
+                  /api/public/mcp
+                </code>{" "}
+                (streamable HTTP, no auth).
+              </li>
+              <li>
+                <strong className="text-paper">AgentKit action provider</strong> — open-source
+                package <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">@spx402/agentkit-action-provider</code>; it
+                handles the 402 → pay → retry dance from the agent's own wallet.
+              </li>
+            </ul>
           </Panel>
         </div>
       </div>

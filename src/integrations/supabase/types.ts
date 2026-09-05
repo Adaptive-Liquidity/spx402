@@ -857,6 +857,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          base_wallet: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -865,6 +866,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          base_wallet?: string | null
           created_at?: string
           display_name?: string | null
           id: string
@@ -873,6 +875,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          base_wallet?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -899,6 +902,30 @@ export type Database = {
           hits?: number
           updated_at?: string
           window_start?: string
+        }
+        Relationships: []
+      }
+      wallet_auth_nonces: {
+        Row: {
+          created_at: string
+          expires_at: string
+          message: string | null
+          nonce: string
+          wallet: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          message?: string | null
+          nonce: string
+          wallet: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          message?: string | null
+          nonce?: string
+          wallet?: string
         }
         Relationships: []
       }
