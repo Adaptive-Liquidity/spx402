@@ -582,6 +582,84 @@ export type Database = {
           },
         ]
       }
+      attestations: {
+        Row: {
+          attestation_uid: string
+          attester: string
+          created_at: string
+          grade: string | null
+          id: string
+          kind: string
+          mint: string
+          schema_uid: string
+          score: number | null
+          tx_hash: string | null
+        }
+        Insert: {
+          attestation_uid: string
+          attester: string
+          created_at?: string
+          grade?: string | null
+          id?: string
+          kind: string
+          mint: string
+          schema_uid: string
+          score?: number | null
+          tx_hash?: string | null
+        }
+        Update: {
+          attestation_uid?: string
+          attester?: string
+          created_at?: string
+          grade?: string | null
+          id?: string
+          kind?: string
+          mint?: string
+          schema_uid?: string
+          score?: number | null
+          tx_hash?: string | null
+        }
+        Relationships: []
+      }
+      badge_subscriptions: {
+        Row: {
+          amount_usdc: number
+          created_at: string
+          granted_until: string
+          id: string
+          mint: string
+          payer: string | null
+          status: string
+          tier: string
+          tx_hash: string
+          user_id: string
+        }
+        Insert: {
+          amount_usdc: number
+          created_at?: string
+          granted_until: string
+          id?: string
+          mint: string
+          payer?: string | null
+          status?: string
+          tier: string
+          tx_hash: string
+          user_id: string
+        }
+        Update: {
+          amount_usdc?: number
+          created_at?: string
+          granted_until?: string
+          id?: string
+          mint?: string
+          payer?: string | null
+          status?: string
+          tier?: string
+          tx_hash?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       candidate_agents: {
         Row: {
           category: string
@@ -669,6 +747,27 @@ export type Database = {
           type?: string
           updated_at?: string
           version?: string
+        }
+        Relationships: []
+      }
+      eas_schema: {
+        Row: {
+          created_at: string
+          schema_key: string
+          schema_uid: string
+          tx_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          schema_key: string
+          schema_uid: string
+          tx_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          schema_key?: string
+          schema_uid?: string
+          tx_hash?: string | null
         }
         Relationships: []
       }
