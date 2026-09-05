@@ -1,0 +1,1 @@
+revoke execute on function public.enqueue_candidate_agent(text) from anon, authenticated;

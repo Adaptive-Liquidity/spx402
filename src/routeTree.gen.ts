@@ -36,10 +36,12 @@ import { Route as EmbedSubjectRouteImport } from './routes/embed.$subject'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as DotwellKnownX402RouteImport } from './routes/[.]well-known/x402'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated.dashboard.index'
 import { Route as ApiPublicX402SelftestRouteImport } from './routes/api.public.x402-selftest'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
 import { Route as ApiPublicVerifiedRouteImport } from './routes/api.public.verified'
+import { Route as ApiPublicMcpRouteImport } from './routes/api/public/mcp'
 import { Route as ApiPublicIngestOcEvidenceRouteImport } from './routes/api.public.ingest-oc-evidence'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
@@ -203,6 +205,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const DotwellKnownX402Route = DotwellKnownX402RouteImport.update({
+  id: '/.well-known/x402',
+  path: '/.well-known/x402',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
@@ -222,6 +229,11 @@ const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
 const ApiPublicVerifiedRoute = ApiPublicVerifiedRouteImport.update({
   id: '/public/verified',
   path: '/public/verified',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiPublicMcpRoute = ApiPublicMcpRouteImport.update({
+  id: '/public/mcp',
+  path: '/public/mcp',
   getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicIngestOcEvidenceRoute =
@@ -404,6 +416,7 @@ export interface FileRoutesByFullPath {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
+  '/.well-known/x402': typeof DotwellKnownX402Route
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
@@ -431,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
+  '/api/public/mcp': typeof ApiPublicMcpRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -464,6 +478,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
+  '/.well-known/x402': typeof DotwellKnownX402Route
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
   '/embed/$subject': typeof EmbedSubjectRoute
@@ -490,6 +505,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
+  '/api/public/mcp': typeof ApiPublicMcpRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -525,6 +541,7 @@ export interface FileRoutesById {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
+  '/.well-known/x402': typeof DotwellKnownX402Route
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
@@ -552,6 +569,7 @@ export interface FileRoutesById {
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
+  '/api/public/mcp': typeof ApiPublicMcpRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -587,6 +605,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
+    | '/.well-known/x402'
     | '/dashboard'
     | '/agent/$mint'
     | '/api/docs'
@@ -614,6 +633,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
+    | '/api/public/mcp'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -647,6 +667,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
+    | '/.well-known/x402'
     | '/agent/$mint'
     | '/api/docs'
     | '/embed/$subject'
@@ -673,6 +694,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
+    | '/api/public/mcp'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -707,6 +729,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
+    | '/.well-known/x402'
     | '/_authenticated/dashboard'
     | '/agent/$mint'
     | '/api/docs'
@@ -734,6 +757,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-verify-candidates'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
+    | '/api/public/mcp'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -769,6 +793,7 @@ export interface RootRouteChildren {
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
+  DotwellKnownX402Route: typeof DotwellKnownX402Route
   AgentMintRoute: typeof AgentMintRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
@@ -967,6 +992,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/.well-known/x402': {
+      id: '/.well-known/x402'
+      path: '/.well-known/x402'
+      fullPath: '/.well-known/x402'
+      preLoaderRoute: typeof DotwellKnownX402RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/'
@@ -993,6 +1025,13 @@ declare module '@tanstack/react-router' {
       path: '/public/verified'
       fullPath: '/api/public/verified'
       preLoaderRoute: typeof ApiPublicVerifiedRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/public/mcp': {
+      id: '/api/public/mcp'
+      path: '/public/mcp'
+      fullPath: '/api/public/mcp'
+      preLoaderRoute: typeof ApiPublicMcpRouteImport
       parentRoute: typeof ApiRoute
     }
     '/api/public/ingest-oc-evidence': {
@@ -1246,6 +1285,7 @@ interface ApiRouteChildren {
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
+  ApiPublicMcpRoute: typeof ApiPublicMcpRoute
   ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
   ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
@@ -1276,6 +1316,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicIngestOcEvidenceRoute: ApiPublicIngestOcEvidenceRoute,
+  ApiPublicMcpRoute: ApiPublicMcpRoute,
   ApiPublicVerifiedRoute: ApiPublicVerifiedRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
   ApiPublicX402SelftestRoute: ApiPublicX402SelftestRoute,
@@ -1322,6 +1363,7 @@ const rootRouteChildren: RootRouteChildren = {
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
+  DotwellKnownX402Route: DotwellKnownX402Route,
   AgentMintRoute: AgentMintRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,

@@ -1,0 +1,16 @@
+{
+  "name": "@spx402/agentkit-action-provider",
+  "version": "1.0.0",
+  "description": "Coinbase AgentKit action provider for SPX402 — lets agent runtimes query execution grades and pay-per-call dossiers via x402 without manual payment plumbing.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "license": "MIT",
+  "keywords": ["agentkit", "x402", "base", "spx402", "agent-reputation"],
+  "peerDependencies": {
+    "@coinbase/agentkit": "^0.6.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

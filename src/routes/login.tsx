@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth";
+import { getWalletAuthMessage, verifyWalletSignature } from "@/lib/wallet-auth.functions";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -74,6 +75,40 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     }
   };
 
+  interface InjectedEthereum {
+    request(args: { method: string; params?: unknown[] }): Promise<unknown>;
+  }
+
+  const walletSignIn = async () => {
+    setError(null);
+    setInfo(null);
+    const eth = (window as unknown as { ethereum?: InjectedEthereum }).ethereum;
+    if (!eth) {
+      setError("No wallet found. Install Coinbase Wallet or any Base-compatible wallet.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const accounts = (await eth.request({ method: "eth_requestAccounts" })) as string[];
+      const wallet = accounts[0];
+      if (!wallet) throw new Error("No wallet account selected.");
+      const origin = window.location.origin;
+      const { message } = await getWalletAuthMessage({ data: { wallet, origin } });
+      const signature = (await eth.request({
+        method: "personal_sign",
+        params: [message, wallet],
+      })) as string;
+      const creds = await verifyWalletSignature({ data: { wallet, signature, origin } });
+      const { error: signInError } = await supabase.auth.signInWithPassword(creds);
+      if (signInError) throw signInError;
+      navigate({ to: "/dashboard" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Wallet sign-in failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="mx-auto flex max-w-md flex-col items-stretch px-4 py-16 lg:py-24">
       <div className="label-amber text-center">{isSignup ? "Open Terminal" : "Sign in"}</div>
@@ -142,6 +177,17 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {busy ? "…" : isSignup ? "Create account" : "Sign in"}
         </button>
         <div className="rule-bronze" />
+        <button
+          type="button"
+          onClick={walletSignIn}
+          disabled={busy}
+          className="flex w-full items-center justify-center gap-2 border border-amber/70 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
+        >
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+          {busy ? "…" : "Sign in with Base"}
+        </button>
         <button
           type="button"
           onClick={() => oauth("google")}
