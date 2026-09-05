@@ -13,23 +13,25 @@ import { Guilloche } from "@/components/spx/Guilloche";
 import { CopyBlock } from "@/components/spx/CopyBlock";
 import { fetchHomeStats, fetchTape, type HomeStats, type TapeRow } from "@/lib/live-data";
 import { safe } from "@/lib/safe";
-import { ArrowDownToLine, Repeat, Flame, Award, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SPX402 — The Credit Bureau for Solana's Agent Economy" },
+      { title: "SPX402 — On-Chain Reputation for Autonomous Agents" },
       {
         name: "description",
         content:
-          "Agents lie. The ledger doesn't. SPX402 watches every escrow, bond, slash, and receipt on-chain and publishes a live, verifiable Execution Score for every Solana agent.",
+          "Agents lie. The ledger doesn’t. SPX402 grades settled execution, verifies operators, and exposes machine-readable evidence across Solana and Base.",
       },
-      { property: "og:title", content: "SPX402 — The Credit Bureau for Solana's Agent Economy" },
+      { property: "og:title", content: "SPX402 — On-Chain Reputation for Autonomous Agents" },
       {
         property: "og:description",
         content:
-          "Agents lie. The ledger doesn't. Every escrow, bond, slash, and receipt — graded live. Proof, on-chain.",
+          "Agents lie. The ledger doesn’t. SPX402 grades settled execution across Solana and Base.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   loader: async () => {
@@ -86,30 +88,26 @@ function HomeError({ reset }: { reset: () => void }) {
   );
 }
 
-const PROOF_STEPS = [
+const GRADE_INPUTS = [
   {
-    icon: ArrowDownToLine,
-    title: "Escrow created",
-    body: "A buyer locks real funds on-chain. The promise starts costing something.",
-    code: "ESCROW_CREATED",
+    title: "Deposit Consistency",
+    body: "Regularity of capital flowing into the agent.",
+    code: "CAPITAL_FLOW",
   },
   {
-    icon: Repeat,
-    title: "Work completed",
-    body: "Escrow releases against a hash-chained receipt. Delivered, or it didn't happen.",
-    code: "ESCROW_RELEASED",
+    title: "Execution Rate",
+    body: "Ratio of successful buybacks within expected windows.",
+    code: "EXECUTION_RATE",
   },
   {
-    icon: Flame,
-    title: "Bond posted",
-    body: "Slashable capital stands behind the work. Fail, and it costs money — publicly.",
-    code: "BOND_DEPOSITED",
+    title: "Burn Confirmation",
+    body: "Direct on-chain proof of destroyed supply.",
+    code: "BURN_PROOF",
   },
   {
-    icon: Award,
-    title: "Grade assigned",
-    body: "The evidence becomes a public SPX Execution Score. Permanent. Verifiable. Yours to beat.",
-    code: "GRADE_PUBLISHED",
+    title: "Operator Identity",
+    body: "Wallet signature matching the on-chain creator.",
+    code: "IDENTITY_MATCH",
   },
 ];
 
@@ -129,24 +127,6 @@ const CATCHES = [
   "Facilitator config drift",
   "Delivery without settlement",
   "Probe/organic divergence",
-];
-
-const AUDIENCES = [
-  {
-    label: "Token communities",
-    title: "End the debate.",
-    body: "One public dossier. One URL. When someone asks if the agent actually works, drop the link and walk away.",
-  },
-  {
-    label: "Operators",
-    title: "Proof is your pitch.",
-    body: "A verified dossier outsells every thread you'll ever write. Catch failures before your holders do, and let your grade do the marketing.",
-  },
-  {
-    label: "Researchers & funds",
-    title: "Screen by evidence.",
-    body: "Filter the agent economy by observable execution — escrows settled, bonds slashed, receipts chained. Not screenshots. Not vibes.",
-  },
 ];
 
 const GRADES = [
@@ -205,10 +185,21 @@ function HomePage() {
     allAgents.reduce((m, a) => m.set(a.grade, (m.get(a.grade) ?? 0) + 1), new Map<Agent["grade"], number>()),
     ([grade, count]) => ({ grade, count }),
   );
+  const unverifiedCount = allAgents.filter((agent) => !agent.operatorVerified).length;
+  const totalBonded = allAgents.reduce((sum, agent) => sum + agent.activeBondAmount, 0);
+  const totalSlashed = allAgents.reduce((sum, agent) => sum + agent.totalSlashedUsd, 0);
+  const newestTape = tape[0];
+  const gradeSummary = gradeSlices
+    .filter((slice) => slice.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map((slice) => `${slice.grade.replace("SPX ", "")} ${slice.count}`)
+    .join(" · ");
   return (
     <div>
       <Hero
         slices={gradeSlices}
+        indexedCount={stats.agentsIndexed}
         metrics={[
           { value: stats.agentsIndexed.toLocaleString(), label: "Agents indexed" },
           {
@@ -230,28 +221,55 @@ function HomePage() {
         <div className="rule-amber" />
       </div>
 
+      {/* LIVE LEDGER CELLS */}
+      <Aperture as="section" className="stage py-16">
+        <BandSpine n="01" code="BOOK" label="What we offer" />
+        <div className="mt-8 grid gap-px border border-bronze/40 bg-bronze/40 lg:grid-cols-3">
+          <div className="bg-panel p-6">
+            <div className="label-mono">Grade / unverified</div>
+            <div className="mt-4 font-mono text-lg text-paper">{gradeSummary || "NO GRADES"}</div>
+            <div className="mt-2 font-mono text-xs uppercase text-critical">{unverifiedCount.toLocaleString()} unverified</div>
+          </div>
+          <div className="bg-panel p-6">
+            <div className="label-mono">Last tape print</div>
+            {newestTape ? (
+              <>
+                <div className="mt-4 font-mono text-lg text-paper">{newestTape.type.replaceAll("_", " ")}</div>
+                <div className="mt-2 font-mono text-xs text-wire">{new Date(newestTape.occurredAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC</div>
+              </>
+            ) : <div className="mt-4 font-mono text-lg text-wire">NO PRINT</div>}
+          </div>
+          <div className="bg-panel p-6">
+            <div className="label-mono">Bonded / slashed</div>
+            {totalBonded === 0 && totalSlashed === 0 ? (
+              <div className="mt-4 font-mono text-lg text-wire">NO BOOK</div>
+            ) : (
+              <div className="mt-4 font-mono text-lg text-paper">
+                {totalBonded.toLocaleString()} BONDED · ${totalSlashed.toLocaleString()} SLASHED
+              </div>
+            )}
+          </div>
+        </div>
+      </Aperture>
 
-      {/* PROOF CHAIN */}
+      {/* GRADE INPUTS */}
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <BandSpine n="01" code="ENGINE" label="How proof works" />
+            <BandSpine n="02" code="ENGINE" label="How we grade" />
             <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
-              Talk is free.{" "}
-              <span className="text-paper-muted">Proof has a price — we track who pays it.</span>
+              If it didn’t settle, it didn’t happen.
             </h2>
             <p className="mt-5 max-w-sm text-paper-muted">
-              Every agent on SPX402 is graded on the same four-step chain. Complete it and the
-              grade rises. Break it — anywhere, at 3 a.m., when nobody's watching — and the
-              whole market sees.
+              SPX402 evaluates observable on-chain execution. We do not measure token price,
+              social momentum, vibes, or future promises.
             </p>
           </div>
           <div className="lg:col-span-8">
             <ol className="grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2">
-              {PROOF_STEPS.map((s, i) => (
+              {GRADE_INPUTS.map((s, i) => (
                 <li key={s.title} className="frame-cell relative bg-panel p-6">
                   <div className="flex items-start justify-between">
-                    <s.icon className="h-6 w-6 text-amber" aria-hidden />
                     <span className="font-mono text-[10px] tracking-widest text-wire">
                       0{i + 1}
                     </span>
@@ -270,7 +288,7 @@ function HomePage() {
 
       {/* X402 PROOF CHAIN */}
       <Aperture as="section" className="stage pb-24">
-        <BandSpine n="02" code="SETTLEMENT" label="The x402 Chain" />
+        <BandSpine n="03" code="SETTLEMENT" label="The x402 Chain" />
         <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
           Two chains. One question. <span className="text-paper-muted">Did the money move?</span>
         </h2>
@@ -286,7 +304,7 @@ function HomePage() {
       {/* WHAT SPX402 CATCHES */}
       <section className="border-y border-bronze/40 plate-ground">
         <Aperture className="stage py-24">
-          <BandSpine n="03" code="DIAGNOSTICS" label="What SPX402 Catches" />
+          <BandSpine n="04" code="DIAGNOSTICS" label="What SPX402 Catches" />
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper">
             The tape never blinks.{" "}
             <span className="text-paper-muted">Fifteen failure patterns, caught on-chain.</span>
@@ -297,20 +315,17 @@ function HomePage() {
         </Aperture>
       </section>
 
-      {/* AUDIENCES */}
+      {/* OPERATORS */}
       <Aperture as="section" className="stage py-24">
-        <BandSpine n="04" code="AUDIENCE" label="Built for three users" />
+        <BandSpine n="05" code="OPERATORS" label="Operator verification" />
         <h2 className="mt-3 font-display text-4xl font-bold text-paper">
-          Whoever you are, you need receipts.
+          Unverified is the default. The badge is the exit.
         </h2>
-        <div className="mt-12 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
-          {AUDIENCES.map((a) => (
-            <div key={a.label} className="frame-cell bg-panel p-7">
-              <div className="label-amber">{a.label}</div>
-              <h3 className="mt-4 font-display text-2xl font-bold text-paper">{a.title}</h3>
-              <p className="mt-3 leading-relaxed text-paper-muted">{a.body}</p>
-            </div>
-          ))}
+        <div className="mt-6 flex flex-col items-start gap-6 border-y border-bronze/40 py-8 md:flex-row md:items-center md:justify-between">
+          <p className="max-w-2xl leading-relaxed text-paper-muted">
+            Sign once, claim the dossier, and deploy a dynamic badge backed by the same attested evidence.
+          </p>
+          <Link to="/register" className="btn-ghost shrink-0">[ Claim Your Agent ]</Link>
         </div>
       </Aperture>
 
@@ -533,7 +548,7 @@ function HomePage() {
         <Panel className="relative text-center" bodyClassName="px-6 py-16">
           <div className="label-amber">Final word</div>
           <h2 className="mt-4 font-display text-5xl font-bold text-paper sm:text-6xl">
-            Paste the mint.
+            Paste the identifier.
             <br />
             <span className="text-amber">See what it's hiding — or what it's worth.</span>
           </h2>
