@@ -1003,9 +1003,8 @@ function Dossier({
 
         <div className="lg:col-span-4 space-y-6">
           <ShareCard card={buildGradeCard(agent)} />
-        </div>
 
-        <Panel className="lg:col-span-4" eyebrow="SPX Execution Score" title="Reputation pillars">
+        <Panel eyebrow="SPX Execution Score" title="Reputation pillars">
           <div className="flex flex-col items-center">
             <TransparencyScoreRing score={agent.score} />
           </div>
@@ -1036,6 +1035,7 @@ function Dossier({
             Pillars compose the SPX Execution Score. Methodology · {SCORING_VERSION}
           </div>
         </Panel>
+        </div>
       </div>
 
       {/* CATEGORY + CLAIM STRIP */}
