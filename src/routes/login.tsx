@@ -175,15 +175,20 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <div className="rule-bronze" />
         <button
           type="button"
-          onClick={walletSignIn}
+          onClick={() => setShowWalletPicker((v) => !v)}
           disabled={busy}
           className="flex w-full items-center justify-center gap-2 border border-amber/70 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
         >
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
           </svg>
-          {busy ? "…" : "Sign in with Base"}
+          {busy ? "…" : "Sign in with wallet"}
         </button>
+        <p className="text-center font-mono text-[10px] leading-relaxed text-wire">
+          We never collect a single piece of sensitive or private information — no email, no name,
+          no keys. Your wallet signs one free message to prove ownership. Nothing else.
+        </p>
+        {showWalletPicker && <WalletPicker onSelect={walletSignIn} disabled={busy} />}
         <button
           type="button"
           onClick={() => oauth("google")}
