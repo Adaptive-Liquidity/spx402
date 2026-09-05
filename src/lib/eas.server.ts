@@ -20,7 +20,7 @@ import {
   zeroAddress,
 } from "viem";
 import { base } from "viem/chains";
-import { privateKeyToAccount } from "viem/accounts";
+import { privateKeyToAccount, type PrivateKeyAccount } from "viem/accounts";
 
 /** EAS + SchemaRegistry predeploys on Base mainnet. */
 export const EAS_CONTRACT = "0x4200000000000000000000000000000000000021" as const;
@@ -50,10 +50,18 @@ function rpcUrl(): string {
   return process.env["BASE_RPC_URL"] ?? "https://mainnet.base.org";
 }
 
-function attesterAccount() {
+function attesterAccount(): PrivateKeyAccount | null {
   const key = process.env["EAS_ATTESTER_PRIVATE_KEY"];
   if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) return null;
   return privateKeyToAccount(key as `0x${string}`);
+}
+
+function clients(account: PrivateKeyAccount) {
+  const transport = http(rpcUrl());
+  return {
+    publicClient: createPublicClient({ chain: base, transport }),
+    walletClient: createWalletClient({ account, chain: base, transport }),
+  };
 }
 
 /** Public attester address (safe to show), or null when not configured. */
@@ -71,10 +79,7 @@ export function computeSchemaUid(): `0x${string}` {
   );
 }
 
-async function ensureSchema(
-  publicClient: ReturnType<typeof createPublicClient>,
-  walletClient: ReturnType<typeof createWalletClient>,
-): Promise<`0x${string}`> {
+async function ensureSchema(account: PrivateKeyAccount): Promise<`0x${string}`> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const uid = computeSchemaUid();
 
@@ -83,11 +88,11 @@ async function ensureSchema(
     .select("schema_uid")
     .eq("schema_key", SCHEMA_KEY)
     .maybeSingle();
-  if ((row as { schema_uid: string } | null)?.schema_uid) {
-    return (row as { schema_uid: string }).schema_uid as `0x${string}`;
-  }
+  const existing = row as unknown as { schema_uid: string } | null;
+  if (existing?.schema_uid) return existing.schema_uid as `0x${string}`;
 
   // First-ever stamp: register the schema on-chain, then remember it.
+  const { publicClient, walletClient } = clients(account);
   let txHash: `0x${string}` | null = null;
   try {
     txHash = await walletClient.writeContract({
@@ -133,14 +138,8 @@ export async function attestSubject(
     return { ok: false, skipped: true, reason: "EAS_ATTESTER_PRIVATE_KEY not configured" };
   }
 
-  const publicClient = createPublicClient({ chain: base, transport: http(rpcUrl()) });
-  const walletClient = createWalletClient({
-    account,
-    chain: base,
-    transport: http(rpcUrl()),
-  });
-
-  const schemaUid = await ensureSchema(publicClient, walletClient);
+  const { publicClient, walletClient } = clients(account);
+  const schemaUid = await ensureSchema(account);
   const data = encodeAbiParameters(
     [{ type: "string" }, { type: "string" }, { type: "string" }, { type: "uint16" }],
     [mint, kind, grade, Math.max(0, Math.min(65535, Math.round(score)))],
