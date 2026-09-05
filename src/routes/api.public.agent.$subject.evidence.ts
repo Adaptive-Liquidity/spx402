@@ -22,6 +22,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { canonicalJsonStringify, merkleRootHex, sha256Hex } from "@/lib/evidence/hash.server";
+import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 
 const WINDOW_DAYS = 30;
 const MAX_LEAVES = 5_000; // hard cap — protects the worker
@@ -29,7 +30,10 @@ const MAX_LEAVES = 5_000; // hard cap — protects the worker
 export const Route = createFileRoute("/api/public/agent/$subject/evidence")({
   server: {
     handlers: {
-      GET: async ({ params }) => {
+      GET: async ({ params, request }) => {
+        const limited = await enforceRateLimit(request, RATE_LIMITS.evidence);
+        if (limited.response) return limited.response;
+
         const subject = params.subject;
         if (!subject || subject.length < 32 || subject.length > 64) {
           return errorJson(400, "invalid_subject");
@@ -166,6 +170,7 @@ export const Route = createFileRoute("/api/public/agent/$subject/evidence")({
             // Subject evidence is a moving window; cache shorter than the
             // per-event endpoint.
             "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600",
+            ...limited.headers,
             "Access-Control-Allow-Origin": "*",
           },
         });

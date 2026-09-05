@@ -31,6 +31,10 @@ export const X402_CONFIG = {
   TIER_LIMITS,
 } as const;
 
+/** Base blocks are ~2s; 2 confirmations is cheap insurance against a reorg. */
+const MIN_CONFIRMATIONS = 2;
+
+
 function payToAddress(): string | null {
   const v = process.env["X402_PAY_TO_ADDRESS"];
   return v ? v.toLowerCase() : null;
@@ -127,9 +131,18 @@ export async function verifyX402Payment(
     return { valid: false, error: `Underpaid. Expected ${expectedAmount} USDC base units` };
   }
 
-  // Freshness.
+  // Freshness + reorg safety. A settlement in the newest block can still be
+  // re-orged out after we've handed over the response, so require a small
+  // confirmation depth before we treat it as final.
   try {
-    const block = await client.getBlock({ blockNumber: receipt.blockNumber });
+    const [block, head] = await Promise.all([
+      client.getBlock({ blockNumber: receipt.blockNumber }),
+      client.getBlockNumber(),
+    ]);
+    const confirmations = Number(head - receipt.blockNumber) + 1;
+    if (confirmations < MIN_CONFIRMATIONS) {
+      return { valid: false, error: "Payment is not confirmed yet — retry in a few seconds" };
+    }
     const age = Math.floor(Date.now() / 1000) - Number(block.timestamp);
     if (age > X402_CONFIG.MAX_PAYMENT_AGE_SECONDS) {
       return { valid: false, error: "Payment is too old" };
