@@ -1,67 +1,73 @@
-# The one product to launch: SPX402 Preflight — "Is this endpoint safe to pay?"
+# SPX402 Preflight — a secondary lane
 
-## What the research found
+## What this is, and what it is not
 
-I audited our own code, every repo under Adaptive-Liquidity, and the current state of the agent-payment market.
+The primary live product does not change. The Pump buyback grade card at `/agent/:mint` stays the homepage story. Hero, homepage headline, pricing copy and the dossier copy are untouched by this work.
 
-**The market gap is unusually clean.** Independent audits published in August 2026 all landed on the same conclusion: the payment rail works, the trust layer does not. Roughly 38% of paid agent endpoints are dead. Five scam patterns keep recurring — the advertised price not matching the charged price, the receiving address changing between requests, receiving addresses that can never release funds, receivers with zero payment history, and services charging tens of dollars where rivals charge fractions of a cent. Payments are irreversible; there is no chargeback for a machine. Independent research on the same ecosystem concludes it "still needs a killer app," and that the killer app is the trust layer.
+Preflight is a second, smaller lane: paste a paid-endpoint URL, and we record and publish exactly what happened when we called it.
 
-**The competition is thin.** Four public tools do endpoint checking today. Every one is a one-shot command-line checker with between 0 and 2 stars. None keep history, none actually buy anything, none verify the receiving wallet on-chain, none publish a public record, none can be asked by a buying agent at the moment of purchase.
+The card answers one question, in these words: **"What did this endpoint do when we called it?"** It never says "safe to pay," never says "verified safe," and never calls anything a scam or a honeypot.
 
-**We already built almost all of it and never pointed it at this problem.** Confirmed in our code: a two-tier prober that first checks an endpoint for free and then actually pays it with real money and confirms delivery; independent on-chain payment verification that re-derives payments from the chain rather than trusting the caller; a full outcome taxonomy and divergence detector; three ways of rendering a grade card (page, image, share image); a live machine-readable server that agent runtimes can query; on-chain attestations so a grade can be verified without trusting us; and an evidence trail behind every claim.
+## Honest framing
 
-We are one repositioning away from owning the exact thing the market says is missing.
+There are already live products doing endpoint checking — vet402, x402 Trust, x402 Doctor, ScoutScore, ResolveBots, gold-402, AgentTrust, and Coinbase's own validate endpoint. Some of them do more than we would in Phase 1, including real paid buys and public tables. This lane is not a land-grab and is not positioned as one. It is a modest, honest addition that reuses prober code we already wrote, and it earns its place only if the records it publishes are accurate and clearly scoped.
 
-## The product
+What we can genuinely offer: every scan is persisted with its evidence and its date, the result is readable by a machine through the tool server we already run, and we describe observations rather than verdicts.
 
-**SPX402 Preflight.** Paste any paid agent endpoint. In seconds you get a public, permanent safety report card — free, no sign-up.
+## Current state, verified
 
-The card answers the one question that matters: *would a stranger's money be safe here?* It reports whether the endpoint is alive, whether the advertised price matches the charged price, whether the receiving wallet is stable across requests and has real payment history, whether the price is sane against comparable services, and whether the service actually delivers after being paid.
+- Prober code exists (`src/lib/prober/outcomes.ts`, `prober.server.ts`, `config.server.ts`) but the lane is disabled and unfunded. `roadmap.md` still lists "Prober: funded wallet + PROBER_ENABLED=true" as open. With the flag off, only free challenge probes run — paid delivery proof is not live. Probe data is displayed, never scored.
+- The tool server at `src/routes/api/public/mcp.ts` exposes exactly four tools: `spx_list_verified_agents`, `spx_get_agent_grade`, `spx_get_tape`, `spx_list_facilitators`. None is a preflight tool.
+- `src/lib/indexer/x402-middleware.ts` is our sell-side payment gate for our own paid API. It is not a buyer-side oracle for a stranger's receiving address and will not be repurposed as one.
+- On-chain attestation of an endpoint record is not shipped and is not in Phases 1–3.
 
-Three reasons this spreads on its own:
+## Phase 1 — the only thing built now
 
-1. **Every operator wants their card to be green.** A shareable, permanent, public grade with an embeddable badge creates the same pressure a security score does. People post the good ones and fix the bad ones.
-2. **The bad cards are the story.** A public index of dead and predatory endpoints is inherently newsworthy in a market where three separate audits just made headlines saying exactly that.
-3. **Buying machines can ask it directly.** The same check is exposed as a tool any agent runtime can call before spending money — one line of setup, and an agent stops paying scams. That is a habit, not a visit.
+A new route `/preflight`: one URL input, one button, no account.
 
-## How it gets built
+It runs the existing **free challenge tier only**. `PROBER_ENABLED` stays false; nothing here spends money.
 
-### Phase 1 — The free scanner (the viral surface)
-- A `/preflight` page: one input, one button, a live result card. No account.
-- Runs the free tier of the existing prober against the submitted endpoint and records the result permanently, so every scan builds the index rather than evaporating.
-- Adds the specific checks the audits named that we do not yet run: advertised-vs-charged price, receiver stability across repeat requests, receiver on-chain payment history, price outlier detection, and the transport-negotiation failure that silently makes an endpoint unbuyable by standard clients.
-- Result renders through the existing grade-card renderers, so it is instantly shareable and embeddable with no new design work.
+Every scan is persisted — new tables with grants, row-level security and public read-only views, following the same pattern already used for probe runs — so the record survives the page view.
 
-### Phase 2 — The public index
-- `/preflight` gets a companion index: every endpoint ever scanned, sorted by safety, filterable to "dead," "price mismatch," "unverified receiver."
-- A permanent page per endpoint with full history, so a grade change is visible over time and links to the underlying evidence.
-- Weekly "state of paid agent endpoints" numbers published from real scans — the recurring content engine.
+Checks permitted in Phase 1:
 
-### Phase 3 — The habit
-- A `preflight` tool added to our existing machine-readable server so buying agents check before they pay.
-- A one-command terminal check that prints the card, for operators who live in a terminal.
-- An embeddable "verified safe" badge for operators — the same badge machinery we already ship.
+1. Reachable, and returns HTTP 402.
+2. The challenge parses: version, accepts list, network, asset, payTo, required amount.
+3. The challenge is requested a second time; we record whether the price and the payTo were the same across the two calls. A difference is labelled **"quote changed"** — never "scam," never "honeypot." A changing address is a fact we report, not a verdict; legitimate services rotate them.
+4. Optional: listed price against category peers, reported as **"outlier vs sample"** with the sample size and the date attached. Never "predatory," never "gouging."
+5. A transport or version mismatch that would stop a standard client from paying — only if it is already detectable in the existing outcome classifier.
 
-### Phase 4 — The business behind the free thing
-- Continuous monitoring and alerts on your own endpoints (we already deliver alerts by webhook, Slack and email).
-- Paid deep verification: the tier that actually pays the endpoint and proves delivery end to end.
-- On-chain attestation of a safety grade, so an endpoint can prove its record to a counterparty without trusting us.
+Explicitly forbidden in Phase 1: advertised-versus-charged price (requires a real payment), receiving-address on-chain history used as a trust signal, any claim that the service delivers after payment, and the words "verified safe."
 
-## Deliberately not in scope
+Copy rules throughout: "observed," "NONE" for absent facts, the scan timestamp always visible, and the probe kind stated as `challenge`. No "safe," no "audit," no borrowed statistics.
 
-The sibling projects (the on-chain authority and bond program, the agent-computer hosting, the crew pages) are strong and connect naturally later — a safety grade gating how much budget an agent gets is the obvious sequel. None of it is needed to launch, and folding it in now would delay the one thing with a clear, empty, well-documented market.
+**A new card model** — `PreflightCardModel` — for endpoint rows. The existing `GradeCardModel` is a Pump mint card (ticker, last buyback, last burn) and endpoint facts do not belong in it. Preflight reuses the shared colours, the font, and the vector and image pipelines; it does not call `buildGradeCard()`.
 
-Also out: the PvP game tie-in, and anything requiring the prober to spend real money by default. Free tier stays free and keyless.
+## Phase 2 — after Phase 1 is live and real rows exist
 
-## Technical notes
+- A `/preflight` index of scanned URLs, filterable by outcome: dead, no-402, quote-changed, parse-fail.
+- A per-endpoint history page linking to the stored evidence for each scan.
+- Periodic numbers drawn only from our own scans, always published with the sample size and the date. No claims of uniqueness.
 
-- Reuses `src/lib/prober/outcomes.ts` (challenge parsing, validation, outcome taxonomy, divergence) and `prober.server.ts`; new checks land as additional classifiers in the same module with golden tests.
-- Receiver history and price verification reuse the on-chain verification path already proven in `src/lib/indexer/x402-middleware.ts`.
-- Card rendering reuses `src/lib/grade-card.ts` plus the page, vector and image renderers unchanged; only the row set differs.
-- New tables for scanned endpoints and scan history follow the existing pattern — grants, row-level security, public read-only views.
-- The new tool slots into the existing server at `src/routes/api/public/mcp.ts` alongside the four tools already live.
-- Scans are rate-limited per caller with the existing limiter; paid deep verification stays behind the existing payment middleware.
+## Phase 3
+
+- A fifth tool on the existing server, `spx_preflight_endpoint({ url })`, returning the last challenge result as JSON. The four existing tools are untouched.
+- Optionally a one-command terminal check printing the same JSON. No badge, no "verified safe."
+
+## Phase 4 — blocked
+
+Blocked until `PROBER_ENABLED=true` and funded Solana and Base prober wallets are published on `/methodology`.
+
+- Paid deep probe: pay at most $0.05, confirm delivery, write a probe run.
+- Alerts on an operator's own endpoints, reusing the existing alert channels.
+- On-chain attestation of a **challenge record** — not of a "safety grade."
+
+## Out of scope
+
+AEON, Floks, the crew pages, and the PvP experiment are all out of this change.
 
 ## Success test
 
-A stranger pastes an endpoint, gets a card in under ten seconds, and shares it. An agent runtime can refuse to pay a flagged endpoint without any custom code. And the index has enough real scanned endpoints to publish a number no one else can publish.
+- A stranger pastes a URL and gets a card in under ten seconds listing which checks ran and when the scan happened.
+- An agent can call `spx_preflight_endpoint` and decline on explicit outcomes — `no_402`, unreachable, parse failure — rather than on a "safe" boolean.
+- The Pump `/agent/:mint` cards still work and remain the homepage story.
