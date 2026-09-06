@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchAgent } from "@/lib/agents-db";
 import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
-import { buildGradeCard, type GradeCardModel } from "@/lib/grade-card";
+import { buildGradeCard, unindexedCard, type GradeCardModel } from "@/lib/grade-card";
 import { renderGradeCardPng } from "@/lib/card/png.server";
 
 // Raster rendition of the grade card. X, Slack, Discord and LinkedIn do not
@@ -39,21 +39,3 @@ export const Route = createFileRoute("/api/public/card/{$subject}.png")({
     },
   },
 });
-
-export function unindexedCard(subject: string): GradeCardModel {
-  return {
-    ticker: "$AGENT",
-    mint: subject,
-    grade: "SPX404",
-    danger: true,
-    operator: "UNVERIFIED",
-    rows: [
-      { label: "Last buyback", value: "NONE" },
-      { label: "Last burn", value: "NONE" },
-      { label: "Buybacks", value: "0" },
-      { label: "Failed windows", value: "0" },
-    ],
-    url: `spx402.com/agent/${subject}`,
-    lastBuyback: "NONE",
-  };
-}

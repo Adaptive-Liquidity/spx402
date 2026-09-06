@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchAgent } from "@/lib/agents-db";
 import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
-import { buildGradeCard } from "@/lib/grade-card";
+import { buildGradeCard, unindexedCard } from "@/lib/grade-card";
 import { renderGradeCardSvg } from "@/lib/card/svg";
-import { unindexedCard } from "./api.public.card.{$subject}[.]png";
 
 // Embeddable badge for an agent — the same grade card as the dossier and the
 // share image, at embed size.

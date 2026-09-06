@@ -216,11 +216,12 @@ export function renderGradeCardPng(
 
   const footY = height - inset - Math.round(height * 0.055);
   c.rect(pad, footY - Math.round(height * 0.03), right - pad, Math.max(1, s - 2), LINE);
-  // Long mints would run past the right edge; clamp with an ellipsis.
-  const maxUrlChars = Math.floor((right - pad) / (GLYPH_W + 1) / s);
-  const urlText =
-    card.url.length > maxUrlChars ? `${card.url.slice(0, Math.max(1, maxUrlChars - 1))}…` : card.url;
-  c.text(sanitize(urlText), pad, footY, s, MUTE);
+  // A mint is an identifier: never truncate it. Shrink the footer type instead
+  // until the full string fits inside the panel.
+  const urlText = sanitize(card.url);
+  let urlScale = s;
+  while (urlScale > 1 && textWidth(urlText, urlScale) > right - pad) urlScale -= 1;
+  c.text(urlText, pad, footY + Math.round(((s - urlScale) * GLYPH_H) / 2), urlScale, MUTE);
 
   return encodeIndexedPng(c);
 }

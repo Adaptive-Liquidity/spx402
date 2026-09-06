@@ -104,3 +104,22 @@ export function cardShareTitle(card: GradeCardModel): string {
 export function cardImageUrl(mint: string, origin = SITE_ORIGIN): string {
   return `${origin}/api/public/card/${mint}.png`;
 }
+
+/** Fallback model for a subject we have never indexed. Nothing is invented. */
+export function unindexedCard(subject: string): GradeCardModel {
+  return {
+    ticker: "$AGENT",
+    mint: subject,
+    grade: "SPX404",
+    danger: true,
+    operator: "UNVERIFIED",
+    rows: [
+      { label: "Last buyback", value: "NONE" },
+      { label: "Last burn", value: "NONE" },
+      { label: "Buybacks", value: "0" },
+      { label: "Failed windows", value: "0" },
+    ],
+    url: `spx402.com/agent/${subject}`,
+    lastBuyback: "NONE",
+  };
+}
