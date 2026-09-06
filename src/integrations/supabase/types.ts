@@ -927,6 +927,84 @@ export type Database = {
         }
         Relationships: []
       }
+      preflight_scan: {
+        Row: {
+          amount_usd: number | null
+          asset: string | null
+          challenge_json: Json | null
+          challenge_valid: boolean | null
+          host: string
+          http_status: number | null
+          id: string
+          network: string | null
+          notes: string | null
+          outcome: string
+          pay_to: string | null
+          pay_to_changed: boolean | null
+          peer_median_usd: number | null
+          peer_sample_size: number | null
+          price_changed: boolean | null
+          price_outlier: boolean | null
+          probe_kind: string
+          scanned_at: string
+          second_http_status: number | null
+          transport_note: string | null
+          url: string
+          url_key: string
+          x402_version: number | null
+        }
+        Insert: {
+          amount_usd?: number | null
+          asset?: string | null
+          challenge_json?: Json | null
+          challenge_valid?: boolean | null
+          host: string
+          http_status?: number | null
+          id?: string
+          network?: string | null
+          notes?: string | null
+          outcome: string
+          pay_to?: string | null
+          pay_to_changed?: boolean | null
+          peer_median_usd?: number | null
+          peer_sample_size?: number | null
+          price_changed?: boolean | null
+          price_outlier?: boolean | null
+          probe_kind?: string
+          scanned_at?: string
+          second_http_status?: number | null
+          transport_note?: string | null
+          url: string
+          url_key: string
+          x402_version?: number | null
+        }
+        Update: {
+          amount_usd?: number | null
+          asset?: string | null
+          challenge_json?: Json | null
+          challenge_valid?: boolean | null
+          host?: string
+          http_status?: number | null
+          id?: string
+          network?: string | null
+          notes?: string | null
+          outcome?: string
+          pay_to?: string | null
+          pay_to_changed?: boolean | null
+          peer_median_usd?: number | null
+          peer_sample_size?: number | null
+          price_changed?: boolean | null
+          price_outlier?: boolean | null
+          probe_kind?: string
+          scanned_at?: string
+          second_http_status?: number | null
+          transport_note?: string | null
+          url?: string
+          url_key?: string
+          x402_version?: number | null
+        }
+        Relationships: []
+      }
       probe_run: {
         Row: {
           chain: string
@@ -1264,6 +1342,81 @@ export type Database = {
           id?: string | null
           operator_wallet?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      preflight_scan_public: {
+        Row: {
+          amount_usd: number | null
+          asset: string | null
+          challenge_valid: boolean | null
+          host: string | null
+          http_status: number | null
+          id: string | null
+          network: string | null
+          notes: string | null
+          outcome: string | null
+          pay_to: string | null
+          pay_to_changed: boolean | null
+          peer_median_usd: number | null
+          peer_sample_size: number | null
+          price_changed: boolean | null
+          price_outlier: boolean | null
+          probe_kind: string | null
+          scanned_at: string | null
+          second_http_status: number | null
+          transport_note: string | null
+          url: string | null
+          url_key: string | null
+          x402_version: number | null
+        }
+        Insert: {
+          amount_usd?: number | null
+          asset?: string | null
+          challenge_valid?: boolean | null
+          host?: string | null
+          http_status?: number | null
+          id?: string | null
+          network?: string | null
+          notes?: string | null
+          outcome?: string | null
+          pay_to?: string | null
+          pay_to_changed?: boolean | null
+          peer_median_usd?: number | null
+          peer_sample_size?: number | null
+          price_changed?: boolean | null
+          price_outlier?: boolean | null
+          probe_kind?: string | null
+          scanned_at?: string | null
+          second_http_status?: number | null
+          transport_note?: string | null
+          url?: string | null
+          url_key?: string | null
+          x402_version?: number | null
+        }
+        Update: {
+          amount_usd?: number | null
+          asset?: string | null
+          challenge_valid?: boolean | null
+          host?: string | null
+          http_status?: number | null
+          id?: string | null
+          network?: string | null
+          notes?: string | null
+          outcome?: string | null
+          pay_to?: string | null
+          pay_to_changed?: boolean | null
+          peer_median_usd?: number | null
+          peer_sample_size?: number | null
+          price_changed?: boolean | null
+          price_outlier?: boolean | null
+          probe_kind?: string | null
+          scanned_at?: string | null
+          second_http_status?: number | null
+          transport_note?: string | null
+          url?: string | null
+          url_key?: string | null
+          x402_version?: number | null
         }
         Relationships: []
       }
