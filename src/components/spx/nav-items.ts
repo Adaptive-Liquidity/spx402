@@ -4,6 +4,7 @@ export const NAV_ITEMS = [
   { to: "/pulse", label: "Pulse" },
   { to: "/leaderboard", label: "Leaderboard" },
   { to: "/explore", label: "Explore" },
+  { to: "/preflight", label: "Preflight" },
   { to: "/methodology", label: "Methodology" },
   { to: "/api", label: "API" },
   { to: "/operators", label: "Operators" },

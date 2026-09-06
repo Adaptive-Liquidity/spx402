@@ -9,3 +9,7 @@
 - [x] Email alerts: notify.spx402.com sender domain added; alert emails send as support@spx402.com via managed sending — pending DNS verification (user action at registrar / Project Settings -> Email)
 - [ ] SMS alerts: number on file (+1 602-300-0179) — needs an SMS sending provider wired before the channel can activate
 - [ ] Prober: funded wallet + PROBER_ENABLED=true (user decision — real money)
+- [x] Preflight phase 1: `/preflight` route, free challenge tier only, every scan persisted to `preflight_scan` (public read-only view `preflight_scan_public`), five allowed checks in `src/lib/preflight/model.ts` with golden tests. No safety claim, no scoring impact.
+- [ ] Preflight phase 2: filterable index + per-endpoint history (needs real rows first)
+- [ ] Preflight phase 3: fifth MCP tool `spx_preflight_endpoint`
+- [ ] Preflight phase 4: BLOCKED on PROBER_ENABLED=true + funded prober wallets published on /methodology
