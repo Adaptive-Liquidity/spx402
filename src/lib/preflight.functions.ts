@@ -25,6 +25,15 @@ export const scanEndpoint = createServerFn({ method: "POST" })
     return { card, outcome, scanId };
   });
 
+export interface RecentScanRow {
+  id: string;
+  url: string;
+  host: string;
+  outcome: string;
+  http_status: number | null;
+  scanned_at: string;
+}
+
 export const recentScans = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
@@ -32,6 +41,6 @@ export const recentScans = createServerFn({ method: "GET" }).handler(async () =>
     .select("id, url, host, outcome, http_status, scanned_at")
     .order("scanned_at", { ascending: false })
     .limit(12);
-  if (error || !data) return { scans: [] as Array<Record<string, unknown>> };
-  return { scans: data as Array<Record<string, unknown>> };
+  if (error || !data) return { scans: [] as RecentScanRow[] };
+  return { scans: data as unknown as RecentScanRow[] };
 });
