@@ -16,6 +16,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PreflightRouteImport } from './routes/preflight'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
@@ -108,6 +109,11 @@ const PulseRoute = PulseRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreflightRoute = PreflightRouteImport.update({
+  id: '/preflight',
+  path: '/preflight',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OperatorsRoute = OperatorsRouteImport.update({
@@ -437,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
+  '/preflight': typeof PreflightRoute
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
+  '/preflight': typeof PreflightRoute
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
@@ -570,6 +578,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
+  '/preflight': typeof PreflightRoute
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
@@ -638,6 +647,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/methodology'
     | '/operators'
+    | '/preflight'
     | '/pricing'
     | '/pulse'
     | '/register'
@@ -704,6 +714,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/methodology'
     | '/operators'
+    | '/preflight'
     | '/pricing'
     | '/pulse'
     | '/register'
@@ -770,6 +781,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/methodology'
     | '/operators'
+    | '/preflight'
     | '/pricing'
     | '/pulse'
     | '/register'
@@ -838,6 +850,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
+  PreflightRoute: typeof PreflightRoute
   PricingRoute: typeof PricingRoute
   PulseRoute: typeof PulseRoute
   RegisterRoute: typeof RegisterRoute
@@ -902,6 +915,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preflight': {
+      id: '/preflight'
+      path: '/preflight'
+      fullPath: '/preflight'
+      preLoaderRoute: typeof PreflightRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/operators': {
@@ -1445,6 +1465,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
+  PreflightRoute: PreflightRoute,
   PricingRoute: PricingRoute,
   PulseRoute: PulseRoute,
   RegisterRoute: RegisterRoute,
