@@ -32,6 +32,7 @@ import { Route as BuildRouteImport } from './routes/build'
 import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RegistryIndexRouteImport } from './routes/registry.index'
@@ -211,6 +212,11 @@ const AlertsRoute = AlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -236,9 +242,9 @@ const BuildIndexRoute = BuildIndexRouteImport.update({
   getParentRoute: () => BuildRoute,
 } as any)
 const AboutIndexRoute = AboutIndexRouteImport.update({
-  id: '/about/',
-  path: '/about/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AboutRoute,
 } as any)
 const TapeEventIdRoute = TapeEventIdRouteImport.update({
   id: '/$eventId',
@@ -321,14 +327,14 @@ const AgentMintRoute = AgentMintRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutDisclaimerRoute = AboutDisclaimerRouteImport.update({
-  id: '/about/disclaimer',
-  path: '/about/disclaimer',
-  getParentRoute: () => rootRouteImport,
+  id: '/disclaimer',
+  path: '/disclaimer',
+  getParentRoute: () => AboutRoute,
 } as any)
 const AboutChangelogRoute = AboutChangelogRouteImport.update({
-  id: '/about/changelog',
-  path: '/about/changelog',
-  getParentRoute: () => rootRouteImport,
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => AboutRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -551,6 +557,7 @@ const ApiPublicAgentSubjectEvidenceRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRouteWithChildren
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
@@ -723,6 +730,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/about': typeof AboutRouteWithChildren
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
@@ -812,6 +820,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/alerts'
     | '/api'
     | '/badge'
@@ -983,6 +992,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/alerts'
     | '/api'
     | '/badge'
@@ -1072,6 +1082,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AboutRoute: typeof AboutRouteWithChildren
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
   BadgeRoute: typeof BadgeRoute
@@ -1096,13 +1107,10 @@ export interface RootRouteChildren {
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
   DotwellKnownX402Route: typeof DotwellKnownX402Route
-  AboutChangelogRoute: typeof AboutChangelogRoute
-  AboutDisclaimerRoute: typeof AboutDisclaimerRoute
   AgentMintRoute: typeof AgentMintRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
-  AboutIndexRoute: typeof AboutIndexRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -1269,6 +1277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -1306,10 +1321,10 @@ declare module '@tanstack/react-router' {
     }
     '/about/': {
       id: '/about/'
-      path: '/about'
+      path: '/'
       fullPath: '/about/'
       preLoaderRoute: typeof AboutIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AboutRoute
     }
     '/tape/$eventId': {
       id: '/tape/$eventId'
@@ -1425,17 +1440,17 @@ declare module '@tanstack/react-router' {
     }
     '/about/disclaimer': {
       id: '/about/disclaimer'
-      path: '/about/disclaimer'
+      path: '/disclaimer'
       fullPath: '/about/disclaimer'
       preLoaderRoute: typeof AboutDisclaimerRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AboutRoute
     }
     '/about/changelog': {
       id: '/about/changelog'
-      path: '/about/changelog'
+      path: '/changelog'
       fullPath: '/about/changelog'
       preLoaderRoute: typeof AboutChangelogRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AboutRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -1747,6 +1762,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AboutRouteChildren {
+  AboutChangelogRoute: typeof AboutChangelogRoute
+  AboutDisclaimerRoute: typeof AboutDisclaimerRoute
+  AboutIndexRoute: typeof AboutIndexRoute
+}
+
+const AboutRouteChildren: AboutRouteChildren = {
+  AboutChangelogRoute: AboutChangelogRoute,
+  AboutDisclaimerRoute: AboutDisclaimerRoute,
+  AboutIndexRoute: AboutIndexRoute,
+}
+
+const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
+
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
@@ -1887,6 +1916,7 @@ const TapeRouteWithChildren = TapeRoute._addFileChildren(TapeRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AboutRoute: AboutRouteWithChildren,
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
   BadgeRoute: BadgeRoute,
@@ -1911,13 +1941,10 @@ const rootRouteChildren: RootRouteChildren = {
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
   DotwellKnownX402Route: DotwellKnownX402Route,
-  AboutChangelogRoute: AboutChangelogRoute,
-  AboutDisclaimerRoute: AboutDisclaimerRoute,
   AgentMintRoute: AgentMintRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
   ServiceSlugRoute: ServiceSlugRoute,
-  AboutIndexRoute: AboutIndexRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
