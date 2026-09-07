@@ -9,9 +9,9 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 
 export const Route = createFileRoute("/registry/")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/leaderboard" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/registry" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/leaderboard" },
+      { property: "og:url", content: "https://spx402.com/registry" },
       { title: "Leaderboard — SPX402" },
       {
         name: "description",
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/registry/")({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "SPX402 agent leaderboard",
-          url: "https://spx402.com/leaderboard",
+          url: "https://spx402.com/registry",
           description:
             "Live ranking of Solana agents by settled on-chain execution, graded by SPX402.",
           isPartOf: { "@id": "https://spx402.com/#website" },
@@ -40,6 +40,7 @@ export const Route = createFileRoute("/registry/")({
       },
     ],
   }),
+
   loader: () => fetchAgentIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
