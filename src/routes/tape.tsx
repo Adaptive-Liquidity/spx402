@@ -78,30 +78,18 @@ function severityTone(sev: string): string {
 }
 
 function TapePage() {
-  const initial = Route.useLoaderData() as TapeRow[];
-  const [rows, setRows] = useState<TapeRow[]>(initial);
-  const [category, setCategory] = useState<string | null>(null);
-  const [severity, setSeverity] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const rows = Route.useLoaderData() as TapeRow[];
+  const search = Route.useSearch();
+  const category = search.category ?? null;
+  const severity = search.severity ?? null;
+  const navigate = useNavigate({ from: "/tape" });
+  const loading = useRouter({ select: (s) => s.isLoading });
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      setLoading(true);
-      const fresh = await fetchTape({
-        limit: 200,
-        category,
-        severity,
-      });
-      if (!cancelled) {
-        setRows(fresh);
-        setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [category, severity]);
+  const setFilter = (key: "category" | "severity", value: string | null) =>
+    void navigate({
+      search: (prev) => ({ ...prev, [key]: value ?? undefined }),
+      replace: true,
+    });
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-16">
