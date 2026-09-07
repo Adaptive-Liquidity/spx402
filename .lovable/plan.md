@@ -1,49 +1,81 @@
-# Making SPX402 feel like one finished blue-chip product
+# SPX402 + AEON Website Unification Pass
 
-The palette, typefaces and voice stay exactly as they are. What separates this site from a Bloomberg/Stripe-grade product today is not taste — it's **consistency and finish**. Right now every page was designed slightly differently, and the eye reads that as "assembled", not "engineered".
+A finish pass, not a redesign. Palette, typefaces, voice, routes, backend contract and product positioning all stay exactly as they are. What changes is consistency: every page gets the same frame, rhythm, controls, states and formatting, so the site reads as one engineered product rather than a set of individually designed pages.
 
-## What's actually inconsistent (measured, not guessed)
+## What's actually inconsistent (measured, not assumed)
 
-- **Four different page widths** across routes: `1400px`, `1200px`, `1100px`, `900px`, plus a scatter of `max-w-3xl` / `2xl` / `xl` for text. Content edges don't line up when you move between pages.
-- **Four different page-title sizes** (`text-2xl`, `3xl`, `4xl`, `5xl`) used as top-level headings, so the same rank of page shouts at different volumes.
-- **The primary button is hand-written 17 separate times** as raw utility classes instead of one component — meaning padding, hover and focus states drift page to page.
-- **Section rhythm varies**: some pages use `py-8`, some `py-12`, some `py-16`, some `py-24`, with no rule tying spacing to hierarchy.
-- **Two visual languages coexist**: the homepage's cinematic band system (spine numbers, guilloché, aperture) and the flat utility pages (methodology, build, dashboard) that share none of it.
+- **Four page widths** in use — `1400px`, `1200px`, `1100px`, `900px` — plus scattered `max-w-3xl` / `2xl` / `xl` reading wrappers. Content edges don't line up between routes.
+- **Four page-title sizes** (`text-2xl`, `3xl`, `4xl`, `5xl`) used for equivalent headings, so the same rank of page shouts at different volumes.
+- **The primary button is hand-written 17 times** as raw utility classes instead of one component, so padding, hover, disabled and focus drift page to page.
+- **Section spacing is free-hand** — `py-8`, `py-12`, `py-16`, `py-24` with no rule tying spacing to hierarchy.
+- **Two visual languages coexist**: the homepage's engraved band system (numbered spines, hairline rules, guilloché, aperture crop) and the flat utility pages that share none of it.
 
-## The work, in three passes
+---
 
-### Pass 1 — One grid, one scale, one set of controls
+## Pass 1 — Foundation: one grid, one scale, one control system
 
-- One page frame everywhere: a single max width for data/terminal pages, a single narrower measure for reading pages, identical gutters at desktop, tablet and phone. Every page edge lines up.
-- One type scale: a page title size, a section title size, a subsection size, body, and the mono label. Applied to every route so rank is readable at a glance.
-- One vertical rhythm tied to hierarchy: major band, section, subsection — three spacing values, no free-hand numbers.
-- Real components for the controls that repeat: primary action, secondary action, ghost/link action, panel, section header, stat cell, table. Every existing hand-written copy is replaced by these, so hover, focus ring, disabled and keyboard states become identical everywhere.
+**Container system.** Two official frames. `stage` for terminal/data pages (Registry, Leaderboard, Agent dossier, Dashboard, My Agents, Wallets, Income Routing, API). `stage-narrow` for reading/trust documents (Methodology, Corrections, Genesis Record, AEON Agents, legal). Every ad-hoc wrapper is removed; gutters are identical at desktop, tablet and phone.
 
-### Pass 2 — Blue-chip finish
+**Type scale.** One hierarchy applied everywhere: page eyebrow, page title, standfirst, section title, subsection title, body, small metadata, mono label. Equivalent pages get identical title rank.
 
-- **Focus and keyboard states**: one visible amber focus ring on every interactive element, skip-to-content link, correct heading order per page. Institutional products are judged on this.
-- **Loading and empty states**: skeletons that match the shape of the real content instead of layout jumps; one honest empty-state component with the same voice everywhere ("no print", "not yet returned").
-- **Numbers behave like a terminal**: tabular figures, aligned decimals, one time format (UTC), one address-truncation rule, one grade chip. No page invents its own.
-- **Tables and rows**: one density, one hover, one sticky header, one sort affordance across leaderboard, registry, tape, operators and dashboard.
-- **Motion discipline**: one duration and one easing token, reveal-on-scroll only for major bands, everything respecting reduced-motion. Nothing bounces.
-- **Chrome**: the header condenses on scroll with a hairline rule; the footer becomes a proper site index (product, data, trust, developers, company) rather than a link row. Trust surfaces — Methodology, Corrections, Genesis Record, Status — get a fixed home in the footer.
+**Vertical rhythm.** Four named values — `band`, `section`, `subsection`, `stack` — replacing free-hand padding.
 
-### Pass 3 — The house style extends to every page
+**Control primitives.** `ActionButton`, `Panel`, `SectionHeading`, `PageHeader`, `StatusChip`, `DataTable`, `EmptyState`, `Skeleton`, `StatCell`, `DetailSection`, `WalletAddress`, `CopyToClipboard`. Every button state — default, hover, active, disabled, loading, keyboard focus — is defined once.
 
-The homepage's engraved language (numbered band spines, hairline rules, engraved panels, the aperture crop) is applied — quietly — to the interior pages so Methodology, Registry, Build, Agent dossiers and the Dashboard read as chapters of one document. Interior pages get a consistent page header block: eyebrow, title, one-line standfirst, and a status/meta strip. Every route gets a real page-level meta line (last indexed, version, coverage) where the backend already returns one.
+## Pass 2 — Blue-chip finish
 
-## Explicitly not in scope
+**PageHeader on every interior route**: eyebrow, title, one-line standfirst, and a meta strip (last indexed, methodology version, decoder version, evidence-floor version, release status, public/private, coverage). Any value the backend doesn't return renders as a clean pending/unavailable state — never a placeholder that looks real.
 
-No palette change, no typeface change, no copy rewrite, no new claims, no scoring/decoder/API changes, no route or URL changes. Data honesty rules stay: nothing renders a grade, verification or count that the backend didn't return.
+**Accessibility**: skip-to-content link, one amber focus ring on every interactive element, visible keyboard states, correct heading order, accessible status text, reduced-motion support.
+
+**Loading**: skeletons shaped like the real content — table rows, dossier cards, evidence timeline, registration wizard, wallet panels, document pages. No layout jumps.
+
+**Empty states**: one calm, trust-building system, using the spec's exact tone — "No agents qualify yet. SPX402 only ranks agents after verified evidence meets the public floor." / "No evidence returned yet. This agent is tracked, but SPX402 has not indexed qualifying activity." / "This agent is private. It can be configured, verified, and tested before publication."
+
+**Tables**: one language across Registry, Leaderboard, evidence timeline, API usage, My Agents, Wallets, Income Routing and Corrections — same density, row height, sticky header, hover, selected, sort affordance, empty state and mobile stacked-card behaviour.
+
+**Formatting**: `formatUtc`, `truncateAddress`, `formatSol`, `formatUsd`, `formatBps`, `formatScore`, `formatPercent`, `formatTxSignature` — one implementation each. Tabular figures, aligned decimals, one UTC format, one truncation rule, one grade chip. No page invents its own.
+
+**Motion**: one duration token, one easing token, reveal-on-scroll for major bands only, reduced-motion respected. No bouncing or decorative particles.
+
+**Header**: condenses subtly on scroll with a hairline rule. **Footer**: becomes a proper site index — Product (Register Agent, Registry, Leaderboard, AEON Agents), Trust (Methodology, Corrections, Genesis Record, Status), Developers (API, Dossiers, Evidence Bundles, Attestations), Company (About, Contact, Legal). Trust surfaces are always one glance away.
+
+## Pass 3 — Extend the house style to every route
+
+Interior-page versions of the homepage language: numbered band spines, engraved hairline rules, restrained terminal texture, aperture framing, precise panel borders, section numbering where it helps. Continuity, not noise — utility pages stay quiet.
+
+Applied in evaluation order: Methodology → Registry → Agent dossier → Register Agent → Leaderboard → AEON Agents → Genesis Record → Corrections → API → My Agents/Dashboard → Wallets & Income Routing.
+
+---
+
+## Product-specific polish
+
+**Homepage** — hero stays "Agents can lie. Evidence can not." The reveal band below it, "The first credit layer agents can actually earn," becomes monumental but credible: AEON identity → controlled authority → SPX402 Wallet → reputation earned from evidence, closing on "This is not a leaderboard for bots. It is infrastructure for accountable machine economies."
+
+**AEON Agents** — a product-grade explanation, not a docs dump: "AEON Agents are agents with identity, authority, and receipts," then AEON Program, AEON Agent, CRI, scoped authority, fail-closed accounting, receipts, bonds, escrow, SPX402 reputation. Launch state uses explicit labels (Devnet Live / Mainnet Pending / Mainnet Live / Indexed / Verified / Graded) read from the backend — mainnet status is never claimed.
+
+**Register Agent** — feels like opening a verified financial identity: consistent progress rail across Agent type, Agent basics, AEON identity, SPX402 Wallet, Ownership and income routing, Operator verification, Privacy and publication, Disclosures, Evidence/status preview, Review and submit. No step is a raw form dump.
+
+**Agent dossier** — a public credit file. The first screen answers, without scrolling: who the agent is, verified or not, public or private, SPX402 Wallet present, what evidence exists, provisional or full grade, issuer interest, attestation.
+
+**Registry / Leaderboard** — financial-grade data products: one row language, no messy columns, provisional status and issuer-interest markers visible on the row itself.
+
+**Methodology / Corrections / Genesis Record** — institutional trust documents: narrow measure, strong header, meta strip, section numbering, engraved definition panels, version badges, correction and attestation callouts.
+
+**Wallet naming** — public copy says SPX402 Wallet / Agent Wallet / Payment Wallet / Income Wallet. "x402" survives only in developer and API notes, with the allowed line: "SPX402 Wallets may use x402-compatible payment rails internally. Public users do not need to manage x402 directly."
+
+## Data honesty
+
+Verification, grade, score, decoded events, event count, evidence-floor status, attestation, wallet ownership, income routing, fee routing, issuer interest, correction history, public/private state and mainnet status are backend-owned. Missing values render as pending, unavailable, not returned, waiting for evidence, private, or not yet graded. No production-looking demo data.
 
 ## Technical section
 
-- Add tokens to `src/styles.css` under `@theme` for spacing rhythm, container widths, motion duration/easing, and focus ring; expose them as `@utility` classes (`stage`, `stage-narrow`, `band`, `section`, `focus-ring`).
-- New primitives in `src/components/spx/`: `PageHeader`, `ActionButton` (primary/secondary/ghost variants via `cva`), `StatCell`, `SectionHeading`, `Skeleton` shapes, plus adoption of the existing `Panel`, `DataTable`, `EmptyState`, `StatusChip`, `DetailSection`.
-- Replace the 17 inline `border-amber/80 bg-amber/10 px-…` buttons and all ad-hoc `max-w-*` page wrappers with the primitives above, route by route.
-- Formatting helpers centralised: `formatUtc`, `truncateAddress`, `formatSol`, `formatUsd` — one implementation, used everywhere numbers or addresses render.
-- Verification each pass: `bunx tsgo --noEmit`, `bun test` (the 8 network-dependent failures stay out of scope), every route returns 200, and a visual check at 1280px and 390px.
+- `src/styles.css` `@theme` tokens: container widths, spacing rhythm, motion duration and easing, focus ring, table density, panel border, status colors. Utilities exposed via `@utility`: `stage`, `stage-narrow`, `band`, `section`, `subsection`, `focus-ring`, `tabular`, `hairline`.
+- Primitives live in `src/components/spx/`; existing `Panel`, `DataTable`, `EmptyState`, `StatusChip`, `DetailSection` are extended rather than duplicated. `ActionButton` variants via `cva`.
+- Formatting helpers centralised in `src/lib/format.ts` and adopted route by route.
+- Ad-hoc wrappers, inline button classes, title classes and table styles replaced one route at a time.
+- After each pass: `bunx tsgo --noEmit`, `bun test`, every route returns 200, visual check at 1280px and 390px, keyboard focus visible, reduced motion honoured, no private data on public pages, no fake truth-sensitive values. The 8 existing network-dependent test failures are reported separately as pre-existing.
 
-## Suggested order
+## Final report will list
 
-Pass 1 first — it produces the largest perceived jump for the least risk. Pass 2 next. Pass 3 last, page by page, starting with Methodology, Registry and the Agent dossier since those are the pages an evaluator actually reads.
+Pages changed, components created/updated, tokens added, inline styles replaced, helpers centralised, routes visually checked, checks run, known issues left, backend data still needed, and the routes worth reviewing first.
