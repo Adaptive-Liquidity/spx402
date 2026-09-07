@@ -30,11 +30,7 @@ export default function PriceContextChart({ data }: { data: { t: string; v: numb
             stroke="var(--wire)"
             tick={{ fontSize: 10, fontFamily: "monospace" }}
           />
-          <YAxis
-            stroke="var(--wire)"
-            tick={{ fontSize: 10, fontFamily: "monospace" }}
-            width={70}
-          />
+          <YAxis stroke="var(--wire)" tick={{ fontSize: 10, fontFamily: "monospace" }} width={70} />
           <Tooltip
             contentStyle={{
               background: "var(--panel-deep)",

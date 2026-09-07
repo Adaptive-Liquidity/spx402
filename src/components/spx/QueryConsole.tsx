@@ -2,12 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-const EXAMPLES = [
-  "Token mint",
-  "Creator wallet",
-  "Agent deposit address",
-  "x402 executor wallet",
-];
+const EXAMPLES = ["Token mint", "Creator wallet", "Agent deposit address", "x402 executor wallet"];
 
 /**
  * The heavyweight ledger query console. Framed in the same hairline coordinate
@@ -29,8 +24,7 @@ export function QueryConsole() {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const typing =
-        e.target instanceof HTMLElement &&
-        ["INPUT", "TEXTAREA"].includes(e.target.tagName);
+        e.target instanceof HTMLElement && ["INPUT", "TEXTAREA"].includes(e.target.tagName);
       if (typing) return;
       if (e.key === "/" || (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey))) {
         e.preventDefault();
@@ -109,13 +103,22 @@ export function QueryConsole() {
       <span className="console-beam" aria-hidden />
 
       <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 border-t border-bronze/60 px-4 py-3">
-        <Link to="/live" className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper">
+        <Link
+          to="/live"
+          className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper"
+        >
           Tape
         </Link>
-        <Link to="/methodology" className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper">
+        <Link
+          to="/methodology"
+          className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper"
+        >
           Methodology
         </Link>
-        <Link to="/build/register" className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper">
+        <Link
+          to="/build/register"
+          className="font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper"
+        >
           Claim an agent
         </Link>
       </div>

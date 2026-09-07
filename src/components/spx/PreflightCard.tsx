@@ -27,9 +27,7 @@ export function PreflightCard({
   className?: string;
 }) {
   return (
-    <figure
-      className={cn("relative overflow-hidden border border-bronze/60 bg-panel", className)}
-    >
+    <figure className={cn("relative overflow-hidden border border-bronze/60 bg-panel", className)}>
       <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", TONE_BAR[card.tone])} />
 
       <div className="flex flex-col gap-6 p-6 lg:p-8">

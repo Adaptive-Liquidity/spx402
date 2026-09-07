@@ -51,9 +51,7 @@ const MintSchema = z.object({
     .string()
     .min(8)
     .max(128)
-    .describe(
-      "Agent identifier — Solana mint, MPL core asset, or executor wallet.",
-    ),
+    .describe("Agent identifier — Solana mint, MPL core asset, or executor wallet."),
 });
 
 const ListSchema = z.object({
@@ -183,8 +181,7 @@ export class Spx402ActionProvider {
     return [
       {
         name: "spx402_get_agent_grade",
-        description:
-          "Get the SPX402 execution grade, score and confidence for an agent. Free.",
+        description: "Get the SPX402 execution grade, score and confidence for an agent. Free.",
         schema: MintSchema,
         invoke: (input: z.infer<typeof MintSchema>) => this.getAgentGrade(input),
       },

@@ -28,7 +28,9 @@ export function ShareCard({ card }: { card: GradeCardModel }) {
   };
 
   const canNativeShare =
-    typeof navigator !== "undefined" && "share" in navigator && typeof navigator.share === "function";
+    typeof navigator !== "undefined" &&
+    "share" in navigator &&
+    typeof navigator.share === "function";
 
   return (
     <div className="space-y-3">

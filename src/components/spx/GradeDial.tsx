@@ -26,7 +26,10 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
   return (
     <div className="caliper">
       <div className="caliper-track">
-        <div className="caliper-zone caliper-zone-graded" style={{ flexGrow: rows.reduce((sum, row) => sum + row.count, 0) || 1 }}>
+        <div
+          className="caliper-zone caliper-zone-graded"
+          style={{ flexGrow: rows.reduce((sum, row) => sum + row.count, 0) || 1 }}
+        >
           {rows.map((r) => (
             <div
               key={r.grade}
@@ -48,10 +51,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
         {awaiting > 0 && (
           <>
             <div className="caliper-notch" aria-hidden />
-            <div
-              className="caliper-zone caliper-zone-awaiting"
-              style={{ flexGrow: awaiting }}
-            >
+            <div className="caliper-zone caliper-zone-awaiting" style={{ flexGrow: awaiting }}>
               <div className="caliper-seg caliper-hatch">
                 <span className="seg-pop">
                   <em>404</em>
@@ -79,9 +79,7 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
             {shortLabel(r.grade)} {r.count}
           </span>
         ))}
-        <span className="caliper-label caliper-label-awaiting">
-          404 {awaiting}
-        </span>
+        <span className="caliper-label caliper-label-awaiting">404 {awaiting}</span>
       </div>
     </div>
   );

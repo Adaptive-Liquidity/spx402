@@ -22,52 +22,54 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
         {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
       </button>
 
-      {open && mounted && createPortal(
-        <div className="fixed inset-x-0 bottom-0 top-[64px] z-50 overflow-y-auto border-t border-bronze/40 bg-background/98 backdrop-blur-md">
-          <nav className="flex flex-col divide-y divide-bronze/25 px-4 py-2">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={close}
-                className="py-4 font-mono text-[13px] uppercase tracking-widest text-paper-muted transition-colors hover:text-amber"
-                activeProps={{ className: "text-amber" }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex flex-col gap-3 px-4 pb-10 pt-6">
-            {signedIn ? (
-              <Link
-                to="/dashboard"
-                onClick={close}
-                className="border border-amber/80 bg-amber/10 px-4 py-3 text-center font-mono text-[11px] uppercase tracking-widest text-amber"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <>
+      {open &&
+        mounted &&
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 top-[64px] z-50 overflow-y-auto border-t border-bronze/40 bg-background/98 backdrop-blur-md">
+            <nav className="flex flex-col divide-y divide-bronze/25 px-4 py-2">
+              {NAV_ITEMS.map((item) => (
                 <Link
-                  to="/signup"
+                  key={item.to}
+                  to={item.to}
+                  onClick={close}
+                  className="py-4 font-mono text-[13px] uppercase tracking-widest text-paper-muted transition-colors hover:text-amber"
+                  activeProps={{ className: "text-amber" }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="flex flex-col gap-3 px-4 pb-10 pt-6">
+              {signedIn ? (
+                <Link
+                  to="/dashboard"
                   onClick={close}
                   className="border border-amber/80 bg-amber/10 px-4 py-3 text-center font-mono text-[11px] uppercase tracking-widest text-amber"
                 >
-                  Open Terminal
+                  Dashboard
                 </Link>
-                <Link
-                  to="/login"
-                  onClick={close}
-                  className="border border-bronze/60 px-4 py-3 text-center font-mono text-[11px] uppercase tracking-widest text-paper-muted"
-                >
-                  Sign in
-                </Link>
-              </>
-            )}
-          </div>
-        </div>,
-        document.body,
-      )}
+              ) : (
+                <>
+                  <Link
+                    to="/signup"
+                    onClick={close}
+                    className="border border-amber/80 bg-amber/10 px-4 py-3 text-center font-mono text-[11px] uppercase tracking-widest text-amber"
+                  >
+                    Open Terminal
+                  </Link>
+                  <Link
+                    to="/login"
+                    onClick={close}
+                    className="border border-bronze/60 px-4 py-3 text-center font-mono text-[11px] uppercase tracking-widest text-paper-muted"
+                  >
+                    Sign in
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
