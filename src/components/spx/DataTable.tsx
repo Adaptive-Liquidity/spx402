@@ -43,7 +43,39 @@ export function DataTable<T>({
   const pad = dense ? "px-3 py-2.5" : "px-3 py-3.5";
 
   return (
-    <div className="overflow-x-auto border border-bronze/40">
+    <>
+      {/* Below sm the same rows stack as label/value cards — never side-scroll on a phone. */}
+      <div className="border border-bronze/40 sm:hidden">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="space-y-2 border-b border-bronze/15 p-3 last:border-0">
+              <span className="block h-3 w-32 animate-pulse bg-bronze/20 motion-reduce:animate-none" />
+              <span className="block h-3 w-20 animate-pulse bg-bronze/20 motion-reduce:animate-none" />
+            </div>
+          ))
+        ) : rows.length === 0 ? (
+          <div className="px-4 py-12 text-center font-mono text-xs text-paper-muted">
+            {empty ?? "No rows match these filters."}
+          </div>
+        ) : (
+          rows.map((row) => (
+            <div key={rowKey(row)} className="border-b border-bronze/15 p-3 last:border-0">
+              <dl className="space-y-1.5">
+                {columns.map((c) => (
+                  <div key={c.key} className="flex items-baseline justify-between gap-3">
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-wire">
+                      {c.header}
+                    </dt>
+                    <dd className="min-w-0 text-right font-mono text-xs text-paper">{c.cell(row)}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto border border-bronze/40 sm:block">
       <table className="w-full border-collapse text-left">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
