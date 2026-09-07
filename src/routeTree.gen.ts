@@ -24,6 +24,7 @@ import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as GenesisRecordRouteImport } from './routes/genesis-record'
 import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
@@ -175,6 +176,11 @@ const LiveRoute = LiveRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenesisRecordRoute = GenesisRecordRouteImport.update({
+  id: '/genesis-record',
+  path: '/genesis-record',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FlaggedRoute = FlaggedRouteImport.update({
@@ -601,6 +607,7 @@ export interface FileRoutesByFullPath {
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
+  '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
@@ -692,6 +699,7 @@ export interface FileRoutesByTo {
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
+  '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
@@ -784,6 +792,7 @@ export interface FileRoutesById {
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
+  '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
@@ -879,6 +888,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/explore'
     | '/flagged'
+    | '/genesis-record'
     | '/leaderboard'
     | '/live'
     | '/login'
@@ -970,6 +980,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/explore'
     | '/flagged'
+    | '/genesis-record'
     | '/leaderboard'
     | '/login'
     | '/methodology'
@@ -1061,6 +1072,7 @@ export interface FileRouteTypes {
     | '/disclaimer'
     | '/explore'
     | '/flagged'
+    | '/genesis-record'
     | '/leaderboard'
     | '/live'
     | '/login'
@@ -1156,6 +1168,7 @@ export interface RootRouteChildren {
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
   FlaggedRoute: typeof FlaggedRoute
+  GenesisRecordRoute: typeof GenesisRecordRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveRoute: typeof LiveRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -1284,6 +1297,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/genesis-record': {
+      id: '/genesis-record'
+      path: '/genesis-record'
+      fullPath: '/genesis-record'
+      preLoaderRoute: typeof GenesisRecordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/flagged': {
@@ -2034,6 +2054,7 @@ const rootRouteChildren: RootRouteChildren = {
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
   FlaggedRoute: FlaggedRoute,
+  GenesisRecordRoute: GenesisRecordRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveRoute: LiveRouteWithChildren,
   LoginRoute: LoginRoute,
