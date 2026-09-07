@@ -18,6 +18,15 @@ export const Route = createFileRoute("/llms.txt")({
           },
         });
       },
+      HEAD: async () =>
+        new Response(null, {
+          status: 200,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
+          },
+        }),
     },
   },
 });
