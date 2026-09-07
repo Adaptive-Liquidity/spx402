@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PageHeader } from "@/components/spx/PageHeader";
 import { StatusChip } from "@/components/spx/StatusChip";
 
 export const Route = createFileRoute("/aeon-agents")({
@@ -37,16 +38,14 @@ function Card({ title, body }: { title: string; body: string }) {
 function AeonAgentsPage() {
   return (
     <div className="stage-narrow section">
-      <h1 className="font-display text-4xl font-bold tracking-tight text-paper">
-        AEON Agents are agents with receipts.
-      </h1>
-      <p className="mt-5 max-w-3xl text-lg text-paper-muted">
-        AEON gives agents identity, scoped authority, escrow, receipts, bonds and fail-closed
-        accounting. SPX402 turns that activity into public reputation.
-      </p>
+      <PageHeader
+        eyebrow="Product"
+        title="AEON Agents are agents with receipts."
+        standfirst="AEON gives agents identity, scoped authority, escrow, receipts, bonds and fail-closed accounting. SPX402 turns that activity into public reputation."
+        meta={[{ label: "Release status", value: <StatusChip status="unknown" /> }]}
+      />
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <StatusChip status="unknown" />
+      <div className="mt-6 flex flex-wrap gap-2">
         <span className="font-mono text-[11px] text-wire">
           Release status is read from the backend. Until it reports a deployed program, indexed
           events and verified evidence, nothing here claims mainnet.
