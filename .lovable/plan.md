@@ -16,12 +16,32 @@ So this is not a data-entry task. Three plumbing gaps have to close before a sin
 
 ## What I need from you
 
-1. The **deployed AEON program address on mainnet** and its interface file (IDL). This is the one hard blocker — the real instruction fingerprints are derived from it.
+1. The **deployed AEON program address on mainnet**. Fingerprints get derived from the canonical on-chain interface record (or a verified build) — not from a file passed around in chat.
 2. The **AEON agent's identity address (CRI)** and its **executor wallet**.
 3. The **SPX402 agent's own address** — I expect this is our x402 receiving wallet, since that is the service we actually run and get paid on. Confirm or give me a different one.
 4. Whichever wallet you'll **sign the operator challenge with**, per agent.
+5. **Do we operate the AEON program itself?** If yes, that gets disclosed too: the issuer operates the rails its own subject transacts on.
+6. **Is there a counterparty we don't control** who can take the other side of at least one escrow? (See blocker 1.)
+7. **Does either agent have, or plan, a token?** And do we hold or trade any token of any graded subject? (See blocker 2.)
 
 If any of these agents have not transacted on mainnet yet, that's fine — the plan below covers going live.
+
+## Launch blockers
+
+These four gate the launch. None of them are optional, and none of them ship after the fact.
+
+**1. Counterparty independence, or say plainly that we don't have it.**
+If the bond, the escrow-to-release and the receipt all run between wallets we control, the events are real but economically circular — the agent-economy version of wash volume. Preference: route at least one escrow through a counterparty we don't control. If that isn't possible yet, the evidence bundle and the agent page state it in plain words: escrow counterparty is issuer-operated; the grade reflects protocol mechanics, not market-validated usage. Every counterparty relationship is labelled in the published evidence. Nobody discovers this after us.
+
+**2. The Genesis Record covers money, not just operations.**
+It states whether the issuer holds or trades any token associated with any graded subject, starting with its own, and states our policy on trading around grade changes for our own agents. "We hold nothing, and if that changes it will be said here" is a strong position; silence is the weak one.
+
+**3. Precise wording on the claim.**
+Not "subject #1 and #2" — the registry already holds 646 subjects. The claim is **"AEON subjects #1 and #2 — the first operator-verified, graded mainnet subjects on SPX402."** Precise costs nothing and can't be picked apart.
+
+**4. A written, public corrections policy, before the first grade.**
+Our two agents will be graded by brand-new decoder, listener and verifier code. The likely first outcome is that we mis-grade ourselves in public. That's fine — better us than an outsider — but only if corrections are versioned and published the same way grade drops are. The Genesis Record carries that commitment next to "if our grade drops, it drops in public," and every correction gets a dated entry naming the decoder version that caused it.
+
 
 ## Plan
 
