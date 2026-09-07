@@ -1,7 +1,7 @@
 import type { AgentCategory } from "./agents/categories";
 
 // Shadow-grader category vocabulary (subset used by scripts/shadow-grade.ts).
-// Pure module: no env, no network, no side effects � safe to unit-test.
+// Pure module: no env, no network, no side effects — safe to unit-test.
 export type ShadowCategory =
   | "tokenized_buyback"
   | "registered_agent"
