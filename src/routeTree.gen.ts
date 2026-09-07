@@ -21,6 +21,7 @@ import { Route as PreflightRouteImport } from './routes/preflight'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LiveRouteImport } from './routes/live'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
@@ -153,6 +154,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -208,9 +214,9 @@ const RegistryIndexRoute = RegistryIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const LiveIndexRoute = LiveIndexRouteImport.update({
-  id: '/live/',
-  path: '/live/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => LiveRoute,
 } as any)
 const BuildIndexRoute = BuildIndexRouteImport.update({
   id: '/build/',
@@ -253,14 +259,14 @@ const OperatorWalletRoute = OperatorWalletRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const LiveStatusRoute = LiveStatusRouteImport.update({
-  id: '/live/status',
-  path: '/live/status',
-  getParentRoute: () => rootRouteImport,
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => LiveRoute,
 } as any)
 const LivePulseRoute = LivePulseRouteImport.update({
-  id: '/live/pulse',
-  path: '/live/pulse',
-  getParentRoute: () => rootRouteImport,
+  id: '/pulse',
+  path: '/pulse',
+  getParentRoute: () => LiveRoute,
 } as any)
 const EmbedSubjectRoute = EmbedSubjectRouteImport.update({
   id: '/embed/$subject',
@@ -541,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -710,6 +717,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -796,6 +804,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/flagged'
     | '/leaderboard'
+    | '/live'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -964,6 +973,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/flagged'
     | '/leaderboard'
+    | '/live'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -1050,6 +1060,7 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   FlaggedRoute: typeof FlaggedRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  LiveRoute: typeof LiveRouteWithChildren
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
@@ -1072,8 +1083,6 @@ export interface RootRouteChildren {
   BuildPreflightRoute: typeof BuildPreflightRoute
   BuildRegisterRoute: typeof BuildRegisterRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
-  LivePulseRoute: typeof LivePulseRoute
-  LiveStatusRoute: typeof LiveStatusRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
   RegistryExploreRoute: typeof RegistryExploreRoute
   RegistryFlaggedRoute: typeof RegistryFlaggedRoute
@@ -1081,7 +1090,6 @@ export interface RootRouteChildren {
   ServiceSlugRoute: typeof ServiceSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   BuildIndexRoute: typeof BuildIndexRoute
-  LiveIndexRoute: typeof LiveIndexRoute
   RegistryIndexRoute: typeof RegistryIndexRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -1172,6 +1180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -1251,10 +1266,10 @@ declare module '@tanstack/react-router' {
     }
     '/live/': {
       id: '/live/'
-      path: '/live'
+      path: '/'
       fullPath: '/live/'
       preLoaderRoute: typeof LiveIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof LiveRoute
     }
     '/build/': {
       id: '/build/'
@@ -1314,17 +1329,17 @@ declare module '@tanstack/react-router' {
     }
     '/live/status': {
       id: '/live/status'
-      path: '/live/status'
+      path: '/status'
       fullPath: '/live/status'
       preLoaderRoute: typeof LiveStatusRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof LiveRoute
     }
     '/live/pulse': {
       id: '/live/pulse'
-      path: '/live/pulse'
+      path: '/pulse'
       fullPath: '/live/pulse'
       preLoaderRoute: typeof LivePulseRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof LiveRoute
     }
     '/embed/$subject': {
       id: '/embed/$subject'
@@ -1781,6 +1796,20 @@ const ApiRouteChildren: ApiRouteChildren = {
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
+interface LiveRouteChildren {
+  LivePulseRoute: typeof LivePulseRoute
+  LiveStatusRoute: typeof LiveStatusRoute
+  LiveIndexRoute: typeof LiveIndexRoute
+}
+
+const LiveRouteChildren: LiveRouteChildren = {
+  LivePulseRoute: LivePulseRoute,
+  LiveStatusRoute: LiveStatusRoute,
+  LiveIndexRoute: LiveIndexRoute,
+}
+
+const LiveRouteWithChildren = LiveRoute._addFileChildren(LiveRouteChildren)
+
 interface TapeRouteChildren {
   TapeEventIdRoute: typeof TapeEventIdRoute
 }
@@ -1802,6 +1831,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   FlaggedRoute: FlaggedRoute,
   LeaderboardRoute: LeaderboardRoute,
+  LiveRoute: LiveRouteWithChildren,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
@@ -1824,8 +1854,6 @@ const rootRouteChildren: RootRouteChildren = {
   BuildPreflightRoute: BuildPreflightRoute,
   BuildRegisterRoute: BuildRegisterRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
-  LivePulseRoute: LivePulseRoute,
-  LiveStatusRoute: LiveStatusRoute,
   OperatorWalletRoute: OperatorWalletRoute,
   RegistryExploreRoute: RegistryExploreRoute,
   RegistryFlaggedRoute: RegistryFlaggedRoute,
@@ -1833,7 +1861,6 @@ const rootRouteChildren: RootRouteChildren = {
   ServiceSlugRoute: ServiceSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   BuildIndexRoute: BuildIndexRoute,
-  LiveIndexRoute: LiveIndexRoute,
   RegistryIndexRoute: RegistryIndexRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
