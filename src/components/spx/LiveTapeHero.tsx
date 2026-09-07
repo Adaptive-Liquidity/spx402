@@ -12,9 +12,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { categoryLabel } from "@/lib/agents/categories";
 
-const MAX_ROWS = 18;
-const VISIBLE_ROWS = 8;
+const ROW_STEPS = [5, 15, 25, 50, 100] as const;
 const POLL_MS = 30_000;
+
+const SEVERITIES = ["all", "success", "warn", "critical", "info"] as const;
+const SORTS = ["newest", "oldest", "largest"] as const;
+type SortKey = (typeof SORTS)[number];
+
+const SORT_LABEL: Record<SortKey, string> = {
+  newest: "Newest",
+  oldest: "Oldest",
+  largest: "Largest SOL",
+};
+
 
 function severityTone(sev: string): string {
   if (sev === "success") return "text-verified";
