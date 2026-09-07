@@ -216,6 +216,9 @@ const KNOWN_WORKERS = [
   "score_snapshot",
   "x402_scan",
   "evm_x402_scan",
+  "registry_scan",
+  "registered_agent_diff",
+  "directory_import",
   "prober",
 ] as const;
 
