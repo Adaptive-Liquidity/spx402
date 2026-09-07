@@ -87,7 +87,7 @@ export const Route = createFileRoute("/service/$slug")({
       </p>
       <Link
         to="/live/status"
-        className="mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        className="focus-ring mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         Prober status
       </Link>
@@ -104,7 +104,7 @@ export const Route = createFileRoute("/service/$slug")({
             router.invalidate();
             reset();
           }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
@@ -192,7 +192,7 @@ function ServicePage() {
             <Link
               to="/agent/$mint"
               params={{ mint: subject }}
-              className="mt-4 inline-block border border-bronze/70 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+              className="focus-ring mt-4 inline-block border border-bronze/70 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
             >
               Payee dossier ↗
             </Link>

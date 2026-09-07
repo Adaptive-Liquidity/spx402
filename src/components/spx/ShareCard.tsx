@@ -45,7 +45,7 @@ export function ShareCard({ card }: { card: GradeCardModel }) {
           <button
             type="button"
             onClick={share}
-            className="border border-amber/70 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring border border-amber/70 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-amber hover:bg-amber hover:text-panel-deep"
           >
             Share
           </button>

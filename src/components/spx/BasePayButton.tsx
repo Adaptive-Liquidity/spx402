@@ -148,7 +148,7 @@ export function BasePayButton({ plan, apiKeyId = null, onPaid }: BasePayButtonPr
                   <button
                     type="button"
                     onClick={() => void pay(w)}
-                    className="flex w-full items-center gap-2.5 border border-bronze/50 px-3 py-2 text-left font-mono text-xs text-paper hover:border-amber hover:text-amber"
+                    className="focus-ring flex w-full items-center gap-2.5 border border-bronze/50 px-3 py-2 text-left font-mono text-xs text-paper hover:border-amber hover:text-amber"
                   >
                     {w.icon && <img src={w.icon} alt="" className="h-4 w-4" />}
                     {w.name}
@@ -174,7 +174,7 @@ export function BasePayButton({ plan, apiKeyId = null, onPaid }: BasePayButtonPr
           href={onrampUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="block border border-bronze/60 px-4 py-2.5 text-center font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+          className="focus-ring block border border-bronze/60 px-4 py-2.5 text-center font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
         >
           Empty wallet? Fund with card or Apple Pay →
         </a>

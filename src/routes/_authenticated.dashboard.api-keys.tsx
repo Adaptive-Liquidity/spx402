@@ -141,7 +141,7 @@ function ApiKeysPage() {
         <button
           onClick={generate}
           disabled={creating}
-          className="border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
+          className="focus-ring border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
         >
           {creating ? "Generating…" : "+ Generate key"}
         </button>
@@ -193,7 +193,7 @@ function ApiKeysPage() {
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => setUpgradeFor(upgradeFor === k.id ? null : k.id)}
-                          className="border border-bronze/60 px-2.5 py-1.5 text-[10px] uppercase tracking-widest hover:border-amber hover:text-amber"
+                          className="focus-ring border border-bronze/60 px-2.5 py-1.5 text-[10px] uppercase tracking-widest hover:border-amber hover:text-amber"
                         >
                           Upgrade
                         </button>

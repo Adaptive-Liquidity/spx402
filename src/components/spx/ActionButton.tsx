@@ -13,7 +13,7 @@ export const actionButtonVariants = cva(
     variants: {
       variant: {
         primary:
-          "border-amber/80 bg-amber/10 text-amber hover:bg-amber hover:text-background active:bg-amber/90",
+          "border-amber/80 bg-amber/10 text-amber hover:bg-amber hover:text-panel-deep active:bg-amber/90",
         secondary:
           "border-bronze/50 bg-transparent text-paper hover:border-amber hover:text-amber active:border-amber/70",
         ghost:

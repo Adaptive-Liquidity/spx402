@@ -41,7 +41,7 @@ export const Route = createFileRoute("/tape/$eventId")({
       <p className="mt-3 text-paper-muted">That event id is not in the SPX402 ledger.</p>
       <Link
         to="/live"
-        className="mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        className="focus-ring mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         Browse the tape
       </Link>
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/tape/$eventId")({
             router.invalidate();
             reset();
           }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
@@ -141,7 +141,7 @@ function TapeEventPage() {
             href={`https://solscan.io/tx/${r.signature}`}
             target="_blank"
             rel="noreferrer"
-            className="mt-3 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring mt-3 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Open on Solscan ↗
           </a>

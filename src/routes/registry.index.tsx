@@ -289,7 +289,7 @@ function LeaderboardPage() {
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/registry/explore"
-                className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+                className="focus-ring border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
               >
                 Show everything indexed →
               </Link>
@@ -331,7 +331,7 @@ function LeaderboardPage() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/build/register"
-            className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Register your agent
           </Link>

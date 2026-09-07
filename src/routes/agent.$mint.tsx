@@ -394,7 +394,7 @@ export const Route = createFileRoute("/agent/$mint")({
             router.invalidate();
             reset();
           }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
@@ -444,7 +444,7 @@ function VerifyingState({
         <div className="mt-8 flex justify-center gap-3">
           <Link
             to="/"
-            className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             New search
           </Link>
@@ -579,7 +579,7 @@ function VerifyingState({
       <div className="mt-10 flex flex-wrap gap-3">
         <Link
           to="/"
-          className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           New search
         </Link>
@@ -632,7 +632,7 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
         setDone(true);
         setTimeout(() => setDone(false), 1200);
       }}
-      className="inline-flex items-center gap-1.5 border border-bronze/60 bg-panel-deep/60 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+      className="focus-ring inline-flex items-center gap-1.5 border border-bronze/60 bg-panel-deep/60 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
     >
       {done ? <CheckCircle2 className="h-3 w-3 text-verified" /> : <Copy className="h-3 w-3" />}
       {label ?? (done ? "Copied" : "Copy")}
@@ -1002,7 +1002,7 @@ function Dossier({
               href={`/api/public/agent/${agent.mint}/evidence`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+              className="focus-ring inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
               title="Canonical evidence JSON with Merkle root over the 30-day window"
             >
               Evidence bundle ↗
@@ -1012,7 +1012,7 @@ function Dossier({
               href={`/embed/${agent.mint}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+              className="focus-ring inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
               title="Iframe-friendly badge widget"
             >
               Embed widget ↗
@@ -1069,7 +1069,7 @@ function Dossier({
         {!agent.operatorVerified && (
           <Link
             to="/registry/operators"
-            className="inline-flex items-center gap-2 border border-amber/70 bg-amber/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring inline-flex items-center gap-2 border border-amber/70 bg-amber/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Is this your agent? Verify operator → climb the leaderboard
           </Link>
@@ -1530,7 +1530,7 @@ function WatchlistButton({ mint, symbol }: { mint: string; symbol: string }) {
     return (
       <Link
         to="/login"
-        className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        className="focus-ring inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         <Activity className="h-3.5 w-3.5" /> Sign in to watchlist
       </Link>
@@ -1592,7 +1592,7 @@ function AlertSubscribeButton({ mint }: { mint: string }) {
     return (
       <Link
         to="/login"
-        className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        className="focus-ring inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         <Bell className="h-3.5 w-3.5" /> Sign in for alerts
       </Link>

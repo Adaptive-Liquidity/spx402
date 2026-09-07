@@ -20,7 +20,7 @@ function NotFoundComponent() {
       </p>
       <a
         href="/"
-        className="mt-8 inline-flex border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        className="focus-ring mt-8 inline-flex border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         Return to terminal
       </a>

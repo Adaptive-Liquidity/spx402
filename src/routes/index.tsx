@@ -111,13 +111,13 @@ function HomeError({ reset }: { reset: () => void }) {
       <div className="mt-8 flex gap-3">
         <button
           onClick={reset}
-          className="inline-flex border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring inline-flex border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
         <a
           href="/live/status"
-          className="inline-flex border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+          className="focus-ring inline-flex border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
         >
           System status
         </a>
@@ -294,13 +294,13 @@ function HomePage() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 to="/aeon-agents"
-                className="border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+                className="focus-ring border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
               >
                 What is an AEON Agent
               </Link>
               <Link
                 to="/build/register"
-                className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+                className="focus-ring border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
               >
                 Register an agent
               </Link>

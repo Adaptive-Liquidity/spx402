@@ -44,7 +44,7 @@ function MyAgents() {
       <div className="mt-6">
         <Link
           to="/build/register"
-          className="inline-flex border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring inline-flex border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Register Agent
         </Link>
