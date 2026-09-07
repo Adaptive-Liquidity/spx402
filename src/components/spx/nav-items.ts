@@ -10,13 +10,3 @@ export const NAV_ITEMS = [
 ] as const;
 
 export type NavItem = (typeof NAV_ITEMS)[number];
-
-/** Signed-in navigation for the operator terminal. */
-export const DASHBOARD_NAV_ITEMS = [
-  { to: "/dashboard/agents", label: "My Agents" },
-  { to: "/dashboard/wallets", label: "Wallets" },
-  { to: "/dashboard/watchlist", label: "Watchlist" },
-  { to: "/dashboard/alerts", label: "Alerts" },
-  { to: "/dashboard/api-keys", label: "API Keys" },
-  { to: "/dashboard/account", label: "Settings" },
-] as const;
