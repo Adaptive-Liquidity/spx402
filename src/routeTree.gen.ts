@@ -14,6 +14,7 @@ import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RegistryRouteImport } from './routes/registry'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -119,6 +120,11 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistryRoute = RegistryRouteImport.update({
+  id: '/registry',
+  path: '/registry',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -209,9 +215,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistryIndexRoute = RegistryIndexRouteImport.update({
-  id: '/registry/',
-  path: '/registry/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => RegistryRoute,
 } as any)
 const LiveIndexRoute = LiveIndexRouteImport.update({
   id: '/',
@@ -239,19 +245,19 @@ const ServiceSlugRoute = ServiceSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistryOperatorsRoute = RegistryOperatorsRouteImport.update({
-  id: '/registry/operators',
-  path: '/registry/operators',
-  getParentRoute: () => rootRouteImport,
+  id: '/operators',
+  path: '/operators',
+  getParentRoute: () => RegistryRoute,
 } as any)
 const RegistryFlaggedRoute = RegistryFlaggedRouteImport.update({
-  id: '/registry/flagged',
-  path: '/registry/flagged',
-  getParentRoute: () => rootRouteImport,
+  id: '/flagged',
+  path: '/flagged',
+  getParentRoute: () => RegistryRoute,
 } as any)
 const RegistryExploreRoute = RegistryExploreRouteImport.update({
-  id: '/registry/explore',
-  path: '/registry/explore',
-  getParentRoute: () => rootRouteImport,
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => RegistryRoute,
 } as any)
 const OperatorWalletRoute = OperatorWalletRouteImport.update({
   id: '/operator/$wallet',
@@ -555,6 +561,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
+  '/registry': typeof RegistryRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -725,6 +732,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
+  '/registry': typeof RegistryRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -812,6 +820,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/pulse'
     | '/register'
+    | '/registry'
     | '/signup'
     | '/sitemap.xml'
     | '/status'
@@ -981,6 +990,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/pulse'
     | '/register'
+    | '/registry'
     | '/signup'
     | '/sitemap.xml'
     | '/status'
@@ -1068,6 +1078,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PulseRoute: typeof PulseRoute
   RegisterRoute: typeof RegisterRoute
+  RegistryRoute: typeof RegistryRouteWithChildren
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatusRoute: typeof StatusRoute
@@ -1084,13 +1095,9 @@ export interface RootRouteChildren {
   BuildRegisterRoute: typeof BuildRegisterRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
-  RegistryExploreRoute: typeof RegistryExploreRoute
-  RegistryFlaggedRoute: typeof RegistryFlaggedRoute
-  RegistryOperatorsRoute: typeof RegistryOperatorsRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   BuildIndexRoute: typeof BuildIndexRoute
-  RegistryIndexRoute: typeof RegistryIndexRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -1129,6 +1136,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry': {
+      id: '/registry'
+      path: '/registry'
+      fullPath: '/registry'
+      preLoaderRoute: typeof RegistryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -1259,10 +1273,10 @@ declare module '@tanstack/react-router' {
     }
     '/registry/': {
       id: '/registry/'
-      path: '/registry'
+      path: '/'
       fullPath: '/registry/'
       preLoaderRoute: typeof RegistryIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RegistryRoute
     }
     '/live/': {
       id: '/live/'
@@ -1301,24 +1315,24 @@ declare module '@tanstack/react-router' {
     }
     '/registry/operators': {
       id: '/registry/operators'
-      path: '/registry/operators'
+      path: '/operators'
       fullPath: '/registry/operators'
       preLoaderRoute: typeof RegistryOperatorsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RegistryRoute
     }
     '/registry/flagged': {
       id: '/registry/flagged'
-      path: '/registry/flagged'
+      path: '/flagged'
       fullPath: '/registry/flagged'
       preLoaderRoute: typeof RegistryFlaggedRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RegistryRoute
     }
     '/registry/explore': {
       id: '/registry/explore'
-      path: '/registry/explore'
+      path: '/explore'
       fullPath: '/registry/explore'
       preLoaderRoute: typeof RegistryExploreRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RegistryRoute
     }
     '/operator/$wallet': {
       id: '/operator/$wallet'
@@ -1810,6 +1824,24 @@ const LiveRouteChildren: LiveRouteChildren = {
 
 const LiveRouteWithChildren = LiveRoute._addFileChildren(LiveRouteChildren)
 
+interface RegistryRouteChildren {
+  RegistryExploreRoute: typeof RegistryExploreRoute
+  RegistryFlaggedRoute: typeof RegistryFlaggedRoute
+  RegistryOperatorsRoute: typeof RegistryOperatorsRoute
+  RegistryIndexRoute: typeof RegistryIndexRoute
+}
+
+const RegistryRouteChildren: RegistryRouteChildren = {
+  RegistryExploreRoute: RegistryExploreRoute,
+  RegistryFlaggedRoute: RegistryFlaggedRoute,
+  RegistryOperatorsRoute: RegistryOperatorsRoute,
+  RegistryIndexRoute: RegistryIndexRoute,
+}
+
+const RegistryRouteWithChildren = RegistryRoute._addFileChildren(
+  RegistryRouteChildren,
+)
+
 interface TapeRouteChildren {
   TapeEventIdRoute: typeof TapeEventIdRoute
 }
@@ -1839,6 +1871,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PulseRoute: PulseRoute,
   RegisterRoute: RegisterRoute,
+  RegistryRoute: RegistryRouteWithChildren,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatusRoute: StatusRoute,
@@ -1855,13 +1888,9 @@ const rootRouteChildren: RootRouteChildren = {
   BuildRegisterRoute: BuildRegisterRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
-  RegistryExploreRoute: RegistryExploreRoute,
-  RegistryFlaggedRoute: RegistryFlaggedRoute,
-  RegistryOperatorsRoute: RegistryOperatorsRoute,
   ServiceSlugRoute: ServiceSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   BuildIndexRoute: BuildIndexRoute,
-  RegistryIndexRoute: RegistryIndexRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
