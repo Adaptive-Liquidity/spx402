@@ -18,7 +18,16 @@ export const Route = createFileRoute("/api/public/badge/{$mint}.svg")({
         const agent = await fetchAgent(mint).catch(() => null);
         const card = agent ? buildGradeCard(agent) : unindexedCard(mint);
 
-        const svg = renderGradeCardSvg(card, { width: 600, height: 600 });
+        const rendered = renderGradeCardSvg(card, { width: 600, height: 600 });
+
+        // Carry the verification permalink inside the file itself: an <img>
+        // embed strips links, so anyone who saves or re-hosts the badge can
+        // still find the attestation record it claims to represent.
+        const verifyUrl = `https://spx402.com/verify/${mint}`;
+        const svg = rendered.replace(
+          /(<svg\b[^>]*>)/,
+          `$1<desc>SPX402 grade card. Verify the on-chain attestations at ${verifyUrl}</desc>`,
+        );
 
         return new Response(svg, {
           status: 200,
