@@ -217,6 +217,43 @@ export function fetchAgentIndex(): Promise<Agent[]> {
   return promise;
 }
 
+export type HomeIndexSummary = {
+  featured: Agent[];
+  gradeSlices: Array<{ grade: Agent["grade"]; count: number }>;
+  unverifiedCount: number;
+  totalBonded: number;
+  totalSlashed: number;
+};
+
+/**
+ * Homepage-only projection. The homepage renders three featured agents plus a
+ * handful of aggregates, so shipping the entire serialized index to the
+ * browser (hundreds of rows, ~45 columns each) was pure payload waste. The
+ * reduction happens on the server; the client receives kilobytes.
+ */
+export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
+  const all = await fetchAgentIndex();
+  const gradeCounts = new Map<Agent["grade"], number>();
+  let unverifiedCount = 0;
+  let totalBonded = 0;
+  let totalSlashed = 0;
+  for (const a of all) {
+    gradeCounts.set(a.grade, (gradeCounts.get(a.grade) ?? 0) + 1);
+    if (!a.operatorVerified) unverifiedCount++;
+    totalBonded += a.activeBondAmount;
+    totalSlashed += a.totalSlashedUsd;
+  }
+  return {
+    featured: all.filter(qualifiesForLeaderboard).slice(0, 3),
+    gradeSlices: Array.from(gradeCounts, ([grade, count]) => ({ grade, count })),
+    unverifiedCount,
+    totalBonded,
+    totalSlashed,
+  };
+}
+
+
+
 /** Resolve one agent by exact mint, symbol, or mint prefix. */
 export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   const q = mintOrSymbol.trim();
