@@ -221,6 +221,10 @@ export function fetchAgentIndex(): Promise<Agent[]> {
 export type HomeIndexSummary = {
   featured: Agent[];
   gradeSlices: Array<{ grade: Agent["grade"]; count: number }>;
+  /** Graded, but the evidence base is too thin to trust the letter. */
+  insufficientEvidenceCount: number;
+  /** No settlement observed at all (SPX404). */
+  unsettledCount: number;
   unverifiedCount: number;
   totalBonded: number;
   totalSlashed: number;
@@ -236,10 +240,16 @@ export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
   const all = await fetchAgentIndex();
   const gradeCounts = new Map<Agent["grade"], number>();
   let unverifiedCount = 0;
+  let insufficientEvidenceCount = 0;
+  let unsettledCount = 0;
   let totalBonded = 0;
   let totalSlashed = 0;
   for (const a of all) {
-    gradeCounts.set(a.grade, (gradeCounts.get(a.grade) ?? 0) + 1);
+    // Three structurally different states, never blended into one arc:
+    // nothing settled, settled but thin evidence, and a trusted graded letter.
+    if (a.grade === "SPX404") unsettledCount++;
+    else if (a.confidence === "low") insufficientEvidenceCount++;
+    else gradeCounts.set(a.grade, (gradeCounts.get(a.grade) ?? 0) + 1);
     if (!a.operatorVerified) unverifiedCount++;
     totalBonded += a.activeBondAmount;
     totalSlashed += a.totalSlashedUsd;
@@ -247,6 +257,8 @@ export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
   return {
     featured: all.filter(qualifiesForLeaderboard).slice(0, 3),
     gradeSlices: Array.from(gradeCounts, ([grade, count]) => ({ grade, count })),
+    insufficientEvidenceCount,
+    unsettledCount,
     unverifiedCount,
     totalBonded,
     totalSlashed,
