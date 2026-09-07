@@ -80,6 +80,8 @@ export const Route = createFileRoute("/")({
     const emptySummary: HomeIndexSummary = {
       featured: [],
       gradeSlices: [],
+      insufficientEvidenceCount: 0,
+      unsettledCount: 0,
       unverifiedCount: 0,
       totalBonded: 0,
       totalSlashed: 0,
@@ -198,7 +200,15 @@ function HomePage() {
     tape: TapeRow[];
     stats: HomeStats;
   };
-  const { featured, gradeSlices, unverifiedCount, totalBonded, totalSlashed } = summary;
+  const {
+    featured,
+    gradeSlices,
+    insufficientEvidenceCount,
+    unsettledCount,
+    unverifiedCount,
+    totalBonded,
+    totalSlashed,
+  } = summary;
   // Homepage tape, hero card, and featured grid only show leaderboard-quality
   // agents. SPX D / SPX404 / flagged agents are excluded — they live on
   // /explore and /flagged respectively.
@@ -226,6 +236,8 @@ function HomePage() {
     <div>
       <Hero
         slices={gradeSlices}
+        insufficientCount={insufficientEvidenceCount}
+        unsettledCount={unsettledCount}
         indexedCount={stats.agentsIndexed}
         metrics={[
           { value: stats.agentsIndexed.toLocaleString(), label: "Agents indexed" },

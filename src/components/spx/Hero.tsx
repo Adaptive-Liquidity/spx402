@@ -38,7 +38,19 @@ function Sparkline({ series }: { series: number[] }) {
  * cleaves into the hero's bounding rules while the frame opens through a
  * single clip expansion. No per-element cascade.
  */
-export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; slices: GradeSlice[]; indexedCount: number }) {
+export function Hero({
+  metrics,
+  slices,
+  indexedCount,
+  insufficientCount = 0,
+  unsettledCount = 0,
+}: {
+  metrics: Metric[];
+  slices: GradeSlice[];
+  indexedCount: number;
+  insufficientCount?: number;
+  unsettledCount?: number;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
@@ -105,7 +117,7 @@ export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; sli
               No screenshots.&nbsp; No promises.&nbsp; Just proof.
             </p>
             <div className="viewfinder-dial">
-              <GradeDial slices={slices} />
+              <GradeDial slices={slices} insufficientCount={insufficientCount} unsettledCount={unsettledCount} />
             </div>
           </div>
 

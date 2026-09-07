@@ -1,7 +1,6 @@
 export type GradeSlice = { grade: string; count: number };
 
 const GRADED = ["SPX AAA", "SPX AA", "SPX A", "SPX BBB", "SPX BB", "SPX B", "SPX D"];
-const UNGRADED = "SPX404";
 
 function toneFor(grade: string) {
   if (grade === "SPX D") return "var(--critical)";
@@ -15,13 +14,21 @@ function shortLabel(grade: string) {
 
 /**
  * Grade caliper. One engraved measuring track under the query console,
- * partitioned into two structural zones: the graded arc (AAA→D) and the
- * awaiting-evidence reserve. Reads data already loaded for the page.
+ * partitioned into three structural zones that must never be blended: the
+ * graded arc (AAA→D), subjects graded on evidence too thin to trust, and
+ * subjects with no settlement at all. Reads data already loaded for the page.
  */
-export function GradeDial({ slices }: { slices: GradeSlice[] }) {
+export function GradeDial({
+  slices,
+  insufficientCount = 0,
+  unsettledCount = 0,
+}: {
+  slices: GradeSlice[];
+  insufficientCount?: number;
+  unsettledCount?: number;
+}) {
   const by = new Map(slices.map((s) => [s.grade, s.count]));
   const rows = GRADED.map((grade) => ({ grade, count: by.get(grade) ?? 0 }));
-  const awaiting = by.get(UNGRADED) ?? 0;
 
   return (
     <div className="caliper">
@@ -45,17 +52,28 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
             </div>
           ))}
         </div>
-        {awaiting > 0 && (
+        {insufficientCount > 0 && (
           <>
             <div className="caliper-notch" aria-hidden />
-            <div
-              className="caliper-zone caliper-zone-awaiting"
-              style={{ flexGrow: awaiting }}
-            >
+            <div className="caliper-zone caliper-zone-awaiting" style={{ flexGrow: insufficientCount }}>
+              <div className="caliper-seg caliper-hatch">
+                <span className="seg-pop">
+                  <em>THIN</em>
+                  {insufficientCount.toLocaleString()} insufficient evidence
+                  <i>settled, but too little to grade with confidence</i>
+                </span>
+              </div>
+            </div>
+          </>
+        )}
+        {unsettledCount > 0 && (
+          <>
+            <div className="caliper-notch" aria-hidden />
+            <div className="caliper-zone caliper-zone-awaiting" style={{ flexGrow: unsettledCount }}>
               <div className="caliper-seg caliper-hatch">
                 <span className="seg-pop">
                   <em>404</em>
-                  {awaiting.toLocaleString()} awaiting evidence
+                  {unsettledCount.toLocaleString()} unsettled
                   <i>no settlement observed yet</i>
                 </span>
               </div>
@@ -79,9 +97,8 @@ export function GradeDial({ slices }: { slices: GradeSlice[] }) {
             {shortLabel(r.grade)} {r.count}
           </span>
         ))}
-        <span className="caliper-label caliper-label-awaiting">
-          404 {awaiting}
-        </span>
+        <span className="caliper-label caliper-label-awaiting">THIN {insufficientCount}</span>
+        <span className="caliper-label caliper-label-awaiting">404 {unsettledCount}</span>
       </div>
     </div>
   );

@@ -182,7 +182,7 @@ function generateTerminalCardSVG(agent: any, events: any[]): string {
   </g>
 
   <!-- Footer -->
-  <text x="50" y="580" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6F6F64">spx402.xyz/agent/${agent.mint}  ·  Payment required. Proof provided.  ·  Not financial advice.</text>
+  <text x="50" y="580" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6F6F64">spx402.com/agent/${agent.mint}  ·  Payment required. Proof provided.  ·  Not financial advice.</text>
 </svg>`;
 }
 

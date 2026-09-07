@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { CORE_PARSER_VERSION, SCORING_VERSION } from "@/lib/versions";
 
 const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }> }> = [
   {
@@ -60,7 +61,9 @@ export function SiteFooter() {
               The on-chain reputation terminal for every Solana agent. We only rate what we can
               prove.
             </p>
-            <div className="mt-6 label-mono">PARSER v0.1.7 · LAST RECONCILED 14s AGO</div>
+            <div className="mt-6 label-mono">
+              PARSER {CORE_PARSER_VERSION} · SCORING {SCORING_VERSION}
+            </div>
           </div>
 
           {COLS.map((col) => (
