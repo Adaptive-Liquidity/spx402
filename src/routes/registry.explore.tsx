@@ -10,7 +10,7 @@ import { PageHead } from "@/components/spx/PageHead";
 import { DataTable, Pager, type Column } from "@/components/spx/DataTable";
 import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 
 export const Route = createFileRoute("/registry/explore")({
   head: () => ({
@@ -35,14 +35,15 @@ export const Route = createFileRoute("/registry/explore")({
   ): { grade?: string; page?: number; sort?: string } => ({
     grade: typeof search.grade === "string" && search.grade ? search.grade : undefined,
     page: Number(search.page) > 1 ? Number(search.page) : undefined,
-    sort: search.sort === "grade" || search.sort === "recent" ? search.sort : undefined,
+    sort: search.sort === "recent" ? "recent" : undefined,
   }),
-  loaderDeps: ({ search }) => ({ grade: search.grade, page: search.page }),
+  loaderDeps: ({ search }) => ({ grade: search.grade, page: search.page, sort: search.sort }),
   loader: ({ deps }) =>
     fetchExplorePage({
       group: (GRADE_FILTERS.find((f) => f.id === deps.grade)?.id ?? "all") as GradeFilter,
       page: deps.page ?? 1,
       pageSize: PAGE_SIZE,
+      sort: deps.sort === "recent" ? "recent" : "score",
     }),
   staleTime: 30_000,
   pendingComponent: () => (
@@ -118,6 +119,12 @@ function ExplorePage() {
     });
   const setPage = (next: number) =>
     void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
+  const sort = search.sort === "recent" ? "recent" : "score";
+  const setSort = (next: "score" | "recent") =>
+    void navigate({
+      search: (prev) => ({ ...prev, sort: next === "recent" ? "recent" : undefined, page: undefined }),
+      replace: true,
+    });
 
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const current = Math.min(page, pageCount);
@@ -242,6 +249,16 @@ function ExplorePage() {
               ))}
             </FilterRow>
           }
+          right={
+            <FilterRow label="Sort">
+              <FilterChip active={sort === "score"} onClick={() => setSort("score")}>
+                Score
+              </FilterChip>
+              <FilterChip active={sort === "recent"} onClick={() => setSort("recent")}>
+                Recently indexed
+              </FilterChip>
+            </FilterRow>
+          }
           status={<span className="text-paper-muted">{active.description}</span>}
         />
 
@@ -250,7 +267,14 @@ function ExplorePage() {
           columns={columns}
           rows={rows}
           rowKey={(a) => a.mint}
-          empty="No agents match this filter."
+          empty={
+            <span>
+              0 ranked because the evidence floor is not met.{" "}
+              <Link to="/registry/explore" search={{}} className="text-amber hover:underline">
+                Show everything indexed
+              </Link>
+            </span>
+          }
         />
 
         <Pager

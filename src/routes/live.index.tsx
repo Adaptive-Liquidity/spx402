@@ -11,7 +11,7 @@ import { PageHead } from "@/components/spx/PageHead";
 import { DataTable, Pager, type Column } from "@/components/spx/DataTable";
 import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 const WINDOW = 400;
 
 const SEVERITIES: Array<{ id: string | null; label: string }> = [
@@ -45,10 +45,11 @@ export const Route = createFileRoute("/live/")({
   // shareable, and instant on revisit.
   validateSearch: (
     search: Record<string, unknown>,
-  ): { category?: string; severity?: string; page?: number } => ({
+  ): { category?: string; severity?: string; page?: number; sort?: "oldest" } => ({
     category: typeof search.category === "string" && search.category ? search.category : undefined,
     severity: typeof search.severity === "string" && search.severity ? search.severity : undefined,
     page: Number(search.page) > 1 ? Number(search.page) : undefined,
+    sort: search.sort === "oldest" ? "oldest" : undefined,
   }),
   loaderDeps: ({ search }) => ({
     category: search.category ?? null,
@@ -110,11 +111,18 @@ function TapePage() {
   const setPage = (next: number) =>
     void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
 
-  const total = rows.length;
+  const sort = search.sort === "oldest" ? "oldest" : "newest";
+  const setSort = (next: "newest" | "oldest") =>
+    void navigate({
+      search: (prev) => ({ ...prev, sort: next === "oldest" ? "oldest" : undefined, page: undefined }),
+      replace: true,
+    });
+  const ordered = sort === "oldest" ? [...rows].reverse() : rows;
+  const total = ordered.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const current = Math.min(page, pageCount);
   const start = (current - 1) * PAGE_SIZE;
-  const visible = rows.slice(start, start + PAGE_SIZE);
+  const visible = ordered.slice(start, start + PAGE_SIZE);
 
   const columns: Array<Column<TapeRow>> = [
     {
@@ -199,6 +207,14 @@ function TapePage() {
                     {s.label}
                   </FilterChip>
                 ))}
+              </FilterRow>
+              <FilterRow label="Sort">
+                <FilterChip active={sort === "newest"} onClick={() => setSort("newest")}>
+                  Newest
+                </FilterChip>
+                <FilterChip active={sort === "oldest"} onClick={() => setSort("oldest")}>
+                  Oldest
+                </FilterChip>
               </FilterRow>
             </>
           }

@@ -81,7 +81,7 @@ export function Telemetry() {
           : "bg-wire";
 
   return (
-    <div className="telemetry hidden 2xl:inline-flex" title={`Parser ${CORE_PARSER_VERSION}`}>
+    <div className="telemetry hidden lg:inline-flex" title={`Parser ${CORE_PARSER_VERSION}`}>
       <span className={`telemetry-dot ${dotTone}`} aria-hidden />
       <span className="telemetry-text">
         {label}

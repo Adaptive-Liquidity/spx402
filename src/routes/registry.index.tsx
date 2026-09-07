@@ -277,7 +277,7 @@ function LeaderboardPage() {
         ) : ranked.length === 0 ? (
           <div className="border border-dashed border-bronze/60 p-8 text-center">
             <p className="font-display text-lg font-semibold text-paper">
-              Nothing clears the quality gate yet.
+              0 ranked because the evidence floor is not met
             </p>
             <p className="mx-auto mt-2 max-w-xl text-sm text-paper-muted">
               {gateStats.excluded.toLocaleString()} indexed{" "}

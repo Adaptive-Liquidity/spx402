@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, X } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -68,7 +68,7 @@ const TIERS = [
     features: [
       "Everything in Pro",
       "REST API access",
-      "10,000 calls / day",
+      "100,000 calls / day",
       "Webhook delivery",
       "Bulk agent import",
       "Multi-wallet operator management",
@@ -101,7 +101,7 @@ const COMPARE_ROWS = [
   ["Realtime alerts", "1 destination", "Webhook + Slack", "Webhook + Slack, unlimited", false],
   ["CSV export", false, true, true, false],
   ["Operator verification", "1", "Unlimited", "Unlimited", false],
-  ["REST API", false, false, "1,000 / day", "Per call"],
+  ["REST API", false, false, "100,000 / day", "Per call"],
   ["Webhook delivery", false, false, true, false],
   ["x402 endpoints", false, false, false, true],
 ] as const;
@@ -129,9 +129,11 @@ const FAQ = [
   },
 ];
 
-function Cell({ v }: { v: string | boolean }) {
-  if (v === true) return <Check className="mx-auto h-4 w-4 text-verified" />;
-  if (v === false) return <X className="mx-auto h-4 w-4 text-wire" />;
+/** Every cell prints something: a check, a value, or an em dash. Never blank. */
+function Cell({ v }: { v: string | boolean | undefined | null }) {
+  if (v === true) return <Check className="mx-auto h-4 w-4 text-verified" aria-label="Included" />;
+  if (v === false || v === undefined || v === null || v === "")
+    return <Minus className="mx-auto h-4 w-4 text-wire" aria-label="Not included" />;
   return <span className="font-mono text-xs text-paper">{v}</span>;
 }
 
