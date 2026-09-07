@@ -58,7 +58,7 @@ export function SiteHeader() {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors",
+                  "focus-ring whitespace-nowrap px-3 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors",
                   active ? "text-amber" : "text-paper-muted hover:text-paper",
                 )}
               >
