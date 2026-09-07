@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TapeRouteImport } from './routes/tape'
 import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PulseRouteImport } from './routes/pulse'
@@ -89,6 +90,11 @@ const SubmitRoute = SubmitRouteImport.update({
 const StatusRoute = StatusRouteImport.update({
   id: '/status',
   path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -448,6 +454,7 @@ export interface FileRoutesByFullPath {
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
@@ -515,6 +522,7 @@ export interface FileRoutesByTo {
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
@@ -583,6 +591,7 @@ export interface FileRoutesById {
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
@@ -652,6 +661,7 @@ export interface FileRouteTypes {
     | '/pulse'
     | '/register'
     | '/signup'
+    | '/sitemap.xml'
     | '/status'
     | '/submit'
     | '/tape'
@@ -719,6 +729,7 @@ export interface FileRouteTypes {
     | '/pulse'
     | '/register'
     | '/signup'
+    | '/sitemap.xml'
     | '/status'
     | '/submit'
     | '/tape'
@@ -786,6 +797,7 @@ export interface FileRouteTypes {
     | '/pulse'
     | '/register'
     | '/signup'
+    | '/sitemap.xml'
     | '/status'
     | '/submit'
     | '/tape'
@@ -855,6 +867,7 @@ export interface RootRouteChildren {
   PulseRoute: typeof PulseRoute
   RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
@@ -887,6 +900,13 @@ declare module '@tanstack/react-router' {
       path: '/status'
       fullPath: '/status'
       preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -1470,6 +1490,7 @@ const rootRouteChildren: RootRouteChildren = {
   PulseRoute: PulseRoute,
   RegisterRoute: RegisterRoute,
   SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
