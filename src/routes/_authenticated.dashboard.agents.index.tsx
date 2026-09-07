@@ -34,9 +34,14 @@ function MyAgents() {
   }, []);
 
   return (
-    <div className="stage section">
-      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">My Agents</h1>
-      <p className="mt-3 max-w-2xl text-paper-muted">
+    <div>
+      <div className="band-spine">
+        <b>07</b>
+        <span>// MY AGENTS</span>
+      </div>
+      <div className="mt-3 h-px w-full bg-bronze/40" />
+      <h2 className="mt-6 font-display text-2xl font-bold text-paper">My agents</h2>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-paper-muted">
         Private agents stay private. Nothing here appears in the registry, leaderboard, public API,
         sitemap or Genesis Record until you publish it.
       </p>
