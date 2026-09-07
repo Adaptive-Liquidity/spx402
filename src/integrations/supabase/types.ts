@@ -112,6 +112,147 @@ export type Database = {
           },
         ]
       }
+      agent_registrations: {
+        Row: {
+          aeon_cri: string | null
+          aeon_executor_wallet: string | null
+          aeon_identity_status: string
+          aeon_program_address: string | null
+          agent_description: string | null
+          agent_name: string
+          agent_type: string
+          category: string
+          contact: string | null
+          controller_wallet: string | null
+          created_at: string
+          disclosure_financial_interest: boolean | null
+          disclosure_holds_or_trades_token: boolean | null
+          disclosure_independent_counterparty: boolean | null
+          disclosure_issuer_operated_counterparty: boolean | null
+          disclosure_issuer_operates_rails: boolean | null
+          disclosure_operates_agent: boolean | null
+          disclosure_program_upgrade_authority: boolean | null
+          disclosure_token_now_or_planned: boolean | null
+          disclosure_upgrade_authority_controller: string | null
+          ecosystem: string
+          id: string
+          identifier_kind: string | null
+          income_routing_status: string
+          income_wallet_address: string | null
+          legal_owner_name: string | null
+          legal_owner_type: string
+          operator_signer_wallet: string | null
+          operator_verification_status: string
+          publication_intent: string
+          publication_status: string
+          recovery_admin_wallet: string | null
+          registration_status: string
+          route_all_income_to_treasury: boolean
+          routing_change_authority: string
+          spx402_wallet_address: string | null
+          spx402_wallet_status: string
+          subject_identifier: string | null
+          treasury_wallet_address: string | null
+          updated_at: string
+          user_id: string
+          visibility_status: string
+          wallet_custody_type: string
+          website_url: string | null
+        }
+        Insert: {
+          aeon_cri?: string | null
+          aeon_executor_wallet?: string | null
+          aeon_identity_status?: string
+          aeon_program_address?: string | null
+          agent_description?: string | null
+          agent_name: string
+          agent_type?: string
+          category?: string
+          contact?: string | null
+          controller_wallet?: string | null
+          created_at?: string
+          disclosure_financial_interest?: boolean | null
+          disclosure_holds_or_trades_token?: boolean | null
+          disclosure_independent_counterparty?: boolean | null
+          disclosure_issuer_operated_counterparty?: boolean | null
+          disclosure_issuer_operates_rails?: boolean | null
+          disclosure_operates_agent?: boolean | null
+          disclosure_program_upgrade_authority?: boolean | null
+          disclosure_token_now_or_planned?: boolean | null
+          disclosure_upgrade_authority_controller?: string | null
+          ecosystem?: string
+          id?: string
+          identifier_kind?: string | null
+          income_routing_status?: string
+          income_wallet_address?: string | null
+          legal_owner_name?: string | null
+          legal_owner_type?: string
+          operator_signer_wallet?: string | null
+          operator_verification_status?: string
+          publication_intent?: string
+          publication_status?: string
+          recovery_admin_wallet?: string | null
+          registration_status?: string
+          route_all_income_to_treasury?: boolean
+          routing_change_authority?: string
+          spx402_wallet_address?: string | null
+          spx402_wallet_status?: string
+          subject_identifier?: string | null
+          treasury_wallet_address?: string | null
+          updated_at?: string
+          user_id: string
+          visibility_status?: string
+          wallet_custody_type?: string
+          website_url?: string | null
+        }
+        Update: {
+          aeon_cri?: string | null
+          aeon_executor_wallet?: string | null
+          aeon_identity_status?: string
+          aeon_program_address?: string | null
+          agent_description?: string | null
+          agent_name?: string
+          agent_type?: string
+          category?: string
+          contact?: string | null
+          controller_wallet?: string | null
+          created_at?: string
+          disclosure_financial_interest?: boolean | null
+          disclosure_holds_or_trades_token?: boolean | null
+          disclosure_independent_counterparty?: boolean | null
+          disclosure_issuer_operated_counterparty?: boolean | null
+          disclosure_issuer_operates_rails?: boolean | null
+          disclosure_operates_agent?: boolean | null
+          disclosure_program_upgrade_authority?: boolean | null
+          disclosure_token_now_or_planned?: boolean | null
+          disclosure_upgrade_authority_controller?: string | null
+          ecosystem?: string
+          id?: string
+          identifier_kind?: string | null
+          income_routing_status?: string
+          income_wallet_address?: string | null
+          legal_owner_name?: string | null
+          legal_owner_type?: string
+          operator_signer_wallet?: string | null
+          operator_verification_status?: string
+          publication_intent?: string
+          publication_status?: string
+          recovery_admin_wallet?: string | null
+          registration_status?: string
+          route_all_income_to_treasury?: boolean
+          routing_change_authority?: string
+          spx402_wallet_address?: string | null
+          spx402_wallet_status?: string
+          subject_identifier?: string | null
+          treasury_wallet_address?: string | null
+          updated_at?: string
+          user_id?: string
+          visibility_status?: string
+          wallet_custody_type?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       agent_score_snapshots: {
         Row: {
           confidence_model_version: string
