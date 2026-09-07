@@ -20,7 +20,7 @@ export function HubLayout({
   return (
     <div>
       <div className="border-b border-bronze/40 bg-panel-deep">
-        <div className="mx-auto max-w-[1400px] px-4 pt-10 lg:px-8">
+        <div className="mx-auto max-w-[1400px] px-4 pt-8 lg:px-8">
           <div className="label-amber">{eyebrow}</div>
           <div className="mt-2 font-display text-xl font-bold tracking-tight text-paper">
             {title}
