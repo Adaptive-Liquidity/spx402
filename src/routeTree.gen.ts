@@ -32,6 +32,7 @@ import { Route as BuildRouteImport } from './routes/build'
 import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AeonAgentsRouteImport } from './routes/aeon-agents'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -213,6 +214,11 @@ const ApiRoute = ApiRouteImport.update({
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AeonAgentsRoute = AeonAgentsRouteImport.update({
+  id: '/aeon-agents',
+  path: '/aeon-agents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -579,6 +585,7 @@ const ApiPublicAgentSubjectEvidenceRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRouteWithChildren
+  '/aeon-agents': typeof AeonAgentsRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
@@ -669,6 +676,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aeon-agents': typeof AeonAgentsRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
@@ -758,6 +766,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRouteWithChildren
+  '/aeon-agents': typeof AeonAgentsRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
@@ -851,6 +860,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/aeon-agents'
     | '/alerts'
     | '/api'
     | '/badge'
@@ -941,6 +951,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aeon-agents'
     | '/alerts'
     | '/api'
     | '/badge'
@@ -1029,6 +1040,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/aeon-agents'
     | '/alerts'
     | '/api'
     | '/badge'
@@ -1122,6 +1134,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRouteWithChildren
+  AeonAgentsRoute: typeof AeonAgentsRoute
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
   BadgeRoute: typeof BadgeRoute
@@ -1314,6 +1327,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aeon-agents': {
+      id: '/aeon-agents'
+      path: '/aeon-agents'
+      fullPath: '/aeon-agents'
+      preLoaderRoute: typeof AeonAgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -1984,6 +2004,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRouteWithChildren,
+  AeonAgentsRoute: AeonAgentsRoute,
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
   BadgeRoute: BadgeRoute,
