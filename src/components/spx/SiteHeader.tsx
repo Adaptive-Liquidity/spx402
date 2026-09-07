@@ -70,22 +70,17 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <Telemetry />
+          <SearchDialog />
           <MobileNav signedIn={!!session} />
 
           {session ? (
-            <Link
-              to="/dashboard"
-              className="border border-bronze px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted transition-colors hover:border-paper-muted hover:text-paper"
-            >
+            <ActionButton to="/dashboard" variant="primary" size="md">
               Dashboard
-            </Link>
+            </ActionButton>
           ) : (
-            <Link
-              to="/login"
-              className="hidden border border-bronze px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted transition-colors hover:border-paper-muted hover:text-paper lg:inline-flex"
-            >
-              Sign in
-            </Link>
+            <ActionButton to="/signup" variant="primary" size="md" className="hidden lg:inline-flex">
+              Open Terminal
+            </ActionButton>
           )}
         </div>
       </div>
