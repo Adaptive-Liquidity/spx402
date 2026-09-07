@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/spx/EmptyState";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { Hero } from "@/components/spx/Hero";
@@ -573,16 +574,12 @@ function HomePage() {
           </Link>
         </div>
         {featured.length === 0 ? (
-          <div className="mt-8 border border-dashed border-bronze/60 p-10 text-center">
-            <div className="font-mono text-sm text-paper-muted">
-              No verified agents in the index yet.
-            </div>
-            <p className="mt-3 mx-auto max-w-md font-mono text-xs text-wire">
-              SPX402 only lists agents that have been observed earning on-chain AND carry at least
-              one identity proof. The discovery indexer is running. Submit a mint or wait for the
-              next sweep.
-            </p>
-          </div>
+          <EmptyState
+            className="mt-8"
+            label="Index"
+            title="No verified agents yet"
+            body="SPX402 only lists agents observed earning on-chain that also carry at least one identity proof. The discovery indexer is running — submit a mint or wait for the next sweep."
+          />
         ) : (
           <div className="mt-8 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
             {featured.map((a) => (

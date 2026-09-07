@@ -52,7 +52,7 @@ function AgentWorkspace() {
 
   if (error)
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div>
         <div className="border-l-2 border-critical/70 bg-critical/10 px-3 py-2 font-mono text-xs text-critical">
           {error}
         </div>
@@ -61,13 +61,15 @@ function AgentWorkspace() {
 
   if (!reg)
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8 font-mono text-sm text-wire">Loading…</div>
+      <div className="font-mono text-xs uppercase tracking-widest text-wire">
+        Loading agent workspace…
+      </div>
     );
 
   const checklist = setupChecklist(reg);
 
   return (
-    <div className="stage section">
+    <div>
       <Link
         to="/dashboard/agents"
         className="font-mono text-[10px] uppercase tracking-widest text-wire hover:text-amber"
@@ -75,12 +77,12 @@ function AgentWorkspace() {
         ← My Agents
       </Link>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+        <h2 className="font-display text-2xl font-bold tracking-tight text-paper">
           {reg.agent_name}
-        </h1>
+        </h2>
         <StatusChip status={visibilityStatusKey(reg.visibility_status)} />
       </div>
-      <p className="mt-3 max-w-2xl text-paper-muted">
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-paper-muted">
         {reg.agent_description ||
           "No description provided. This workspace is visible only to you until the agent is published."}
       </p>

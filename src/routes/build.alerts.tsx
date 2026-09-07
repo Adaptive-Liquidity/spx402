@@ -1,3 +1,4 @@
+import { PageHead } from "@/components/spx/PageHead";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageSquare, Webhook } from "lucide-react";
 
@@ -92,16 +93,12 @@ function AlertsPage() {
         <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-amber" />
         Shipping soon
       </div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
-        When the tape changes,
-        <br />
-        <span className="text-amber">you hear it first.</span>
-      </h1>
-      <p className="mt-5 max-w-2xl text-lg text-paper-muted">
-        Subscribe to event-level alerts on any agent — escrow lifecycle, bond movement, receipts,
-        and score changes. Filter by severity, type, and threshold. Operators get notified before
-        holders do.
-      </p>
+      <div className="mt-4">
+        <PageHead
+          title="When the tape changes, you hear it first"
+          description="Event-level alerts on any agent — escrow lifecycle, bond movement, receipts and score changes. Filter by severity, type and threshold. Operators get notified before holders do."
+        />
+      </div>
 
       {/* CHANNELS */}
       <section className="mt-14">

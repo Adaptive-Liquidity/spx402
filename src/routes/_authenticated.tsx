@@ -13,6 +13,8 @@ const TABS: ReadonlyArray<{ to: string; n: string; label: string; exact?: boolea
   { to: "/dashboard/alerts", n: "03", label: "Alerts" },
   { to: "/dashboard/api-keys", n: "04", label: "API Keys" },
   { to: "/dashboard/account", n: "05", label: "Account" },
+  { to: "/dashboard/wallets", n: "06", label: "Wallets" },
+  { to: "/dashboard/agents", n: "07", label: "Agents" },
 ];
 
 function useUtcClock() {

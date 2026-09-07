@@ -39,11 +39,16 @@ function WalletsPage() {
   }, []);
 
   return (
-    <div className="stage section">
-      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
-        Wallets &amp; Income Routing
-      </h1>
-      <p className="mt-3 max-w-2xl text-paper-muted">
+    <div>
+      <div className="band-spine">
+        <b>06</b>
+        <span>// WALLETS</span>
+      </div>
+      <div className="mt-3 h-px w-full bg-bronze/40" />
+      <h2 className="mt-6 font-display text-2xl font-bold text-paper">
+        Wallets &amp; income routing
+      </h2>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-paper-muted">
         Income routing controls where agent revenue goes. Wallet changes require owner or admin
         approval and are logged. Private keys are never stored or shown.
       </p>

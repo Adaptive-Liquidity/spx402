@@ -1,3 +1,4 @@
+import { PageHead } from "@/components/spx/PageHead";
 import { createFileRoute } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { CopyButton } from "@/components/spx/CopyButton";
@@ -74,19 +75,10 @@ export const Route = createFileRoute("/build/docs")({
 function ApiDocsPage() {
   return (
     <div className="stage section">
-      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
-        Endpoint reference.
-      </h1>
-      <p className="mt-5 max-w-2xl text-paper-muted">
-        SPX402 exposes execution data over two layers:
-        <br />
-        <strong>REST API</strong> — API key auth, rate-limited tiers (Free/Pro/Team).
-        <br />
-        <strong>x402 Pay-per-Call</strong> — No account needed. Machines pay USDC per request via
-        HTTP 402.
-        <br />
-        All endpoints return JSON. All times are UTC ISO 8601.
-      </p>
+      <PageHead
+        title="Endpoint reference"
+        description="Two layers over the same data: REST with API-key auth and rate-limited tiers (Free / Pro / Team), and x402 pay-per-call where machines pay USDC per request via HTTP 402. All endpoints return JSON; all times are UTC ISO 8601."
+      />
 
       <nav
         aria-label="Endpoint index"

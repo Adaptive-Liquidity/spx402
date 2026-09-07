@@ -6,6 +6,7 @@ import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { EmptyState } from "@/components/spx/EmptyState";
 import { PageHead } from "@/components/spx/PageHead";
 import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
 
@@ -261,16 +262,15 @@ function LeaderboardPage() {
       <div className="mt-4 space-y-2">
         {tab === "movers" ? (
           moversLoading ? (
-            <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
+            <div className="panel-engraved px-6 py-14 text-center font-mono text-[11px] uppercase tracking-widest text-wire">
               Loading movers…
             </div>
           ) : !movers || movers.length === 0 ? (
-            <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
-              No score deltas yet — snapshots accumulate daily.
-              <div className="mt-3 font-mono text-[11px] text-wire">
-                The first 24h of snapshot data is being collected.
-              </div>
-            </div>
+            <EmptyState
+              label="Movers"
+              title="No score deltas yet"
+              body="Movers compare today's scores against yesterday's snapshot. The first 24 hours of snapshot data is still being collected."
+            />
           ) : (
             movers.map((m, i) => <MoverRow key={m.mint} mover={m} rank={i} />)
           )

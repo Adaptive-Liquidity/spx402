@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHead } from "@/components/spx/PageHead";
+import { EmptyState } from "@/components/spx/EmptyState";
 import { fetchPulseFeed, relativeFromNow, type PulseEntry } from "@/lib/live-data";
 import { ArrowDown, ArrowUp, AlertTriangle, Activity } from "lucide-react";
 
@@ -62,12 +63,11 @@ function PulsePage() {
 
       <div className="mt-6 space-y-2">
         {entries.length === 0 ? (
-          <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
-            No score deltas or failure events in the last 7 days yet.
-            <div className="mt-3 font-mono text-[11px] text-wire">
-              Snapshots accumulate daily — this feed gets richer over time.
-            </div>
-          </div>
+          <EmptyState
+            label="Pulse"
+            title="Nothing has moved in seven days"
+            body="No score deltas or failure events were recorded in the last week. Snapshots accumulate daily, so this feed fills in as the tape moves."
+          />
         ) : (
           entries.map((e) => <PulseRow key={e.id} entry={e} />)
         )}

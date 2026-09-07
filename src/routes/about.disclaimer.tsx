@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHead } from "@/components/spx/PageHead";
 
 export const Route = createFileRoute("/about/disclaimer")({
   head: () => ({
@@ -45,15 +46,13 @@ const SECTIONS = [
 
 function DisclaimerPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">Read this carefully.</h1>
-      <p className="mt-5 text-paper-muted">
-        SPX402 is a public proof layer. It is not a financial product, a security, a regulated
-        rating, or an investment recommendation. The plain-English terms below apply to every page,
-        every dashboard, every API response, and every alert.
-      </p>
+    <div className="stage-narrow section">
+      <PageHead
+        title="Read this carefully"
+        description="SPX402 is a public proof layer — not a financial product, a security, a regulated rating, or an investment recommendation. These terms apply to every page, dashboard, API response and alert."
+      />
 
-      <div className="mt-12 space-y-10">
+      <div className="mt-8 space-y-10">
         {SECTIONS.map((s) => (
           <section key={s.h}>
             <h2 className="font-display text-xl font-bold text-paper">{s.h}</h2>
@@ -62,7 +61,7 @@ function DisclaimerPage() {
         ))}
       </div>
 
-      <div className="mt-16 border-l-2 border-bronze bg-panel-deep/60 p-5 font-mono text-xs uppercase tracking-widest text-wire">
+      <div className="mt-12 border-l-2 border-bronze bg-panel-deep/60 p-5 font-mono text-xs uppercase tracking-widest text-wire">
         Last updated 24 April 2026 · SPX402 may revise this disclaimer at any time.
       </div>
     </div>

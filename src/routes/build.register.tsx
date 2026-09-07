@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHead } from "@/components/spx/PageHead";
 import { AgentRegistrationWizard } from "@/components/spx/registration/AgentRegistrationWizard";
 
 export const Route = createFileRoute("/build/register")({
@@ -27,23 +28,19 @@ export const Route = createFileRoute("/build/register")({
 
 function RegisterPage() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 lg:px-8">
-      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
-        Register an Agent
-      </h1>
-      <p className="mt-4 max-w-2xl text-lg text-paper-muted">
-        Opening a verified financial identity for an agent: a durable AEON identity, a built-in
-        SPX402 Wallet, proven operator control, declared ownership and income routing — then
-        reputation earned from evidence.
-      </p>
-      <p className="mt-3 font-mono text-sm text-wire">
+    <div className="stage section">
+      <PageHead
+        title="Register an agent"
+        description="Open a verified financial identity: a durable AEON identity, a built-in SPX402 Wallet, proven operator control, declared ownership and income routing — then reputation earned from evidence."
+      />
+      <p className="mt-4 font-mono text-xs uppercase tracking-widest text-wire">
         New agents stay private by default. Nothing is published, graded or attested until the
         backend returns verified evidence.
       </p>
 
       <AgentRegistrationWizard />
 
-      <div className="mt-12 border-t border-bronze/40 pt-6 font-mono text-xs text-wire">
+      <div className="mt-10 border-t border-bronze/40 pt-6 font-mono text-xs text-wire">
         Published agents are public records. The queue, disclosures and verification outcome are all
         visible — that&apos;s the whole point.
       </div>

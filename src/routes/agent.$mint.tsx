@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/spx/EmptyState";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { TransparencyScoreRing } from "@/components/spx/TransparencyScoreRing";
@@ -490,7 +491,7 @@ function VerifyingState({
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 lg:py-20">
+    <div className="stage-narrow section">
       <div className="label-amber">
         {isRejected ? "Verification failed" : "Verification in progress"}
       </div>
@@ -1244,15 +1245,11 @@ function Dossier({
           }
         >
           {filtered.length === 0 ? (
-            <div className="border border-dashed border-bronze/60 bg-panel-deep/40 p-10 text-center">
-              <div className="font-mono text-sm text-paper-muted">
-                No verifiable execution detected.
-              </div>
-              <div className="mt-2 font-mono text-xs text-wire">
-                This may mean the agent is new, inactive, misconfigured, or not routing activity
-                on-chain. SPX402 only rates what it can prove.
-              </div>
-            </div>
+            <EmptyState
+              label="Timeline"
+              title="No verifiable execution detected"
+              body="The agent may be new, inactive, misconfigured, or not routing activity on-chain. SPX402 only rates what it can prove."
+            />
           ) : (
             <ol className="relative">
               <div className="absolute bottom-0 left-[15px] top-0 w-px bg-bronze/40" aria-hidden />
