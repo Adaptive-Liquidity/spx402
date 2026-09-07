@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHead } from "@/components/spx/PageHead";
 
 export const Route = createFileRoute("/about/")({
   head: () => ({
@@ -24,18 +25,13 @@ export const Route = createFileRoute("/about/")({
 
 function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
-        It reads escrows.
-        <br />
-        It watches bonds.
-        <br />
-        It verifies receipts.
-        <br />
-        <span className="text-amber">It grades execution.</span>
-      </h1>
+    <div className="stage-narrow section">
+      <PageHead
+        title="It reads escrows. It watches bonds. It verifies receipts. It grades execution."
+        description="Neutral execution infrastructure for the agent economy — built for the part of it that cannot survive on screenshots."
+      />
 
-      <div className="prose-spx mt-10 space-y-6 text-lg leading-relaxed text-paper-muted">
+      <div className="prose-spx mt-8 space-y-6 text-lg leading-relaxed text-paper-muted">
         <p>
           SPX402 was built for the part of the agent economy that cannot survive on screenshots.
         </p>
