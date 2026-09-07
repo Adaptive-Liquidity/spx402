@@ -3,6 +3,7 @@ import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import type { Agent } from "@/lib/agents";
 import { fetchAgentIndex } from "@/lib/agents-db";
 import { AlertTriangle } from "lucide-react";
+import { PageHead } from "@/components/spx/PageHead";
 import { DataTable, type Column } from "@/components/spx/DataTable";
 
 export const Route = createFileRoute("/registry/flagged")({
@@ -86,25 +87,17 @@ function FlaggedPage() {
 
   return (
     <div className="stage section">
-      <div className="border border-critical/50 bg-critical/10 p-5">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-critical" />
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-paper">
-              Flagged agents
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-paper-muted">
-              Flagged for impersonation, rug signals, deceptive metadata, or other trust violations.
-              They never appear on the leaderboard, the explorer, or the tape. Their dossiers stay
-              live at the direct mint URL with a permanent warning, so the chain of custody remains
-              public and auditable.
-            </p>
-            <p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-wire">
-              Disagree with a flag? Email <span className="text-amber">disputes@spx402.com</span>{" "}
-              with the mint and on-chain evidence.
-            </p>
-          </div>
-        </div>
+      <PageHead
+        title="Flagged agents"
+        description="Flagged for impersonation, rug signals, deceptive metadata or other trust violations. They never appear on the leaderboard, the explorer or the tape — but their dossiers stay live at the direct mint URL with a permanent warning, so the chain of custody stays public."
+      />
+
+      <div className="mt-6 flex items-start gap-3 border-l-2 border-critical/70 bg-critical/10 px-4 py-3">
+        <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-critical" />
+        <p className="font-mono text-[11px] leading-relaxed text-paper-muted">
+          Disagree with a flag? Email <span className="text-amber">disputes@spx402.com</span> with
+          the mint and on-chain evidence.
+        </p>
       </div>
 
       <div className="mt-6 flex items-center justify-between border border-b-0 border-bronze/40 bg-panel-deep/60 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
