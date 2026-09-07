@@ -52,7 +52,7 @@ function AgentWorkspace() {
 
   if (error)
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="stage section">
         <div className="border-l-2 border-critical/70 bg-critical/10 px-3 py-2 font-mono text-xs text-critical">
           {error}
         </div>
@@ -61,7 +61,9 @@ function AgentWorkspace() {
 
   if (!reg)
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8 font-mono text-sm text-wire">Loading…</div>
+      <div className="stage section font-mono text-xs uppercase tracking-widest text-wire">
+        Loading agent workspace…
+      </div>
     );
 
   const checklist = setupChecklist(reg);
