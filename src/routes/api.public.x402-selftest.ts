@@ -98,9 +98,9 @@ export const Route = createFileRoute("/api/public/x402-selftest")({
         }
 
         try {
-          const { useFacilitator } = await import("x402/verify");
+          const { useFacilitator: createFacilitator } = await import("x402/verify");
 
-          const { verify, settle } = useFacilitator({
+          const { verify, settle } = createFacilitator({
             url: t.facilitator as `${string}://${string}`,
           });
           const decoded = JSON.parse(atob(paymentHeader)) as Record<string, unknown>;

@@ -93,24 +93,7 @@ export const Route = createFileRoute("/service/$slug")({
       </Link>
     </div>
   ),
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="label-amber">Service error</div>
-        <p className="mt-3 text-paper-muted">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  },
+  errorComponent: ServicePageError,
 });
 
 function safeHost(url: string): string {
@@ -283,6 +266,25 @@ function Row({ l, v }: { l: string; v: string }) {
     <div className="flex items-baseline justify-between gap-3 border-b border-bronze/30 pb-1.5">
       <dt className="uppercase tracking-widest text-wire">{l}</dt>
       <dd className="break-all text-right text-paper">{v}</dd>
+    </div>
+  );
+}
+
+function ServicePageError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="label-amber">Service error</div>
+      <p className="mt-3 text-paper-muted">{error.message}</p>
+      <button
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
+        className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        Retry
+      </button>
     </div>
   );
 }

@@ -9,12 +9,11 @@
 // - slash_bond (BOND_SLASHED)
 // - issue_authority (BOND_DEPOSITED) - when authority has a bond
 //
-// The AEON program ID is: TcZ9MKNw4eGvoe3K75e4M3zCwZCzEsb6WvrS8LqNgdm
+// The program ID is injected by the caller via requireAeonProgramId()
+// (src/lib/trust/config.ts). This module holds no program-ID constant.
 
 import type { HeliusEnhancedTx } from "./helius.server";
 import type { DecodedEvent } from "./decode.server";
-
-export const AEON_PROGRAM_ID = "TcZ9MKNw4eGvoe3K75e4M3zCwZCzEsb6WvrS8LqNgdm";
 
 export interface AeonLookup {
   mint: string;
@@ -43,7 +42,11 @@ export interface AeonDecodedEvent {
  * Decode AEON program instructions from a Helius enhanced transaction.
  * Maps AEON CRI addresses and agent mints to our internal agent records.
  */
-export function decodeAeonTx(tx: HeliusEnhancedTx, agents: AeonLookup[]): AeonDecodedEvent[] {
+export function decodeAeonTx(
+  tx: HeliusEnhancedTx,
+  agents: AeonLookup[],
+  programId: string,
+): AeonDecodedEvent[] {
   const events: AeonDecodedEvent[] = [];
   const sig = tx.signature ?? "";
   const slot = tx.slot ?? null;
@@ -54,7 +57,7 @@ export function decodeAeonTx(tx: HeliusEnhancedTx, agents: AeonLookup[]): AeonDe
   if (!sig) return events;
 
   // Check if this transaction interacts with the AEON program
-  const aeonInstructions = (tx.instructions ?? []).filter((ix) => ix.programId === AEON_PROGRAM_ID);
+  const aeonInstructions = (tx.instructions ?? []).filter((ix) => ix.programId === programId);
 
   if (aeonInstructions.length === 0) return events;
 
@@ -97,7 +100,7 @@ export function decodeAeonTx(tx: HeliusEnhancedTx, agents: AeonLookup[]): AeonDe
       amountSol: parsed.amountSol ?? 0,
       amountToken: parsed.amountToken ?? 0,
       raw: {
-        programId: AEON_PROGRAM_ID,
+        programId,
         instruction: instructionType,
         discriminator,
         accounts: ix.accounts ?? [],
@@ -226,6 +229,6 @@ function parseAeonInstructionData(
 /**
  * Check if a transaction involves the AEON program
  */
-export function touchesAeon(tx: HeliusEnhancedTx): boolean {
-  return (tx.instructions ?? []).some((ix) => ix.programId === AEON_PROGRAM_ID);
+export function touchesAeon(tx: HeliusEnhancedTx, programId: string): boolean {
+  return (tx.instructions ?? []).some((ix) => ix.programId === programId);
 }

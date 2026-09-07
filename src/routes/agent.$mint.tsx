@@ -186,24 +186,7 @@ export const Route = createFileRoute("/agent/$mint")({
   },
   staleTime: 30_000,
   component: AgentRoutePage,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="label-amber">Dossier error</div>
-        <p className="mt-3 text-paper-muted">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  },
+  errorComponent: AgentPageError,
 });
 
 function AgentRoutePage() {
@@ -418,3 +401,22 @@ function VerifyingState({
     </div>
   );
 }
+
+function AgentPageError({ error, reset }: { error: Error; reset: () => void }) {
+    const router = useRouter();
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <div className="label-amber">Dossier error</div>
+        <p className="mt-3 text-paper-muted">{error.message}</p>
+        <button
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }

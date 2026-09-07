@@ -19,7 +19,7 @@ const FAILURE_DECODER_COVERAGE: Record<AgentCategory, number> = {
   tokenized_buyback: 1.0, // FAILED_BUYBACK_WINDOW + PROMISED_BUYBACK_NOT_SETTLED shipped
   registered_agent: 0.3, // partial — config/operator change decoders pending
   x402_executor: 0.6, // X402_PAYMENT_REVERTED shipped, refund-decoder pending
-  aeon_executor: 1.0, // ESCROW_CANCELED + BOND_SLASHED decoders shipped
+  aeon_executor: 0, // Trust-engine P1: fingerprints unverified against mainnet; no AEON failure-decoder coverage may be claimed until golden replays pass
   copy_trader: 0,
   task_executor: 0,
   general: 0,
@@ -73,7 +73,6 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
           ((subs ?? []) as unknown as Array<{ mint: string }>).map((s) => s.mint),
         );
         let attested = 0;
-
 
         let scored = 0;
         for (const a of agents) {
@@ -181,9 +180,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
               score_breakdown:
-                publication.score == null
-                  ? ({} as never)
-                  : (uiBreakdown as unknown as never),
+                publication.score == null ? ({} as never) : (uiBreakdown as unknown as never),
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
@@ -224,7 +221,6 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const duration = Date.now() - started;
         await heartbeat("scoring", true, duration, `scored=${scored} attested=${attested}`);
         return Response.json({ ok: true, scored, attested, duration_ms: duration });
-
       },
     },
   },

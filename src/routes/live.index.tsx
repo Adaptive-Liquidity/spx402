@@ -4,7 +4,13 @@
 // This is the public ledger that grades, attestations, and (later)
 // bonds must reconcile against.
 
-import { createFileRoute, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useRouter,
+  useRouterState,
+} from "@tanstack/react-router";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { CATEGORIES, categoryLabel } from "@/lib/agents/categories";
 import { PageHead } from "@/components/spx/PageHead";
@@ -59,24 +65,7 @@ export const Route = createFileRoute("/live/")({
     fetchTape({ limit: WINDOW, category: deps.category, severity: deps.severity }),
   staleTime: 15_000,
   component: TapePage,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="label-amber">Tape error</div>
-        <p className="mt-3 text-paper-muted">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  },
+  errorComponent: LiveIndexError,
 });
 
 function severityTone(sev: string): string {
@@ -114,7 +103,11 @@ function TapePage() {
   const sort = search.sort === "oldest" ? "oldest" : "newest";
   const setSort = (next: "newest" | "oldest") =>
     void navigate({
-      search: (prev) => ({ ...prev, sort: next === "oldest" ? "oldest" : undefined, page: undefined }),
+      search: (prev) => ({
+        ...prev,
+        sort: next === "oldest" ? "oldest" : undefined,
+        page: undefined,
+      }),
       replace: true,
     });
   const ordered = sort === "oldest" ? [...rows].reverse() : rows;
@@ -253,6 +246,25 @@ function TapePage() {
       <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-wire">
         Most recent {WINDOW} events retained in this view · deeper history via the evidence API.
       </p>
+    </div>
+  );
+}
+
+function LiveIndexError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="label-amber">Tape error</div>
+      <p className="mt-3 text-paper-muted">{error.message}</p>
+      <button
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
+        className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        Retry
+      </button>
     </div>
   );
 }

@@ -17,6 +17,7 @@ import {
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
 import { decodeAeonTx, type AeonLookup } from "@/lib/indexer/decode-aeon.server";
+import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
 import {
@@ -48,7 +49,9 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         // Load the agent lookup table once.
         const { data: agentsRows } = await supabaseAdmin
           .from("agents")
-          .select("mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address");
+          .select(
+            "mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address",
+          );
         const agents = (agentsRows ?? []).map((r) => ({
           mint: r.mint,
           depositAddress: r.deposit_address ?? null,
@@ -77,11 +80,16 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           events.push(...decodeTx(tx, agents));
         }
 
-        // AEON Execution Primitive decoding
+        // AEON Execution Primitive decoding. Guard-gated: an unconfigured
+        // AEON_PROGRAM_ID skips AEON decoding without affecting other decoders.
+        const aeonCfg = resolveAeonProgramId();
         const aeonEvents: DecodedEvent[] = [];
-        if (aeonAgents.length > 0) {
+        if (!aeonCfg.enabled) {
+          await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonCfg.reason);
+        }
+        if (aeonCfg.enabled && aeonAgents.length > 0) {
           for (const tx of txs) {
-            for (const ev of decodeAeonTx(tx, aeonAgents)) {
+            for (const ev of decodeAeonTx(tx, aeonAgents, aeonCfg.programId)) {
               aeonEvents.push({
                 mint: ev.mint,
                 type: ev.type,
