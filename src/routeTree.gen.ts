@@ -86,6 +86,7 @@ import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_a
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 import { Route as AuthenticatedDashboardAccountRouteImport } from './routes/_authenticated.dashboard.account'
+import { Route as AuthenticatedDashboardAgentsIndexRouteImport } from './routes/_authenticated.dashboard.agents.index'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as ApiPublicUserApiKeysRouteImport } from './routes/api.public.user.api-keys'
 import { Route as ApiPublicOgChar123subjectChar125DotsvgRouteImport } from './routes/api.public.og.{$subject}[.]svg'
@@ -498,6 +499,12 @@ const AuthenticatedDashboardAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardAgentsIndexRoute =
+  AuthenticatedDashboardAgentsIndexRouteImport.update({
+    id: '/agents/',
+    path: '/agents/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -638,6 +645,7 @@ export interface FileRoutesByFullPath {
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/dashboard/agents/': typeof AuthenticatedDashboardAgentsIndexRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -721,6 +729,7 @@ export interface FileRoutesByTo {
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/dashboard/agents': typeof AuthenticatedDashboardAgentsIndexRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -811,6 +820,7 @@ export interface FileRoutesById {
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/dashboard/agents/': typeof AuthenticatedDashboardAgentsIndexRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -901,6 +911,7 @@ export interface FileRouteTypes {
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
     | '/lovable/email/transactional/preview'
+    | '/dashboard/agents/'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -984,6 +995,7 @@ export interface FileRouteTypes {
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
     | '/lovable/email/transactional/preview'
+    | '/dashboard/agents'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -1073,6 +1085,7 @@ export interface FileRouteTypes {
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/dashboard/agents/'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -1655,6 +1668,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAccountRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/agents/': {
+      id: '/_authenticated/dashboard/agents/'
+      path: '/agents'
+      fullPath: '/dashboard/agents/'
+      preLoaderRoute: typeof AuthenticatedDashboardAgentsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -1734,6 +1754,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
   AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedDashboardAgentsIndexRoute: typeof AuthenticatedDashboardAgentsIndexRoute
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
@@ -1743,6 +1764,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
     AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+    AuthenticatedDashboardAgentsIndexRoute:
+      AuthenticatedDashboardAgentsIndexRoute,
   }
 
 const AuthenticatedDashboardRouteWithChildren =
