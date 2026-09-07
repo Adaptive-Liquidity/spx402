@@ -421,117 +421,117 @@ function StatusPage() {
           registered agents but zero observations for an event type is the
           single best signal that a decoder is missing or broken. */}
       <div className="mt-4">
-      <DetailSection
-        title="Decoder coverage"
-        meta="last 7 days"
-        summary="Every event type SPX402 decoded in the last week, grouped by agent category. An empty row means a dark category — the chain produced events we did not yet recognize."
-      >
-        <div className="overflow-hidden border border-bronze/50">
-          {coverage.length === 0 ? (
-            <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
-              No events decoded in the last 7 days.
-            </div>
-          ) : (
-            <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
-              <div className="col-span-3">Category</div>
-              <div className="col-span-5">Event type</div>
-              <div className="col-span-2 text-right">Count (7d)</div>
-              <div className="col-span-2 text-right">Last observed</div>
-            </div>
-          )}
-          {coverage
-            .sort((a, b) => b.count - a.count)
-            .map((c, i) => (
-              <div
-                key={`${c.category}|${c.type}`}
-                className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
-                  i % 2 ? "bg-panel" : "bg-background"
-                }`}
-              >
-                <div className="col-span-3 font-mono text-xs text-paper">
-                  {categoryLabel(c.category)}
-                </div>
-                <div className="col-span-5 font-mono text-xs text-amber">{c.type}</div>
-                <div className="num-display col-span-2 text-right text-sm text-paper">
-                  {c.count.toLocaleString()}
-                </div>
-                <div className="col-span-2 text-right font-mono text-xs text-paper-muted">
-                  {c.lastObservedAt ? relativeFromNow(c.lastObservedAt) : "—"}
-                </div>
+        <DetailSection
+          title="Decoder coverage"
+          meta="last 7 days"
+          summary="Every event type SPX402 decoded in the last week, grouped by agent category. An empty row means a dark category — the chain produced events we did not yet recognize."
+        >
+          <div className="overflow-hidden border border-bronze/50">
+            {coverage.length === 0 ? (
+              <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
+                No events decoded in the last 7 days.
               </div>
-            ))}
-        </div>
-      </DetailSection>
+            ) : (
+              <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
+                <div className="col-span-3">Category</div>
+                <div className="col-span-5">Event type</div>
+                <div className="col-span-2 text-right">Count (7d)</div>
+                <div className="col-span-2 text-right">Last observed</div>
+              </div>
+            )}
+            {coverage
+              .sort((a, b) => b.count - a.count)
+              .map((c, i) => (
+                <div
+                  key={`${c.category}|${c.type}`}
+                  className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
+                    i % 2 ? "bg-panel" : "bg-background"
+                  }`}
+                >
+                  <div className="col-span-3 font-mono text-xs text-paper">
+                    {categoryLabel(c.category)}
+                  </div>
+                  <div className="col-span-5 font-mono text-xs text-amber">{c.type}</div>
+                  <div className="num-display col-span-2 text-right text-sm text-paper">
+                    {c.count.toLocaleString()}
+                  </div>
+                  <div className="col-span-2 text-right font-mono text-xs text-paper-muted">
+                    {c.lastObservedAt ? relativeFromNow(c.lastObservedAt) : "—"}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </DetailSection>
       </div>
 
       {/* FACILITATOR REGISTRY — Tier A x402 detection depends entirely on this
           list. An empty registry is a truthful state, not a bug: no operator
           has published a Solana settlement fee-payer we could verify. */}
       <div className="mt-3">
-      <DetailSection
-        title="Facilitator registry"
-        meta={FACILITATOR_REGISTRY_VERSION}
-        summary="Tier A x402 detection recognises a settlement when the transaction fee-payer is a known facilitator. An address is only activated once the operator publishes it and a captured fixture proves detection. Addresses are never inferred from chain traffic."
-      >
-        <div className="inline-flex items-center gap-2 border border-bronze/60 bg-panel-deep px-4 py-2 font-mono text-xs uppercase tracking-widest text-paper-muted">
-          <span className="text-amber">{activeFacilitators.length}</span>
-          active · {facilitators.length} tracked
-        </div>
-        <div className="mt-6 overflow-hidden border border-bronze/50">
-          {facilitators.length === 0 ? (
-            <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
-              No facilitator addresses registered. Tier A detection is inactive; x402 settlements
-              are detected via Tier B (memo / protocol markers) only, at medium confidence.
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
-                <div className="col-span-4">Facilitator</div>
-                <div className="col-span-2">Chain</div>
-                <div className="col-span-4">Fee-payer</div>
-                <div className="col-span-2 text-right">State</div>
+        <DetailSection
+          title="Facilitator registry"
+          meta={FACILITATOR_REGISTRY_VERSION}
+          summary="Tier A x402 detection recognises a settlement when the transaction fee-payer is a known facilitator. An address is only activated once the operator publishes it and a captured fixture proves detection. Addresses are never inferred from chain traffic."
+        >
+          <div className="inline-flex items-center gap-2 border border-bronze/60 bg-panel-deep px-4 py-2 font-mono text-xs uppercase tracking-widest text-paper-muted">
+            <span className="text-amber">{activeFacilitators.length}</span>
+            active · {facilitators.length} tracked
+          </div>
+          <div className="mt-6 overflow-hidden border border-bronze/50">
+            {facilitators.length === 0 ? (
+              <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
+                No facilitator addresses registered. Tier A detection is inactive; x402 settlements
+                are detected via Tier B (memo / protocol markers) only, at medium confidence.
               </div>
-              {facilitators.map((f, i) => (
-                <div
-                  key={`${f.chain}:${f.id}`}
-                  className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
-                    i % 2 ? "bg-panel" : "bg-background"
-                  }`}
-                >
-                  <div className="col-span-4 font-mono text-xs text-paper">{f.name}</div>
-                  <div className="col-span-2 font-mono text-xs text-paper-muted">{f.chain}</div>
-                  <div className="col-span-4 font-mono text-xs text-amber">
-                    {f.address ? `${f.address.slice(0, 6)}…${f.address.slice(-6)}` : "—"}
-                  </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
+                  <div className="col-span-4">Facilitator</div>
+                  <div className="col-span-2">Chain</div>
+                  <div className="col-span-4">Fee-payer</div>
+                  <div className="col-span-2 text-right">State</div>
+                </div>
+                {facilitators.map((f, i) => (
                   <div
-                    className={`col-span-2 text-right font-mono text-[10px] uppercase tracking-widest ${
-                      f.active ? "text-verified" : "text-wire"
+                    key={`${f.chain}:${f.id}`}
+                    className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
+                      i % 2 ? "bg-panel" : "bg-background"
                     }`}
                   >
-                    {f.active ? `active · ${f.fixtureId ?? "?"}` : "unverified"}
+                    <div className="col-span-4 font-mono text-xs text-paper">{f.name}</div>
+                    <div className="col-span-2 font-mono text-xs text-paper-muted">{f.chain}</div>
+                    <div className="col-span-4 font-mono text-xs text-amber">
+                      {f.address ? `${f.address.slice(0, 6)}…${f.address.slice(-6)}` : "—"}
+                    </div>
+                    <div
+                      className={`col-span-2 text-right font-mono text-[10px] uppercase tracking-widest ${
+                        f.active ? "text-verified" : "text-wire"
+                      }`}
+                    >
+                      {f.active ? `active · ${f.fixtureId ?? "?"}` : "unverified"}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </>
-          )}
-        </div>
-      </DetailSection>
+                ))}
+              </>
+            )}
+          </div>
+        </DetailSection>
       </div>
 
       <div className="mt-3">
-      <DetailSection title="Known parser limitations">
-        <ul className="space-y-2 text-sm text-paper-muted">
-          <li>
-            • Custom buyback routes outside published Pump/PumpSwap IDLs surface as low-confidence
-            events.
-          </li>
-          <li>
-            • Multi-step burn sequences across multiple slots may be reconciled with up to 90
-            seconds of delay.
-          </li>
-          <li>• Off-chain operator activity is, by definition, invisible to SPX402.</li>
-        </ul>
-      </DetailSection>
+        <DetailSection title="Known parser limitations">
+          <ul className="space-y-2 text-sm text-paper-muted">
+            <li>
+              • Custom buyback routes outside published Pump/PumpSwap IDLs surface as low-confidence
+              events.
+            </li>
+            <li>
+              • Multi-step burn sequences across multiple slots may be reconciled with up to 90
+              seconds of delay.
+            </li>
+            <li>• Off-chain operator activity is, by definition, invisible to SPX402.</li>
+          </ul>
+        </DetailSection>
       </div>
     </div>
   );
