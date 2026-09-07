@@ -4,7 +4,7 @@
 // This is the public ledger that grades, attestations, and (later)
 // bonds must reconcile against.
 
-import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { CATEGORIES, categoryLabel } from "@/lib/agents/categories";
 
@@ -83,7 +83,7 @@ function TapePage() {
   const category = search.category ?? null;
   const severity = search.severity ?? null;
   const navigate = useNavigate({ from: "/tape" });
-  const loading = useRouter({ select: (s) => s.isLoading });
+  const loading = useRouterState({ select: (s) => s.isLoading });
 
   const setFilter = (key: "category" | "severity", value: string | null) =>
     void navigate({
@@ -109,7 +109,7 @@ function TapePage() {
             Category:
           </span>
           <button
-            onClick={() => setCategory(null)}
+            onClick={() => setFilter("category", null)}
             className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
               category === null
                 ? "border-amber bg-amber/10 text-amber"
@@ -121,7 +121,7 @@ function TapePage() {
           {CATEGORIES.filter((c) => c.decoderLive).map((c) => (
             <button
               key={c.id}
-              onClick={() => setCategory(c.id)}
+              onClick={() => setFilter("category", c.id)}
               className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
                 category === c.id
                   ? "border-amber bg-amber/10 text-amber"
@@ -139,7 +139,7 @@ function TapePage() {
           {SEVERITIES.map((s) => (
             <button
               key={s.label}
-              onClick={() => setSeverity(s.id)}
+              onClick={() => setFilter("severity", s.id)}
               className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
                 severity === s.id
                   ? "border-amber bg-amber/10 text-amber"
