@@ -4,23 +4,25 @@ Carry the Tier 1 design lock forward. No new palette, type, voice, hero copy, sc
 
 ## 1. Nav regroup — four hubs
 
-Collapse the flat header into four hubs with dropdowns on desktop and grouped sections in the mobile drawer. Every existing route keeps its URL; no redirects or deletions.
+Collapse the flat header into four hubs with dropdowns on desktop and grouped sections in the mobile drawer. The header stays one row: four hub labels plus dropdowns. Search and the single primary CTA do not move.
+
+Every route below already exists — no new route files, no new aliases. Existing URLs stay, and the `/explore` → `/registry/explore` and `/tape` → `/live` 301s remain exactly as they are.
 
 ```text
-Live              Registry           Build                  About
-────────────────  ──────────────────  ─────────────────────  ──────────────────────
-Tape        /live  Leaderboard   /registry           API       /build           About        /about
-Pulse /live/pulse  Explore /registry/explore  Register  /build/register  Methodology  /methodology
-Status /live/status Flagged /registry/flagged   Docs      /build/docs      Corrections  /corrections
-                  Operators /registry/operators Badge     /build/badge     Genesis      /genesis-record
-                  AEON Agents /aeon-agents      Alerts    /build/alerts    Changelog    /about/changelog
-                                                     Preflight /build/preflight Disclaimer   /about/disclaimer
-                                                     Pricing   /pricing
+Live                     Registry                       Build                      About
+───────────────────────  ─────────────────────────────  ─────────────────────────  ──────────────────────────
+Tape         /live       Leaderboard  /registry         API        /build          About        /about
+Pulse        /live/pulse Explore      /registry/explore Register   /build/register Methodology  /methodology
+Status       /live/status Flagged     /registry/flagged Docs       /build/docs     Corrections  /corrections
+                         Operators    /registry/operators Badge    /build/badge    Genesis      /genesis-record
+                         AEON Agents  /aeon-agents      Alerts     /build/alerts   Changelog    /about/changelog
+                                                        Preflight  /build/preflight Disclaimer  /about/disclaimer
+                                                        Pricing    /pricing
 ```
 
 - Update `src/components/spx/nav-items.ts` to export hub definitions (`HUBS`) plus the flat mobile list.
-- Update `src/components/spx/SiteHeader.tsx` to render the four hubs as dropdowns using the existing `dropdown-menu` primitive. Active state follows the current route prefix. Search and the single primary CTA stay where they are.
-- Update `src/components/spx/MobileNav.tsx` to render the same four hubs as grouped sections, with the child links indented under each hub heading.
+- Update `src/components/spx/SiteHeader.tsx` to render the four hubs as dropdowns using the existing `dropdown-menu` primitive. Active state follows the current route prefix.
+- Update `src/components/spx/MobileNav.tsx` to render the same four hubs as grouped sections, with child links indented under each hub heading.
 - Keep the signed-in Dashboard CTA as the single primary action; do not add a user hub this pass.
 
 ## 2. Dossier architecture rebuild
