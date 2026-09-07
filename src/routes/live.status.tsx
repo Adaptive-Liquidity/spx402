@@ -129,10 +129,22 @@ const COMPONENT_ROWS: Array<{
       "Cursor-resumable eth_getLogs scan of EIP-3009 / Permit2 settlements on Base. Tier A (registry sender) is scored; Tier B is discovery-only.",
   },
   {
+    key: "registry_scan",
+    name: "Agent registry scanner",
+    description:
+      "Hourly sweep of the MPL Agent Identity program for newly registered agents; writes candidates, never grades them.",
+  },
+  {
     key: "registered_agent_diff",
     name: "Registered-agent diff worker",
     description:
       "Hourly re-scan of MPL Agent Identity PDAs. Emits OPERATOR_CHANGED + CONFIG_CHANGED events when registered agents mutate on-chain.",
+  },
+  {
+    key: "directory_import",
+    name: "x402 directory import",
+    description:
+      "Pulls published x402 service directories and facilitator /supported endpoints into the service registry. Import only — a listing is a claim, never evidence.",
   },
   {
     key: "prober",
