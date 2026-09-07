@@ -91,7 +91,10 @@ describe("/methodology active-verification copy", () => {
 });
 
 describe("agent dossier anomaly panel copy", () => {
-  const source = prose(readFileSync("src/routes/agent.$mint.tsx", "utf8"));
+  // Anomaly copy lives in the dossier component split out of the route file.
+  const source = prose(
+    readFileSync("src/components/spx/dossier/DossierEvents.tsx", "utf8"),
+  );
 
   for (const line of ANOMALY_VERBATIM) {
     it(`renders verbatim: "${line.slice(0, 56)}"`, () => {
