@@ -79,7 +79,7 @@ function TapeEventPage() {
   const subject = r.agentSymbol ? `$${r.agentSymbol}` : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`;
 
   return (
-    <div className="mx-auto max-w-[900px] px-4 py-12 lg:px-8 lg:py-16">
+    <div className="stage-narrow py-12 lg:py-16">
       <Link
         to="/live"
         className="font-mono text-[11px] uppercase tracking-widest text-amber hover:underline"

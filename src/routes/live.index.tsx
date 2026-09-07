@@ -165,7 +165,7 @@ function TapePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+    <div className="stage py-8">
       <PageHead
         title="Execution tape"
         description="Canonical evidence ledger. Every row is a permalinked on-chain event the indexer observed — every grade is explainable from the tape."

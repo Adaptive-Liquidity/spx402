@@ -30,12 +30,12 @@ export const Route = createFileRoute("/registry/flagged")({
   },
   staleTime: 60_000,
   pendingComponent: () => (
-    <div className="mx-auto max-w-[1200px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+    <div className="stage py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
       Loading flagged registry…
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-[1200px] px-4 py-20 text-center">
+    <div className="stage py-20 text-center">
       <div className="label-amber">Registry unavailable</div>
       <p className="mt-3 text-paper-muted">{error.message}</p>
     </div>
@@ -85,7 +85,7 @@ function FlaggedPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+    <div className="stage py-8">
       <div className="border border-critical/50 bg-critical/10 p-5">
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-critical" />

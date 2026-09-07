@@ -47,7 +47,7 @@ export function HubLayout({
   return (
     <div>
       <div className="border-b border-bronze/40 bg-panel-deep">
-        <div className="mx-auto max-w-[1400px] px-4 lg:px-8">
+        <div className="stage">
           <div className="flex flex-col gap-3 pt-6 lg:flex-row lg:items-baseline lg:justify-between">
             <div className="flex items-baseline gap-3">
               <span className="label-amber">{eyebrow}</span>

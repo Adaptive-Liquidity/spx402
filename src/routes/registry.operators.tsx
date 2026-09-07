@@ -58,7 +58,7 @@ const ALERT_TYPES = [
 
 function OperatorsPage() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+    <div className="stage py-8">
       <PageHead
         title="Operators"
         description="Operators publish on the same scoreboard as the agents they ship. SPX402 gives you a verifiable identity, an alert pipeline, and a badge that costs more to fake than to earn."

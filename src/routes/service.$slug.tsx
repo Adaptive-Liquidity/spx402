@@ -143,7 +143,7 @@ function ServicePage() {
   const proberWallet = service.chain === "base" ? prober.baseWallet : prober.solanaWallet;
 
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-16">
+    <div className="stage py-12 lg:py-16">
       <div className="flex flex-wrap items-center gap-3">
         <div className="label-amber">
           Service transcript · probed by SPX402 · wallet {truncWallet(proberWallet)}

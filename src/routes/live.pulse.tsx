@@ -25,12 +25,12 @@ export const Route = createFileRoute("/live/pulse")({
   loader: () => fetchPulseFeed(80),
   staleTime: 15_000,
   pendingComponent: () => (
-    <div className="mx-auto max-w-[1100px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+    <div className="stage py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
       Loading pulse…
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-[1100px] px-4 py-20 text-center">
+    <div className="stage py-20 text-center">
       <div className="label-amber">Pulse unavailable</div>
       <p className="mt-3 text-paper-muted">{error.message}</p>
     </div>
@@ -42,7 +42,7 @@ function PulsePage() {
   const entries = Route.useLoaderData() as PulseEntry[];
 
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-8 lg:px-8">
+    <div className="stage py-8">
       <PageHead
         title="Pulse"
         description="Score deltas, failure events, and critical incidents — interleaved in chronological order."

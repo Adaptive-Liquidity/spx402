@@ -829,7 +829,7 @@ function Dossier({
   const isSPX404 = agent.grade === "SPX404";
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-14">
+    <div className="stage py-10 lg:py-14">
       {/* Flagged-agent warning banner — permanent, public chain of custody */}
       {agent.flagged && (
         <div className="mb-6 border-2 border-critical bg-critical/10 p-5">

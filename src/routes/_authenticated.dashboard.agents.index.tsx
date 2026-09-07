@@ -34,7 +34,7 @@ function MyAgents() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+    <div className="stage py-8">
       <h1 className="font-display text-3xl font-bold tracking-tight text-paper">My Agents</h1>
       <p className="mt-3 max-w-2xl text-paper-muted">
         Private agents stay private. Nothing here appears in the registry, leaderboard, public API,

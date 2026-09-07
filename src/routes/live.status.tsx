@@ -169,7 +169,7 @@ function StatusPage() {
     degraded > 0 ? "critical" : noData === COMPONENT_ROWS.length ? "amber" : "verified";
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+    <div className="stage py-8">
       <PageHead
         title="System status"
         description="Every observer that feeds the tape, with its last heartbeat."

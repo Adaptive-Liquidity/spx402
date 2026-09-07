@@ -137,7 +137,7 @@ function Cell({ v }: { v: string | boolean }) {
 
 function PricingPage() {
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
+    <div className="stage py-12 lg:py-20">
       <div className="text-center">
         <div className="label-amber">Pricing</div>
         <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper sm:text-6xl">

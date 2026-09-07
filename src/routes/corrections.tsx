@@ -35,7 +35,7 @@ const RULES = [
 
 function CorrectionsPage() {
   return (
-    <div className="mx-auto max-w-[900px] px-4 py-12 lg:px-8">
+    <div className="stage-narrow py-12">
       <h1 className="font-display text-4xl font-bold tracking-tight text-paper">
         Corrections Policy
       </h1>
