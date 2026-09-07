@@ -64,6 +64,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
             name: agent.name,
             grade: agent.grade,
             score: agent.score,
+            withheldReason: agent.withheldReason ?? null,
             // Evidence Bundle
             merkleRoot,
             merkleProofs,

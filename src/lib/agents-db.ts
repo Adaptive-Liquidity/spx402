@@ -48,6 +48,9 @@ type AgentRow = {
   flagged: boolean | null;
   flag_reason: string | null;
   flagged_at: string | null;
+  // Optional until generated types are regenerated post-migration;
+  // rowToAgent defaults it to null when the column is absent.
+  withheld_reason?: string | null;
   // AEON primitives
   aeon_cri_address: string | null;
   total_slashed_usd: number | string;
@@ -80,7 +83,8 @@ function rowToAgent(r: AgentRow): Agent {
     symbol: r.symbol,
     name: r.name,
     tagline: r.tagline ?? "",
-    grade: r.grade as Grade,
+    grade: r.grade as Grade | null,
+    withheldReason: r.withheld_reason ?? null,
     score: r.score,
     status: (r.status as Agent["status"]) ?? "unknown",
     operatorVerified: r.operator_verified,
@@ -176,6 +180,7 @@ const AGENT_LIST_COLUMNS = [
   "flagged",
   "flag_reason",
   "flagged_at",
+  "withheld_reason",
   "chain",
   "aeon_cri_address",
   "total_slashed_usd",
@@ -220,7 +225,7 @@ export function fetchAgentIndex(): Promise<Agent[]> {
 
 export type HomeIndexSummary = {
   featured: Agent[];
-  gradeSlices: Array<{ grade: Agent["grade"]; count: number }>;
+  gradeSlices: Array<{ grade: Grade; count: number }>;
   /** Graded, but the evidence base is too thin to trust the letter. */
   insufficientEvidenceCount: number;
   /** No settlement observed at all (SPX404). */
@@ -238,13 +243,16 @@ export type HomeIndexSummary = {
  */
 export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
   const all = await fetchAgentIndex();
-  const gradeCounts = new Map<Agent["grade"], number>();
+  const gradeCounts = new Map<Grade, number>();
   let unverifiedCount = 0;
   let insufficientEvidenceCount = 0;
   let unsettledCount = 0;
   let totalBonded = 0;
   let totalSlashed = 0;
   for (const a of all) {
+    // Withheld rows carry no grade: skip the distribution arcs entirely.
+    // (Bond/slashed aggregates below still count real money.)
+    if (a.withheldReason != null || a.grade == null) continue;
     // Three structurally different states, never blended into one arc:
     // nothing settled, settled but thin evidence, and a trusted graded letter.
     if (a.grade === "SPX404") unsettledCount++;
@@ -264,8 +272,6 @@ export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
     totalSlashed,
   };
 }
-
-
 
 export type LeaderboardIndex = {
   agents: Agent[];
@@ -320,7 +326,7 @@ export async function fetchExplorePage(opts: {
   sort?: "score" | "recent";
 }): Promise<ExplorePage> {
   const all = await fetchAgentIndex();
-  const visible = all.filter((a) => !a.flagged);
+  const visible = all.filter((a) => !a.flagged && a.withheldReason == null);
   const counts: Record<ExploreGradeGroup, number> = {
     all: visible.length,
     high: 0,
@@ -330,13 +336,17 @@ export async function fetchExplorePage(opts: {
   };
   for (const a of visible) {
     for (const key of ["high", "mid", "low", "spx404"] as const) {
-      if (EXPLORE_GROUPS[key].includes(a.grade)) counts[key]++;
+      if (a.grade != null && EXPLORE_GROUPS[key].includes(a.grade)) counts[key]++;
     }
   }
   const filtered =
     opts.group === "all"
       ? visible
-      : visible.filter((a) => EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade));
+      : visible.filter(
+          (a) =>
+            a.grade != null &&
+            EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade),
+        );
   const sorted =
     opts.sort === "recent"
       ? [...filtered].sort((a, b) => a.lastIndexedSeconds - b.lastIndexedSeconds)

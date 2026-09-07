@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AEON_PROGRAM_ID_DEVNET, requireAeonProgramId, resolveAeonProgramId } from "../config";
+import {
+  AEON_PROGRAM_ID_DEVNET,
+  isValidProgramId,
+  requireAeonProgramId,
+  resolveAeonProgramId,
+} from "../config";
 
 const MAINNET_ID = "So11111111111111111111111111111111111111112";
 
@@ -32,6 +37,18 @@ describe("resolveAeonProgramId boot matrix", () => {
         AEON_ALLOW_DEVNET: "true",
       }),
     ).toEqual({ enabled: true, programId: AEON_PROGRAM_ID_DEVNET });
+  });
+
+  it("rejects malformed non-empty IDs", () => {
+    expect(isValidProgramId("not-a-public-key")).toBe(false);
+    expect(isValidProgramId("")).toBe(false);
+    expect(isValidProgramId("TcZ9MKNw4eGvoe3K75e4M3zCwZCzEsb6WvrS8LqNgdm")).toBe(true);
+    expect(() =>
+      resolveAeonProgramId({ NODE_ENV: "production", AEON_PROGRAM_ID: "not-a-public-key" }),
+    ).toThrow(/not a valid Solana program ID/);
+    expect(() =>
+      resolveAeonProgramId({ NODE_ENV: "development", AEON_PROGRAM_ID: "!!!!" }),
+    ).toThrow(/not a valid Solana program ID/);
   });
 
   it("a non-devnet ID enables the pipeline", () => {

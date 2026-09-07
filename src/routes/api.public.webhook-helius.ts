@@ -81,8 +81,22 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         }
 
         // AEON Execution Primitive decoding. Guard-gated: an unconfigured
-        // AEON_PROGRAM_ID skips AEON decoding without affecting other decoders.
-        const aeonCfg = resolveAeonProgramId();
+        // or invalid AEON_PROGRAM_ID skips AEON decoding without affecting
+        // other decoders. resolveAeonProgramId() throws on invalid production
+        // config, so resolve defensively here; boot/health surfacing owns the
+        // failure (see /api/public/health), not per-request 500s.
+        let aeonCfg: ReturnType<typeof resolveAeonProgramId>;
+        try {
+          aeonCfg = resolveAeonProgramId();
+        } catch (e) {
+          aeonCfg = { enabled: false, reason: "invalid_config" } as const;
+          await heartbeat(
+            "webhook_ingest_aeon_skip",
+            true,
+            0,
+            e instanceof Error ? e.message.slice(0, 200) : "invalid_config",
+          );
+        }
         const aeonEvents: DecodedEvent[] = [];
         if (!aeonCfg.enabled) {
           await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonCfg.reason);

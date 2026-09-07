@@ -74,6 +74,7 @@ import { Route as ApiPublicShareDotpngRouteImport } from './routes/api.public.sh
 import { Route as ApiPublicMcpRouteImport } from './routes/api/public/mcp'
 import { Route as ApiPublicIngestOcEvidenceRouteImport } from './routes/api.public.ingest-oc-evidence'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
+import { Route as ApiPublicHealthRouteImport } from './routes/api.public.health'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
 import { Route as ApiPublicCronScoreSnapshotRouteImport } from './routes/api.public.cron-score-snapshot'
@@ -435,6 +436,11 @@ const ApiPublicHeliusWebhookSetupRoute =
     path: '/public/helius-webhook-setup',
     getParentRoute: () => ApiRoute,
   } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/public/health',
+  path: '/public/health',
+  getParentRoute: () => ApiRoute,
+} as any)
 const ApiPublicCronVerifyCandidatesRoute =
   ApiPublicCronVerifyCandidatesRouteImport.update({
     id: '/public/cron-verify-candidates',
@@ -696,6 +702,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/mcp': typeof ApiPublicMcpRoute
@@ -789,6 +796,7 @@ export interface FileRoutesByTo {
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/mcp': typeof ApiPublicMcpRoute
@@ -889,6 +897,7 @@ export interface FileRoutesById {
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/mcp': typeof ApiPublicMcpRoute
@@ -989,6 +998,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
+    | '/api/public/health'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
     | '/api/public/mcp'
@@ -1082,6 +1092,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
+    | '/api/public/health'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
     | '/api/public/mcp'
@@ -1181,6 +1192,7 @@ export interface FileRouteTypes {
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
+    | '/api/public/health'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
     | '/api/public/mcp'
@@ -1702,6 +1714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHeliusWebhookSetupRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/cron-verify-candidates': {
       id: '/api/public/cron-verify-candidates'
       path: '/public/cron-verify-candidates'
@@ -2001,6 +2020,7 @@ interface ApiRouteChildren {
   ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
   ApiPublicMcpRoute: typeof ApiPublicMcpRoute
@@ -2036,6 +2056,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronScoreSnapshotRoute: ApiPublicCronScoreSnapshotRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicIngestOcEvidenceRoute: ApiPublicIngestOcEvidenceRoute,
   ApiPublicMcpRoute: ApiPublicMcpRoute,

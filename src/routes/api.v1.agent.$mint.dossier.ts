@@ -47,6 +47,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/dossier")({
             confidence: agent.confidence,
             confidenceScore: agent.confidenceScore,
             operatorVerified: agent.operatorVerified,
+            withheldReason: agent.withheldReason ?? null,
             // AEON Execution Primitives
             activeBond: agent.activeBondAmount ?? 0,
             escrowSuccessRate: agent.escrowSuccessRate ?? 0,
@@ -196,7 +197,7 @@ function generateTerminalCardSVG(agent: Agent, events: DossierCardEvent[]): stri
 </svg>`;
 }
 
-function getGradeColor(grade: string): string {
+function getGradeColor(grade: string | null): string {
   if (grade === "SPX AAA" || grade === "SPX AA") return "#27AE60";
   if (grade === "SPX A" || grade === "SPX BBB") return "#F5A623";
   if (grade === "SPX BB" || grade === "SPX B") return "#F5A623";

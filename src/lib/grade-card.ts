@@ -76,7 +76,8 @@ export function buildGradeCard(agent: Agent, now = Date.now()): GradeCardModel {
   const lastBuyback = buybackIso ? ageLabel(buybackIso, now) : fromLabel(agent.lastBuybackLabel);
   const lastBurn = burnIso ? ageLabel(burnIso, now) : fromLabel(agent.lastBurnLabel);
 
-  const grade = agent.grade ?? "SPX404";
+  const withheld = agent.withheldReason != null;
+  const grade = withheld ? "WITHHELD" : (agent.grade ?? "SPX404");
 
   return {
     ticker: `$${(agent.symbol || "AGENT").toUpperCase()}`,

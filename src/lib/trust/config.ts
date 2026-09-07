@@ -8,12 +8,23 @@
 // Devnet fallback is allowed ONLY outside production AND only with
 // AEON_ALLOW_DEVNET=true. There is no silent default.
 
+import bs58 from "bs58";
+
 /** AEON v0.2 devnet program. Never valid as production config. */
 export const AEON_PROGRAM_ID_DEVNET = "TcZ9MKNw4eGvoe3K75e4M3zCwZCzEsb6WvrS8LqNgdm";
 
+/** True when the value decodes as Base58 to exactly 32 bytes (a Solana address). */
+export function isValidProgramId(value: string): boolean {
+  try {
+    return bs58.decode(value).length === 32;
+  } catch {
+    return false;
+  }
+}
+
 export type AeonPipelineState =
   | { enabled: true; programId: string }
-  | { enabled: false; reason: "not_configured" | "devnet_rejected" };
+  | { enabled: false; reason: "not_configured" | "devnet_rejected" | "invalid_config" };
 
 function isProduction(env: { NODE_ENV?: string }): boolean {
   return env["NODE_ENV"] === "production";
@@ -32,6 +43,11 @@ export function resolveAeonProgramId(
 ): AeonPipelineState {
   const id = (env["AEON_PROGRAM_ID"] ?? "").trim();
   if (!id) return { enabled: false, reason: "not_configured" };
+  if (!isValidProgramId(id)) {
+    throw new Error(
+      "AEON_PROGRAM_ID is not a valid Solana program ID (Base58, 32 bytes). Refusing to start AEON pipeline.",
+    );
+  }
   if (id === AEON_PROGRAM_ID_DEVNET) {
     if (isProduction(env)) {
       throw new Error(

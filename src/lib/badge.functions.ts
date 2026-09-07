@@ -112,7 +112,20 @@ export const subscribeBadge = createServerFn({ method: "POST" })
       const result = await attestSubject(
         data.mint,
         "badge_activated",
-        agent.grade ?? "SPX404",
+        // Withheld agents must never be stamped with a fabricated grade.
+        // "WITHHELD" is honest metadata on a subscription activation stamp.
+        (await supabaseAdmin
+          .from("agents" as never)
+          .select("withheld_reason")
+          .eq("mint", data.mint)
+          .maybeSingle()
+          .then(
+            (r) =>
+              (r.data as unknown as { withheld_reason: string | null } | null)?.withheld_reason ??
+              null,
+          )) != null
+          ? "WITHHELD"
+          : (agent.grade ?? "SPX404"),
         Number(agent.score ?? 0),
       );
       attestation = {

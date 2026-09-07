@@ -610,7 +610,7 @@ async function fetchScoreMoversUncached(windowHours = 24, limit = 25): Promise<S
       symbol: a.symbol,
       name: a.name,
       category: a.category ?? "tokenized_buyback",
-      grade: a.grade ?? "—",
+      grade: a.grade ?? "WITHHELD",
       currentScore: cur,
       previousScore: prev,
       scoreDelta: delta,
@@ -780,7 +780,7 @@ export interface OperatorAgentSummary {
   symbol: string;
   name: string;
   category: string;
-  grade: string;
+  grade: string | null;
   score: number | null;
   confidenceScore: number;
   totalBuybackSol: number;
@@ -894,7 +894,9 @@ export async function fetchOperatorProfile(wallet: string): Promise<OperatorProf
       ? 0
       : agentSummaries.reduce((acc, a) => acc + a.confidenceScore, 0) / agentSummaries.length;
 
-  const grades = agentSummaries.map((a) => a.grade).filter((g) => GRADE_RANK[g] != null);
+  const grades = agentSummaries
+    .map((a) => a.grade)
+    .filter((g): g is string => g != null && GRADE_RANK[g] != null);
   let bestGrade: string | null = null;
   let worstGrade: string | null = null;
   if (grades.length > 0) {
