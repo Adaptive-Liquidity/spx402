@@ -1768,3 +1768,60 @@
     background: oklch(0.7 0.09 85 / 8%);
   }
 }
+
+/* ============================================================
+   DESIGN SYSTEM LOCK — see SPX402_DESIGN_SYSTEM_LOCK.md
+   Container frames, spacing rhythm, motion tokens, focus ring.
+   ============================================================ */
+
+@theme {
+  --motion-fast: 150ms;
+  --motion: 240ms;
+  --motion-slow: 420ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Reading / trust-document frame (design lock §1) */
+@utility stage-narrow {
+  position: relative;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 52rem;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+}
+
+/* Vertical rhythm (design lock §3) */
+@utility band {
+  padding-block: clamp(4rem, 9vw, 8rem);
+}
+
+@utility section {
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+}
+
+@utility subsection {
+  margin-top: 2rem;
+}
+
+@utility stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* One focus treatment everywhere (design lock §11) */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility hairline {
+  border-top: 1px solid var(--bronze-dim);
+}
