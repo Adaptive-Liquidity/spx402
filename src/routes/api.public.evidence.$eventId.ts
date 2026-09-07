@@ -1,176 +1,118 @@
-// Wave 1c — Per-event Evidence Bundle.
-//
-// GET /api/public/evidence/:eventId
-//
-// Returns the canonical, machine-readable evidence record for a single
-// agent_event row. This is the contract that makes every grade,
-// attestation, and (later) slash explainable from the tape:
-//
-//   subject → declared intent → observed event → parser version
-//          → raw evidence → score impact → attestation impact → bond impact
-//
-// `raw_tx_hash` is sha256(canonical_json(raw)). It lets a downstream
-// verifier (an attestation issuer, a slashing authority, an external
-// auditor) hash the raw payload locally and confirm we did not mutate
-// the evidence after publishing the attestation.
-//
-// Deliberately public + cacheable: the row is immutable once written,
-// so we mark it `public, max-age=300, s-maxage=3600, immutable`.
-
 import { createFileRoute } from "@tanstack/react-router";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { canonicalJsonStringify, sha256Hex } from "@/lib/evidence/hash.server";
-import { isOcEventType } from "@/lib/indexer/oc-evidence.server";
-import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
+import { createClient } from "@supabase/supabase-js";
+import { checkRateLimit, rateLimitResponse, rateLimitHeaders } from "@/lib/rate-limiter";
+import { handleOptions, corsHeaders } from "@/lib/cors";
+import {
+  canonicalJson,
+  sha256Hex,
+  merkleRoot,
+  EMPTY_ROOT,
+  type EvidenceEventV1,
+  type EvidenceBundleV1,
+} from "@/lib/evidence";
+import { SCORING_VERSION } from "@/lib/versions";
+
+function getServerSupabase() {
+  return createClient(
+    process.env["VITE_SUPABASE_URL"]!,
+    process.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!,
+    { auth: { persistSession: false } },
+  );
+}
+
+// Columns the bundle body needs from the subject agent row.
+const AGENT_EMBED =
+  "agents(mint, symbol, name, category, identifier_kind, executor_wallet, core_asset, operator_wallet, score, grade, confidence_score, methodology_version, confidence_model_version)";
 
 export const Route = createFileRoute("/api/public/evidence/$eventId")({
   server: {
     handlers: {
+      OPTIONS: async () => handleOptions(),
       GET: async ({ params, request }) => {
-        const limited = await enforceRateLimit(request, RATE_LIMITS.evidence);
-        if (limited.response) return limited.response;
+        // Rate limit before any database work — evidence payloads are the
+        // heaviest public responses we serve.
+        const rl = await checkRateLimit(request, "evidence");
+        if (!rl.allowed) return rateLimitResponse(rl);
 
-        const eventId = params.eventId;
-        if (!isUuid(eventId)) {
-          return errorJson(400, "invalid_event_id");
-        }
+        const supabase = getServerSupabase();
 
-        const { data: ev, error } = await supabaseAdmin
+        // One round-trip: the event row with its subject agent embedded
+        // (many-to-one on agent_events.mint → agents.mint). The agent is
+        // optional — a subject may have been removed while its events stay.
+        const { data: ev, error: evErr } = await supabase
           .from("agent_events")
           .select(
-            "id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, raw, parser_version",
+            `id, mint, type, severity, signature, slot, occurred_at, amount_sol, amount_token, raw, parser_version, ${AGENT_EMBED}`,
           )
-          .eq("id", eventId)
+          .eq("id", params.eventId)
           .maybeSingle();
-        if (error) {
-          console.error("[api.public.evidence] db_error:", error);
-          return errorJson(500, "internal_error");
-        }
-        if (!ev) return errorJson(404, "event_not_found");
+        if (evErr) return Response.json({ error: "internal_error" }, { status: 500 });
+        if (!ev) return Response.json({ error: "not_found" }, { status: 404 });
 
-        const { data: agent } = await supabaseAdmin
-          .from("agents")
-          .select(
-            "mint, symbol, name, category, identifier_kind, executor_wallet, core_asset, operator_wallet, score, grade, confidence_score, methodology_version, confidence_model_version",
-          )
-          .eq("mint", ev.mint)
-          .maybeSingle();
+        const agentRow = (ev as unknown as { agents: Record<string, unknown> | null }).agents;
+        const agent = agentRow
+          ? {
+              mint: agentRow.mint as string,
+              symbol: (agentRow.symbol as string | null) ?? null,
+              name: (agentRow.name as string | null) ?? null,
+              category: (agentRow.category as string | null) ?? null,
+              identifier_kind: (agentRow.identifier_kind as string | null) ?? null,
+              executor_wallet: (agentRow.executor_wallet as string | null) ?? null,
+              core_asset: (agentRow.core_asset as string | null) ?? null,
+              operator_wallet: (agentRow.operator_wallet as string | null) ?? null,
+              score: agentRow.score == null ? null : Number(agentRow.score),
+              grade: (agentRow.grade as string | null) ?? null,
+              confidence_score:
+                agentRow.confidence_score == null ? null : Number(agentRow.confidence_score),
+              methodology_version: (agentRow.methodology_version as string | null) ?? null,
+              confidence_model_version:
+                (agentRow.confidence_model_version as string | null) ?? null,
+            }
+          : null;
 
-        const rawJson = canonicalJsonStringify(ev.raw ?? {});
-        const rawTxHash = await sha256Hex(rawJson);
-        const raw = ev.raw && typeof ev.raw === "object" && !Array.isArray(ev.raw) ? ev.raw : null;
-        const isOutcomeContract = isOcEventType(ev.type);
-
-        const subjectType = subjectTypeFor(agent?.identifier_kind ?? "mint");
-
-        const body = {
-          schema: "spx.evidence.v1",
-          event_id: ev.id,
-          subject: {
-            type: subjectType,
-            id: ev.mint,
-            symbol: agent?.symbol ?? null,
-            name: agent?.name ?? null,
-            category: agent?.category ?? null,
-            executor_wallet: agent?.executor_wallet ?? null,
-            core_asset: agent?.core_asset ?? null,
-            operator_wallet: agent?.operator_wallet ?? null,
-          },
+        const evidenceEvent: EvidenceEventV1 = {
+          id: ev.id,
+          mint: ev.mint,
           type: ev.type,
           severity: ev.severity,
+          signature: ev.signature,
+          slot: ev.slot ?? null,
           occurred_at: ev.occurred_at,
-          observed_at: isOutcomeContract ? ev.occurred_at : null,
-          source_occurred_at:
-            isOutcomeContract && raw && typeof raw.source_occurred_at === "string"
-              ? raw.source_occurred_at
-              : null,
-          evidence_source: isOutcomeContract ? "flok" : "chain",
-          source_event_id:
-            isOutcomeContract && raw && typeof raw.source_event_id === "string"
-              ? raw.source_event_id
-              : null,
-          source_evidence_hash:
-            isOutcomeContract && raw && typeof raw.source_evidence_hash === "string"
-              ? raw.source_evidence_hash
-              : null,
-          tx_signature: ev.signature,
-          slot: ev.slot,
-          amount_sol: Number(ev.amount_sol ?? 0),
-          amount_token: Number(ev.amount_token ?? 0),
-          raw_tx_hash: `sha256:${rawTxHash}`,
-          decoded_by: ev.parser_version ?? "spx-parser-v0.1.7",
-          // Score / confidence impact: not yet snapshotted per-event (Wave 3
-          // ships agent_score_snapshots which will let us compute deltas).
-          // Until then we expose the *current* score so consumers can already
-          // join evidence → score, just without the before/after delta.
-          score_at_publish: agent?.score ?? null,
-          grade_at_publish: agent?.grade ?? null,
-          confidence_at_publish: agent?.confidence_score ?? null,
-          methodology_version: agent?.methodology_version ?? null,
-          confidence_model_version: agent?.confidence_model_version ?? null,
-          score_impact: null, // Wave 3
-          attestation_id: null, // Wave 5
-          bond_impact: null, // Wave 6
-          links: {
-            permalink: `/tape/${ev.id}`,
-            subject_evidence: `/api/public/agent/${ev.mint}/evidence`,
-            tx_explorer:
-              ev.signature && !isDerivedSignature(ev.signature)
-                ? `https://solscan.io/tx/${ev.signature}`
-                : null,
-          },
+          amount_sol: ev.amount_sol == null ? null : Number(ev.amount_sol),
+          amount_token: ev.amount_token == null ? null : Number(ev.amount_token),
+          parser_version: ev.parser_version ?? null,
         };
 
-        return new Response(JSON.stringify(body, null, 2), {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            // Immutable evidence rows — safe to cache aggressively.
-            "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400",
-            "Access-Control-Allow-Origin": "*",
-            ...limited.headers,
-          },
+        const subjectRoot = agent
+          ? await merkleRoot([
+              await sha256Hex(
+                canonicalJson({
+                  mint: agent.mint,
+                  score: agent.score,
+                  grade: agent.grade,
+                  confidence_score: agent.confidence_score,
+                  methodology_version: agent.methodology_version,
+                  confidence_model_version: agent.confidence_model_version,
+                }),
+              ),
+            ])
+          : EMPTY_ROOT;
+
+        const bundleBody = {
+          spec: "spx.evidence.v1" as const,
+          event: evidenceEvent,
+          subject: agent,
+          subject_state_root: subjectRoot,
+          scoring_version: SCORING_VERSION,
+          raw: (ev.raw ?? {}) as Record<string, unknown>,
+        };
+        const bundleHash = await sha256Hex(canonicalJson(bundleBody));
+        const bundle: EvidenceBundleV1 = { ...bundleBody, bundle_hash: bundleHash };
+
+        return Response.json(bundle, {
+          headers: { ...corsHeaders(request), ...rateLimitHeaders(rl) },
         });
       },
-      OPTIONS: async () =>
-        new Response(null, {
-          status: 204,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-          },
-        }),
     },
   },
 });
-
-function subjectTypeFor(identifierKind: string): string {
-  if (identifierKind === "core_asset") return "solana_mpl_asset";
-  if (identifierKind === "executor_wallet") return "solana_wallet";
-  return "solana_mint";
-}
-
-function isDerivedSignature(sig: string): boolean {
-  return (
-    sig.startsWith("fbw-") ||
-    sig.startsWith("pbns-") ||
-    sig.startsWith("x402rv-") ||
-    sig.startsWith("failwin-") ||
-    sig.startsWith("oc-")
-  );
-}
-
-function isUuid(s: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
-}
-
-function errorJson(status: number, code: string, detail?: string): Response {
-  return new Response(JSON.stringify({ error: code, detail: detail ?? null }, null, 2), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
-}
