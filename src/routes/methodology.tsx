@@ -363,7 +363,7 @@ const SCHEMA_CHANGELOG = [
 
 function MethodologyPage() {
   return (
-    <div className="stage-narrow py-8">
+    <div className="stage-narrow section">
       <div className="label-amber">Methodology · spx-score-v0.4.0</div>
       <h1 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
         Public, versioned methodology.

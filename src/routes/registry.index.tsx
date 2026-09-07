@@ -47,12 +47,12 @@ export const Route = createFileRoute("/registry/")({
   loader: () => fetchLeaderboardIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
-    <div className="stage py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+    <div className="stage section text-center font-mono text-xs uppercase tracking-widest text-wire">
       Loading leaderboard…
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="stage py-20 text-center">
+    <div className="stage section text-center">
       <div className="label-amber">Leaderboard unavailable</div>
       <p className="mt-3 text-paper-muted">{error.message}</p>
     </div>
@@ -175,7 +175,7 @@ function LeaderboardPage() {
   );
 
   return (
-    <div className="stage py-8">
+    <div className="stage section">
       <PageHead
         title="Leaderboard"
         description="Ranked by what the chain settles — not holders, not sentiment. SPX402 ranks Solana agents by the execution patterns it can verify on-chain."

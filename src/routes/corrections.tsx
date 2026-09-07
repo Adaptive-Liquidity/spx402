@@ -35,7 +35,7 @@ const RULES = [
 
 function CorrectionsPage() {
   return (
-    <div className="stage-narrow py-12">
+    <div className="stage-narrow section">
       <h1 className="font-display text-4xl font-bold tracking-tight text-paper">
         Corrections Policy
       </h1>

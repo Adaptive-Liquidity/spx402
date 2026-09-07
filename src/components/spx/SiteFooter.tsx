@@ -45,7 +45,7 @@ const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }>
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-bronze/40 bg-panel-deep">
-      <div className="stage py-12">
+      <div className="stage section">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3">

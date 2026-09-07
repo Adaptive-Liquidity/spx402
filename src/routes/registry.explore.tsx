@@ -46,12 +46,12 @@ export const Route = createFileRoute("/registry/explore")({
     }),
   staleTime: 30_000,
   pendingComponent: () => (
-    <div className="stage py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+    <div className="stage section text-center font-mono text-xs uppercase tracking-widest text-wire">
       Loading agent index…
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="stage py-20 text-center">
+    <div className="stage section text-center">
       <div className="label-amber">Index unavailable</div>
       <p className="mt-3 text-paper-muted">{error.message}</p>
     </div>
@@ -214,7 +214,7 @@ function ExplorePage() {
   ];
 
   return (
-    <div className="stage py-8">
+    <div className="stage section">
       <PageHead
         title="Explore the index"
         description="Every Solana agent we have heard, filterable by execution grade — including the SPX404 archive of agents we found but couldn't verify."

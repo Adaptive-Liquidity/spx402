@@ -28,7 +28,7 @@ function useUtcClock() {
 
 function ShellFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="stage py-10 lg:py-16">
+    <div className="stage section">
       <div className="reg-frame p-8 lg:p-14">
         <span className="reg-mark reg-mark-tl" aria-hidden />
         <span className="reg-mark reg-mark-tr" aria-hidden />
@@ -101,7 +101,7 @@ function AuthenticatedLayout() {
   const name = user?.user_metadata?.display_name || user?.email || "Operator";
 
   return (
-    <div className="stage py-8 lg:py-12">
+    <div className="stage section">
       <div className="reg-frame">
         <span className="reg-mark reg-mark-tl" aria-hidden />
         <span className="reg-mark reg-mark-tr" aria-hidden />

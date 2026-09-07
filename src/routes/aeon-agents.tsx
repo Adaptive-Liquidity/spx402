@@ -36,7 +36,7 @@ function Card({ title, body }: { title: string; body: string }) {
 
 function AeonAgentsPage() {
   return (
-    <div className="stage-narrow py-12">
+    <div className="stage-narrow section">
       <h1 className="font-display text-4xl font-bold tracking-tight text-paper">
         AEON Agents are agents with receipts.
       </h1>

@@ -87,7 +87,7 @@ const EVENT_TOGGLES: Array<{ group: string; events: string[] }> = [
 
 function AlertsPage() {
   return (
-    <div className="stage py-8">
+    <div className="stage section">
       <div className="inline-flex items-center gap-2 border border-amber/60 bg-amber/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-amber">
         <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-amber" />
         Shipping soon

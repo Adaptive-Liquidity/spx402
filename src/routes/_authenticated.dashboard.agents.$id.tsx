@@ -67,7 +67,7 @@ function AgentWorkspace() {
   const checklist = setupChecklist(reg);
 
   return (
-    <div className="stage py-8">
+    <div className="stage section">
       <Link
         to="/dashboard/agents"
         className="font-mono text-[10px] uppercase tracking-widest text-wire hover:text-amber"

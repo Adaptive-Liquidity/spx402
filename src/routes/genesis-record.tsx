@@ -42,7 +42,7 @@ const FIELDS = [
 
 function GenesisPage() {
   return (
-    <div className="stage-narrow py-12">
+    <div className="stage-narrow section">
       <h1 className="font-display text-4xl font-bold tracking-tight text-paper">Genesis Record</h1>
       <p className="mt-5 text-lg text-paper-muted">
         The founding disclosures of SPX402, signed by the attester key. A reputation system should

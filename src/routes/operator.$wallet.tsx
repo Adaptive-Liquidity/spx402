@@ -33,12 +33,12 @@ export const Route = createFileRoute("/operator/$wallet")({
   },
   staleTime: 30_000,
   pendingComponent: () => (
-    <div className="stage py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+    <div className="stage section text-center font-mono text-xs uppercase tracking-widest text-wire">
       Loading operator…
     </div>
   ),
   notFoundComponent: () => (
-    <div className="stage py-20 text-center">
+    <div className="stage section text-center">
       <div className="label-amber">Operator not found</div>
       <p className="mt-3 text-paper-muted">No verified operator wallet matches that address yet.</p>
       <Link to="/registry/explore" className="mt-6 inline-block text-amber underline">
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/operator/$wallet")({
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="stage py-20 text-center">
+    <div className="stage section text-center">
       <div className="label-amber">Operator unavailable</div>
       <p className="mt-3 text-paper-muted">{error.message}</p>
     </div>
@@ -66,7 +66,7 @@ function OperatorProfilePage() {
   const { wallet, agents, aggregate, recentEvents } = profile;
 
   return (
-    <div className="stage py-12 lg:py-16">
+    <div className="stage section">
       <div className="label-amber">Operator</div>
       <h1 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
         {shortWallet(wallet)}
