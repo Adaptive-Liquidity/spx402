@@ -2,41 +2,45 @@ import { Link } from "@tanstack/react-router";
 
 const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }> }> = [
   {
-    heading: "Live",
+    heading: "Product",
     links: [
-      { to: "/live", label: "Execution tape" },
-      { to: "/live/pulse", label: "Pulse" },
-      { to: "/live/status", label: "System status" },
-    ],
-  },
-  {
-    heading: "Registry",
-    links: [
+      { to: "/build/register", label: "Register agent" },
+      { to: "/registry/explore", label: "Registry" },
       { to: "/registry", label: "Leaderboard" },
-      { to: "/registry/explore", label: "Explore" },
-      { to: "/registry/flagged", label: "Flagged" },
-      { to: "/registry/operators", label: "Operators" },
+      { to: "/aeon-agents", label: "AEON agents" },
+      { to: "/live", label: "Execution tape" },
     ],
   },
   {
-    heading: "Build",
+    heading: "Trust",
+    links: [
+      { to: "/methodology", label: "Methodology" },
+      { to: "/corrections", label: "Corrections" },
+      { to: "/genesis-record", label: "Genesis record" },
+      { to: "/live/status", label: "System status" },
+      { to: "/registry/flagged", label: "Flagged" },
+    ],
+  },
+  {
+    heading: "Developers",
     links: [
       { to: "/build", label: "API" },
       { to: "/build/docs", label: "Endpoints" },
-      { to: "/build/register", label: "Register agent" },
+      { to: "/registry/operators", label: "Operators" },
       { to: "/pricing", label: "Pricing" },
     ],
   },
   {
     heading: "Company",
     links: [
-      { to: "/methodology", label: "Methodology" },
       { to: "/about", label: "About" },
       { to: "/about/changelog", label: "Changelog" },
       { to: "/about/disclaimer", label: "Disclaimer" },
+      { to: "/live/pulse", label: "Pulse" },
     ],
   },
 ];
+
 
 export function SiteFooter() {
   return (
