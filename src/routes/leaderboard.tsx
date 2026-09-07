@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
-import { fetchAllAgents } from "@/lib/agents-db";
+import { fetchAgentIndex } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/leaderboard")({
       },
     ],
   }),
-  loader: () => fetchAllAgents(),
+  loader: () => fetchAgentIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
     <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
