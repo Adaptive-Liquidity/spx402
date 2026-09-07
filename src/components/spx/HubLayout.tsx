@@ -22,10 +22,11 @@ export function HubLayout({
       <div className="border-b border-bronze/40 bg-panel-deep">
         <div className="mx-auto max-w-[1400px] px-4 pt-10 lg:px-8">
           <div className="label-amber">{eyebrow}</div>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-paper sm:text-4xl">
+          <div className="mt-2 font-display text-xl font-bold tracking-tight text-paper">
             {title}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-paper-muted">{blurb}</p>
+          </div>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-paper-muted">{blurb}</p>
+
 
           <nav className="mt-8 -mb-px flex flex-wrap items-center gap-1 overflow-x-auto">
             {tabs.map((tab) => {
