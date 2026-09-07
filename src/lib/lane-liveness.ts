@@ -85,39 +85,31 @@ export const LANE_SPECS: LaneSpec[] = [
 const MIN = 60_000;
 const HOUR = 3_600_000;
 
+// Table names vary per lane, so the generated row types do not apply. This is
+// the minimal shape of the PostgREST builder we actually use.
+interface AnyQuery {
+  eq(column: string, value: unknown): AnyQuery;
+  in(column: string, values: unknown[]): AnyQuery;
+  order(column: string, opts: { ascending: boolean }): AnyQuery;
+  limit(n: number): PromiseLike<{ data: unknown[] | null; error: unknown }>;
+}
+
+type LaneFilter = { column: string; values: string[] } | { column: string; value: string };
+
 async function maxTimestamp(
   table: string,
   column: string,
-  filter?: (q: ReturnType<typeof baseQuery>) => ReturnType<typeof baseQuery>,
+  filter?: LaneFilter,
 ): Promise<string | null> {
-  let q = baseQuery(table, column);
-  if (filter) q = filter(q);
+  let q = supabase.from(table as never).select(column as never) as unknown as AnyQuery;
+  if (filter && "values" in filter) q = q.in(filter.column, filter.values);
+  else if (filter) q = q.eq(filter.column, filter.value);
   const { data, error } = await q.order(column, { ascending: false }).limit(1);
   if (error || !data || data.length === 0) return null;
   const row = data[0] as Record<string, unknown>;
   const value = row[column];
   return typeof value === "string" ? value : null;
 }
-
-function baseQuery(table: string, column: string) {
-  return supabase.from(table as never).select(column) as never as ReturnType<
-    typeof unsafeSelectShape
-  >;
-}
-
-// Types on dynamic table names are not worth fighting; the shape is a
-// PostgREST filter builder that resolves to { data, error }.
-declare function unsafeSelectShape(): {
-  eq: (c: string, v: unknown) => ReturnType<typeof unsafeSelectShape>;
-  in: (c: string, v: unknown[]) => ReturnType<typeof unsafeSelectShape>;
-  not: (c: string, op: string, v: unknown) => ReturnType<typeof unsafeSelectShape>;
-  order: (
-    c: string,
-    o: { ascending: boolean },
-  ) => {
-    limit: (n: number) => Promise<{ data: unknown[] | null; error: unknown }>;
-  };
-};
 
 export interface LaneHeartbeat {
   ranAt: string;
