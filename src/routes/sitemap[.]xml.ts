@@ -91,14 +91,14 @@ export const Route = createFileRoute("/sitemap.xml")({
             ),
             ...services.map(
               (s) => `  <url>
-    <loc>${baseUrl}/service/${s.id}</loc>
+    <loc>${baseUrl}/service/${s.slug}</loc>
     <changefreq>hourly</changefreq>
     <priority>0.5</priority>
   </url>`,
             ),
             ...executors.map(
               (e) => `  <url>
-    <loc>${baseUrl}/operator/${e.cri_address}</loc>
+    <loc>${baseUrl}/operator/${e.executor_wallet}</loc>
     <changefreq>hourly</changefreq>
     <priority>0.5</priority>
   </url>`,
