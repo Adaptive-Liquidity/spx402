@@ -4,28 +4,30 @@ Carry the Tier 1 design lock forward. No new palette, type, voice, hero copy, sc
 
 ## 1. Nav regroup — four hubs
 
-Collapse the flat header into four hubs with dropdowns on desktop and grouped sections in the mobile drawer. Every existing route keeps its URL; no redirects or deletions.
+Collapse the flat header into four hubs with dropdowns on desktop and grouped sections in the mobile drawer. The header stays one row: four hub labels plus dropdowns. Search and the single primary CTA do not move.
+
+Every route below already exists — no new route files, no new aliases. Existing URLs stay, and the `/explore` → `/registry/explore` and `/tape` → `/live` 301s remain exactly as they are.
 
 ```text
-Live              Registry           Build                  About
-────────────────  ──────────────────  ─────────────────────  ──────────────────────
-Tape        /live  Leaderboard   /registry           API       /build           About        /about
-Pulse /live/pulse  Explore /registry/explore  Register  /build/register  Methodology  /methodology
-Status /live/status Flagged /registry/flagged   Docs      /build/docs      Corrections  /corrections
-                  Operators /registry/operators Badge     /build/badge     Genesis      /genesis-record
-                  AEON Agents /aeon-agents      Alerts    /build/alerts    Changelog    /about/changelog
-                                                     Preflight /build/preflight Disclaimer   /about/disclaimer
-                                                     Pricing   /pricing
+Live                     Registry                       Build                      About
+───────────────────────  ─────────────────────────────  ─────────────────────────  ──────────────────────────
+Tape         /live       Leaderboard  /registry         API        /build          About        /about
+Pulse        /live/pulse Explore      /registry/explore Register   /build/register Methodology  /methodology
+Status       /live/status Flagged     /registry/flagged Docs       /build/docs     Corrections  /corrections
+                         Operators    /registry/operators Badge    /build/badge    Genesis      /genesis-record
+                         AEON Agents  /aeon-agents      Alerts     /build/alerts   Changelog    /about/changelog
+                                                        Preflight  /build/preflight Disclaimer  /about/disclaimer
+                                                        Pricing    /pricing
 ```
 
 - Update `src/components/spx/nav-items.ts` to export hub definitions (`HUBS`) plus the flat mobile list.
-- Update `src/components/spx/SiteHeader.tsx` to render the four hubs as dropdowns using the existing `dropdown-menu` primitive. Active state follows the current route prefix. Search and the single primary CTA stay where they are.
-- Update `src/components/spx/MobileNav.tsx` to render the same four hubs as grouped sections, with the child links indented under each hub heading.
+- Update `src/components/spx/SiteHeader.tsx` to render the four hubs as dropdowns using the existing `dropdown-menu` primitive. Active state follows the current route prefix.
+- Update `src/components/spx/MobileNav.tsx` to render the same four hubs as grouped sections, with child links indented under each hub heading.
 - Keep the signed-in Dashboard CTA as the single primary action; do not add a user hub this pass.
 
 ## 2. Dossier architecture rebuild
 
-Split the 1,631-line `src/routes/agent.$mint.tsx` into an orchestrator plus four dossier components. No visual redesign beyond the one required fix.
+Architecture split only. Split the 1,631-line `src/routes/agent.$mint.tsx` into an orchestrator plus four dossier components. No sticky summary, no tabbed redesign, no new sections, no visual redesign beyond the one required fix below. The rendered page must look the same.
 
 New files under `src/components/spx/dossier/`:
 
@@ -60,15 +62,16 @@ Restyle `src/routes/login.tsx` and `src/routes/signup.tsx` to match the rest of 
 
 ## 4. Real command palette — route + agent search
 
-Enhance the existing `⌘K` / `Ctrl+K` dialog so it can jump to routes and fuzzy-find indexed agents. Reuse `AgentSearchBar`; do not build a separate palette system.
+Enhance the existing `⌘K` / `Ctrl+K` dialog so it can jump to routes and fuzzy-find indexed agents. Reuse `AgentSearchBar` and `SearchDialog`; no new palette component, no separate palette system.
 
-- `src/components/spx/SearchDialog.tsx` stays the entry point. It still opens on `⌘K` / `Ctrl+K` and closes on `Esc` / route change.
-- Inside the dialog, render `AgentSearchBar` in a mode that shows two suggestion groups:
-  1. **Routes** — static shortcuts to `/registry`, `/registry/explore`, `/live`, `/build`, `/methodology`, `/pricing`.
-  2. **Agents** — fuzzy matches on `symbol`, `name`, and `mint` prefix, fetched from a new server function.
-- Add `src/lib/agents.functions.ts` with `searchAgents(q, limit)` using `createServerFn` from `@tanstack/react-start`. It queries the existing `agents` table with `ilike` on symbol/name and a mint-prefix match, returning `{ mint, symbol, name, grade }`.
+- `src/components/spx/SearchDialog.tsx` stays the entry point. `⌘K` / `Ctrl+K` only — no `/` binding — ignored while focus is in an input, textarea, or contenteditable. Closes on `Esc` and on route change, exactly as today.
+- Inside the dialog, render `AgentSearchBar` with exactly two suggestion groups and nothing else:
+  1. **Routes** — the hub routes from `nav-items.ts`.
+  2. **Agents** — fuzzy matches on `symbol`, `name`, and `mint` prefix.
+- No actions group, no theme toggle, no copy-mint, no command registry.
+- Add `src/lib/agents.functions.ts` with `searchAgents(q, limit)` using `createServerFn` from `@tanstack/react-start`. It queries the existing `agents` table with `ilike` on symbol/name plus a mint-prefix match, returning `{ mint, symbol, name, grade }`.
 - Selecting an agent navigates to `/agent/$mint`; selecting a route navigates to that route.
-- Keep the current `AgentSearchBar` behavior when used inline on `/registry/explore` (no suggestion dropdown there unless trivial to share).
+- `AgentSearchBar` used inline on `/registry/explore` keeps its current behavior; suggestions are opt-in via a prop.
 
 ## Enforced rules
 
@@ -78,6 +81,7 @@ Enhance the existing `⌘K` / `Ctrl+K` dialog so it can jump to routes and fuzzy
 - Motion 150–240ms, once, state only; honour `prefers-reduced-motion`.
 - Old routes redirect, never delete. No edits to `src/styles.css` tokens.
 - No new files under `src/components/spx` except the dossier split and any genuinely missing primitive.
+- No Tier 3 work. No edits to Hero, Guilloche, Aperture, design tokens, or scoring.
 
 ## Verification
 
