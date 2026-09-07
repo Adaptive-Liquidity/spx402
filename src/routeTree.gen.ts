@@ -24,14 +24,17 @@ import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as GenesisRecordRouteImport } from './routes/genesis-record'
 import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as CorrectionsRouteImport } from './routes/corrections'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as BuildRouteImport } from './routes/build'
 import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AeonAgentsRouteImport } from './routes/aeon-agents'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -83,15 +86,18 @@ import { Route as ApiPublicCronAlertDispatchRouteImport } from './routes/api.pub
 import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public.admin-add-api-key'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
+import { Route as AuthenticatedDashboardWalletsRouteImport } from './routes/_authenticated.dashboard.wallets'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 import { Route as AuthenticatedDashboardAccountRouteImport } from './routes/_authenticated.dashboard.account'
+import { Route as AuthenticatedDashboardAgentsIndexRouteImport } from './routes/_authenticated.dashboard.agents.index'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as ApiPublicUserApiKeysRouteImport } from './routes/api.public.user.api-keys'
 import { Route as ApiPublicOgChar123subjectChar125DotsvgRouteImport } from './routes/api.public.og.{$subject}[.]svg'
 import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
 import { Route as ApiPublicCardChar123subjectChar125DotpngRouteImport } from './routes/api.public.card.{$subject}[.]png'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
+import { Route as AuthenticatedDashboardAgentsIdRouteImport } from './routes/_authenticated.dashboard.agents.$id'
 import { Route as ApiV1AgentMintScoreRouteImport } from './routes/api.v1.agent.$mint.score'
 import { Route as ApiV1AgentMintEvidenceRouteImport } from './routes/api.v1.agent.$mint.evidence'
 import { Route as ApiV1AgentMintDossierRouteImport } from './routes/api.v1.agent.$mint.dossier'
@@ -172,6 +178,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenesisRecordRoute = GenesisRecordRouteImport.update({
+  id: '/genesis-record',
+  path: '/genesis-record',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FlaggedRoute = FlaggedRouteImport.update({
   id: '/flagged',
   path: '/flagged',
@@ -185,6 +196,11 @@ const ExploreRoute = ExploreRouteImport.update({
 const DisclaimerRoute = DisclaimerRouteImport.update({
   id: '/disclaimer',
   path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorrectionsRoute = CorrectionsRouteImport.update({
+  id: '/corrections',
+  path: '/corrections',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChangelogRoute = ChangelogRouteImport.update({
@@ -210,6 +226,11 @@ const ApiRoute = ApiRouteImport.update({
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AeonAgentsRoute = AeonAgentsRouteImport.update({
+  id: '/aeon-agents',
+  path: '/aeon-agents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -480,6 +501,12 @@ const AuthenticatedDashboardWatchlistRoute =
     path: '/watchlist',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardWalletsRoute =
+  AuthenticatedDashboardWalletsRouteImport.update({
+    id: '/wallets',
+    path: '/wallets',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardApiKeysRoute =
   AuthenticatedDashboardApiKeysRouteImport.update({
     id: '/api-keys',
@@ -496,6 +523,12 @@ const AuthenticatedDashboardAccountRoute =
   AuthenticatedDashboardAccountRouteImport.update({
     id: '/account',
     path: '/account',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardAgentsIndexRoute =
+  AuthenticatedDashboardAgentsIndexRouteImport.update({
+    id: '/agents/',
+    path: '/agents/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const LovableEmailTransactionalPreviewRoute =
@@ -533,6 +566,12 @@ const ApiPublicBadgeChar123mintChar125DotsvgRoute =
     path: '/public/badge/{$mint}.svg',
     getParentRoute: () => ApiRoute,
   } as any)
+const AuthenticatedDashboardAgentsIdRoute =
+  AuthenticatedDashboardAgentsIdRouteImport.update({
+    id: '/agents/$id',
+    path: '/agents/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const ApiV1AgentMintScoreRoute = ApiV1AgentMintScoreRouteImport.update({
   id: '/v1/agent/$mint/score',
   path: '/v1/agent/$mint/score',
@@ -558,14 +597,17 @@ const ApiPublicAgentSubjectEvidenceRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRouteWithChildren
+  '/aeon-agents': typeof AeonAgentsRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
   '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
+  '/corrections': typeof CorrectionsRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
+  '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
@@ -608,6 +650,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
@@ -632,12 +675,14 @@ export interface FileRoutesByFullPath {
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/agents/$id': typeof AuthenticatedDashboardAgentsIdRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/dashboard/agents/': typeof AuthenticatedDashboardAgentsIndexRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -645,13 +690,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aeon-agents': typeof AeonAgentsRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
   '/changelog': typeof ChangelogRoute
+  '/corrections': typeof CorrectionsRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
+  '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
@@ -691,6 +739,7 @@ export interface FileRoutesByTo {
   '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
@@ -715,12 +764,14 @@ export interface FileRoutesByTo {
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/agents/$id': typeof AuthenticatedDashboardAgentsIdRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/dashboard/agents': typeof AuthenticatedDashboardAgentsIndexRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -731,14 +782,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRouteWithChildren
+  '/aeon-agents': typeof AeonAgentsRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
   '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
+  '/corrections': typeof CorrectionsRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
+  '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
@@ -781,6 +835,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/_authenticated/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
@@ -805,12 +860,14 @@ export interface FileRoutesById {
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/dashboard/agents/$id': typeof AuthenticatedDashboardAgentsIdRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
   '/api/public/og/{$subject}.svg': typeof ApiPublicOgChar123subjectChar125DotsvgRoute
   '/api/public/user/api-keys': typeof ApiPublicUserApiKeysRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/dashboard/agents/': typeof AuthenticatedDashboardAgentsIndexRoute
   '/api/public/agent/$subject/evidence': typeof ApiPublicAgentSubjectEvidenceRoute
   '/api/v1/agent/$mint/dossier': typeof ApiV1AgentMintDossierRoute
   '/api/v1/agent/$mint/evidence': typeof ApiV1AgentMintEvidenceRoute
@@ -821,14 +878,17 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/aeon-agents'
     | '/alerts'
     | '/api'
     | '/badge'
     | '/build'
     | '/changelog'
+    | '/corrections'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
+    | '/genesis-record'
     | '/leaderboard'
     | '/live'
     | '/login'
@@ -871,6 +931,7 @@ export interface FileRouteTypes {
     | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
+    | '/dashboard/wallets'
     | '/dashboard/watchlist'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
@@ -895,12 +956,14 @@ export interface FileRouteTypes {
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
     | '/dashboard/'
+    | '/dashboard/agents/$id'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
     | '/lovable/email/transactional/preview'
+    | '/dashboard/agents/'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -908,13 +971,16 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aeon-agents'
     | '/alerts'
     | '/api'
     | '/badge'
     | '/changelog'
+    | '/corrections'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
+    | '/genesis-record'
     | '/leaderboard'
     | '/login'
     | '/methodology'
@@ -954,6 +1020,7 @@ export interface FileRouteTypes {
     | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
+    | '/dashboard/wallets'
     | '/dashboard/watchlist'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
@@ -978,12 +1045,14 @@ export interface FileRouteTypes {
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
     | '/dashboard'
+    | '/dashboard/agents/$id'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
     | '/lovable/email/transactional/preview'
+    | '/dashboard/agents'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -993,14 +1062,17 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/aeon-agents'
     | '/alerts'
     | '/api'
     | '/badge'
     | '/build'
     | '/changelog'
+    | '/corrections'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
+    | '/genesis-record'
     | '/leaderboard'
     | '/live'
     | '/login'
@@ -1043,6 +1115,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/account'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
+    | '/_authenticated/dashboard/wallets'
     | '/_authenticated/dashboard/watchlist'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
@@ -1067,12 +1140,14 @@ export interface FileRouteTypes {
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/dashboard/agents/$id'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
     | '/api/public/og/{$subject}.svg'
     | '/api/public/user/api-keys'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/dashboard/agents/'
     | '/api/public/agent/$subject/evidence'
     | '/api/v1/agent/$mint/dossier'
     | '/api/v1/agent/$mint/evidence'
@@ -1083,14 +1158,17 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRouteWithChildren
+  AeonAgentsRoute: typeof AeonAgentsRoute
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
   BadgeRoute: typeof BadgeRoute
   BuildRoute: typeof BuildRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
+  CorrectionsRoute: typeof CorrectionsRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
   FlaggedRoute: typeof FlaggedRoute
+  GenesisRecordRoute: typeof GenesisRecordRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveRoute: typeof LiveRouteWithChildren
   LoginRoute: typeof LoginRoute
@@ -1221,6 +1299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/genesis-record': {
+      id: '/genesis-record'
+      path: '/genesis-record'
+      fullPath: '/genesis-record'
+      preLoaderRoute: typeof GenesisRecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/flagged': {
       id: '/flagged'
       path: '/flagged'
@@ -1240,6 +1325,13 @@ declare module '@tanstack/react-router' {
       path: '/disclaimer'
       fullPath: '/disclaimer'
       preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corrections': {
+      id: '/corrections'
+      path: '/corrections'
+      fullPath: '/corrections'
+      preLoaderRoute: typeof CorrectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/changelog': {
@@ -1275,6 +1367,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aeon-agents': {
+      id: '/aeon-agents'
+      path: '/aeon-agents'
+      fullPath: '/aeon-agents'
+      preLoaderRoute: typeof AeonAgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -1634,6 +1733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardWatchlistRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/wallets': {
+      id: '/_authenticated/dashboard/wallets'
+      path: '/wallets'
+      fullPath: '/dashboard/wallets'
+      preLoaderRoute: typeof AuthenticatedDashboardWalletsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/api-keys': {
       id: '/_authenticated/dashboard/api-keys'
       path: '/api-keys'
@@ -1653,6 +1759,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/dashboard/account'
       preLoaderRoute: typeof AuthenticatedDashboardAccountRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/agents/': {
+      id: '/_authenticated/dashboard/agents/'
+      path: '/agents'
+      fullPath: '/dashboard/agents/'
+      preLoaderRoute: typeof AuthenticatedDashboardAgentsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/lovable/email/transactional/preview': {
@@ -1697,6 +1810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/_authenticated/dashboard/agents/$id': {
+      id: '/_authenticated/dashboard/agents/$id'
+      path: '/agents/$id'
+      fullPath: '/dashboard/agents/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardAgentsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/api/v1/agent/$mint/score': {
       id: '/api/v1/agent/$mint/score'
       path: '/v1/agent/$mint/score'
@@ -1732,8 +1852,11 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAccountRoute: typeof AuthenticatedDashboardAccountRoute
   AuthenticatedDashboardAlertsRoute: typeof AuthenticatedDashboardAlertsRoute
   AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
+  AuthenticatedDashboardWalletsRoute: typeof AuthenticatedDashboardWalletsRoute
   AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedDashboardAgentsIdRoute: typeof AuthenticatedDashboardAgentsIdRoute
+  AuthenticatedDashboardAgentsIndexRoute: typeof AuthenticatedDashboardAgentsIndexRoute
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
@@ -1741,8 +1864,12 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardAccountRoute: AuthenticatedDashboardAccountRoute,
     AuthenticatedDashboardAlertsRoute: AuthenticatedDashboardAlertsRoute,
     AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
+    AuthenticatedDashboardWalletsRoute: AuthenticatedDashboardWalletsRoute,
     AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+    AuthenticatedDashboardAgentsIdRoute: AuthenticatedDashboardAgentsIdRoute,
+    AuthenticatedDashboardAgentsIndexRoute:
+      AuthenticatedDashboardAgentsIndexRoute,
   }
 
 const AuthenticatedDashboardRouteWithChildren =
@@ -1917,14 +2044,17 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRouteWithChildren,
+  AeonAgentsRoute: AeonAgentsRoute,
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
   BadgeRoute: BadgeRoute,
   BuildRoute: BuildRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
+  CorrectionsRoute: CorrectionsRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
   FlaggedRoute: FlaggedRoute,
+  GenesisRecordRoute: GenesisRecordRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveRoute: LiveRouteWithChildren,
   LoginRoute: LoginRoute,

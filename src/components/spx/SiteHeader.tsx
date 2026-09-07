@@ -29,7 +29,7 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV.map((item) => {
-            const active = item.to === "/" ? path === "/" : path.startsWith(item.to);
+            const active = path === item.to || path.startsWith(`${item.to}/`);
             return (
               <Link
                 key={item.to}

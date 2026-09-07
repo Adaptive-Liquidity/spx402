@@ -278,6 +278,58 @@ function HomePage() {
         </div>
       </Aperture>
 
+      {/* AEON AGENTS */}
+      <Aperture as="section" className="stage py-16">
+        <div className="grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <BandSpine n="01b" code="AEON" label="Agents with receipts" />
+            <h2 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
+              AEON proves the agent. SPX402 prices its trust.
+            </h2>
+            <p className="mt-5 max-w-sm text-paper-muted">
+              AEON gives an agent identity, scoped authority, escrow, receipts, bonds and
+              fail-closed accounting. SPX402 turns that activity into a public reputation record —
+              score, grade, evidence, attestation.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/aeon-agents"
+                className="border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+              >
+                What is an AEON Agent
+              </Link>
+              <Link
+                to="/build/register"
+                className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+              >
+                Register an agent
+              </Link>
+            </div>
+          </div>
+          <div className="lg:col-span-7">
+            <div className="grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2">
+              {[
+                ["Identity", "A durable on-chain identity and reputation account, not a fresh wallet each run."],
+                ["Authority", "Scoped, revocable spending power: budget limits, category limits, expiry, pause."],
+                ["Evidence", "Escrows, receipts, bonds and payments — decoded, hashed and bundled."],
+                ["Reputation", "Score, grade, attestation and corrections, published from that evidence only."],
+              ].map(([t, b]) => (
+                <div key={t} className="bg-panel p-6">
+                  <h3 className="font-display text-lg font-semibold text-paper">{t}</h3>
+                  <p className="mt-2 text-sm text-paper-muted">{b}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 font-mono text-[11px] text-wire">
+              Registering, connecting a wallet or creating an identity never produces a grade.
+              Grades come only from decoded activity and the public scoring methodology.
+            </p>
+          </div>
+        </div>
+      </Aperture>
+
+
+
       {/* GRADE INPUTS */}
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12">
