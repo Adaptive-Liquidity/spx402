@@ -28,6 +28,7 @@ const OUTLINED: Record<Grade, string> = {
 
 export function ExecutionGradeBadge({
   grade,
+  withheld = false,
   size = "md",
   className,
   // Either pass numeric confidenceScore (0..1) OR pass `outlined` directly.
@@ -36,23 +37,45 @@ export function ExecutionGradeBadge({
   outlined,
 }: {
   grade: Grade | null;
+  withheld?: boolean;
   size?: "sm" | "md" | "lg";
   className?: string;
   confidenceScore?: number;
   outlined?: boolean;
 }) {
   if (grade == null) {
+    // Null grade means Withheld ONLY with an explicit withheld flag;
+    // otherwise the subject is simply ungraded (never conflate the two).
+    if (withheld) {
+      return (
+        <span
+          className={cn(
+            "inline-flex items-center gap-2 border border-dashed border-paper-muted/60 bg-transparent px-3 py-1.5 font-mono font-bold uppercase tracking-widest text-paper-muted",
+            size === "sm"
+              ? "px-2 py-1 text-[10px]"
+              : size === "lg"
+                ? "px-4 py-2 text-sm"
+                : "text-xs",
+            className,
+          )}
+          title="Withheld / AEON unavailable - no valid grading available"
+        >
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />
+          Withheld
+        </span>
+      );
+    }
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-2 border border-dashed border-paper-muted/60 bg-transparent px-3 py-1.5 font-mono font-bold uppercase tracking-widest text-paper-muted",
+          "inline-flex items-center gap-2 border border-paper-muted/40 bg-transparent px-3 py-1.5 font-mono font-bold uppercase tracking-widest text-paper-muted",
           size === "sm" ? "px-2 py-1 text-[10px]" : size === "lg" ? "px-4 py-2 text-sm" : "text-xs",
           className,
         )}
-        title="Withheld / AEON unavailable - no valid grading available"
+        title="Ungraded - not enough evidence yet"
       >
         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />
-        Withheld
+        Ungraded
       </span>
     );
   }

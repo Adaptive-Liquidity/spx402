@@ -15,7 +15,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/watchlist")({
       { title: "Watchlist — SPX402 Operator Terminal" },
       {
         name: "description",
-        content: "The agents you track — grade, execution score and last settlement in one register.",
+        content:
+          "The agents you track — grade, execution score and last settlement in one register.",
       },
     ],
   }),
@@ -167,6 +168,7 @@ function WatchlistPage() {
                       grade={agent.grade}
                       size="sm"
                       confidenceScore={agent.confidenceScore}
+                      withheld={agent.withheldReason != null}
                     />
                   ) : (
                     <span className="font-mono text-xs text-wire">—</span>

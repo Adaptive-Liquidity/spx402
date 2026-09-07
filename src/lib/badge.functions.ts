@@ -114,16 +114,19 @@ export const subscribeBadge = createServerFn({ method: "POST" })
         "badge_activated",
         // Withheld agents must never be stamped with a fabricated grade.
         // "WITHHELD" is honest metadata on a subscription activation stamp.
-        (await supabaseAdmin
-          .from("agents" as never)
-          .select("withheld_reason")
-          .eq("mint", data.mint)
-          .maybeSingle()
-          .then(
-            (r) =>
-              (r.data as unknown as { withheld_reason: string | null } | null)?.withheld_reason ??
-              null,
-          )) != null
+        (await (async () => {
+          // A lookup error fails CLOSED (abort subscription) rather than
+          // falling back to a possibly stale grade.
+          const { data: wrow, error: werr } = await supabaseAdmin
+            .from("agents" as never)
+            .select("withheld_reason")
+            .eq("mint", data.mint)
+            .maybeSingle();
+          if (werr) throw new Error("withheld-state lookup failed");
+          return (
+            (wrow as unknown as { withheld_reason: string | null } | null)?.withheld_reason ?? null
+          );
+        })()) != null
           ? "WITHHELD"
           : (agent.grade ?? "SPX404"),
         Number(agent.score ?? 0),

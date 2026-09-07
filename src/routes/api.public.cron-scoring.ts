@@ -208,9 +208,15 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
                   operator: b.operator,
                   raw: b,
                 };
+          // A successful rescore clears any prior withheld state: without this,
+          // a re-enabled agent would keep a fresh grade that stays hidden.
+          // withheld_reason is post-migration (see withheld-state migration);
+          // `as never` matches the codebase pattern until types are regen'd.
           const { error } = await supabaseAdmin
             .from("agents")
             .update({
+              withheld_reason: null,
+
               score: publication.score,
               grade: publication.grade,
               verdict: publication.verdict,
@@ -232,7 +238,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               burn_confirmation_rate: counters.burnConfirmationRate,
               last_indexed_seconds: counters.lastIndexedSeconds,
               scored_at: new Date().toISOString(),
-            })
+            } as never)
             .eq("mint", a.mint);
           if (!error) scored++;
 

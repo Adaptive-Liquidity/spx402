@@ -250,17 +250,19 @@ export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
   let totalBonded = 0;
   let totalSlashed = 0;
   for (const a of all) {
+    // Money and verification aggregates count real on-chain facts, including
+    // withheld rows. Only the grade-distribution arcs skip withheld/grade-less
+    // rows below.
+    if (!a.operatorVerified) unverifiedCount++;
+    totalBonded += a.activeBondAmount;
+    totalSlashed += a.totalSlashedUsd;
     // Withheld rows carry no grade: skip the distribution arcs entirely.
-    // (Bond/slashed aggregates below still count real money.)
     if (a.withheldReason != null || a.grade == null) continue;
     // Three structurally different states, never blended into one arc:
     // nothing settled, settled but thin evidence, and a trusted graded letter.
     if (a.grade === "SPX404") unsettledCount++;
     else if (a.confidence === "low") insufficientEvidenceCount++;
     else gradeCounts.set(a.grade, (gradeCounts.get(a.grade) ?? 0) + 1);
-    if (!a.operatorVerified) unverifiedCount++;
-    totalBonded += a.activeBondAmount;
-    totalSlashed += a.totalSlashedUsd;
   }
   return {
     featured: all.filter(qualifiesForLeaderboard).slice(0, 3),
@@ -356,7 +358,7 @@ export async function fetchExplorePage(opts: {
     rows: sorted.slice(start, start + opts.pageSize),
     counts,
     total: sorted.length,
-    flaggedCount: all.length - visible.length,
+    flaggedCount: all.filter((a) => a.flagged === true).length,
   };
 }
 
