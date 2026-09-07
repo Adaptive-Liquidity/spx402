@@ -108,7 +108,11 @@ interface DossierCardEvent {
 }
 
 function generateTerminalCardSVG(agent: Agent, events: DossierCardEvent[]): string {
-  const gradeColor = getGradeColor(agent.grade);
+  // Withheld agents must never render the literal string "null" in the
+  // badge. A null grade without a withheld reason is plain ungraded.
+  const displayGrade =
+    agent.grade ?? (agent.withheldReason != null ? "WITHHELD" : "UNGRADED");
+  const gradeColor = getGradeColor(displayGrade);
   const shortMint = `${agent.mint.slice(0, 6)}…${agent.mint.slice(-6)}`;
   const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
 
@@ -137,7 +141,7 @@ function generateTerminalCardSVG(agent: Agent, events: DossierCardEvent[]): stri
 
   <!-- Grade Badge -->
   <rect x="50" y="160" width="180" height="50" rx="4" fill="${gradeColor}" opacity="0.15" stroke="${gradeColor}" stroke-width="2"/>
-  <text x="140" y="195" font-family="'Space Grotesk', sans-serif" font-size="24" font-weight="bold" fill="${gradeColor}" text-anchor="middle">${agent.grade}</text>
+  <text x="140" y="195" font-family="'Space Grotesk', sans-serif" font-size="24" font-weight="bold" fill="${gradeColor}" text-anchor="middle">${displayGrade}</text>
   <text x="140" y="218" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#B8B8AA" text-anchor="middle">EXECUTION GRADE</text>
 
   <!-- Score -->

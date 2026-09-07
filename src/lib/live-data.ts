@@ -781,6 +781,7 @@ export interface OperatorAgentSummary {
   name: string;
   category: string;
   grade: string | null;
+  withheldReason: string | null;
   score: number | null;
   confidenceScore: number;
   totalBuybackSol: number;
@@ -834,12 +835,34 @@ export async function fetchOperatorProfile(wallet: string): Promise<OperatorProf
     .or(`operator_wallet.eq.${wallet},executor_wallet.eq.${wallet}`);
   if (agentsErr || !agents || agents.length === 0) return null;
 
+  // Withheld flags come from a second lookup: the column postdates generated
+  // types (see withheld-state migration). A lookup error hides grades
+  // (fail closed) rather than showing possibly stale ones.
+  let withheldByMint = new Map<string, string | null>();
+  try {
+    const { data: wrows, error: werr } = await supabase
+      .from("agents" as never)
+      .select("mint, withheld_reason")
+      .in(
+        "mint",
+        agents.map((a) => a.mint),
+      );
+    if (werr) throw werr;
+    withheldByMint = new Map(
+      ((wrows ?? []) as unknown as Array<{ mint: string; withheld_reason: string | null }>).map(
+        (r) => [r.mint, r.withheld_reason ?? null],
+      ),
+    );
+  } catch {
+    for (const a of agents) withheldByMint.set(a.mint, "lookup_failed");
+  }
   const agentSummaries: OperatorAgentSummary[] = agents.map((a) => ({
     mint: a.mint,
     symbol: a.symbol,
     name: a.name,
     category: a.category ?? "tokenized_buyback",
-    grade: a.grade ?? "—",
+    withheldReason: withheldByMint.get(a.mint) ?? null,
+    grade: a.grade ?? null,
     score: a.score == null ? null : Number(a.score),
     confidenceScore: numOrZero(a.confidence_score),
     totalBuybackSol: numOrZero(a.total_buyback_sol),

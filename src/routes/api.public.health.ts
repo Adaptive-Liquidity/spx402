@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 
-// Public deployment health probe (no auth � safe to expose to load
+// Public deployment health probe (no auth: safe to expose to load
 // balancers). Reports AEON pipeline configuration state. Invalid
 // production AEON config fails this check (non-200) instead of
 // surfacing only as per-request webhook 500s.
