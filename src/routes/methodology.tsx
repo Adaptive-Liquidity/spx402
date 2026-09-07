@@ -363,9 +363,9 @@ const SCHEMA_CHANGELOG = [
 
 function MethodologyPage() {
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-20">
+    <div className="mx-auto max-w-[1100px] px-4 py-8 lg:px-8">
       <div className="label-amber">Methodology · spx-score-v0.4.0</div>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
+      <h1 className="mt-3 font-display text-4xl font-bold leading-tight text-paper">
         Public, versioned methodology.
         <br />
         <span className="text-amber">Risk and confidence are computed separately.</span>
@@ -377,6 +377,36 @@ function MethodologyPage() {
         every evidence record. Changes are listed in the schema changelog at the bottom of this
         page.
       </p>
+
+
+      <nav
+        aria-label="Contents"
+        className="sticky top-0 z-20 -mx-4 mt-8 flex gap-1 overflow-x-auto border-y border-bronze/40 bg-background/95 px-4 py-2 backdrop-blur lg:-mx-8 lg:px-8"
+      >
+        {[
+          { id: "the-two-axis-model-risk-confidence", label: "The two-axis model: risk × confidence" },
+          { id: "grade-taxonomy", label: "Grade taxonomy" },
+          { id: "event-taxonomy", label: "Event taxonomy" },
+          { id: "how-spx402-detects-x402-settlements", label: "How SPX402 detects x402 settlements" },
+          { id: "active-verification", label: "Active verification" },
+          { id: "what-spx402-refuses-to-measure", label: "What SPX402 refuses to measure" },
+          { id: "false-positive-policy", label: "False-positive policy" },
+          { id: "appeals-dispute-window", label: "Appeals & dispute window" },
+          { id: "freshness-sla", label: "Freshness SLA" },
+          { id: "retroactive-scoring-policy", label: "Retroactive scoring policy" },
+          { id: "why-spx402-can-downgrade-itself", label: "Why SPX402 can downgrade itself" },
+          { id: "data-sources", label: "Data sources" },
+          { id: "schema-changelog", label: "Schema changelog" },
+        ].map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="whitespace-nowrap px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-paper-muted transition-colors hover:text-amber"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
 
       {/* CURRENT VERSIONS */}
       <section className="mt-12">
@@ -396,7 +426,7 @@ function MethodologyPage() {
       </section>
 
       {/* TWO-AXIS MODEL */}
-      <section className="mt-12">
+      <section id="the-two-axis-model-risk-confidence" className="mt-12 scroll-mt-16">
         <h2 className="font-display text-2xl font-bold text-paper">
           The two-axis model: risk × confidence
         </h2>
@@ -512,8 +542,10 @@ function MethodologyPage() {
       </section>
 
       {/* GRADE TAXONOMY */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">Grade taxonomy</h2>
+      <section id="grade-taxonomy" className="mt-12 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Grade taxonomy
+        </h2>
         <div className="mt-6 overflow-hidden border border-bronze/50">
           {GRADES.map((g, i) => (
             <div
@@ -533,8 +565,10 @@ function MethodologyPage() {
       </section>
 
       {/* EVENT TAXONOMY */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">Event taxonomy</h2>
+      <section id="event-taxonomy" className="mt-12 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Event taxonomy
+        </h2>
         <p className="mt-2 max-w-3xl text-paper-muted">
           The registered taxonomy includes live and gated event types. Outcome Contract events
           remain gated while the task_executor decoder is disabled. Severity drives both the risk
@@ -562,7 +596,7 @@ function MethodologyPage() {
       </section>
 
       {/* X402 DETECTION TIERS */}
-      <section className="mt-12">
+      <section id="how-spx402-detects-x402-settlements" className="mt-12 scroll-mt-16">
         <h2 className="font-display text-2xl font-bold text-paper">
           How SPX402 detects x402 settlements
         </h2>
@@ -667,8 +701,10 @@ function MethodologyPage() {
       </section>
 
       {/* ACTIVE VERIFICATION — the prober lane. */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">Active verification</h2>
+      <section id="active-verification" className="mt-12 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Active verification
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           Passive indexing can only see payments that happened. It cannot see a service that
           advertises a price and never settles, returns a malformed challenge, takes payment and
@@ -764,7 +800,7 @@ function MethodologyPage() {
       </section>
 
       {/* WHAT WE REFUSE TO MEASURE */}
-      <section className="mt-12">
+      <section id="what-spx402-refuses-to-measure" className="mt-12 scroll-mt-16">
         <h2 className="font-display text-2xl font-bold text-paper">
           What SPX402 refuses to measure
         </h2>
@@ -802,8 +838,10 @@ function MethodologyPage() {
       </section>
 
       {/* FALSE POSITIVE POLICY */}
-      <section className="mt-8 panel-engraved p-7">
-        <h2 className="font-display text-2xl font-bold text-paper">False-positive policy</h2>
+      <section id="false-positive-policy" className="mt-8 panel-engraved p-7 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          False-positive policy
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           A false positive is any event SPX402 classified at{" "}
           <span className="font-mono text-paper">critical</span> severity that was, on review, not a
@@ -817,8 +855,10 @@ function MethodologyPage() {
       </section>
 
       {/* APPEALS */}
-      <section className="mt-8 panel-engraved p-7">
-        <h2 className="font-display text-2xl font-bold text-paper">Appeals & dispute window</h2>
+      <section id="appeals-dispute-window" className="mt-8 panel-engraved p-7 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Appeals & dispute window
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           Operators may submit a verification signature plus a parser-fixture link via the operator
           dashboard. For bonded agents (Wave 6+), there is a minimum{" "}
@@ -831,8 +871,10 @@ function MethodologyPage() {
       </section>
 
       {/* FRESHNESS SLA */}
-      <section className="mt-8 panel-engraved p-7">
-        <h2 className="font-display text-2xl font-bold text-paper">Freshness SLA</h2>
+      <section id="freshness-sla" className="mt-8 panel-engraved p-7 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Freshness SLA
+        </h2>
         <ul className="mt-4 space-y-2 text-sm text-paper-muted">
           <li>
             <span className="font-mono text-paper">Webhook ingest</span> — typically &lt; 30 seconds
@@ -870,8 +912,10 @@ function MethodologyPage() {
       </section>
 
       {/* RETROACTIVE SCORING POLICY */}
-      <section className="mt-8 panel-engraved p-7">
-        <h2 className="font-display text-2xl font-bold text-paper">Retroactive scoring policy</h2>
+      <section id="retroactive-scoring-policy" className="mt-8 panel-engraved p-7 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Retroactive scoring policy
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           When a model version is bumped, all scores recompute from the event log under the new
           model. Snapshots taken before the bump retain their original{" "}
@@ -884,7 +928,7 @@ function MethodologyPage() {
       </section>
 
       {/* WHY SPX CAN DOWNGRADE ITSELF */}
-      <section className="mt-8 panel-engraved p-7">
+      <section id="why-spx402-can-downgrade-itself" className="mt-8 panel-engraved p-7 scroll-mt-16">
         <h2 className="font-display text-2xl font-bold text-paper">
           Why SPX402 can downgrade itself
         </h2>
@@ -896,8 +940,10 @@ function MethodologyPage() {
       </section>
 
       {/* DATA SOURCES */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">Data sources</h2>
+      <section id="data-sources" className="mt-12 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Data sources
+        </h2>
         <ul className="mt-4 space-y-3 text-paper-muted">
           <li className="border-l-2 border-amber/60 pl-3">
             <span className="font-mono text-paper">Helius webhooks</span> — live on-chain event
@@ -923,8 +969,10 @@ function MethodologyPage() {
       </section>
 
       {/* SCHEMA CHANGELOG */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">Schema changelog</h2>
+      <section id="schema-changelog" className="mt-12 scroll-mt-16">
+        <h2 className="font-display text-2xl font-bold text-paper">
+          Schema changelog
+        </h2>
         <p className="mt-2 max-w-3xl text-paper-muted">
           Every model and schema version that has shipped. Bumps land here before they propagate to{" "}
           <span className="font-mono">methodology_version</span>,
