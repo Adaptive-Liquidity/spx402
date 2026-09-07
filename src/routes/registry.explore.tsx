@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
-import { fetchAgentIndex } from "@/lib/agents-db";
+import { fetchExplorePage } from "@/lib/agents-db";
 import type { Agent } from "@/lib/agents";
 import { categoryMeta } from "@/lib/agents/categories";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
@@ -37,7 +37,13 @@ export const Route = createFileRoute("/registry/explore")({
     page: Number(search.page) > 1 ? Number(search.page) : undefined,
     sort: search.sort === "grade" || search.sort === "recent" ? search.sort : undefined,
   }),
-  loader: () => fetchAgentIndex(),
+  loaderDeps: ({ search }) => ({ grade: search.grade, page: search.page }),
+  loader: ({ deps }) =>
+    fetchExplorePage({
+      group: (GRADE_FILTERS.find((f) => f.id === deps.grade)?.id ?? "all") as GradeFilter,
+      page: deps.page ?? 1,
+      pageSize: PAGE_SIZE,
+    }),
   staleTime: 30_000,
   pendingComponent: () => (
     <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
@@ -96,28 +102,14 @@ const GRADE_FILTERS: Array<{
 ];
 
 function ExplorePage() {
-  const allAgents = Route.useLoaderData();
+  const { rows, counts, total, flaggedCount } = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/registry/explore" });
 
   const filter = (GRADE_FILTERS.find((f) => f.id === search.grade)?.id ?? "all") as GradeFilter;
   const page = search.page ?? 1;
 
-  // Flagged agents never appear on /explore — they live on /flagged only.
-  const visible = useMemo(() => allAgents.filter((a: Agent) => !a.flagged), [allAgents]);
-  const flaggedCount = allAgents.length - visible.length;
-
   const active = GRADE_FILTERS.find((f) => f.id === filter)!;
-  const filtered = useMemo(
-    () => [...visible].filter(active.match).sort((a, b) => (b.score ?? 0) - (a.score ?? 0)),
-    [visible, active],
-  );
-
-  const counts = useMemo(() => {
-    const c: Record<GradeFilter, number> = { all: 0, high: 0, mid: 0, low: 0, spx404: 0 };
-    for (const a of visible) for (const f of GRADE_FILTERS) if (f.match(a)) c[f.id]++;
-    return c;
-  }, [visible]);
 
   const setFilter = (id: GradeFilter) =>
     void navigate({
@@ -127,11 +119,11 @@ function ExplorePage() {
   const setPage = (next: number) =>
     void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
 
-  const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const current = Math.min(page, pageCount);
   const start = (current - 1) * PAGE_SIZE;
-  const rows = filtered.slice(start, start + PAGE_SIZE);
+
+
 
   // Columns that would print a full column of dashes for this page are dropped
   // rather than rendered empty.

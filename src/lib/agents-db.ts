@@ -4,6 +4,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { SCORING_VERSION } from "@/lib/versions";
+import { qualifiesForLeaderboard } from "./agents";
 import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
 import type { AgentCategory, IdentifierKind } from "./agents/categories";
 
@@ -215,6 +216,121 @@ export function fetchAgentIndex(): Promise<Agent[]> {
     if (indexCache?.promise === promise) indexCache = null;
   });
   return promise;
+}
+
+export type HomeIndexSummary = {
+  featured: Agent[];
+  gradeSlices: Array<{ grade: Agent["grade"]; count: number }>;
+  unverifiedCount: number;
+  totalBonded: number;
+  totalSlashed: number;
+};
+
+/**
+ * Homepage-only projection. The homepage renders three featured agents plus a
+ * handful of aggregates, so shipping the entire serialized index to the
+ * browser (hundreds of rows, ~45 columns each) was pure payload waste. The
+ * reduction happens on the server; the client receives kilobytes.
+ */
+export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
+  const all = await fetchAgentIndex();
+  const gradeCounts = new Map<Agent["grade"], number>();
+  let unverifiedCount = 0;
+  let totalBonded = 0;
+  let totalSlashed = 0;
+  for (const a of all) {
+    gradeCounts.set(a.grade, (gradeCounts.get(a.grade) ?? 0) + 1);
+    if (!a.operatorVerified) unverifiedCount++;
+    totalBonded += a.activeBondAmount;
+    totalSlashed += a.totalSlashedUsd;
+  }
+  return {
+    featured: all.filter(qualifiesForLeaderboard).slice(0, 3),
+    gradeSlices: Array.from(gradeCounts, ([grade, count]) => ({ grade, count })),
+    unverifiedCount,
+    totalBonded,
+    totalSlashed,
+  };
+}
+
+
+
+export type LeaderboardIndex = {
+  agents: Agent[];
+  gateStats: { total: number; excluded: number; flagged: number };
+};
+
+/**
+ * Leaderboard projection: the board only ever ranks agents that pass the
+ * quality gate, so only those rows need to reach the browser. The gate
+ * counts are computed here instead of shipping the full index to derive them.
+ */
+export async function fetchLeaderboardIndex(): Promise<LeaderboardIndex> {
+  const all = await fetchAgentIndex();
+  const unflagged = all.filter((a) => !a.flagged);
+  const passing = unflagged.filter(qualifiesForLeaderboard);
+  return {
+    agents: passing,
+    gateStats: {
+      total: all.length,
+      excluded: unflagged.length - passing.length,
+      flagged: all.length - unflagged.length,
+    },
+  };
+}
+
+export type ExploreGradeGroup = "all" | "high" | "mid" | "low" | "spx404";
+
+const EXPLORE_GROUPS: Record<Exclude<ExploreGradeGroup, "all">, ReadonlyArray<Grade>> = {
+  high: ["SPX AAA", "SPX AA", "SPX A"],
+  mid: ["SPX BBB", "SPX BB"],
+  low: ["SPX B", "SPX D"],
+  spx404: ["SPX404"],
+};
+
+export type ExplorePage = {
+  rows: Agent[];
+  counts: Record<ExploreGradeGroup, number>;
+  total: number;
+  flaggedCount: number;
+};
+
+/**
+ * Explore projection: the table shows one page of rows plus filter counts.
+ * Paging and counting on the server keeps the serialized payload to the 50
+ * rows actually rendered instead of the entire index.
+ */
+export async function fetchExplorePage(opts: {
+  group: ExploreGradeGroup;
+  page: number;
+  pageSize: number;
+}): Promise<ExplorePage> {
+  const all = await fetchAgentIndex();
+  const visible = all.filter((a) => !a.flagged);
+  const counts: Record<ExploreGradeGroup, number> = {
+    all: visible.length,
+    high: 0,
+    mid: 0,
+    low: 0,
+    spx404: 0,
+  };
+  for (const a of visible) {
+    for (const key of ["high", "mid", "low", "spx404"] as const) {
+      if (EXPLORE_GROUPS[key].includes(a.grade)) counts[key]++;
+    }
+  }
+  const filtered =
+    opts.group === "all"
+      ? visible
+      : visible.filter((a) => EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade));
+  const sorted = [...filtered].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const start = Math.max(0, (opts.page - 1) * opts.pageSize);
+  return {
+    rows: sorted.slice(start, start + opts.pageSize),
+    counts,
+    total: sorted.length,
+    flaggedCount: all.length - visible.length,
+  };
 }
 
 /** Resolve one agent by exact mint, symbol, or mint prefix. */

@@ -3,8 +3,8 @@ import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { Hero } from "@/components/spx/Hero";
 import { Aperture } from "@/components/spx/Aperture";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
-import { fetchAgentIndex } from "@/lib/agents-db";
-import { qualifiesForLeaderboard, gradeColor, type Agent } from "@/lib/agents";
+import { fetchHomeIndex, type HomeIndexSummary } from "@/lib/agents-db";
+import { gradeColor, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
 import { ProofChainX402 } from "@/components/spx/ProofChainX402";
@@ -76,12 +76,19 @@ export const Route = createFileRoute("/")({
       servicesProbed: 0,
       activeFacilitators: 0,
     };
-    const [agents, tape, stats] = await Promise.all([
-      safe<Agent[]>(fetchAgentIndex(), []),
+    const emptySummary: HomeIndexSummary = {
+      featured: [],
+      gradeSlices: [],
+      unverifiedCount: 0,
+      totalBonded: 0,
+      totalSlashed: 0,
+    };
+    const [summary, tape, stats] = await Promise.all([
+      safe<HomeIndexSummary>(fetchHomeIndex(), emptySummary),
       safe<TapeRow[]>(fetchTape({ limit: 18 }), []),
       safe<HomeStats>(fetchHomeStats(), emptyStats),
     ]);
-    return { agents, tape, stats };
+    return { summary, tape, stats };
   },
   staleTime: 30_000,
   component: HomePage,
@@ -185,20 +192,15 @@ function BandSpine({ n, code, label }: { n: string; code: string; label: string 
 }
 
 function HomePage() {
-  const {
-    agents: allAgents,
-    tape,
-    stats,
-  } = Route.useLoaderData() as {
-    agents: Agent[];
+  const { summary, tape, stats } = Route.useLoaderData() as {
+    summary: HomeIndexSummary;
     tape: TapeRow[];
     stats: HomeStats;
   };
+  const { featured, gradeSlices, unverifiedCount, totalBonded, totalSlashed } = summary;
   // Homepage tape, hero card, and featured grid only show leaderboard-quality
   // agents. SPX D / SPX404 / flagged agents are excluded — they live on
   // /explore and /flagged respectively.
-  const agents = allAgents.filter(qualifiesForLeaderboard);
-  const featured = agents.slice(0, 3);
   // Live grade distribution for the viewfinder dial — read from the agents we
   // already loaded, no extra query.
   // Settlement density bucketed hourly from the tape rows already loaded — no
@@ -212,13 +214,6 @@ function HomePage() {
       return t > from && t <= to;
     }).length;
   });
-  const gradeSlices = Array.from(
-    allAgents.reduce((m, a) => m.set(a.grade, (m.get(a.grade) ?? 0) + 1), new Map<Agent["grade"], number>()),
-    ([grade, count]) => ({ grade, count }),
-  );
-  const unverifiedCount = allAgents.filter((agent) => !agent.operatorVerified).length;
-  const totalBonded = allAgents.reduce((sum, agent) => sum + agent.activeBondAmount, 0);
-  const totalSlashed = allAgents.reduce((sum, agent) => sum + agent.totalSlashedUsd, 0);
   const newestTape = tape[0];
   const gradeSummary = gradeSlices
     .filter((slice) => slice.count > 0)
