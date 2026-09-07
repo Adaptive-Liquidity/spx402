@@ -37,7 +37,13 @@ export const Route = createFileRoute("/registry/explore")({
     page: Number(search.page) > 1 ? Number(search.page) : undefined,
     sort: search.sort === "grade" || search.sort === "recent" ? search.sort : undefined,
   }),
-  loader: () => fetchAgentIndex(),
+  loaderDeps: ({ search }) => ({ grade: search.grade, page: search.page }),
+  loader: ({ deps }) =>
+    fetchExplorePage({
+      group: (GRADE_FILTERS.find((f) => f.id === deps.grade)?.id ?? "all") as GradeFilter,
+      page: deps.page ?? 1,
+      pageSize: PAGE_SIZE,
+    }),
   staleTime: 30_000,
   pendingComponent: () => (
     <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
