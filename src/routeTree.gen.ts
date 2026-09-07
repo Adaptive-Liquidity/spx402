@@ -28,6 +28,7 @@ import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BuildRouteImport } from './routes/build'
 import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
@@ -190,6 +191,11 @@ const ChangelogRoute = ChangelogRouteImport.update({
   path: '/changelog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuildRoute = BuildRouteImport.update({
+  id: '/build',
+  path: '/build',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BadgeRoute = BadgeRouteImport.update({
   id: '/badge',
   path: '/badge',
@@ -225,9 +231,9 @@ const LiveIndexRoute = LiveIndexRouteImport.update({
   getParentRoute: () => LiveRoute,
 } as any)
 const BuildIndexRoute = BuildIndexRouteImport.update({
-  id: '/build/',
-  path: '/build/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuildRoute,
 } as any)
 const AboutIndexRoute = AboutIndexRouteImport.update({
   id: '/about/',
@@ -280,29 +286,29 @@ const EmbedSubjectRoute = EmbedSubjectRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuildRegisterRoute = BuildRegisterRouteImport.update({
-  id: '/build/register',
-  path: '/build/register',
-  getParentRoute: () => rootRouteImport,
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => BuildRoute,
 } as any)
 const BuildPreflightRoute = BuildPreflightRouteImport.update({
-  id: '/build/preflight',
-  path: '/build/preflight',
-  getParentRoute: () => rootRouteImport,
+  id: '/preflight',
+  path: '/preflight',
+  getParentRoute: () => BuildRoute,
 } as any)
 const BuildDocsRoute = BuildDocsRouteImport.update({
-  id: '/build/docs',
-  path: '/build/docs',
-  getParentRoute: () => rootRouteImport,
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => BuildRoute,
 } as any)
 const BuildBadgeRoute = BuildBadgeRouteImport.update({
-  id: '/build/badge',
-  path: '/build/badge',
-  getParentRoute: () => rootRouteImport,
+  id: '/badge',
+  path: '/badge',
+  getParentRoute: () => BuildRoute,
 } as any)
 const BuildAlertsRoute = BuildAlertsRouteImport.update({
-  id: '/build/alerts',
-  path: '/build/alerts',
-  getParentRoute: () => rootRouteImport,
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => BuildRoute,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
@@ -548,6 +554,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
+  '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
@@ -719,6 +726,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
+  '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
@@ -807,6 +815,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/api'
     | '/badge'
+    | '/build'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
@@ -977,6 +986,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/api'
     | '/badge'
+    | '/build'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
@@ -1065,6 +1075,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
   BadgeRoute: typeof BadgeRoute
+  BuildRoute: typeof BuildRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
@@ -1088,16 +1099,10 @@ export interface RootRouteChildren {
   AboutChangelogRoute: typeof AboutChangelogRoute
   AboutDisclaimerRoute: typeof AboutDisclaimerRoute
   AgentMintRoute: typeof AgentMintRoute
-  BuildAlertsRoute: typeof BuildAlertsRoute
-  BuildBadgeRoute: typeof BuildBadgeRoute
-  BuildDocsRoute: typeof BuildDocsRoute
-  BuildPreflightRoute: typeof BuildPreflightRoute
-  BuildRegisterRoute: typeof BuildRegisterRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
-  BuildIndexRoute: typeof BuildIndexRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -1236,6 +1241,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChangelogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/build': {
+      id: '/build'
+      path: '/build'
+      fullPath: '/build'
+      preLoaderRoute: typeof BuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/badge': {
       id: '/badge'
       path: '/badge'
@@ -1287,10 +1299,10 @@ declare module '@tanstack/react-router' {
     }
     '/build/': {
       id: '/build/'
-      path: '/build'
+      path: '/'
       fullPath: '/build/'
       preLoaderRoute: typeof BuildIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/about/': {
       id: '/about/'
@@ -1364,38 +1376,38 @@ declare module '@tanstack/react-router' {
     }
     '/build/register': {
       id: '/build/register'
-      path: '/build/register'
+      path: '/register'
       fullPath: '/build/register'
       preLoaderRoute: typeof BuildRegisterRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/build/preflight': {
       id: '/build/preflight'
-      path: '/build/preflight'
+      path: '/preflight'
       fullPath: '/build/preflight'
       preLoaderRoute: typeof BuildPreflightRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/build/docs': {
       id: '/build/docs'
-      path: '/build/docs'
+      path: '/docs'
       fullPath: '/build/docs'
       preLoaderRoute: typeof BuildDocsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/build/badge': {
       id: '/build/badge'
-      path: '/build/badge'
+      path: '/badge'
       fullPath: '/build/badge'
       preLoaderRoute: typeof BuildBadgeRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/build/alerts': {
       id: '/build/alerts'
-      path: '/build/alerts'
+      path: '/alerts'
       fullPath: '/build/alerts'
       preLoaderRoute: typeof BuildAlertsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/api/docs': {
       id: '/api/docs'
@@ -1810,6 +1822,26 @@ const ApiRouteChildren: ApiRouteChildren = {
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
+interface BuildRouteChildren {
+  BuildAlertsRoute: typeof BuildAlertsRoute
+  BuildBadgeRoute: typeof BuildBadgeRoute
+  BuildDocsRoute: typeof BuildDocsRoute
+  BuildPreflightRoute: typeof BuildPreflightRoute
+  BuildRegisterRoute: typeof BuildRegisterRoute
+  BuildIndexRoute: typeof BuildIndexRoute
+}
+
+const BuildRouteChildren: BuildRouteChildren = {
+  BuildAlertsRoute: BuildAlertsRoute,
+  BuildBadgeRoute: BuildBadgeRoute,
+  BuildDocsRoute: BuildDocsRoute,
+  BuildPreflightRoute: BuildPreflightRoute,
+  BuildRegisterRoute: BuildRegisterRoute,
+  BuildIndexRoute: BuildIndexRoute,
+}
+
+const BuildRouteWithChildren = BuildRoute._addFileChildren(BuildRouteChildren)
+
 interface LiveRouteChildren {
   LivePulseRoute: typeof LivePulseRoute
   LiveStatusRoute: typeof LiveStatusRoute
@@ -1858,6 +1890,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
   BadgeRoute: BadgeRoute,
+  BuildRoute: BuildRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
@@ -1881,16 +1914,10 @@ const rootRouteChildren: RootRouteChildren = {
   AboutChangelogRoute: AboutChangelogRoute,
   AboutDisclaimerRoute: AboutDisclaimerRoute,
   AgentMintRoute: AgentMintRoute,
-  BuildAlertsRoute: BuildAlertsRoute,
-  BuildBadgeRoute: BuildBadgeRoute,
-  BuildDocsRoute: BuildDocsRoute,
-  BuildPreflightRoute: BuildPreflightRoute,
-  BuildRegisterRoute: BuildRegisterRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
   ServiceSlugRoute: ServiceSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
-  BuildIndexRoute: BuildIndexRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
