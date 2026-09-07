@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageHead } from "@/components/spx/PageHead";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Panel } from "@/components/spx/Panel";
@@ -56,15 +57,12 @@ function PreflightPage() {
 
   return (
     <div className="stage section">
-            <h1 className="max-w-3xl font-display text-3xl font-bold tracking-tight text-paper">
-        {PREFLIGHT_QUESTION}
-      </h1>
-      <p className="mt-5 max-w-2xl text-lg text-paper-muted">
-        Paste an x402 endpoint. We call it once, for free, and record exactly what came back. No
-        account, no payment, no verdict — just the observation and the time we made it.
-      </p>
+      <PageHead
+        title={PREFLIGHT_QUESTION}
+        description="Paste an x402 endpoint. We call it once, for free, and record exactly what came back. No account, no payment, no verdict — just the observation and the time we made it."
+      />
 
-      <form onSubmit={onSubmit} className="mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row">
+      <form onSubmit={onSubmit} className="mt-6 flex max-w-3xl flex-col gap-3 sm:flex-row">
         <label className="sr-only" htmlFor="preflight-url">
           Endpoint address
         </label>

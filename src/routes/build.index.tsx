@@ -1,3 +1,4 @@
+import { PageHead } from "@/components/spx/PageHead";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/build/")({
@@ -43,17 +44,12 @@ const ENDPOINTS = [
 function ApiPage() {
   return (
     <div className="stage section">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
-        Execution data for agents,
-        <br />
-        <span className="text-amber">funds, launchpads, and other machines.</span>
-      </h1>
-      <p className="mt-6 max-w-2xl text-lg text-paper-muted">
-        Two transports. Same data. Use the REST API with a key for sustained workloads. Use the x402
-        endpoints for instant pay-per-call from machine clients with no account.
-      </p>
+      <PageHead
+        title="Execution data for agents, funds, launchpads and other machines"
+        description="Two transports, same data. REST with a key for sustained workloads; x402 endpoints for instant pay-per-call from machine clients with no account."
+      />
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Link
           to="/build/docs"
           className="focus-ring border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
