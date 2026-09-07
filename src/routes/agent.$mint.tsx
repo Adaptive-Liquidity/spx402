@@ -329,6 +329,21 @@ export const Route = createFileRoute("/agent/$mint")({
         { name: "twitter:image", content: image },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: a.name,
+            sku: a.mint,
+            url,
+            image,
+            description: a.verdict,
+            brand: { "@type": "Brand", name: card.ticker },
+          }),
+        },
+      ],
     };
   },
   loader: async ({ params }): Promise<LoaderData> => {
