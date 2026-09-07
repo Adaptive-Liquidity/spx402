@@ -39,8 +39,9 @@ Status renders about three times today. Keep one slim line in the shell.
 
 - Search visible in the header.
 - Exactly one primary action: Open Terminal signed out, Dashboard signed in.
-- Where `Cmd+K` is advertised, it opens the existing AgentSearchBar / search UI. No new
-  palette system this pass.
+- `Cmd+K` / `Ctrl+K` only — no `/` binding — opens the existing AgentSearchBar / search UI,
+  and is ignored while focus is in an input, textarea or contenteditable. No new palette
+  system this pass.
 
 ## 4. Explore and Tape
 
@@ -71,7 +72,8 @@ product failure rather than an empty ledger.
 ## Enforced rules
 
 One `h1` per route. `stage` / `stage-narrow` only, no ad-hoc `max-w` on page wrappers.
-Missing values print `—` or `NONE`, never `0`, never invented sample data. Colour carries
+Missing metrics print `—` or `NONE`, never invented sample data — but a real count of zero
+stays `0` (660 agents, AAA 0); only absent timestamps, rates and scores dash. Colour carries
 state only; grade is always the letter plus `ExecutionGradeBadge`. Surfaces from background
 steps, not shadows. Motion 150–240ms, once, state only, honouring reduced motion. Old
 routes are redirected, never deleted. No edits to `src/styles.css` tokens. No new files
@@ -81,7 +83,8 @@ under `src/components/spx` unless a required primitive is genuinely missing.
 
 - `bun run typecheck && bun run test`.
 - Update the verbatim-copy tests only where a heading legitimately moved.
-- Screenshots of home, explore, tape, pricing and leaderboard at 1280 and 390.
+- Screenshots at 1280 and 390 of the canonical live URLs for home, explore, tape, pricing
+  and leaderboard.
 - Confirm: one status line, working clock, no Lovable badge, Explore and Tape paginated, no
   blank pricing cells.
 - Then stop and report files changed plus any leftover live defects.
