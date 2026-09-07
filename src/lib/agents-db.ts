@@ -255,6 +255,30 @@ export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
 
 
 
+export type LeaderboardIndex = {
+  agents: Agent[];
+  gateStats: { total: number; excluded: number; flagged: number };
+};
+
+/**
+ * Leaderboard projection: the board only ever ranks agents that pass the
+ * quality gate, so only those rows need to reach the browser. The gate
+ * counts are computed here instead of shipping the full index to derive them.
+ */
+export async function fetchLeaderboardIndex(): Promise<LeaderboardIndex> {
+  const all = await fetchAgentIndex();
+  const unflagged = all.filter((a) => !a.flagged);
+  const passing = unflagged.filter(qualifiesForLeaderboard);
+  return {
+    agents: passing,
+    gateStats: {
+      total: all.length,
+      excluded: unflagged.length - passing.length,
+      flagged: all.length - unflagged.length,
+    },
+  };
+}
+
 /** Resolve one agent by exact mint, symbol, or mint prefix. */
 export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   const q = mintOrSymbol.trim();

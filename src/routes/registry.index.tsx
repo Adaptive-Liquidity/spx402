@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
-import { fetchAgentIndex } from "@/lib/agents-db";
+import { fetchLeaderboardIndex } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/registry/")({
     ],
   }),
 
-  loader: () => fetchAgentIndex(),
+  loader: () => fetchLeaderboardIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
     <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
@@ -135,7 +135,7 @@ function rankAgents(agents: Agent[], tab: Tab, catFilter: CategoryFilter): Agent
 }
 
 function LeaderboardPage() {
-  const agents = Route.useLoaderData();
+  const { agents, gateStats } = Route.useLoaderData();
   const [tab, setTab] = useState<Tab>("earners");
   const [catFilter, setCatFilter] = useState<CategoryFilter>("all");
   const [movers, setMovers] = useState<ScoreMover[] | null>(null);
@@ -173,17 +173,6 @@ function LeaderboardPage() {
         .sort((a, b) => b.totalBuybackSol - a.totalBuybackSol)[0] ?? null,
     [agents],
   );
-
-  // Why a board is empty: how many agents the quality gate removed.
-  const gateStats = useMemo(() => {
-    const unflagged = agents.filter((a: Agent) => !a.flagged);
-    const passing = unflagged.filter(qualifiesForLeaderboard);
-    return {
-      total: agents.length,
-      excluded: unflagged.length - passing.length,
-      flagged: agents.length - unflagged.length,
-    };
-  }, [agents]);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
