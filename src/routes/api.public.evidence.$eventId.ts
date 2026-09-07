@@ -1,15 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { checkRateLimit, rateLimitResponse, rateLimitHeaders } from "@/lib/rate-limiter";
-import { handleOptions, corsHeaders } from "@/lib/cors";
+import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
 import {
-  canonicalJson,
+  canonicalJsonStringify,
   sha256Hex,
-  merkleRoot,
-  EMPTY_ROOT,
-  type EvidenceEventV1,
-  type EvidenceBundleV1,
-} from "@/lib/evidence";
+  merkleRootHex,
+} from "@/lib/evidence/hash.server";
 import { SCORING_VERSION } from "@/lib/versions";
 
 function getServerSupabase() {
@@ -20,6 +16,29 @@ function getServerSupabase() {
   );
 }
 
+interface EvidenceEventV1 {
+  id: string;
+  mint: string;
+  type: string;
+  severity: string;
+  signature: string | null;
+  slot: number | null;
+  occurred_at: string;
+  amount_sol: number | null;
+  amount_token: number | null;
+  parser_version: string | null;
+}
+
+interface EvidenceBundleV1 {
+  spec: "spx.evidence.v1";
+  event: EvidenceEventV1;
+  subject: Record<string, unknown> | null;
+  subject_state_root: string | null;
+  scoring_version: string;
+  raw: Record<string, unknown>;
+  bundle_hash: string;
+}
+
 // Columns the bundle body needs from the subject agent row.
 const AGENT_EMBED =
   "agents(mint, symbol, name, category, identifier_kind, executor_wallet, core_asset, operator_wallet, score, grade, confidence_score, methodology_version, confidence_model_version)";
@@ -27,12 +46,11 @@ const AGENT_EMBED =
 export const Route = createFileRoute("/api/public/evidence/$eventId")({
   server: {
     handlers: {
-      OPTIONS: async () => handleOptions(),
       GET: async ({ params, request }) => {
         // Rate limit before any database work — evidence payloads are the
         // heaviest public responses we serve.
-        const rl = await checkRateLimit(request, "evidence");
-        if (!rl.allowed) return rateLimitResponse(rl);
+        const limited = await enforceRateLimit(request, RATE_LIMITS.evidence);
+        if (limited.response) return limited.response;
 
         const supabase = getServerSupabase();
 
@@ -84,9 +102,9 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
         };
 
         const subjectRoot = agent
-          ? await merkleRoot([
+          ? await merkleRootHex([
               await sha256Hex(
-                canonicalJson({
+                canonicalJsonStringify({
                   mint: agent.mint,
                   score: agent.score,
                   grade: agent.grade,
@@ -96,7 +114,7 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
                 }),
               ),
             ])
-          : EMPTY_ROOT;
+          : null;
 
         const bundleBody = {
           spec: "spx.evidence.v1" as const,
@@ -106,12 +124,12 @@ export const Route = createFileRoute("/api/public/evidence/$eventId")({
           scoring_version: SCORING_VERSION,
           raw: (ev.raw ?? {}) as Record<string, unknown>,
         };
-        const bundleHash = await sha256Hex(canonicalJson(bundleBody));
-        const bundle: EvidenceBundleV1 = { ...bundleBody, bundle_hash: bundleHash };
+        const bundle: EvidenceBundleV1 = {
+          ...bundleBody,
+          bundle_hash: await sha256Hex(canonicalJsonStringify(bundleBody)),
+        };
 
-        return Response.json(bundle, {
-          headers: { ...corsHeaders(request), ...rateLimitHeaders(rl) },
-        });
+        return Response.json(bundle, { headers: { ...limited.headers } });
       },
     },
   },
