@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { Agent, AgentEvent, EventType, Severity } from "@/lib/agents";
 import { relativeFromNow, type AgentEventRow } from "@/lib/live-data";
+import { formatRelative } from "@/lib/format";
 
 export const KNOWN_EVENT_TYPES: EventType[] = [
   "DEPOSIT_RECEIVED",
@@ -324,4 +325,12 @@ export function scorePillarsFor(agent: Agent, flags: DossierFlags) {
       tone: "text-paper",
     },
   ];
+}
+
+// Status-bar label for the last successful index. Never raw seconds: render
+// a relative time while the indexer is fresh, or an explicit lagging state.
+export function lastIndexedLabel(seconds: number | null | undefined): string {
+  if (seconds == null || !Number.isFinite(seconds)) return "—";
+  if (seconds > 900) return "INDEXER LAGGING";
+  return formatRelative(new Date(Date.now() - seconds * 1000)).toUpperCase();
 }
