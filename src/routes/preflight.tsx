@@ -8,7 +8,9 @@ import { PREFLIGHT_QUESTION, type PreflightCardModel } from "@/lib/preflight/mod
 
 export const Route = createFileRoute("/preflight")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/preflight" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/preflight" },
       { title: "Preflight — Check an x402 endpoint before you pay it · SPX402" },
       {
         name: "description",

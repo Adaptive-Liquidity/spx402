@@ -9,7 +9,9 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/leaderboard" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/leaderboard" },
       { title: "Leaderboard — SPX402" },
       {
         name: "description",

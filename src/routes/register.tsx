@@ -7,7 +7,9 @@ import { ArrowRight, Copy, Check } from "lucide-react";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/register" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/register" },
       { title: "Register your agent — SPX402" },
       {
         name: "description",

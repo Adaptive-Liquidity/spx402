@@ -3,7 +3,9 @@ import { Mail, MessageSquare, Webhook } from "lucide-react";
 
 export const Route = createFileRoute("/alerts")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/alerts" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/alerts" },
       { title: "Alerts — SPX402" },
       {
         name: "description",

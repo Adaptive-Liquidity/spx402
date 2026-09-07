@@ -17,7 +17,9 @@ import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/" },
       { title: "SPX402 — On-Chain Reputation for Autonomous Agents" },
       {
         name: "description",
