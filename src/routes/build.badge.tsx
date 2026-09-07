@@ -5,9 +5,9 @@ import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/build/badge")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/badge" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/build/badge" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/badge" },
+      { property: "og:url", content: "https://spx402.com/build/badge" },
       { title: "Live badge — attested on Base · SPX402" },
       {
         name: "description",
@@ -50,10 +50,9 @@ function BadgePage() {
   const { session } = useAuth();
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-20">
+    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
       <div className="max-w-3xl">
-        <div className="label-amber">Live badge</div>
-        <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper sm:text-6xl">
+                <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
           A badge that costs more
           <br />
           <span className="text-amber">to fake than to earn.</span>

@@ -7,6 +7,12 @@
 import { createFileRoute, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { CATEGORIES, categoryLabel } from "@/lib/agents/categories";
+import { PageHead } from "@/components/spx/PageHead";
+import { DataTable, Pager, type Column } from "@/components/spx/DataTable";
+import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
+
+const PAGE_SIZE = 50;
+const WINDOW = 400;
 
 const SEVERITIES: Array<{ id: string | null; label: string }> = [
   { id: null, label: "All" },
@@ -18,9 +24,9 @@ const SEVERITIES: Array<{ id: string | null; label: string }> = [
 
 export const Route = createFileRoute("/live/")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/tape" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/live" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/tape" },
+      { property: "og:url", content: "https://spx402.com/live" },
       { title: "Execution Tape — SPX402" },
       {
         name: "description",
@@ -35,19 +41,21 @@ export const Route = createFileRoute("/live/")({
       },
     ],
   }),
-  // Filters live in the URL so every combination is its own cacheable loader
-  // result — revisiting a filter within the stale window is instant, and
-  // filtered views are shareable links.
-  validateSearch: (search: Record<string, unknown>): { category?: string; severity?: string } => ({
+  // Filters and the page cursor live in the URL so every view is cacheable,
+  // shareable, and instant on revisit.
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { category?: string; severity?: string; page?: number } => ({
     category: typeof search.category === "string" && search.category ? search.category : undefined,
     severity: typeof search.severity === "string" && search.severity ? search.severity : undefined,
+    page: Number(search.page) > 1 ? Number(search.page) : undefined,
   }),
   loaderDeps: ({ search }) => ({
     category: search.category ?? null,
     severity: search.severity ?? null,
   }),
   loader: ({ deps }) =>
-    fetchTape({ limit: 200, category: deps.category, severity: deps.severity }),
+    fetchTape({ limit: WINDOW, category: deps.category, severity: deps.severity }),
   staleTime: 15_000,
   component: TapePage,
   errorComponent: ({ error, reset }) => {
@@ -77,129 +85,157 @@ function severityTone(sev: string): string {
   return "text-paper-muted";
 }
 
+function severityDot(sev: string): string {
+  if (sev === "success") return "bg-verified";
+  if (sev === "critical") return "bg-critical";
+  if (sev === "warn") return "bg-amber";
+  return "bg-wire";
+}
+
 function TapePage() {
   const rows = Route.useLoaderData() as TapeRow[];
   const search = Route.useSearch();
   const category = search.category ?? null;
   const severity = search.severity ?? null;
+  const page = search.page ?? 1;
   const navigate = useNavigate({ from: "/live/" });
   const loading = useRouterState({ select: (s) => s.isLoading });
 
   const setFilter = (key: "category" | "severity", value: string | null) =>
     void navigate({
-      search: (prev) => ({ ...prev, [key]: value ?? undefined }),
+      search: (prev) => ({ ...prev, [key]: value ?? undefined, page: undefined }),
       replace: true,
     });
 
+  const setPage = (next: number) =>
+    void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
+
+  const total = rows.length;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const current = Math.min(page, pageCount);
+  const start = (current - 1) * PAGE_SIZE;
+  const visible = rows.slice(start, start + PAGE_SIZE);
+
+  const columns: Array<Column<TapeRow>> = [
+    {
+      key: "type",
+      header: "Event",
+      className: "min-w-[15rem]",
+      cell: (r) => (
+        <Link
+          to="/tape/$eventId"
+          params={{ eventId: r.id }}
+          className={`flex items-center gap-2 hover:underline ${severityTone(r.severity)}`}
+        >
+          <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${severityDot(r.severity)}`} />
+          <span className="truncate">{r.type}</span>
+          <span className="sr-only">— severity {r.severity}</span>
+        </Link>
+      ),
+    },
+    {
+      key: "subject",
+      header: "Subject",
+      className: "min-w-[9rem]",
+      cell: (r) =>
+        r.agentSymbol ? `$${r.agentSymbol}` : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`,
+    },
+    {
+      key: "category",
+      header: "Category",
+      hideBelow: "sm",
+      className: "text-paper-muted",
+      cell: (r) => categoryLabel(r.agentCategory),
+    },
+    {
+      key: "amount",
+      header: "Amount",
+      hideBelow: "sm",
+      align: "right",
+      className: "w-28",
+      cell: (r) => (r.amountSol > 0 ? `${r.amountSol.toFixed(2)} SOL` : "—"),
+    },
+    {
+      key: "when",
+      header: "When",
+      align: "right",
+      className: "w-24 text-wire",
+      cell: (r) => relativeFromNow(r.occurredAt),
+    },
+  ];
+
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-16">
-      <div className="label-amber">Execution Tape</div>
-      <h1 className="mt-3 font-display text-4xl font-bold text-paper sm:text-5xl">
-        Every grade is explainable from the tape.
-      </h1>
-      <p className="mt-4 max-w-2xl text-paper-muted">
-        Canonical evidence ledger. Every row is a permalinked on-chain event the indexer observed.
-        SPX402 only rates what the chain can prove — this is the proof.
-      </p>
+    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+      <PageHead
+        title="Execution tape"
+        description="Canonical evidence ledger. Every row is a permalinked on-chain event the indexer observed — every grade is explainable from the tape."
+      />
 
-      {/* Filters */}
-      <div className="mt-10 space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-[11px] uppercase tracking-widest text-wire">
-            Category:
-          </span>
-          <button
-            onClick={() => setFilter("category", null)}
-            className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
-              category === null
-                ? "border-amber bg-amber/10 text-amber"
-                : "border-bronze/60 text-paper-muted hover:border-amber hover:text-amber"
-            }`}
-          >
-            All
-          </button>
-          {CATEGORIES.filter((c) => c.decoderLive).map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setFilter("category", c.id)}
-              className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
-                category === c.id
-                  ? "border-amber bg-amber/10 text-amber"
-                  : "border-bronze/60 text-paper-muted hover:border-amber hover:text-amber"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-[11px] uppercase tracking-widest text-wire">
-            Severity:
-          </span>
-          {SEVERITIES.map((s) => (
-            <button
-              key={s.label}
-              onClick={() => setFilter("severity", s.id)}
-              className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
-                severity === s.id
-                  ? "border-amber bg-amber/10 text-amber"
-                  : "border-bronze/60 text-paper-muted hover:border-amber hover:text-amber"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+      <div className="mt-6">
+        <DataToolbar
+          filters={
+            <>
+              <FilterRow label="Category">
+                <FilterChip active={category === null} onClick={() => setFilter("category", null)}>
+                  All
+                </FilterChip>
+                {CATEGORIES.filter((c) => c.decoderLive).map((c) => (
+                  <FilterChip
+                    key={c.id}
+                    active={category === c.id}
+                    onClick={() => setFilter("category", c.id)}
+                  >
+                    {c.label}
+                  </FilterChip>
+                ))}
+              </FilterRow>
+              <FilterRow label="Severity">
+                {SEVERITIES.map((s) => (
+                  <FilterChip
+                    key={s.label}
+                    active={severity === s.id}
+                    onClick={() => setFilter("severity", s.id)}
+                  >
+                    {s.label}
+                  </FilterChip>
+                ))}
+              </FilterRow>
+            </>
+          }
+          right={
+            current > 1 ? (
+              <button
+                type="button"
+                onClick={() => setPage(1)}
+                className="border border-bronze/40 px-2.5 py-1 transition-colors hover:border-amber hover:text-amber"
+              >
+                Jump to newest
+              </button>
+            ) : null
+          }
+        />
+
+        <DataTable
+          caption="Execution events observed on-chain"
+          columns={columns}
+          rows={visible}
+          rowKey={(r) => r.id}
+          loading={loading}
+          empty="No events match these filters."
+        />
+
+        <Pager
+          page={current}
+          pageCount={pageCount}
+          total={total}
+          from={total === 0 ? 0 : start + 1}
+          to={Math.min(start + PAGE_SIZE, total)}
+          onPage={setPage}
+        />
       </div>
 
-      {/* Table */}
-      <div className="mt-8 overflow-hidden border border-bronze/40">
-        <div className="grid grid-cols-12 gap-2 border-b border-bronze/40 bg-panel-deep px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-wire">
-          <div className="col-span-3">Type</div>
-          <div className="col-span-3">Subject</div>
-          <div className="col-span-2 hidden sm:block">Category</div>
-          <div className="col-span-2 hidden sm:block">Amount</div>
-          <div className="col-span-9 sm:col-span-2 text-right">When</div>
-        </div>
-        {loading ? (
-          <div className="px-4 py-12 text-center font-mono text-xs text-paper-muted">Loading…</div>
-        ) : rows.length === 0 ? (
-          <div className="px-4 py-12 text-center font-mono text-xs text-paper-muted">
-            No events match these filters.
-          </div>
-        ) : (
-          <ul>
-            {rows.map((r, i) => (
-              <li key={r.id} className={`${i % 2 ? "bg-panel" : "bg-background"}`}>
-                <Link
-                  to="/tape/$eventId"
-                  params={{ eventId: r.id }}
-                  className="grid grid-cols-12 items-center gap-2 px-4 py-3 font-mono text-xs hover:bg-panel-deep"
-                >
-                  <div className={`col-span-3 truncate ${severityTone(r.severity)}`}>{r.type}</div>
-                  <div className="col-span-3 truncate text-paper">
-                    {r.agentSymbol
-                      ? `$${r.agentSymbol}`
-                      : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`}
-                  </div>
-                  <div className="col-span-2 hidden text-paper-muted sm:block">
-                    {categoryLabel(r.agentCategory)}
-                  </div>
-                  <div className="col-span-2 hidden text-paper-muted sm:block">
-                    {r.amountSol > 0 ? `${r.amountSol.toFixed(2)} SOL` : "—"}
-                  </div>
-                  <div className="col-span-9 text-right text-wire sm:col-span-2">
-                    {relativeFromNow(r.occurredAt)}
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <p className="mt-6 font-mono text-[11px] text-wire">
-        Showing the most recent {rows.length} events. Pagination ships next wave.
+      <p className="mt-4 font-mono text-[10px] uppercase tracking-widest text-wire">
+        Most recent {WINDOW} events retained in this view · deeper history via the evidence API.
       </p>
     </div>
   );

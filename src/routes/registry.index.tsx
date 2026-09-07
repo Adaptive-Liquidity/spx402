@@ -6,12 +6,15 @@ import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { PageHead } from "@/components/spx/PageHead";
+import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
+
 
 export const Route = createFileRoute("/registry/")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/leaderboard" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/registry" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/leaderboard" },
+      { property: "og:url", content: "https://spx402.com/registry" },
       { title: "Leaderboard — SPX402" },
       {
         name: "description",
@@ -32,7 +35,7 @@ export const Route = createFileRoute("/registry/")({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "SPX402 agent leaderboard",
-          url: "https://spx402.com/leaderboard",
+          url: "https://spx402.com/registry",
           description:
             "Live ranking of Solana agents by settled on-chain execution, graded by SPX402.",
           isPartOf: { "@id": "https://spx402.com/#website" },
@@ -40,6 +43,7 @@ export const Route = createFileRoute("/registry/")({
       },
     ],
   }),
+
   loader: () => fetchAgentIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
@@ -170,118 +174,102 @@ function LeaderboardPage() {
     [agents],
   );
 
+  // Why a board is empty: how many agents the quality gate removed.
+  const gateStats = useMemo(() => {
+    const unflagged = agents.filter((a: Agent) => !a.flagged);
+    const passing = unflagged.filter(qualifiesForLeaderboard);
+    return {
+      total: agents.length,
+      excluded: unflagged.length - passing.length,
+      flagged: agents.length - unflagged.length,
+    };
+  }, [agents]);
+
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-16">
-      <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-8">
-          <div className="label-amber">Leaderboard</div>
-          <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
-            Ranked by what the chain settles.
-          </h1>
-          <p className="mt-4 max-w-2xl text-paper-muted">
-            Not by holders. Not by sentiment. Not by who shouted the loudest. SPX402 ranks Solana
-            agents by the execution patterns it can verify on-chain.
-          </p>
-        </div>
-        {topEarner && (
-          <div className="lg:col-span-4">
+    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+      <PageHead
+        title="Leaderboard"
+        description="Ranked by what the chain settles — not holders, not sentiment. SPX402 ranks Solana agents by the execution patterns it can verify on-chain."
+        actions={
+          topEarner ? (
             <Link
               to="/agent/$mint"
               params={{ mint: topEarner.mint }}
-              className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
+              className="panel-engraved flex items-center gap-4 px-4 py-3 transition-colors hover:bg-panel/60"
             >
-              <div className="label-amber">#1 Earner</div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-3xl font-bold text-paper">
-                  ${topEarner.symbol}
-                </span>
-                <span className="font-mono text-xs text-wire">{topEarner.grade}</span>
-              </div>
-              <div className="mt-1 num-display text-xl font-bold text-amber">
+              <span className="label-amber">#1 Earner</span>
+              <span className="font-display text-lg font-bold text-paper">
+                ${topEarner.symbol}
+              </span>
+              <span className="num-display text-base font-bold text-amber">
                 {topEarner.totalBuybackSol.toFixed(2)} SOL
-              </div>
-              <div className="mt-1 font-mono text-[11px] uppercase tracking-widest text-wire">
-                bought back · all-time
-              </div>
+              </span>
             </Link>
-          </div>
-        )}
-      </div>
+          ) : null
+        }
+      />
 
-      {/* Category filter chips — narrow leaderboard scope to one agent type */}
-      <div className="mt-10 flex flex-wrap gap-2">
-        {(["all", ...CATEGORIES.map((c) => c.id)] as CategoryFilter[]).map((id) => {
-          const isActive = catFilter === id;
-          const label =
-            id === "all" ? "All Categories" : CATEGORIES.find((c) => c.id === id)!.label;
-          const count = categoryCounts[id] ?? 0;
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setCatFilter(id)}
-              className={`flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors ${
-                isActive
-                  ? "border-amber bg-amber/10 text-amber"
-                  : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
-              }`}
-            >
-              {label}
-              <span
-                className={`border px-1 py-0.5 text-[9px] ${
+      <div className="mt-6">
+        <DataToolbar
+          filters={
+            <FilterRow label="Category">
+              {(["all", ...CATEGORIES.map((c) => c.id)] as CategoryFilter[]).map((id) => {
+                const label =
+                  id === "all" ? "All categories" : CATEGORIES.find((c) => c.id === id)!.label;
+                const count = categoryCounts[id] ?? 0;
+                return (
+                  <FilterChip
+                    key={id}
+                    active={catFilter === id}
+                    onClick={() => setCatFilter(id)}
+                    count={count}
+                    disabled={count === 0 && id !== "all"}
+                  >
+                    {label}
+                  </FilterChip>
+                );
+              })}
+            </FilterRow>
+          }
+          status={
+            <span>
+              {tab === "movers" ? `${movers?.length ?? 0} movers` : `${ranked.length} ranked`}
+            </span>
+          }
+        />
+
+        <div className="flex flex-wrap gap-px border-x border-bronze/40 bg-bronze/40">
+          {TABS.map((t) => {
+            const isActive = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => setTab(t.id)}
+                className={`min-w-[140px] flex-1 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber ${
                   isActive
-                    ? "border-amber/60 bg-amber/10 text-amber"
-                    : "border-bronze/40 bg-panel-deep text-wire"
+                    ? "bg-panel-deep text-amber"
+                    : "bg-panel text-paper-muted hover:bg-panel-deep hover:text-paper"
                 }`}
               >
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-6 flex flex-wrap gap-px overflow-hidden border border-bronze/40 bg-bronze/40">
-        {TABS.map((t) => {
-          const isActive = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`flex-1 min-w-[140px] px-4 py-3 font-mono text-[11px] uppercase tracking-widest transition-colors ${
-                isActive
-                  ? "bg-panel-deep text-amber"
-                  : "bg-panel text-paper-muted hover:bg-panel-deep hover:text-paper"
-              }`}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="label-amber">{active.eyebrow}</div>
-          <p className="mt-1 max-w-xl text-sm text-paper-muted">{active.body}</p>
-          {tab !== "movers" && (
-            <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
-              Quality gate · grade ≥ SPX BB · score ≥ 50 · not flagged
-            </p>
-          )}
-          {tab === "movers" && (
-            <p className="mt-2 max-w-xl text-[11px] font-mono uppercase tracking-widest text-wire">
-              Source · agent_score_snapshots (daily) · 24h window
-            </p>
-          )}
+                {t.label}
+              </button>
+            );
+          })}
         </div>
-        <span className="font-mono text-xs uppercase tracking-widest text-wire">
-          {tab === "movers" ? `${movers?.length ?? 0} movers` : `${ranked.length} ranked`}
-        </span>
+
+        <div className="border-x border-b border-bronze/40 bg-panel-deep/40 px-3 py-2">
+          <p className="text-xs text-paper-muted">{active.body}</p>
+          <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-wire">
+            {tab === "movers"
+              ? "Source · agent_score_snapshots (daily) · 24h window"
+              : "Quality gate · grade ≥ SPX BB · score ≥ 50 · not flagged"}
+          </p>
+        </div>
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-4 space-y-2">
         {tab === "movers" ? (
           moversLoading ? (
             <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
@@ -298,18 +286,34 @@ function LeaderboardPage() {
             movers.map((m, i) => <MoverRow key={m.mint} mover={m} rank={i} />)
           )
         ) : ranked.length === 0 ? (
-          <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
-            No agents qualify for this leaderboard yet.
-            <div className="mt-3 space-x-4">
-              <Link to="/registry/explore" className="text-amber underline">
-                Browse the full index →
+          <div className="border border-dashed border-bronze/60 p-8 text-center">
+            <p className="font-display text-lg font-semibold text-paper">
+              Nothing clears the quality gate yet.
+            </p>
+            <p className="mx-auto mt-2 max-w-xl text-sm text-paper-muted">
+              {gateStats.excluded.toLocaleString()} indexed{" "}
+              {gateStats.excluded === 1 ? "agent is" : "agents are"} held back by the gate — grade
+              below SPX BB or score under 50 — and {gateStats.flagged.toLocaleString()}{" "}
+              {gateStats.flagged === 1 ? "is" : "are"} flagged. The board stays empty until an agent
+              earns its way on; we don&apos;t pad it.
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                to="/registry/explore"
+                className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+              >
+                Show everything indexed →
               </Link>
-              <Link to="/build/register" className="text-amber underline">
+              <Link
+                to="/build/register"
+                className="border border-bronze/60 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:text-paper"
+              >
                 Register an agent →
               </Link>
             </div>
           </div>
         ) : (
+
           ranked.map((a, i) => (
             <div key={a.mint} className="relative">
               <span

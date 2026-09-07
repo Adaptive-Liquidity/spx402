@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
+import { PageHead } from "@/components/spx/PageHead";
+import { DetailSection } from "@/components/spx/DetailSection";
 import { CheckCircle2, AlertTriangle, MinusCircle } from "lucide-react";
 import {
   fetchEventCoverage,
@@ -20,9 +22,9 @@ const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
 export const Route = createFileRoute("/live/status")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/status" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/live/status" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/status" },
+      { property: "og:url", content: "https://spx402.com/live/status" },
       { title: "Status — SPX402" },
       {
         name: "description",
@@ -167,11 +169,11 @@ function StatusPage() {
     degraded > 0 ? "critical" : noData === COMPONENT_ROWS.length ? "amber" : "verified";
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">System status</div>
-      <h1 className="mt-3 font-display text-5xl font-bold text-paper">
-        All execution observers, accounted for.
-      </h1>
+    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+      <PageHead
+        title="System status"
+        description="Every observer that feeds the tape, with its last heartbeat."
+      />
       <div
         className={`mt-6 inline-flex items-center gap-2 border px-4 py-2 font-mono text-xs uppercase tracking-widest ${
           bannerTone === "critical"
@@ -418,15 +420,13 @@ function StatusPage() {
 
           registered agents but zero observations for an event type is the
           single best signal that a decoder is missing or broken. */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">
-          Decoder coverage <span className="text-paper-muted">· last 7 days</span>
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm text-paper-muted">
-          Every event type SPX402 has actually decoded in the last week, grouped by agent category.
-          An empty row means a dark category — the chain produced events we did not yet recognize.
-        </p>
-        <div className="mt-6 overflow-hidden border border-bronze/50">
+      <div className="mt-4">
+      <DetailSection
+        title="Decoder coverage"
+        meta="last 7 days"
+        summary="Every event type SPX402 decoded in the last week, grouped by agent category. An empty row means a dark category — the chain produced events we did not yet recognize."
+      >
+        <div className="overflow-hidden border border-bronze/50">
           {coverage.length === 0 ? (
             <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
               No events decoded in the last 7 days.
@@ -461,24 +461,19 @@ function StatusPage() {
               </div>
             ))}
         </div>
-      </section>
+      </DetailSection>
+      </div>
 
       {/* FACILITATOR REGISTRY — Tier A x402 detection depends entirely on this
           list. An empty registry is a truthful state, not a bug: no operator
           has published a Solana settlement fee-payer we could verify. */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">
-          Facilitator registry{" "}
-          <span className="font-mono text-sm text-paper-muted">
-            · {FACILITATOR_REGISTRY_VERSION}
-          </span>
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm text-paper-muted">
-          Tier A x402 detection recognises a settlement when the transaction fee-payer is a known
-          facilitator. An address is only activated once the operator publishes it <em>and</em> a
-          captured fixture proves detection. Addresses are never inferred from chain traffic.
-        </p>
-        <div className="mt-4 inline-flex items-center gap-2 border border-bronze/60 bg-panel-deep px-4 py-2 font-mono text-xs uppercase tracking-widest text-paper-muted">
+      <div className="mt-3">
+      <DetailSection
+        title="Facilitator registry"
+        meta={FACILITATOR_REGISTRY_VERSION}
+        summary="Tier A x402 detection recognises a settlement when the transaction fee-payer is a known facilitator. An address is only activated once the operator publishes it and a captured fixture proves detection. Addresses are never inferred from chain traffic."
+      >
+        <div className="inline-flex items-center gap-2 border border-bronze/60 bg-panel-deep px-4 py-2 font-mono text-xs uppercase tracking-widest text-paper-muted">
           <span className="text-amber">{activeFacilitators.length}</span>
           active · {facilitators.length} tracked
         </div>
@@ -520,11 +515,12 @@ function StatusPage() {
             </>
           )}
         </div>
-      </section>
+      </DetailSection>
+      </div>
 
-      <section className="mt-12 panel-engraved p-6">
-        <div className="label-amber">Known parser limitations</div>
-        <ul className="mt-3 space-y-2 text-sm text-paper-muted">
+      <div className="mt-3">
+      <DetailSection title="Known parser limitations">
+        <ul className="space-y-2 text-sm text-paper-muted">
           <li>
             • Custom buyback routes outside published Pump/PumpSwap IDLs surface as low-confidence
             events.
@@ -535,7 +531,8 @@ function StatusPage() {
           </li>
           <li>• Off-chain operator activity is, by definition, invisible to SPX402.</li>
         </ul>
-      </section>
+      </DetailSection>
+      </div>
     </div>
   );
 }

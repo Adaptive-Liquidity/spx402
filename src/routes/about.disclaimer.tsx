@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/about/disclaimer")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/disclaimer" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/about/disclaimer" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/disclaimer" },
+      { property: "og:url", content: "https://spx402.com/about/disclaimer" },
       { title: "Disclaimer — SPX402" },
       {
         name: "description",
@@ -45,9 +45,8 @@ const SECTIONS = [
 
 function DisclaimerPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-24">
-      <div className="label-amber">Disclaimer</div>
-      <h1 className="mt-3 font-display text-5xl font-bold text-paper">Read this carefully.</h1>
+    <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">Read this carefully.</h1>
       <p className="mt-5 text-paper-muted">
         SPX402 is a public proof layer. It is not a financial product, a security, a regulated
         rating, or an investment recommendation. The plain-English terms below apply to every page,

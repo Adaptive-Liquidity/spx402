@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PageHead } from "@/components/spx/PageHead";
 import { fetchPulseFeed, relativeFromNow, type PulseEntry } from "@/lib/live-data";
 import { ArrowDown, ArrowUp, AlertTriangle, Activity } from "lucide-react";
 
 export const Route = createFileRoute("/live/pulse")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/pulse" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/live/pulse" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/pulse" },
+      { property: "og:url", content: "https://spx402.com/live/pulse" },
       { title: "Pulse — live score deltas & failures · SPX402" },
       {
         name: "description",
@@ -41,17 +42,13 @@ function PulsePage() {
   const entries = Route.useLoaderData() as PulseEntry[];
 
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-16">
-      <div className="label-amber">Pulse</div>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
-        What just changed.
-      </h1>
-      <p className="mt-4 max-w-2xl text-paper-muted">
-        Score deltas, failure events, and critical incidents — interleaved in chronological order.
-        This is the heartbeat of SPX402's evidence layer.
-      </p>
+    <div className="mx-auto max-w-[1100px] px-4 py-8 lg:px-8">
+      <PageHead
+        title="Pulse"
+        description="Score deltas, failure events, and critical incidents — interleaved in chronological order."
+      />
 
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
           {entries.length} entries · last 7 days
         </div>
