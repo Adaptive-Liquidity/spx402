@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/public/share.png")({
         if (limited.response) return limited.response;
 
         const png = renderBrandCardPng({
-          headline: "Agents lie. The ledger doesn't.",
+          headline: "Agents lie. The ledger does not.",
           subline: "Execution grades from settled on-chain evidence",
           url: "spx402.com",
         });
