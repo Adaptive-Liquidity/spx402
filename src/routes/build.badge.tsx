@@ -3,7 +3,7 @@ import { BadgeSubscribe } from "@/components/spx/BadgeSubscribe";
 import { BADGE_TIERS, HONEST_GRADE_RULE } from "@/lib/badge-plans";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/badge")({
+export const Route = createFileRoute("/build/badge")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/badge" }],
     meta: [

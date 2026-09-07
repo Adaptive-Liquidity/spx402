@@ -18,7 +18,7 @@ import { categoryLabel } from "@/lib/agents/categories";
 // src/lib/indexer/facilitators.server.ts (server-only, so not importable here).
 const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
-export const Route = createFileRoute("/status")({
+export const Route = createFileRoute("/live/status")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/status" }],
     meta: [

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { fetchPulseFeed, relativeFromNow, type PulseEntry } from "@/lib/live-data";
 import { ArrowDown, ArrowUp, AlertTriangle, Activity } from "lucide-react";
 
-export const Route = createFileRoute("/pulse")({
+export const Route = createFileRoute("/live/pulse")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/pulse" }],
     meta: [

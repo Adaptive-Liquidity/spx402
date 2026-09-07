@@ -6,7 +6,7 @@ import { PreflightCard } from "@/components/spx/PreflightCard";
 import { scanEndpoint } from "@/lib/preflight.functions";
 import { PREFLIGHT_QUESTION, type PreflightCardModel } from "@/lib/preflight/model";
 
-export const Route = createFileRoute("/preflight")({
+export const Route = createFileRoute("/build/preflight")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/preflight" }],
     meta: [

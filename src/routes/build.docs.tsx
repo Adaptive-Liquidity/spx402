@@ -56,7 +56,7 @@ function EndpointCard({
   );
 }
 
-export const Route = createFileRoute("/api/docs")({
+export const Route = createFileRoute("/build/docs")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/api/docs" }],
     meta: [

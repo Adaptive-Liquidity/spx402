@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { fetchChangelog, formatReleaseDate, type ChangelogEntry } from "@/lib/live-data";
 
-export const Route = createFileRoute("/changelog")({
+export const Route = createFileRoute("/about/changelog")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/changelog" }],
     meta: [

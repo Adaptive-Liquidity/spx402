@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES, type AgentCategory, type IdentifierKind } from "@/lib/agents/categories";
 import { ArrowRight, Copy, Check } from "lucide-react";
 
-export const Route = createFileRoute("/register")({
+export const Route = createFileRoute("/build/register")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/register" }],
     meta: [

@@ -6,7 +6,7 @@ import { fetchAgentIndex } from "@/lib/agents-db";
 import { isLowGrade, type Agent, type Grade } from "@/lib/agents";
 import { AlertTriangle } from "lucide-react";
 
-export const Route = createFileRoute("/explore")({
+export const Route = createFileRoute("/registry/explore")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/explore" }],
     meta: [

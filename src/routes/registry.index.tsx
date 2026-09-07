@@ -7,7 +7,7 @@ import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
-export const Route = createFileRoute("/leaderboard")({
+export const Route = createFileRoute("/registry/")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/leaderboard" }],
     meta: [

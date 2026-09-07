@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Mail, MessageSquare, Webhook } from "lucide-react";
 
-export const Route = createFileRoute("/alerts")({
+export const Route = createFileRoute("/build/alerts")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/alerts" }],
     meta: [

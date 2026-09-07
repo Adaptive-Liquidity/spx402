@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/api")({
+export const Route = createFileRoute("/build/")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/api" }],
     meta: [

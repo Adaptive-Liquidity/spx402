@@ -4,7 +4,7 @@ import type { Agent } from "@/lib/agents";
 import { fetchAgentIndex } from "@/lib/agents-db";
 import { AlertTriangle } from "lucide-react";
 
-export const Route = createFileRoute("/flagged")({
+export const Route = createFileRoute("/registry/flagged")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/flagged" }],
     meta: [

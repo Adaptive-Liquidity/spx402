@@ -16,7 +16,7 @@ const SEVERITIES: Array<{ id: string | null; label: string }> = [
   { id: "critical", label: "Critical" },
 ];
 
-export const Route = createFileRoute("/tape")({
+export const Route = createFileRoute("/live/")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/tape" }],
     meta: [
@@ -82,7 +82,7 @@ function TapePage() {
   const search = Route.useSearch();
   const category = search.category ?? null;
   const severity = search.severity ?? null;
-  const navigate = useNavigate({ from: "/tape" });
+  const navigate = useNavigate({ from: "/live/" });
   const loading = useRouterState({ select: (s) => s.isLoading });
 
   const setFilter = (key: "category" | "severity", value: string | null) =>
