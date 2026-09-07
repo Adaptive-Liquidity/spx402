@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { listVerifiedServices } from "@/lib/x402";
-import { listRegisteredExecutors } from "@/lib/executors";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -59,10 +57,22 @@ export const Route = createFileRoute("/sitemap.xml")({
           }
 
           // x402 service and AEON operator pages are public dossiers too.
-          const [services, executors] = await Promise.all([
-            listVerifiedServices(1000),
-            listRegisteredExecutors(1000),
+          const [servicesRes, executorsRes] = await Promise.all([
+            supabaseAdmin
+              .from("x402_service" as never)
+              .select("slug")
+              .eq("active", true)
+              .not("slug", "is", null)
+              .limit(1000) as unknown as Promise<{ data: { slug: string }[] | null }>,
+            supabaseAdmin
+              .from("agents")
+              .select("executor_wallet")
+              .eq("identifier_kind", "aeon_executor")
+              .not("executor_wallet", "is", null)
+              .limit(1000),
           ]);
+          const services = servicesRes.data ?? [];
+          const executors = executorsRes.data ?? [];
 
           const urls = [
             ...staticPages.map(
