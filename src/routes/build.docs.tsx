@@ -74,7 +74,9 @@ export const Route = createFileRoute("/build/docs")({
 function ApiDocsPage() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-8 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">Endpoint reference.</h1>
+      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+        Endpoint reference.
+      </h1>
       <p className="mt-5 max-w-2xl text-paper-muted">
         SPX402 exposes execution data over two layers:
         <br />
@@ -86,7 +88,29 @@ function ApiDocsPage() {
         All endpoints return JSON. All times are UTC ISO 8601.
       </p>
 
-      <div className="mt-10 panel-engraved p-6">
+      <nav
+        aria-label="Endpoint index"
+        className="sticky top-0 z-20 -mx-4 mt-6 flex gap-1 overflow-x-auto border-y border-bronze/40 bg-background/95 px-4 py-2 backdrop-blur lg:-mx-8 lg:px-8"
+      >
+        {[
+          { id: "auth", label: "Auth" },
+          { id: "x402", label: "x402 endpoints" },
+          { id: "rest", label: "REST endpoints" },
+          { id: "tiers", label: "Tiers" },
+          { id: "webhooks", label: "Webhooks" },
+          { id: "quickstarts", label: "Quickstarts" },
+        ].map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="whitespace-nowrap px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-paper-muted transition-colors hover:text-amber"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
+
+      <div id="auth" className="mt-8 panel-engraved p-6 scroll-mt-16">
         <div className="font-mono text-[10px] uppercase tracking-widest text-amber">
           Authentication
         </div>
@@ -166,6 +190,7 @@ function ApiDocsPage() {
       </div>
 
       <div className="mt-12 space-y-8">
+        <div id="x402" className="scroll-mt-16" />
         {/* SCORE ENDPOINT */}
         <EndpointCard
           method="GET"
@@ -249,6 +274,7 @@ function ApiDocsPage() {
 }`}
         />
 
+        <div id="rest" className="scroll-mt-16" />
         {/* REST API ENDPOINTS (API Key) */}
         <Panel
           eyebrow="GET /v1/agent/:mint/score (REST + API Key)"
@@ -275,6 +301,7 @@ function ApiDocsPage() {
           </pre>
         </Panel>
 
+        <div id="tiers" className="scroll-mt-16" />
         {/* TIER TABLE */}
         <Panel eyebrow="Pricing & Rate Limits" title="API Tiers">
           <div className="overflow-x-auto">
@@ -322,6 +349,7 @@ function ApiDocsPage() {
           </div>
         </Panel>
 
+        <div id="webhooks" className="scroll-mt-16" />
         {/* WEBHOOKS */}
         <Panel eyebrow="Webhooks (Team + Enterprise)" title="Real-time Event Delivery">
           <p className="text-paper-muted">
@@ -341,6 +369,7 @@ function ApiDocsPage() {
           </div>
         </Panel>
 
+        <div id="quickstarts" className="scroll-mt-16" />
         {/* INTEGRATION GUIDES */}
         <Panel eyebrow="Integration Quickstarts" title="Wallet / DEX / Agent Integration">
           <div className="grid gap-4 md:grid-cols-3">
