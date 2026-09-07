@@ -602,7 +602,7 @@ function MethodologyPage() {
         </div>
         <p className="mt-4 max-w-3xl text-sm text-paper-muted">
           The facilitator registry is published on the{" "}
-          <a href="/status" className="text-amber underline underline-offset-4">
+          <a href="/live/status" className="text-amber underline underline-offset-4">
             status page
           </a>
           , including addresses that are tracked but not yet active. Every address is taken from the
@@ -737,7 +737,7 @@ function MethodologyPage() {
             distinguish probe traffic from organic demand. The prober is currently{" "}
             <strong className="text-paper">disabled and unfunded</strong>; its Solana and Base
             addresses will be published here, and on{" "}
-            <Link to="/status" className="text-amber hover:underline">
+            <Link to="/live/status" className="text-amber hover:underline">
               /status
             </Link>
             , before the first paid probe is executed.
@@ -860,7 +860,7 @@ function MethodologyPage() {
           </li>
           <li>
             The{" "}
-            <Link to="/status" className="text-amber hover:underline">
+            <Link to="/live/status" className="text-amber hover:underline">
               /status
             </Link>{" "}
             page exposes per-decoder lag so consumers can distinguish "no failures observed" from

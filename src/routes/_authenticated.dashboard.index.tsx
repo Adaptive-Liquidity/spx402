@@ -126,7 +126,7 @@ function DashboardOverview() {
           came from.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link to="/explore" className="btn-caliper btn-caliper-primary">
+          <Link to="/registry/explore" className="btn-caliper btn-caliper-primary">
             Browse agents →
           </Link>
           <Link to="/dashboard/watchlist" className="btn-caliper">

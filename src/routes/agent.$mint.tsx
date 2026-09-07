@@ -449,7 +449,7 @@ function VerifyingState({
             New search
           </Link>
           <Link
-            to="/explore"
+            to="/registry/explore"
             className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper"
           >
             Explore agents
@@ -584,7 +584,7 @@ function VerifyingState({
           New search
         </Link>
         <Link
-          to="/explore"
+          to="/registry/explore"
           className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:text-paper"
         >
           Explore verified agents
@@ -1068,7 +1068,7 @@ function Dossier({
         </div>
         {!agent.operatorVerified && (
           <Link
-            to="/operators"
+            to="/registry/operators"
             className="inline-flex items-center gap-2 border border-amber/70 bg-amber/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Is this your agent? Verify operator → climb the leaderboard
@@ -1491,7 +1491,7 @@ function Dossier({
           quality, future buybacks, token value, or operator intent. A high Transparency Score does
           not mean a token is safe, valuable, or suitable to buy. Buybacks may not occur, may occur
           irregularly, or may stop entirely. Read the full{" "}
-          <Link to="/disclaimer" className="text-amber hover:underline">
+          <Link to="/about/disclaimer" className="text-amber hover:underline">
             disclaimer
           </Link>
           .

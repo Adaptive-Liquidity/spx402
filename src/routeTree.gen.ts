@@ -14,6 +14,7 @@ import { Route as SubmitRouteImport } from './routes/submit'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RegistryRouteImport } from './routes/registry'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -21,23 +22,41 @@ import { Route as PreflightRouteImport } from './routes/preflight'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LiveRouteImport } from './routes/live'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BuildRouteImport } from './routes/build'
 import { Route as BadgeRouteImport } from './routes/badge'
 import { Route as ApiRouteImport } from './routes/api'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RegistryIndexRouteImport } from './routes/registry.index'
+import { Route as LiveIndexRouteImport } from './routes/live.index'
+import { Route as BuildIndexRouteImport } from './routes/build.index'
+import { Route as AboutIndexRouteImport } from './routes/about.index'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
 import { Route as ServiceSlugRouteImport } from './routes/service.$slug'
+import { Route as RegistryOperatorsRouteImport } from './routes/registry.operators'
+import { Route as RegistryFlaggedRouteImport } from './routes/registry.flagged'
+import { Route as RegistryExploreRouteImport } from './routes/registry.explore'
 import { Route as OperatorWalletRouteImport } from './routes/operator.$wallet'
+import { Route as LiveStatusRouteImport } from './routes/live.status'
+import { Route as LivePulseRouteImport } from './routes/live.pulse'
 import { Route as EmbedSubjectRouteImport } from './routes/embed.$subject'
+import { Route as BuildRegisterRouteImport } from './routes/build.register'
+import { Route as BuildPreflightRouteImport } from './routes/build.preflight'
+import { Route as BuildDocsRouteImport } from './routes/build.docs'
+import { Route as BuildBadgeRouteImport } from './routes/build.badge'
+import { Route as BuildAlertsRouteImport } from './routes/build.alerts'
 import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
+import { Route as AboutDisclaimerRouteImport } from './routes/about.disclaimer'
+import { Route as AboutChangelogRouteImport } from './routes/about.changelog'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as DotwellKnownX402RouteImport } from './routes/[.]well-known/x402'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated.dashboard.index'
@@ -103,6 +122,11 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistryRoute = RegistryRouteImport.update({
+  id: '/registry',
+  path: '/registry',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -138,6 +162,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -161,6 +190,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildRoute = BuildRouteImport.update({
+  id: '/build',
+  path: '/build',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BadgeRoute = BadgeRouteImport.update({
@@ -192,6 +226,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistryIndexRoute = RegistryIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RegistryRoute,
+} as any)
+const LiveIndexRoute = LiveIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LiveRoute,
+} as any)
+const BuildIndexRoute = BuildIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuildRoute,
+} as any)
+const AboutIndexRoute = AboutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AboutRoute,
+} as any)
 const TapeEventIdRoute = TapeEventIdRouteImport.update({
   id: '/$eventId',
   path: '/$eventId',
@@ -202,15 +256,65 @@ const ServiceSlugRoute = ServiceSlugRouteImport.update({
   path: '/service/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistryOperatorsRoute = RegistryOperatorsRouteImport.update({
+  id: '/operators',
+  path: '/operators',
+  getParentRoute: () => RegistryRoute,
+} as any)
+const RegistryFlaggedRoute = RegistryFlaggedRouteImport.update({
+  id: '/flagged',
+  path: '/flagged',
+  getParentRoute: () => RegistryRoute,
+} as any)
+const RegistryExploreRoute = RegistryExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => RegistryRoute,
+} as any)
 const OperatorWalletRoute = OperatorWalletRouteImport.update({
   id: '/operator/$wallet',
   path: '/operator/$wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveStatusRoute = LiveStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => LiveRoute,
+} as any)
+const LivePulseRoute = LivePulseRouteImport.update({
+  id: '/pulse',
+  path: '/pulse',
+  getParentRoute: () => LiveRoute,
+} as any)
 const EmbedSubjectRoute = EmbedSubjectRouteImport.update({
   id: '/embed/$subject',
   path: '/embed/$subject',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BuildRegisterRoute = BuildRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => BuildRoute,
+} as any)
+const BuildPreflightRoute = BuildPreflightRouteImport.update({
+  id: '/preflight',
+  path: '/preflight',
+  getParentRoute: () => BuildRoute,
+} as any)
+const BuildDocsRoute = BuildDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => BuildRoute,
+} as any)
+const BuildBadgeRoute = BuildBadgeRouteImport.update({
+  id: '/badge',
+  path: '/badge',
+  getParentRoute: () => BuildRoute,
+} as any)
+const BuildAlertsRoute = BuildAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => BuildRoute,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/docs',
@@ -221,6 +325,16 @@ const AgentMintRoute = AgentMintRouteImport.update({
   id: '/agent/$mint',
   path: '/agent/$mint',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AboutDisclaimerRoute = AboutDisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
+  getParentRoute: () => AboutRoute,
+} as any)
+const AboutChangelogRoute = AboutChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => AboutRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -443,15 +557,17 @@ const ApiPublicAgentSubjectEvidenceRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
+  '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -459,6 +575,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
+  '/registry': typeof RegistryRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -466,12 +583,28 @@ export interface FileRoutesByFullPath {
   '/tape': typeof TapeRouteWithChildren
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/about/changelog': typeof AboutChangelogRoute
+  '/about/disclaimer': typeof AboutDisclaimerRoute
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/build/alerts': typeof BuildAlertsRoute
+  '/build/badge': typeof BuildBadgeRoute
+  '/build/docs': typeof BuildDocsRoute
+  '/build/preflight': typeof BuildPreflightRoute
+  '/build/register': typeof BuildRegisterRoute
   '/embed/$subject': typeof EmbedSubjectRoute
+  '/live/pulse': typeof LivePulseRoute
+  '/live/status': typeof LiveStatusRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/registry/explore': typeof RegistryExploreRoute
+  '/registry/flagged': typeof RegistryFlaggedRoute
+  '/registry/operators': typeof RegistryOperatorsRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/about/': typeof AboutIndexRoute
+  '/build/': typeof BuildIndexRoute
+  '/live/': typeof LiveIndexRoute
+  '/registry/': typeof RegistryIndexRoute
   '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -512,7 +645,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
@@ -534,12 +666,28 @@ export interface FileRoutesByTo {
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
   '/.well-known/x402': typeof DotwellKnownX402Route
+  '/about/changelog': typeof AboutChangelogRoute
+  '/about/disclaimer': typeof AboutDisclaimerRoute
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/build/alerts': typeof BuildAlertsRoute
+  '/build/badge': typeof BuildBadgeRoute
+  '/build/docs': typeof BuildDocsRoute
+  '/build/preflight': typeof BuildPreflightRoute
+  '/build/register': typeof BuildRegisterRoute
   '/embed/$subject': typeof EmbedSubjectRoute
+  '/live/pulse': typeof LivePulseRoute
+  '/live/status': typeof LiveStatusRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/registry/explore': typeof RegistryExploreRoute
+  '/registry/flagged': typeof RegistryFlaggedRoute
+  '/registry/operators': typeof RegistryOperatorsRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/about': typeof AboutIndexRoute
+  '/build': typeof BuildIndexRoute
+  '/live': typeof LiveIndexRoute
+  '/registry': typeof RegistryIndexRoute
   '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -582,15 +730,17 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/about': typeof AboutRoute
+  '/about': typeof AboutRouteWithChildren
   '/alerts': typeof AlertsRoute
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
+  '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live': typeof LiveRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -598,6 +748,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/pulse': typeof PulseRoute
   '/register': typeof RegisterRoute
+  '/registry': typeof RegistryRouteWithChildren
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -605,12 +756,28 @@ export interface FileRoutesById {
   '/tape': typeof TapeRouteWithChildren
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/about/changelog': typeof AboutChangelogRoute
+  '/about/disclaimer': typeof AboutDisclaimerRoute
   '/agent/$mint': typeof AgentMintRoute
   '/api/docs': typeof ApiDocsRoute
+  '/build/alerts': typeof BuildAlertsRoute
+  '/build/badge': typeof BuildBadgeRoute
+  '/build/docs': typeof BuildDocsRoute
+  '/build/preflight': typeof BuildPreflightRoute
+  '/build/register': typeof BuildRegisterRoute
   '/embed/$subject': typeof EmbedSubjectRoute
+  '/live/pulse': typeof LivePulseRoute
+  '/live/status': typeof LiveStatusRoute
   '/operator/$wallet': typeof OperatorWalletRoute
+  '/registry/explore': typeof RegistryExploreRoute
+  '/registry/flagged': typeof RegistryFlaggedRoute
+  '/registry/operators': typeof RegistryOperatorsRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/about/': typeof AboutIndexRoute
+  '/build/': typeof BuildIndexRoute
+  '/live/': typeof LiveIndexRoute
+  '/registry/': typeof RegistryIndexRoute
   '/_authenticated/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
@@ -657,11 +824,13 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/api'
     | '/badge'
+    | '/build'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
     | '/leaderboard'
+    | '/live'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -669,6 +838,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/pulse'
     | '/register'
+    | '/registry'
     | '/signup'
     | '/sitemap.xml'
     | '/status'
@@ -676,12 +846,28 @@ export interface FileRouteTypes {
     | '/tape'
     | '/.well-known/x402'
     | '/dashboard'
+    | '/about/changelog'
+    | '/about/disclaimer'
     | '/agent/$mint'
     | '/api/docs'
+    | '/build/alerts'
+    | '/build/badge'
+    | '/build/docs'
+    | '/build/preflight'
+    | '/build/register'
     | '/embed/$subject'
+    | '/live/pulse'
+    | '/live/status'
     | '/operator/$wallet'
+    | '/registry/explore'
+    | '/registry/flagged'
+    | '/registry/operators'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/about/'
+    | '/build/'
+    | '/live/'
+    | '/registry/'
     | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -722,7 +908,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/alerts'
     | '/api'
     | '/badge'
@@ -744,12 +929,28 @@ export interface FileRouteTypes {
     | '/submit'
     | '/tape'
     | '/.well-known/x402'
+    | '/about/changelog'
+    | '/about/disclaimer'
     | '/agent/$mint'
     | '/api/docs'
+    | '/build/alerts'
+    | '/build/badge'
+    | '/build/docs'
+    | '/build/preflight'
+    | '/build/register'
     | '/embed/$subject'
+    | '/live/pulse'
+    | '/live/status'
     | '/operator/$wallet'
+    | '/registry/explore'
+    | '/registry/flagged'
+    | '/registry/operators'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/about'
+    | '/build'
+    | '/live'
+    | '/registry'
     | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
@@ -795,11 +996,13 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/api'
     | '/badge'
+    | '/build'
     | '/changelog'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
     | '/leaderboard'
+    | '/live'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -807,6 +1010,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/pulse'
     | '/register'
+    | '/registry'
     | '/signup'
     | '/sitemap.xml'
     | '/status'
@@ -814,12 +1018,28 @@ export interface FileRouteTypes {
     | '/tape'
     | '/.well-known/x402'
     | '/_authenticated/dashboard'
+    | '/about/changelog'
+    | '/about/disclaimer'
     | '/agent/$mint'
     | '/api/docs'
+    | '/build/alerts'
+    | '/build/badge'
+    | '/build/docs'
+    | '/build/preflight'
+    | '/build/register'
     | '/embed/$subject'
+    | '/live/pulse'
+    | '/live/status'
     | '/operator/$wallet'
+    | '/registry/explore'
+    | '/registry/flagged'
+    | '/registry/operators'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/about/'
+    | '/build/'
+    | '/live/'
+    | '/registry/'
     | '/_authenticated/dashboard/account'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
@@ -862,15 +1082,17 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  AboutRoute: typeof AboutRoute
+  AboutRoute: typeof AboutRouteWithChildren
   AlertsRoute: typeof AlertsRoute
   ApiRoute: typeof ApiRouteWithChildren
   BadgeRoute: typeof BadgeRoute
+  BuildRoute: typeof BuildRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
   FlaggedRoute: typeof FlaggedRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  LiveRoute: typeof LiveRouteWithChildren
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
@@ -878,6 +1100,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PulseRoute: typeof PulseRoute
   RegisterRoute: typeof RegisterRoute
+  RegistryRoute: typeof RegistryRouteWithChildren
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatusRoute: typeof StatusRoute
@@ -926,6 +1149,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registry': {
+      id: '/registry'
+      path: '/registry'
+      fullPath: '/registry'
+      preLoaderRoute: typeof RegistryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -977,6 +1207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -1010,6 +1247,13 @@ declare module '@tanstack/react-router' {
       path: '/changelog'
       fullPath: '/changelog'
       preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build': {
+      id: '/build'
+      path: '/build'
+      fullPath: '/build'
+      preLoaderRoute: typeof BuildRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/badge': {
@@ -1054,6 +1298,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/registry/': {
+      id: '/registry/'
+      path: '/'
+      fullPath: '/registry/'
+      preLoaderRoute: typeof RegistryIndexRouteImport
+      parentRoute: typeof RegistryRoute
+    }
+    '/live/': {
+      id: '/live/'
+      path: '/'
+      fullPath: '/live/'
+      preLoaderRoute: typeof LiveIndexRouteImport
+      parentRoute: typeof LiveRoute
+    }
+    '/build/': {
+      id: '/build/'
+      path: '/'
+      fullPath: '/build/'
+      preLoaderRoute: typeof BuildIndexRouteImport
+      parentRoute: typeof BuildRoute
+    }
+    '/about/': {
+      id: '/about/'
+      path: '/'
+      fullPath: '/about/'
+      preLoaderRoute: typeof AboutIndexRouteImport
+      parentRoute: typeof AboutRoute
+    }
     '/tape/$eventId': {
       id: '/tape/$eventId'
       path: '/$eventId'
@@ -1068,6 +1340,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiceSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/registry/operators': {
+      id: '/registry/operators'
+      path: '/operators'
+      fullPath: '/registry/operators'
+      preLoaderRoute: typeof RegistryOperatorsRouteImport
+      parentRoute: typeof RegistryRoute
+    }
+    '/registry/flagged': {
+      id: '/registry/flagged'
+      path: '/flagged'
+      fullPath: '/registry/flagged'
+      preLoaderRoute: typeof RegistryFlaggedRouteImport
+      parentRoute: typeof RegistryRoute
+    }
+    '/registry/explore': {
+      id: '/registry/explore'
+      path: '/explore'
+      fullPath: '/registry/explore'
+      preLoaderRoute: typeof RegistryExploreRouteImport
+      parentRoute: typeof RegistryRoute
+    }
     '/operator/$wallet': {
       id: '/operator/$wallet'
       path: '/operator/$wallet'
@@ -1075,12 +1368,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OperatorWalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live/status': {
+      id: '/live/status'
+      path: '/status'
+      fullPath: '/live/status'
+      preLoaderRoute: typeof LiveStatusRouteImport
+      parentRoute: typeof LiveRoute
+    }
+    '/live/pulse': {
+      id: '/live/pulse'
+      path: '/pulse'
+      fullPath: '/live/pulse'
+      preLoaderRoute: typeof LivePulseRouteImport
+      parentRoute: typeof LiveRoute
+    }
     '/embed/$subject': {
       id: '/embed/$subject'
       path: '/embed/$subject'
       fullPath: '/embed/$subject'
       preLoaderRoute: typeof EmbedSubjectRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/build/register': {
+      id: '/build/register'
+      path: '/register'
+      fullPath: '/build/register'
+      preLoaderRoute: typeof BuildRegisterRouteImport
+      parentRoute: typeof BuildRoute
+    }
+    '/build/preflight': {
+      id: '/build/preflight'
+      path: '/preflight'
+      fullPath: '/build/preflight'
+      preLoaderRoute: typeof BuildPreflightRouteImport
+      parentRoute: typeof BuildRoute
+    }
+    '/build/docs': {
+      id: '/build/docs'
+      path: '/docs'
+      fullPath: '/build/docs'
+      preLoaderRoute: typeof BuildDocsRouteImport
+      parentRoute: typeof BuildRoute
+    }
+    '/build/badge': {
+      id: '/build/badge'
+      path: '/badge'
+      fullPath: '/build/badge'
+      preLoaderRoute: typeof BuildBadgeRouteImport
+      parentRoute: typeof BuildRoute
+    }
+    '/build/alerts': {
+      id: '/build/alerts'
+      path: '/alerts'
+      fullPath: '/build/alerts'
+      preLoaderRoute: typeof BuildAlertsRouteImport
+      parentRoute: typeof BuildRoute
     }
     '/api/docs': {
       id: '/api/docs'
@@ -1095,6 +1437,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/agent/$mint'
       preLoaderRoute: typeof AgentMintRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/about/disclaimer': {
+      id: '/about/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/about/disclaimer'
+      preLoaderRoute: typeof AboutDisclaimerRouteImport
+      parentRoute: typeof AboutRoute
+    }
+    '/about/changelog': {
+      id: '/about/changelog'
+      path: '/changelog'
+      fullPath: '/about/changelog'
+      preLoaderRoute: typeof AboutChangelogRouteImport
+      parentRoute: typeof AboutRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -1406,6 +1762,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface AboutRouteChildren {
+  AboutChangelogRoute: typeof AboutChangelogRoute
+  AboutDisclaimerRoute: typeof AboutDisclaimerRoute
+  AboutIndexRoute: typeof AboutIndexRoute
+}
+
+const AboutRouteChildren: AboutRouteChildren = {
+  AboutChangelogRoute: AboutChangelogRoute,
+  AboutDisclaimerRoute: AboutDisclaimerRoute,
+  AboutIndexRoute: AboutIndexRoute,
+}
+
+const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
+
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
@@ -1481,6 +1851,58 @@ const ApiRouteChildren: ApiRouteChildren = {
 
 const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
 
+interface BuildRouteChildren {
+  BuildAlertsRoute: typeof BuildAlertsRoute
+  BuildBadgeRoute: typeof BuildBadgeRoute
+  BuildDocsRoute: typeof BuildDocsRoute
+  BuildPreflightRoute: typeof BuildPreflightRoute
+  BuildRegisterRoute: typeof BuildRegisterRoute
+  BuildIndexRoute: typeof BuildIndexRoute
+}
+
+const BuildRouteChildren: BuildRouteChildren = {
+  BuildAlertsRoute: BuildAlertsRoute,
+  BuildBadgeRoute: BuildBadgeRoute,
+  BuildDocsRoute: BuildDocsRoute,
+  BuildPreflightRoute: BuildPreflightRoute,
+  BuildRegisterRoute: BuildRegisterRoute,
+  BuildIndexRoute: BuildIndexRoute,
+}
+
+const BuildRouteWithChildren = BuildRoute._addFileChildren(BuildRouteChildren)
+
+interface LiveRouteChildren {
+  LivePulseRoute: typeof LivePulseRoute
+  LiveStatusRoute: typeof LiveStatusRoute
+  LiveIndexRoute: typeof LiveIndexRoute
+}
+
+const LiveRouteChildren: LiveRouteChildren = {
+  LivePulseRoute: LivePulseRoute,
+  LiveStatusRoute: LiveStatusRoute,
+  LiveIndexRoute: LiveIndexRoute,
+}
+
+const LiveRouteWithChildren = LiveRoute._addFileChildren(LiveRouteChildren)
+
+interface RegistryRouteChildren {
+  RegistryExploreRoute: typeof RegistryExploreRoute
+  RegistryFlaggedRoute: typeof RegistryFlaggedRoute
+  RegistryOperatorsRoute: typeof RegistryOperatorsRoute
+  RegistryIndexRoute: typeof RegistryIndexRoute
+}
+
+const RegistryRouteChildren: RegistryRouteChildren = {
+  RegistryExploreRoute: RegistryExploreRoute,
+  RegistryFlaggedRoute: RegistryFlaggedRoute,
+  RegistryOperatorsRoute: RegistryOperatorsRoute,
+  RegistryIndexRoute: RegistryIndexRoute,
+}
+
+const RegistryRouteWithChildren = RegistryRoute._addFileChildren(
+  RegistryRouteChildren,
+)
+
 interface TapeRouteChildren {
   TapeEventIdRoute: typeof TapeEventIdRoute
 }
@@ -1494,15 +1916,17 @@ const TapeRouteWithChildren = TapeRoute._addFileChildren(TapeRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  AboutRoute: AboutRoute,
+  AboutRoute: AboutRouteWithChildren,
   AlertsRoute: AlertsRoute,
   ApiRoute: ApiRouteWithChildren,
   BadgeRoute: BadgeRoute,
+  BuildRoute: BuildRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
   FlaggedRoute: FlaggedRoute,
   LeaderboardRoute: LeaderboardRoute,
+  LiveRoute: LiveRouteWithChildren,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
@@ -1510,6 +1934,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PulseRoute: PulseRoute,
   RegisterRoute: RegisterRoute,
+  RegistryRoute: RegistryRouteWithChildren,
   SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatusRoute: StatusRoute,
