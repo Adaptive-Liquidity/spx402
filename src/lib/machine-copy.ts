@@ -117,7 +117,48 @@ export function buildLlmsFullTxt(origin: string): string {
 - Facilitator registry: \`${FACILITATOR_REGISTRY_VERSION}\`
 - Active prober: \`${PROBER_VERSION}\`
 
-Full methodology, grade bands, and the anomaly taxonomy are published at ${origin}/methodology.
+The canonical rendered version of everything below is ${origin}/methodology.
+
+## Methodology: risk score (0–100, grade by band)
+
+${RISK_INPUTS.map((r) => `- ${r.label} — ${r.weight}%: ${r.body}`).join("\n")}
+
+Σ = 100 points · Grade is assigned by the band the score falls in.
+
+task_executor slot mapping (same weighted slots, category-specific signals):
+${TASK_EXECUTOR_RISK_INPUTS.map((r) => `- ${r.slot} → ${r.signal}: ${r.body}`).join("\n")}
+
+## Methodology: confidence model (0–1)
+
+${CONFIDENCE_INPUTS.map((c) => `- ${c.label}: ${c.body}`).join("\n")}
+
+## Grade bands
+
+${GRADES.map((g) => `- ${g.g} (${g.r}) — ${g.t}`).join("\n")}
+
+## Event taxonomy
+
+${EVENT_TAXONOMY.map((e) => `- \`${e.type}\` [${e.severity}] — ${e.body}`).join("\n")}
+
+## x402 settlement detection (Solana)
+
+${X402_DETECTION_TIERS.map((t) => `- ${t.tier} · ${t.name} (confidence: ${t.confidence}) — ${t.body}`).join("\n")}
+
+## x402 settlement detection (Base / EVM)
+
+${X402_EVM_DETECTION_TIERS.map((t) => `- ${t.tier} · ${t.name} (confidence: ${t.confidence}) — ${t.body}`).join("\n")}
+
+## What SPX402 refuses to measure
+
+${REFUSES_TO_MEASURE.map((x) => `- ${x}`).join("\n")}
+
+## Known blind spots
+
+${BLIND_SPOTS.map((b) => `- ${b}`).join("\n")}
+
+## Schema changelog
+
+${SCHEMA_CHANGELOG.map((c) => `- \`${c.version}\` (${c.date}) — ${c.body}`).join("\n")}
 
 ## Version changelog
 
