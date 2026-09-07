@@ -17,7 +17,7 @@ import {
   type AlertSubscription,
 } from "@/lib/alerts";
 import { SCORING_VERSION } from "@/lib/versions";
-import { CopyButton, dossierFlags, scorePillarsFor, shortMint } from "./dossier-utils";
+import { CopyButton, dossierFlags, scorePillarsFor, shortMint, whyThisGrade } from "./dossier-utils";
 
 export function DossierHero({ agent }: { agent: Agent }) {
   const cat = categoryMeta(agent.category);
