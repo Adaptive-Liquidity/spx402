@@ -135,17 +135,20 @@ export async function fetchLaneLiveness(
     serviceAt,
     candidateAt,
   ] = await Promise.all([
-    maxTimestamp("agent_events", "occurred_at", (q) => q.eq("chain", "solana")),
-    maxTimestamp("agent_events", "occurred_at", (q) => q.eq("chain", "base")),
-    maxTimestamp("agent_events", "occurred_at", (q) =>
-      q.in("type", ["X402_SETTLEMENT", "X402_PAYMENT", "X402_SETTLED"]),
-    ),
-    maxTimestamp("agent_events", "occurred_at", (q) =>
-      q.in("type", ["FAILED_BUYBACK_WINDOW", "OC_FAILED", "OC_SLASHED"]),
-    ),
-    maxTimestamp("agent_events", "occurred_at", (q) =>
-      q.in("type", ["CONFIG_CHANGED", "OPERATOR_CHANGED"]),
-    ),
+    maxTimestamp("agent_events", "occurred_at", { column: "chain", value: "solana" }),
+    maxTimestamp("agent_events", "occurred_at", { column: "chain", value: "base" }),
+    maxTimestamp("agent_events", "occurred_at", {
+      column: "type",
+      values: ["X402_SETTLEMENT", "X402_PAYMENT", "X402_SETTLED"],
+    }),
+    maxTimestamp("agent_events", "occurred_at", {
+      column: "type",
+      values: ["FAILED_BUYBACK_WINDOW", "OC_FAILED", "OC_SLASHED"],
+    }),
+    maxTimestamp("agent_events", "occurred_at", {
+      column: "type",
+      values: ["CONFIG_CHANGED", "OPERATOR_CHANGED"],
+    }),
     maxTimestamp("agents", "scored_at"),
     maxTimestamp("agent_score_snapshots", "taken_at"),
     maxTimestamp("probe_run", "ran_at"),
