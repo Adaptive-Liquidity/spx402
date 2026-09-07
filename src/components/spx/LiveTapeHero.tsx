@@ -80,26 +80,33 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
   const [rows, setRows] = useState<TapeRow[]>(initialRows);
   const [fresh, setFresh] = useState<string[]>([]);
   const [stamp, setStamp] = useState<string | null>(null);
+  const [count, setCount] = useState<number>(ROW_STEPS[0]);
+  const [severity, setSeverity] = useState<string>("all");
+  const [category, setCategory] = useState<string>("all");
+  const [eventType, setEventType] = useState<string>("all");
+  const [sort, setSort] = useState<SortKey>("newest");
+  const [loading, setLoading] = useState(false);
   const seen = useRef(new Set(initialRows.map((r) => r.id)));
+  const fetchLimit = useRef(initialRows.length);
 
-  function ingest(next: TapeRow[]) {
-    const incoming = next.filter((r) => !seen.current.has(r.id)).map((r) => r.id);
-    next.forEach((r) => seen.current.add(r.id));
-    setRows(next);
-    setStamp(new Date().toISOString().slice(11, 19));
-    if (incoming.length > 0) {
-      setFresh(incoming);
-      setTimeout(() => setFresh([]), 400);
+  async function refresh(limit = fetchLimit.current) {
+    const next = await fetchTape({ limit });
+    if (next.length > 0) {
+      const incoming = next.filter((r) => !seen.current.has(r.id)).map((r) => r.id);
+      next.forEach((r) => seen.current.add(r.id));
+      setRows(next);
+      setStamp(new Date().toISOString().slice(11, 19));
+      if (incoming.length > 0) {
+        setFresh(incoming);
+        setTimeout(() => setFresh([]), 400);
+      }
     }
   }
 
   // Refresh from server as a safety net (in case the realtime subscription is
   // dropped or the user is on a stale tab).
   useEffect(() => {
-    const t = setInterval(async () => {
-      const next = await fetchTape({ limit: MAX_ROWS });
-      if (next.length > 0) ingest(next);
-    }, POLL_MS);
+    const t = setInterval(() => void refresh(), POLL_MS);
     return () => clearInterval(t);
   }, []);
 
@@ -114,8 +121,7 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
           // The realtime payload doesn't include the joined agent label, so
           // we re-fetch the freshest window. Cheap because of the
           // (occurred_at desc) index from the migration.
-          const next = await fetchTape({ limit: MAX_ROWS });
-          if (next.length > 0) ingest(next);
+          await refresh();
           void payload;
         },
       )
@@ -125,7 +131,34 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
     };
   }, []);
 
-  const visible = rows.slice(0, VISIBLE_ROWS);
+  function cycleCount() {
+    const next = ROW_STEPS[(ROW_STEPS.indexOf(count as (typeof ROW_STEPS)[number]) + 1) % ROW_STEPS.length];
+    setCount(next);
+    // Only hit the server when the new window is deeper than what we hold.
+    if (next > rows.length) {
+      fetchLimit.current = Math.max(next, fetchLimit.current);
+      setLoading(true);
+      void refresh().finally(() => setLoading(false));
+    }
+  }
+
+  // Filter/sort client-side over the held window so controls are instant.
+  const filtered = rows
+    .filter((r) => severity === "all" || r.severity === severity)
+    .filter((r) => category === "all" || r.agentCategory === category)
+    .filter((r) => eventType === "all" || r.type === eventType)
+    .sort((a, b) => {
+      if (sort === "oldest") return a.occurredAt.localeCompare(b.occurredAt);
+      if (sort === "largest") return b.amountSol - a.amountSol;
+      return b.occurredAt.localeCompare(a.occurredAt);
+    });
+  const visible = filtered.slice(0, count);
+
+  const categories = Array.from(new Set(rows.map((r) => r.agentCategory).filter(Boolean))) as string[];
+  const types = Array.from(new Set(rows.map((r) => r.type)));
+
+  const selectCls =
+    "bg-panel-deep border border-bronze/50 px-2 py-1 text-[10px] uppercase tracking-widest text-paper-muted focus:outline-none focus:border-amber";
 
   return (
     <div className="panel-engraved relative overflow-hidden">
@@ -136,10 +169,73 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
         </div>
         <div className="hidden text-wire sm:block">spx402://tape/live</div>
         <div className="flex shrink-0 items-center gap-3 text-wire">
-          <span>{rows.length} events</span>
+          <span>{filtered.length} events</span>
           <span className="text-paper-muted">{stamp ? `UTC ${stamp}` : "UTC —"}</span>
         </div>
       </div>
+
+      <div className="flex flex-wrap items-center gap-2 border-b border-bronze/40 px-4 py-2 font-mono text-[10px] uppercase tracking-widest">
+        <button
+          type="button"
+          onClick={cycleCount}
+          disabled={loading}
+          className="border border-amber/60 bg-panel-deep px-2 py-1 text-amber transition-colors hover:border-amber hover:bg-amber/10 disabled:opacity-50"
+          title="Cycle rows shown: 5, 15, 25, 50, 100"
+        >
+          {loading ? "Loading…" : `Rows: ${count}`}
+        </button>
+        <select
+          aria-label="Filter by event type"
+          value={eventType}
+          onChange={(e) => setEventType(e.target.value)}
+          className={selectCls}
+        >
+          <option value="all">All events</option>
+          {types.map((t) => (
+            <option key={t} value={t}>
+              {t.replaceAll("_", " ")}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Filter by severity"
+          value={severity}
+          onChange={(e) => setSeverity(e.target.value)}
+          className={selectCls}
+        >
+          {SEVERITIES.map((s) => (
+            <option key={s} value={s}>
+              {s === "all" ? "All severities" : s}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Filter by agent category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className={selectCls}
+        >
+          <option value="all">All categories</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {categoryLabel(c)}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Sort order"
+          value={sort}
+          onChange={(e) => setSort(e.target.value as SortKey)}
+          className={selectCls}
+        >
+          {SORTS.map((s) => (
+            <option key={s} value={s}>
+              {SORT_LABEL[s]}
+            </option>
+          ))}
+        </select>
+      </div>
+
 
       <div className="tape-window">
         {visible.length === 0 ? (
