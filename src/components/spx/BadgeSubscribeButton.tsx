@@ -5,7 +5,8 @@ import { encodeFunctionData, parseAbi } from "viem";
 import { watchWallets, type DetectedWallet, type InjectedProvider } from "@/lib/wallets";
 import { BASE_CHAIN_ID_HEX, BASE_USDC, formatUsdc } from "@/lib/plans";
 import { BADGE_TIERS, HONEST_GRADE_RULE, type BadgeTier } from "@/lib/badge-plans";
-import { getBadgePlans, subscribeBadge } from "@/lib/badge.functions";
+import { checkBadgeSubject, getBadgePlans, subscribeBadge } from "@/lib/badge.functions";
+import { useAuth } from "@/lib/auth";
 
 const ERC20 = parseAbi(["function transfer(address to, uint256 value) returns (bool)"]);
 
@@ -36,6 +37,7 @@ export interface BadgeSubscribeButtonProps {
 
 export function BadgeSubscribeButton({ mint, tier, onSubscribed }: BadgeSubscribeButtonProps) {
   const spec = BADGE_TIERS[tier];
+  const { session, loading: authLoading } = useAuth();
   const [wallets, setWallets] = useState<DetectedWallet[]>([]);
   const [payTo, setPayTo] = useState<string | null | undefined>(undefined);
   const [status, setStatus] = useState<string | null>(null);
@@ -56,6 +58,20 @@ export function BadgeSubscribeButton({ mint, tier, onSubscribed }: BadgeSubscrib
     setBusy(true);
     try {
       if (!payTo) throw new Error("Badge subscriptions are not configured yet.");
+
+      // Everything that can fail is checked BEFORE the wallet is charged:
+      // an on-chain USDC transfer cannot be undone if activation then fails.
+      if (!session) {
+        throw new Error("Sign in to SPX402 before paying — the badge is tied to your account.");
+      }
+      setStatus("Checking the agent…");
+      const subject = await checkBadgeSubject({ data: { mint } });
+      if (!subject.exists) {
+        throw new Error(
+          "That agent is not on the SPX402 terminal, so nothing was charged. Check the identifier on its dossier.",
+        );
+      }
+
       setStatus("Connecting wallet…");
       const accounts = (await wallet.provider.request({
         method: "eth_requestAccounts",
@@ -88,7 +104,11 @@ export function BadgeSubscribeButton({ mint, tier, onSubscribed }: BadgeSubscrib
         await new Promise((r) => setTimeout(r, 3000));
         result = await subscribeBadge({ data: { txHash, mint, tier } });
       }
-      if (!result.ok) throw new Error(result.error ?? "Payment could not be verified");
+      if (!result.ok) {
+        throw new Error(
+          `${result.error ?? "Payment could not be verified"} — payment ${txHash} is on Base; send this hash to support@spx402.com and we will activate or refund it.`,
+        );
+      }
 
       setStatus(
         result.attestation?.uid
@@ -110,12 +130,14 @@ export function BadgeSubscribeButton({ mint, tier, onSubscribed }: BadgeSubscrib
       <button
         type="button"
         onClick={() => setPicking((v) => !v)}
-        disabled={busy || payTo === null}
+        disabled={busy || authLoading || !session || payTo === null}
         className="w-full border border-amber bg-amber px-4 py-3 font-mono text-[11px] uppercase tracking-widest text-panel-deep hover:bg-amber-dim disabled:opacity-50"
       >
         {busy
           ? (status ?? "Working…")
-          : payTo === null
+          : !authLoading && !session
+            ? "Sign in to activate a badge"
+            : payTo === null
             ? "Badge subscriptions unavailable"
             : `${spec.name} · ${formatUsdc(spec.priceUsdc)} USDC / 30 days`}
       </button>

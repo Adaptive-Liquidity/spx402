@@ -44,6 +44,7 @@ import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authe
 import { Route as ApiPublicX402SelftestRouteImport } from './routes/api.public.x402-selftest'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
 import { Route as ApiPublicVerifiedRouteImport } from './routes/api.public.verified'
+import { Route as ApiPublicShareDotpngRouteImport } from './routes/api.public.share[.]png'
 import { Route as ApiPublicMcpRouteImport } from './routes/api/public/mcp'
 import { Route as ApiPublicIngestOcEvidenceRouteImport } from './routes/api.public.ingest-oc-evidence'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
@@ -250,6 +251,11 @@ const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
 const ApiPublicVerifiedRoute = ApiPublicVerifiedRouteImport.update({
   id: '/public/verified',
   path: '/public/verified',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiPublicShareDotpngRoute = ApiPublicShareDotpngRouteImport.update({
+  id: '/public/share.png',
+  path: '/public/share.png',
   getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicMcpRoute = ApiPublicMcpRouteImport.update({
@@ -488,6 +494,7 @@ export interface FileRoutesByFullPath {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/mcp': typeof ApiPublicMcpRoute
+  '/api/public/share.png': typeof ApiPublicShareDotpngRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -555,6 +562,7 @@ export interface FileRoutesByTo {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/mcp': typeof ApiPublicMcpRoute
+  '/api/public/share.png': typeof ApiPublicShareDotpngRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -625,6 +633,7 @@ export interface FileRoutesById {
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
   '/api/public/mcp': typeof ApiPublicMcpRoute
+  '/api/public/share.png': typeof ApiPublicShareDotpngRoute
   '/api/public/verified': typeof ApiPublicVerifiedRoute
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
@@ -695,6 +704,7 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
     | '/api/public/mcp'
+    | '/api/public/share.png'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -762,6 +772,7 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
     | '/api/public/mcp'
+    | '/api/public/share.png'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -831,6 +842,7 @@ export interface FileRouteTypes {
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
     | '/api/public/mcp'
+    | '/api/public/share.png'
     | '/api/public/verified'
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
@@ -1126,6 +1138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicVerifiedRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/public/share.png': {
+      id: '/api/public/share.png'
+      path: '/public/share.png'
+      fullPath: '/api/public/share.png'
+      preLoaderRoute: typeof ApiPublicShareDotpngRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/api/public/mcp': {
       id: '/api/public/mcp'
       path: '/public/mcp'
@@ -1407,6 +1426,7 @@ interface ApiRouteChildren {
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
   ApiPublicMcpRoute: typeof ApiPublicMcpRoute
+  ApiPublicShareDotpngRoute: typeof ApiPublicShareDotpngRoute
   ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
   ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
   ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
@@ -1441,6 +1461,7 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicIngestOcEvidenceRoute: ApiPublicIngestOcEvidenceRoute,
   ApiPublicMcpRoute: ApiPublicMcpRoute,
+  ApiPublicShareDotpngRoute: ApiPublicShareDotpngRoute,
   ApiPublicVerifiedRoute: ApiPublicVerifiedRoute,
   ApiPublicWebhookHeliusRoute: ApiPublicWebhookHeliusRoute,
   ApiPublicX402SelftestRoute: ApiPublicX402SelftestRoute,

@@ -24,6 +24,8 @@ export const Route = createFileRoute("/preflight")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: "https://spx402.com/api/public/share.png" },
+      { name: "twitter:image", content: "https://spx402.com/api/public/share.png" },
     ],
   }),
   component: PreflightPage,

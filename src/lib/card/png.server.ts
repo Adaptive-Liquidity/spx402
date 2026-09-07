@@ -225,3 +225,57 @@ export function renderGradeCardPng(
 
   return encodeIndexedPng(c);
 }
+
+/**
+ * Site-wide share card. Pages other than an agent dossier have no per-subject
+ * grade to render, so unfurlers had no image at all; this is the branded
+ * fallback they can point at. Same palette and typography as the grade card.
+ */
+export function renderBrandCardPng(
+  { headline, subline, url }: { headline: string; subline: string; url: string },
+  { width = 1200, height = 630 }: { width?: number; height?: number } = {},
+): Uint8Array {
+  const c = new IndexCanvas(width, height, PAGE);
+  const s = Math.max(1, Math.round(width / 400));
+  const inset = Math.round(width * 0.033);
+  const pad = inset + Math.round(width * 0.03);
+  const right = width - pad;
+
+  c.rect(inset, inset, width - inset * 2, height - inset * 2, PANEL);
+  c.frame(inset, inset, width - inset * 2, height - inset * 2, Math.max(1, s - 1), LINE);
+  c.rect(inset, inset, Math.max(3, s), height - inset * 2, METAL);
+
+  c.text("SPX402 · ON-CHAIN REPUTATION", pad, Math.round(height * 0.1), s, METAL);
+  c.textRight("EXECUTION GRADE", right, Math.round(height * 0.1), s, MUTE);
+
+  // Headline wraps to the panel width instead of overflowing it.
+  const headScale = Math.max(2, s * 3);
+  const words = sanitize(headline).split(" ");
+  const lines: string[] = [];
+  let line = "";
+  for (const w of words) {
+    const next = line ? line + " " + w : w;
+    if (textWidth(next, headScale) > right - pad && line) {
+      lines.push(line);
+      line = w;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+  lines.slice(0, 3).forEach((l, i) => {
+    c.text(l, pad, Math.round(height * 0.24) + i * (GLYPH_H + 3) * headScale, headScale, BONE);
+  });
+
+  const subScale = Math.max(1, Math.round(s * 1.4));
+  const subText = sanitize(subline);
+  let sub = subScale;
+  while (sub > 1 && textWidth(subText, sub) > right - pad) sub -= 1;
+  c.text(subText, pad, Math.round(height * 0.72), sub, MUTE);
+
+  const footY = height - inset - Math.round(height * 0.055);
+  c.rect(pad, footY - Math.round(height * 0.03), right - pad, Math.max(1, s - 2), LINE);
+  c.text(sanitize(url), pad, footY, s, MUTE);
+
+  return encodeIndexedPng(c);
+}
