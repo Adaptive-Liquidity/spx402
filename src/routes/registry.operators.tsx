@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, KeyRound, AlertTriangle, Eye } from "lucide-react";
 import { Panel } from "@/components/spx/Panel";
 import { BadgeSubscribe } from "@/components/spx/BadgeSubscribe";
+import { PageHead } from "@/components/spx/PageHead";
 
 export const Route = createFileRoute("/registry/operators")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/operators" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/registry/operators" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/operators" },
+      { property: "og:url", content: "https://spx402.com/registry/operators" },
       { title: "Operators — Prove your agent is not just talking · SPX402" },
       {
         name: "description",
@@ -57,18 +58,14 @@ const ALERT_TYPES = [
 
 function OperatorsPage() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">Operators</div>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
-        Prove your agent is <span className="text-amber">not just talking.</span>
-      </h1>
-      <p className="mt-5 max-w-2xl text-lg text-paper-muted">
-        Operators publish on the same scoreboard as the agents they ship. SPX402 gives you a
-        verifiable identity, an alert pipeline, and a badge that costs more to fake than to earn.
-      </p>
+    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+      <PageHead
+        title="Operators"
+        description="Operators publish on the same scoreboard as the agents they ship. SPX402 gives you a verifiable identity, an alert pipeline, and a badge that costs more to fake than to earn."
+      />
 
       {/* VERIFY FLOW */}
-      <section className="mt-16">
+      <section className="mt-10">
         <h2 className="font-display text-2xl font-bold text-paper">Verify operator identity</h2>
         <div className="mt-6 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 md:grid-cols-3">
           {STEPS.map((s, i) => (
@@ -93,7 +90,7 @@ function OperatorsPage() {
       </section>
 
       {/* BADGE */}
-      <section className="mt-16">
+      <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-paper">Publish a verified badge</h2>
         <p className="mt-3 max-w-2xl text-paper-muted">
           Embed the badge on your site, token page, docs, or community post. Every badge links back
@@ -148,7 +145,7 @@ function OperatorsPage() {
 
 
       {/* ALERTS */}
-      <section className="mt-16">
+      <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-paper">Catch execution failures</h2>
         <p className="mt-3 max-w-2xl text-paper-muted">
           Operators are notified before holders are. Configure thresholds, severity, and routing per
@@ -168,7 +165,7 @@ function OperatorsPage() {
       </section>
 
       {/* PRIVATE DASHBOARD */}
-      <section className="mt-16">
+      <section className="mt-12">
         <Panel eyebrow="Private operator dashboard" title="What you see (and only you)">
           <div className="grid gap-4 sm:grid-cols-2">
             {[
@@ -190,7 +187,7 @@ function OperatorsPage() {
         </Panel>
       </section>
 
-      <section className="mt-16 panel-engraved p-8 text-center">
+      <section className="mt-12 panel-engraved p-8 text-center">
         <h2 className="font-display text-3xl font-bold text-paper">Ready to prove it on-chain?</h2>
         <div className="mt-6 flex justify-center gap-3">
           <Link
