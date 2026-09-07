@@ -1,16 +1,22 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { AgentRow } from "@/components/spx/AgentRow";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
+import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { fetchAgentIndex } from "@/lib/agents-db";
-import { isLowGrade, type Agent, type Grade } from "@/lib/agents";
-import { AlertTriangle } from "lucide-react";
+import type { Agent } from "@/lib/agents";
+import { categoryMeta } from "@/lib/agents/categories";
+import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { PageHead } from "@/components/spx/PageHead";
+import { DataTable, Pager, type Column } from "@/components/spx/DataTable";
+import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
+
+const PAGE_SIZE = 50;
 
 export const Route = createFileRoute("/registry/explore")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/explore" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/registry/explore" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/explore" },
+      { property: "og:url", content: "https://spx402.com/registry/explore" },
       { title: "Explore Agents — SPX402" },
       {
         name: "description",
@@ -23,6 +29,13 @@ export const Route = createFileRoute("/registry/explore")({
         content: "Filter by observable execution. Not by vibes. Includes the SPX404 archive.",
       },
     ],
+  }),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { grade?: string; page?: number; sort?: string } => ({
+    grade: typeof search.grade === "string" && search.grade ? search.grade : undefined,
+    page: Number(search.page) > 1 ? Number(search.page) : undefined,
+    sort: search.sort === "grade" || search.sort === "recent" ? search.sort : undefined,
   }),
   loader: () => fetchAgentIndex(),
   staleTime: 30_000,
@@ -50,32 +63,32 @@ const GRADE_FILTERS: Array<{
 }> = [
   {
     id: "all",
-    label: "All Indexed",
+    label: "All indexed",
     description: "Every agent in the SPX402 index, regardless of grade.",
     match: () => true,
   },
   {
     id: "high",
-    label: "High Trust",
+    label: "High trust",
     description: "Grades SPX A through SPX AAA. Strongest execution evidence.",
     match: (a) => a.grade === "SPX AAA" || a.grade === "SPX AA" || a.grade === "SPX A",
   },
   {
     id: "mid",
-    label: "Mid Trust",
+    label: "Mid trust",
     description: "Grades SPX BB and SPX BBB. Acceptable execution with some coverage gaps.",
     match: (a) => a.grade === "SPX BBB" || a.grade === "SPX BB",
   },
   {
     id: "low",
-    label: "Low / Watch",
+    label: "Low / watch",
     description:
       "Grades SPX B and SPX D. Limited or degraded execution — treat metrics as indicative only.",
     match: (a) => a.grade === "SPX B" || a.grade === "SPX D",
   },
   {
     id: "spx404",
-    label: "SPX404 Archive",
+    label: "SPX404 archive",
     description:
       "No on-chain activity observed in the indexed window. Insufficient evidence to grade.",
     match: (a) => a.grade === "SPX404",
@@ -84,11 +97,14 @@ const GRADE_FILTERS: Array<{
 
 function ExplorePage() {
   const allAgents = Route.useLoaderData();
-  const [filter, setFilter] = useState<GradeFilter>("all");
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/registry/explore" });
+
+  const filter = (GRADE_FILTERS.find((f) => f.id === search.grade)?.id ?? "all") as GradeFilter;
+  const page = search.page ?? 1;
 
   // Flagged agents never appear on /explore — they live on /flagged only.
   const visible = useMemo(() => allAgents.filter((a: Agent) => !a.flagged), [allAgents]);
-
   const flaggedCount = allAgents.length - visible.length;
 
   const active = GRADE_FILTERS.find((f) => f.id === filter)!;
@@ -97,85 +113,165 @@ function ExplorePage() {
     [visible, active],
   );
 
-  // Counts by filter for the chip badges
   const counts = useMemo(() => {
-    const c: Record<GradeFilter, number> = {
-      all: 0,
-      high: 0,
-      mid: 0,
-      low: 0,
-      spx404: 0,
-    };
-    for (const a of visible) {
-      for (const f of GRADE_FILTERS) {
-        if (f.match(a)) c[f.id]++;
-      }
-    }
+    const c: Record<GradeFilter, number> = { all: 0, high: 0, mid: 0, low: 0, spx404: 0 };
+    for (const a of visible) for (const f of GRADE_FILTERS) if (f.match(a)) c[f.id]++;
     return c;
   }, [visible]);
 
+  const setFilter = (id: GradeFilter) =>
+    void navigate({
+      search: { grade: id === "all" ? undefined : id, page: undefined },
+      replace: true,
+    });
+  const setPage = (next: number) =>
+    void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
+
+  const total = filtered.length;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const current = Math.min(page, pageCount);
+  const start = (current - 1) * PAGE_SIZE;
+  const rows = filtered.slice(start, start + PAGE_SIZE);
+
+  // Columns that would print a full column of dashes for this page are dropped
+  // rather than rendered empty.
+  const hasBuybacks = rows.some((a) => a.totalBuybacksCount > 0);
+  const hasLastActivity = rows.some(
+    (a) => a.lastBuybackLabel && a.lastBuybackLabel !== "—" && a.lastBuybackLabel !== "NONE",
+  );
+
   const showsLowGradeWarning = filter === "low" || filter === "spx404";
 
-  return (
-    <div className="mx-auto max-w-[1400px] px-4 py-12 lg:px-8 lg:py-16">
-      <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-7">
-          <div className="label-amber">Explorer</div>
-          <h1 className="mt-3 font-display text-5xl font-bold text-paper">
-            Every Solana agent we have heard.
-          </h1>
-          <p className="mt-4 max-w-xl text-paper-muted">
-            Filter by execution grade. The full index — including the SPX404 archive of agents we
-            found but couldn&apos;t verify. The leaderboard only shows high-trust grades; this page
-            shows everything else too.
-          </p>
-        </div>
-        <div className="lg:col-span-5">
-          <AgentSearchBar />
-        </div>
-      </div>
-
-      {/* Grade filter chips */}
-      <div className="mt-10 flex flex-wrap gap-2">
-        {GRADE_FILTERS.map((f) => {
-          const isActive = filter === f.id;
-          return (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setFilter(f.id)}
-              className={`group flex items-center gap-2 border px-4 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors ${
-                isActive
-                  ? "border-amber bg-amber/10 text-amber"
-                  : "border-bronze/40 bg-panel text-paper-muted hover:border-bronze hover:text-paper"
-              }`}
-            >
-              {f.label}
-              <span
-                className={`border px-1.5 py-0.5 text-[9px] ${
-                  isActive
-                    ? "border-amber/60 bg-amber/10 text-amber"
-                    : "border-bronze/40 bg-panel-deep text-wire"
-                }`}
-              >
-                {counts[f.id]}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="label-amber">{active.label}</div>
-          <p className="mt-1 max-w-xl text-sm text-paper-muted">{active.description}</p>
-        </div>
-        <span className="font-mono text-xs uppercase tracking-widest text-wire">
-          {filtered.length} agents
+  const columns: Array<Column<Agent>> = [
+    {
+      key: "agent",
+      header: "Agent",
+      className: "min-w-[14rem]",
+      cell: (a) => (
+        <Link
+          to="/agent/$mint"
+          params={{ mint: a.mint }}
+          className="flex items-center gap-2 hover:underline"
+        >
+          <span className="font-display text-sm font-semibold text-paper">${a.symbol}</span>
+          <span className="truncate text-[11px] text-wire">{a.name}</span>
+          {a.operatorVerified ? (
+            <ShieldCheck className="h-3 w-3 shrink-0 text-verified" aria-label="Operator verified" />
+          ) : null}
+        </Link>
+      ),
+    },
+    {
+      key: "category",
+      header: "Category",
+      hideBelow: "md",
+      className: "text-paper-muted",
+      cell: (a) => categoryMeta(a.category).label,
+    },
+    {
+      key: "grade",
+      header: "Grade",
+      className: "w-32",
+      cell: (a) => (
+        <ExecutionGradeBadge grade={a.grade} size="sm" confidenceScore={a.confidenceScore} />
+      ),
+    },
+    {
+      key: "score",
+      header: "Score",
+      align: "right",
+      className: "w-20",
+      cell: (a) => a.score ?? "—",
+    },
+    ...(hasBuybacks
+      ? [
+          {
+            key: "buybacks",
+            header: "Buybacks",
+            align: "right" as const,
+            hideBelow: "sm" as const,
+            className: "w-24",
+            cell: (a: Agent) => a.totalBuybacksCount.toLocaleString(),
+          },
+        ]
+      : []),
+    {
+      key: "failed",
+      header: "Failed",
+      align: "right",
+      hideBelow: "sm",
+      className: "w-20",
+      cell: (a: Agent) => (
+        <span className={a.failedWindows > 0 ? "text-critical" : "text-wire"}>
+          {a.failedWindows}
         </span>
+      ),
+    },
+    ...(hasLastActivity
+      ? [
+          {
+            key: "last",
+            header: "Last activity",
+            align: "right" as const,
+            hideBelow: "lg" as const,
+            className: "w-32 text-paper-muted",
+            cell: (a: Agent) => a.lastBuybackLabel,
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+      <PageHead
+        title="Explore the index"
+        description="Every Solana agent we have heard, filterable by execution grade — including the SPX404 archive of agents we found but couldn't verify."
+        actions={
+          <div className="w-full lg:w-[26rem]">
+            <AgentSearchBar />
+          </div>
+        }
+      />
+
+      <div className="mt-6">
+        <DataToolbar
+          filters={
+            <FilterRow label="Grade">
+              {GRADE_FILTERS.map((f) => (
+                <FilterChip
+                  key={f.id}
+                  active={filter === f.id}
+                  onClick={() => setFilter(f.id)}
+                  count={counts[f.id]}
+                  disabled={counts[f.id] === 0 && f.id !== "all"}
+                >
+                  {f.label}
+                </FilterChip>
+              ))}
+            </FilterRow>
+          }
+          status={<span className="text-paper-muted">{active.description}</span>}
+        />
+
+        <DataTable
+          caption="Indexed Solana agents and their execution grades"
+          columns={columns}
+          rows={rows}
+          rowKey={(a) => a.mint}
+          empty="No agents match this filter."
+        />
+
+        <Pager
+          page={current}
+          pageCount={pageCount}
+          total={total}
+          from={total === 0 ? 0 : start + 1}
+          to={Math.min(start + PAGE_SIZE, total)}
+          onPage={setPage}
+        />
       </div>
 
-      {showsLowGradeWarning && filtered.length > 0 && (
+      {showsLowGradeWarning && total > 0 && (
         <div className="mt-4 flex items-start gap-3 border border-critical/40 bg-critical/5 p-4">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-critical" />
           <p className="font-mono text-xs text-critical/90">
@@ -186,25 +282,8 @@ function ExplorePage() {
         </div>
       )}
 
-      <div className="mt-6 space-y-2">
-        {filtered.length === 0 ? (
-          <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
-            No agents match this filter.
-          </div>
-        ) : (
-          filtered.map((a) => (
-            <div key={a.mint} className={isLowGrade(a) ? "opacity-90" : ""}>
-              <AgentRow agent={a} />
-            </div>
-          ))
-        )}
-      </div>
-
-      <div className="mt-12 grid gap-3 sm:grid-cols-3">
-        <Link
-          to="/registry"
-          className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
-        >
+      <div className="mt-10 grid gap-3 sm:grid-cols-3">
+        <Link to="/registry" className="panel-engraved block p-5 transition-colors hover:bg-panel/60">
           <div className="label-amber">Leaderboard</div>
           <div className="mt-2 font-display text-base font-semibold text-paper">
             High-trust agents only →
@@ -228,16 +307,6 @@ function ExplorePage() {
             Add your agent to the index →
           </div>
         </Link>
-      </div>
-
-      <div className="mt-16 panel-engraved p-8 text-center">
-        <h2 className="font-display text-2xl font-bold text-paper">Don&apos;t see your agent?</h2>
-        <p className="mt-3 text-paper-muted">
-          Paste a mint, creator wallet, or Agent Registry PDA and SPX402 will queue it for analysis.
-        </p>
-        <div className="mx-auto mt-6 max-w-xl">
-          <AgentSearchBar />
-        </div>
       </div>
     </div>
   );
