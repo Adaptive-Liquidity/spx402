@@ -13,7 +13,12 @@ import {
   type IndexerRunRow,
 } from "@/lib/live-data";
 import { fetchLaneLiveness, laneTone, type LaneStatus } from "@/lib/lane-liveness";
-import { fetchProberOverview, type ProberOverview } from "@/lib/prober-data";
+import {
+  fetchProberOverview,
+  fetchRecentProbeRuns,
+  type ProbeLogEntry,
+  type ProberOverview,
+} from "@/lib/prober-data";
 import { getProberPublicConfig, type ProberPublicConfig } from "@/lib/system.functions";
 import { outcomeLabel, PROBE_CAPS } from "@/lib/prober/outcomes";
 import { categoryLabel } from "@/lib/agents/categories";
@@ -43,6 +48,7 @@ export const Route = createFileRoute("/live/status")({
       fetchProberOverview(),
       getProberPublicConfig(),
     ]);
+    const probeLog = await fetchRecentProbeRuns(25);
     // Liveness needs the heartbeats first: a lane is judged on cadence AND on
     // whether its productive source actually gained a row.
     const lanes = await fetchLaneLiveness(
@@ -53,7 +59,7 @@ export const Route = createFileRoute("/live/status")({
         ]),
       ),
     );
-    return { runs, stats, coverage, facilitators, prober, proberConfig, lanes };
+    return { runs, stats, coverage, facilitators, prober, proberConfig, lanes, probeLog };
   },
 
   staleTime: 15_000,
@@ -155,7 +161,7 @@ const COMPONENT_ROWS: Array<{
 ];
 
 function StatusPage() {
-  const { runs, stats, coverage, facilitators, prober, proberConfig, lanes } =
+  const { runs, stats, coverage, facilitators, prober, proberConfig, lanes, probeLog } =
     Route.useLoaderData() as {
       runs: Record<string, IndexerRunRow | null>;
       stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
@@ -164,6 +170,7 @@ function StatusPage() {
       prober: ProberOverview;
       proberConfig: ProberPublicConfig;
       lanes: LaneStatus[];
+      probeLog: ProbeLogEntry[];
     };
   const activeFacilitators = facilitators.filter((f) => f.active);
 
