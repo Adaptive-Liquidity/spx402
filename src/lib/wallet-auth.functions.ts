@@ -62,11 +62,14 @@ export const getWalletAuthMessage = createServerFn({ method: "POST" })
     const sb = await admin();
 
     // Basic abuse control — nonces are cheap but the table is finite.
-    await sb.rpc("rate_limit_hit" as never, {
-      p_bucket: `wallet_nonce:${data.wallet}`,
-      p_window_seconds: 600,
-      p_limit: 10,
-    } as never);
+    await sb.rpc(
+      "rate_limit_hit" as never,
+      {
+        p_bucket: `wallet_nonce:${data.wallet}`,
+        p_window_seconds: 600,
+        p_limit: 10,
+      } as never,
+    );
 
     const nonce = crypto.randomUUID().replace(/-/g, "");
     const message = buildMessage(data.wallet, nonce, data.origin);
@@ -100,7 +103,10 @@ export const verifyWalletSignature = createServerFn({ method: "POST" })
       .select("nonce, message, expires_at")
       .eq("wallet", data.wallet)
       .maybeSingle();
-    await sb.from("wallet_auth_nonces" as never).delete().eq("wallet", data.wallet);
+    await sb
+      .from("wallet_auth_nonces" as never)
+      .delete()
+      .eq("wallet", data.wallet);
 
     const row = nonceRow as { nonce: string; message: string | null; expires_at: string } | null;
     if (!row) throw new Error("No sign-in challenge found — request a new one");

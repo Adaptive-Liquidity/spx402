@@ -57,9 +57,12 @@ export async function checkCronAuth(req: Request): Promise<boolean> {
   // copies of the credential can never drift out of sync.
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.rpc("verify_cron_bearer" as never, {
-      p_token: presented,
-    } as never);
+    const { data, error } = await supabaseAdmin.rpc(
+      "verify_cron_bearer" as never,
+      {
+        p_token: presented,
+      } as never,
+    );
     if (error) return false;
     return data === true;
   } catch {

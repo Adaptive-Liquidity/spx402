@@ -34,7 +34,6 @@ export const X402_CONFIG = {
 /** Base blocks are ~2s; 2 confirmations is cheap insurance against a reorg. */
 const MIN_CONFIRMATIONS = 2;
 
-
 function payToAddress(): string | null {
   const v = process.env["X402_PAY_TO_ADDRESS"];
   return v ? v.toLowerCase() : null;
@@ -69,9 +68,11 @@ function extractTxHash(header: string): string | null {
       decoded["txHash"],
       decoded["transactionHash"],
       (decoded["payload"] as Record<string, unknown> | undefined)?.["txHash"],
-      ((decoded["payload"] as Record<string, unknown> | undefined)?.["extra"] as
-        | Record<string, unknown>
-        | undefined)?.["txHash"],
+      (
+        (decoded["payload"] as Record<string, unknown> | undefined)?.["extra"] as
+          | Record<string, unknown>
+          | undefined
+      )?.["txHash"],
     ];
     for (const c of candidates) {
       if (typeof c === "string" && /^0x[0-9a-fA-F]{64}$/.test(c)) return c.toLowerCase();
@@ -152,15 +153,17 @@ export async function verifyX402Payment(
   }
 
   // Replay protection — a settlement buys exactly one call.
-  const { error: claimError } = await admin().from("x402_payments").insert({
-    tx_hash: txHash,
-    chain: "base",
-    payer,
-    pay_to: payTo,
-    amount: Number(paid),
-    endpoint,
-    resource,
-  });
+  const { error: claimError } = await admin()
+    .from("x402_payments")
+    .insert({
+      tx_hash: txHash,
+      chain: "base",
+      payer,
+      pay_to: payTo,
+      amount: Number(paid),
+      endpoint,
+      resource,
+    });
   if (claimError) {
     return { valid: false, error: "This payment has already been used" };
   }

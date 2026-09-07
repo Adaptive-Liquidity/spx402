@@ -195,7 +195,14 @@ export function renderGradeCardPng(
   const chipH = GLYPH_H * chipScale + chipScale * 6;
   const chipX = right - chipW;
   const chipY = gradeY + Math.round((GLYPH_H * gradeScale - chipH) / 2);
-  c.frame(chipX, chipY, chipW, chipH, Math.max(1, s - 1), card.operator === "VERIFIED" ? METAL : LINE);
+  c.frame(
+    chipX,
+    chipY,
+    chipW,
+    chipH,
+    Math.max(1, s - 1),
+    card.operator === "VERIFIED" ? METAL : LINE,
+  );
   c.text(
     chip,
     chipX + chipScale * 4,

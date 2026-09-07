@@ -64,10 +64,7 @@ export async function fetchSubscriptionForMint(
   return (data as unknown as AlertSubscription) ?? null;
 }
 
-export async function createSubscription(
-  userId: string,
-  mint: string,
-): Promise<AlertSubscription> {
+export async function createSubscription(userId: string, mint: string): Promise<AlertSubscription> {
   const { data, error } = await supabase
     .from("alert_subscriptions")
     .insert({ user_id: userId, mint })

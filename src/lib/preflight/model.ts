@@ -17,12 +17,7 @@ export const PREFLIGHT_VERSION = "spx-preflight-v1.0.0";
  * Machine-readable outcomes an agent can branch on. Deliberately descriptive,
  * never a verdict — there is no "safe" boolean anywhere in this lane.
  */
-export type PreflightOutcome =
-  | "unreachable"
-  | "timeout"
-  | "no_402"
-  | "parse_fail"
-  | "challenge_ok";
+export type PreflightOutcome = "unreachable" | "timeout" | "no_402" | "parse_fail" | "challenge_ok";
 
 export const ALL_PREFLIGHT_OUTCOMES: readonly PreflightOutcome[] = [
   "unreachable",
@@ -182,10 +177,7 @@ const PRICE_OUTLIER_FACTOR = 10;
  * have recorded. Reported as "outlier vs sample" with the sample size and the
  * date — never as "predatory" or "gouging".
  */
-export function comparePrice(
-  amountUsd: number | null,
-  sample: PriceSample,
-): PriceComparison {
+export function comparePrice(amountUsd: number | null, sample: PriceSample): PriceComparison {
   const values = sample.amountsUsd.filter((n) => Number.isFinite(n) && n > 0).sort((a, b) => a - b);
   const n = values.length;
 
@@ -194,7 +186,8 @@ export function comparePrice(
   }
 
   const mid = Math.floor(n / 2);
-  const median = n % 2 === 0 ? ((values[mid - 1] ?? 0) + (values[mid] ?? 0)) / 2 : (values[mid] ?? 0);
+  const median =
+    n % 2 === 0 ? ((values[mid - 1] ?? 0) + (values[mid] ?? 0)) / 2 : (values[mid] ?? 0);
   if (!(median > 0)) {
     return { outlier: null, sampleSize: n, medianUsd: null, label: "NONE" };
   }
@@ -290,8 +283,7 @@ export function buildPreflightCard(obs: PreflightObservation): PreflightCardMode
     { label: "HTTP status", value: obs.httpStatus == null ? "NONE" : String(obs.httpStatus) },
     {
       label: "Challenge",
-      value:
-        obs.challengeValid == null ? "NONE" : obs.challengeValid ? "PARSED" : "DID NOT PARSE",
+      value: obs.challengeValid == null ? "NONE" : obs.challengeValid ? "PARSED" : "DID NOT PARSE",
     },
     { label: "Quote across 2 calls", value: obs.quote.label },
     { label: "Network", value: orNone(obs.network) },

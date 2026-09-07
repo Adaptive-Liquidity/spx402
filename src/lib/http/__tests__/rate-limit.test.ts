@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  RATE_LIMITS,
-  bucketKey,
-  callerKey,
-  rateLimitHeaders,
-} from "@/lib/http/rate-limit.server";
+import { RATE_LIMITS, bucketKey, callerKey, rateLimitHeaders } from "@/lib/http/rate-limit.server";
 
 function req(headers: Record<string, string>): Request {
   return new Request("https://spx402.com/api/public/verified", { headers });
