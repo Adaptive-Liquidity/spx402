@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HubLayout } from "@/components/spx/HubLayout";
 
 export const Route = createFileRoute("/registry")({
-  component: RegistryLayout;
+  component: RegistryLayout,
 });
 
 function RegistryLayout() {
