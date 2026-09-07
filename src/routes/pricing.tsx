@@ -83,7 +83,7 @@ const TIERS = [
     cadence: "USDC",
     body: "For agents querying other agents.",
     cta: "Read API docs",
-    href: "/api/docs" as const,
+    href: "/build/docs" as const,
     features: [
       "HTTP 402 pay-per-request",
       "Score endpoint — 0.01 USDC",
@@ -208,7 +208,7 @@ function PricingPage() {
           </p>
         </div>
         <Link
-          to="/badge"
+          to="/build/badge"
           className="mt-6 inline-flex shrink-0 items-center justify-center border border-amber bg-amber px-5 py-3 font-mono text-[11px] uppercase tracking-widest text-panel-deep hover:bg-amber-dim lg:mt-0"
         >
           Get a live badge →

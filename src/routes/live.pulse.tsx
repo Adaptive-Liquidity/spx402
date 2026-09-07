@@ -56,7 +56,7 @@ function PulsePage() {
           {entries.length} entries · last 7 days
         </div>
         <Link
-          to="/tape"
+          to="/live"
           className="font-mono text-[11px] uppercase tracking-widest text-amber hover:underline"
         >
           See full tape →

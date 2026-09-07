@@ -174,7 +174,7 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
         <div className="tape-fade" aria-hidden />
       </div>
 
-      <Link to="/tape" className="tape-tab">
+      <Link to="/live" className="tape-tab">
         Open full repository tape ↗
       </Link>
     </div>

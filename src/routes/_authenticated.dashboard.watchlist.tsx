@@ -82,7 +82,7 @@ function WatchlistPage() {
             lands on the tape.
           </p>
         </div>
-        <Link to="/explore" className="btn-caliper btn-caliper-primary">
+        <Link to="/registry/explore" className="btn-caliper btn-caliper-primary">
           + Add agent
         </Link>
       </div>
@@ -106,7 +106,7 @@ function WatchlistPage() {
           body={
             <>
               Open the{" "}
-              <Link to="/explore" className="text-amber underline underline-offset-4">
+              <Link to="/registry/explore" className="text-amber underline underline-offset-4">
                 Explorer
               </Link>{" "}
               or any dossier and use <span className="text-amber">Add to watchlist</span> to start
@@ -114,7 +114,7 @@ function WatchlistPage() {
             </>
           }
           action={
-            <Link to="/explore" className="btn-caliper btn-caliper-primary">
+            <Link to="/registry/explore" className="btn-caliper btn-caliper-primary">
               Browse agents →
             </Link>
           }

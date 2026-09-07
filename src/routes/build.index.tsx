@@ -56,7 +56,7 @@ function ApiPage() {
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
-          to="/api/docs"
+          to="/build/docs"
           className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Open Endpoints →

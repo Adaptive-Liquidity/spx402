@@ -40,7 +40,7 @@ export const Route = createFileRoute("/tape/$eventId")({
       <div className="label-amber">Not on the tape</div>
       <p className="mt-3 text-paper-muted">That event id is not in the SPX402 ledger.</p>
       <Link
-        to="/tape"
+        to="/live"
         className="mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         Browse the tape
@@ -81,7 +81,7 @@ function TapeEventPage() {
   return (
     <div className="mx-auto max-w-[900px] px-4 py-12 lg:px-8 lg:py-16">
       <Link
-        to="/tape"
+        to="/live"
         className="font-mono text-[11px] uppercase tracking-widest text-amber hover:underline"
       >
         ← Tape

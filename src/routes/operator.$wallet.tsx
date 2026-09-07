@@ -41,7 +41,7 @@ export const Route = createFileRoute("/operator/$wallet")({
     <div className="mx-auto max-w-[1200px] px-4 py-20 text-center">
       <div className="label-amber">Operator not found</div>
       <p className="mt-3 text-paper-muted">No verified operator wallet matches that address yet.</p>
-      <Link to="/explore" className="mt-6 inline-block text-amber underline">
+      <Link to="/registry/explore" className="mt-6 inline-block text-amber underline">
         Browse all agents →
       </Link>
     </div>

@@ -202,7 +202,7 @@ function ExplorePage() {
 
       <div className="mt-12 grid gap-3 sm:grid-cols-3">
         <Link
-          to="/leaderboard"
+          to="/registry"
           className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
         >
           <div className="label-amber">Leaderboard</div>
@@ -211,7 +211,7 @@ function ExplorePage() {
           </div>
         </Link>
         <Link
-          to="/flagged"
+          to="/registry/flagged"
           className="block border border-critical/40 bg-critical/5 p-5 transition-colors hover:bg-critical/10"
         >
           <div className="label-amber !text-critical">Flagged</div>
@@ -220,7 +220,7 @@ function ExplorePage() {
           </div>
         </Link>
         <Link
-          to="/register"
+          to="/build/register"
           className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
         >
           <div className="label-amber">Register</div>

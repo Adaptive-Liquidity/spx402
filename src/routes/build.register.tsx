@@ -175,7 +175,7 @@ function RegisterPage() {
               Open dossier <ArrowRight className="h-3 w-3" />
             </Link>
             <Link
-              to="/leaderboard"
+              to="/registry"
               className="inline-flex items-center gap-2 border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
             >
               See the leaderboard

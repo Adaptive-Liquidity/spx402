@@ -90,7 +90,7 @@ function FlaggedPage() {
             <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
               No flagged agents in the registry.
               <div className="mt-3">
-                <Link to="/leaderboard" className="text-amber underline">
+                <Link to="/registry" className="text-amber underline">
                   Return to leaderboard →
                 </Link>
               </div>

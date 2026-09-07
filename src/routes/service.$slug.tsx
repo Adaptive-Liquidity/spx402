@@ -86,7 +86,7 @@ export const Route = createFileRoute("/service/$slug")({
         No x402 service with that slug is in the SPX402 registry.
       </p>
       <Link
-        to="/status"
+        to="/live/status"
         className="mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         Prober status

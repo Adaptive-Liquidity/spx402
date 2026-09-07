@@ -92,7 +92,7 @@ function EmbedSubject() {
             <code className="break-all">{subject}</code> is not yet verified by SPX402.
           </div>
           <Link
-            to="/submit"
+            to="/build/register"
             className="inline-block text-[10px] uppercase tracking-widest text-amber hover:underline"
           >
             Submit for review →

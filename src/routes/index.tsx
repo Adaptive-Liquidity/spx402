@@ -109,7 +109,7 @@ function HomeError({ reset }: { reset: () => void }) {
           Retry
         </button>
         <a
-          href="/status"
+          href="/live/status"
           className="inline-flex border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
         >
           System status
@@ -356,7 +356,7 @@ function HomePage() {
           <p className="max-w-2xl leading-relaxed text-paper-muted">
             Sign once, claim the dossier, and deploy a dynamic badge backed by the same attested evidence.
           </p>
-          <Link to="/register" className="btn-ghost shrink-0">[ Claim Your Agent ]</Link>
+          <Link to="/build/register" className="btn-ghost shrink-0">[ Claim Your Agent ]</Link>
         </div>
       </Aperture>
 
@@ -434,13 +434,13 @@ function HomePage() {
             </p>
             <div className="mt-8 flex gap-3">
               <Link
-                to="/api"
+                to="/build"
                 className="btn-gold"
               >
                 API Overview
               </Link>
               <Link
-                to="/api/docs"
+                to="/build/docs"
                 className="btn-ghost"
               >
                 Endpoints
@@ -519,7 +519,7 @@ function HomePage() {
             </h2>
           </div>
           <Link
-            to="/explore"
+            to="/registry/explore"
             className="font-mono text-xs uppercase tracking-widest text-amber hover:underline"
           >
             Explore →

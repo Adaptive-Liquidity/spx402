@@ -301,10 +301,10 @@ function LeaderboardPage() {
           <div className="border border-dashed border-bronze/60 p-10 text-center font-mono text-sm text-paper-muted">
             No agents qualify for this leaderboard yet.
             <div className="mt-3 space-x-4">
-              <Link to="/explore" className="text-amber underline">
+              <Link to="/registry/explore" className="text-amber underline">
                 Browse the full index →
               </Link>
-              <Link to="/register" className="text-amber underline">
+              <Link to="/build/register" className="text-amber underline">
                 Register an agent →
               </Link>
             </div>
@@ -337,19 +337,19 @@ function LeaderboardPage() {
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
-            to="/register"
+            to="/build/register"
             className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Register your agent
           </Link>
           <Link
-            to="/explore"
+            to="/registry/explore"
             className="inline-flex items-center gap-2 border border-bronze/60 bg-panel px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:bg-panel-deep hover:text-paper"
           >
             Browse all agents
           </Link>
           <Link
-            to="/flagged"
+            to="/registry/flagged"
             className="inline-flex items-center gap-2 border border-critical/60 bg-critical/5 px-5 py-3 font-mono text-xs uppercase tracking-widest text-critical/80 hover:bg-critical/10"
           >
             View flagged
