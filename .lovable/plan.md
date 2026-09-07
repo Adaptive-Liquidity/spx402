@@ -51,8 +51,8 @@ Derive the true instruction fingerprints from the canonical on-chain interface r
 ### 2. Start listening to AEON
 Add the AEON program address to the on-chain listener subscription so every AEON transaction reaches the pipeline, and add each agent's identity address alongside it. Backfill runs through the ordinary decode-then-score path — no bulk insert, no shortcut route, including under deadline.
 
-### 3. Teach the verifier about AEON
-Add an AEON branch: a candidate passes when its identity address exists on-chain under the AEON program and it has at least one decoded escrow, bond or receipt. That is a listing bar, not a grading bar — see the thin-evidence guard in step 7.
+### 3. Teach the verifier about AEON — bind, don't just witness
+A candidate passes when its identity address exists on-chain under the AEON program, it has at least one decoded escrow, bond or receipt, **and the identity account's authority/controller matches the wallet that signs the operator challenge**. Existence alone would let anyone point at someone else's identity and claim it; this branch is the one outsiders will probe first once the pipeline is known to work. That is a listing bar, not a grading bar — see the evidence floor in step 7.
 
 ### 4. Go live on-chain (if not already)
 If these agents haven't executed yet, we make them execute for real: post a bond, run at least one escrow through to release, emit a receipt. Blocker 1 applies — at least one escrow crosses a counterparty we don't control, or the circularity is disclosed on the agent page and in the evidence bundle before the grade is shown anywhere.
@@ -61,18 +61,26 @@ If these agents haven't executed yet, we make them execute for real: post a bond
 Submit both agents on `/build/register` like any operator would, let the verifier promote them, let the scoring sweep grade them. Then sign the operator challenge with each wallet so the VERIFIED chip is earned, not set.
 
 ### 6. Publish the proof
-Once graded: mint the on-chain attestation for each grade (the attester wallet is already live), and publish the evidence bundle — including counterparty labels, fixture signatures and decoder commit — so anyone can independently re-derive the score.
+Once graded: mint the on-chain attestation for each grade (the attester wallet is already live), and publish the evidence bundle so anyone can independently re-derive the score. The bundle carries counterparty labels, fixture signatures, the **decoder commit** and the **scoring configuration version in force at grading time** (weights, thresholds, evidence floor). Decoder revision alone stops being sufficient the first time scoring config changes; both fields ship from day one.
 
 ### 7. Show it the way a serious issuer would
 Both agents rank normally in the registry and leaderboard — no boosting, no pinning above better subjects. Around that:
 
-- **The Genesis Record** — a dated, signed, permanent entry: AEON subjects #1 and #2, the first operator-verified graded mainnet subjects on SPX402, rated under the same methodology and the same public evidence as everyone else. It states our operational relationship to each subject (including whether we operate the AEON rails themselves), our financial interest and trading policy, the commitment that a drop in our own grade drops in public, and the commitment that every correction is versioned and published.
-- **Issuer-interest mark as standing policy** — any subject where SPX402 has operational or financial interest carries the mark, automatically, forever, no exceptions. Written into the methodology page as policy, not applied as a one-off to these two.
-- **Thin-evidence guard** — before launch I check what a single escrow actually produces. A confident-looking letter grade off one event is misleading no matter how honest the plumbing, so the agent page shows event count and observation window next to the grade, and a subject below the evidence floor reads as provisional rather than established.
+- **The Genesis Record** — a dated, permanent, cryptographically signed entry: AEON subjects #1 and #2, the first operator-verified graded mainnet subjects on SPX402, rated under the same methodology and the same public evidence as everyone else. It is signed by the **EAS attester key** (the same key that signs grade attestations), and the signature and public key are printed alongside it so anyone can verify it. It states our operational relationship to each subject, our financial interest and trading policy, the commitment that a drop in our own grade drops in public, and the corrections commitment below. If we operate the AEON program itself, it also states whether that program has a live upgrade authority and who holds it — an upgradeable program defining the events that feed our own grade is a mutable measuring stick, and naming the holder is what makes that benign.
+- **Issuer-interest mark as standing policy** — any subject where SPX402 has operational or financial interest carries the mark, automatically, forever, no exceptions, written into the methodology page as policy. The mark attaches **when the interest begins**, not at registration — today's token answer is not necessarily next quarter's.
+- **Evidence floor, universal and visible** — a defined number (minimum decoded event count and minimum observation window) written into the methodology page and versioned exactly like weights and thresholds. It applies to **every** subject, not only ours; a second standard for outside agents would invert the whole premise of the launch. Below the floor a subject reads **provisional**, and that marker appears on leaderboard and registry rows as well as the agent page — a disclosure one click deep is a disclosure that doesn't function. Event count and observation window sit next to the grade everywhere the grade appears.
+
+### 8. Corrections policy — written before the first grade, not during the first mistake
+Published as its own versioned document, linked from the Genesis Record and the methodology page:
+
+- Every correction gets a dated public entry naming **the decoder version and scoring version that produced the wrong grade**.
+- **Attestation supersession**: when a corrected grade lands, the stale on-chain attestation is superseded by a new attestation that references and voids it, and the correction entry links to both. Deciding this now, while nothing is wrong, is the point — improvising it mid-self-correction is the worst possible moment.
+- **Known limitation, stated upfront**: if there is no outside AEON traffic yet, our golden fixtures come entirely from our own step-4 transactions. Decoder bugs that only appear on other usage patterns will survive launch. That is the first class of correction to expect, and we say so before it happens rather than after.
 
 ## Notes
 
 - Nothing is seeded. If step 4 hasn't happened, both agents show as tracked-but-ungraded until real activity lands — an honestly empty grade is better for a ratings platform than a fast one.
-- No changes to scoring weights, grade thresholds, palette, typography or existing copy.
-- Launch gate: blockers 1–4 answered in public copy; decoder tests green against real captured transactions; both agents graded from indexed events; both operator-signed; attestations live on-chain.
+- No changes to scoring weights, grade thresholds, palette, typography or existing copy. The provisional tier is not a weight change, but it *is* a methodology change — so it ships versioned, under the same corrections and versioning regime as everything else.
+- Launch gate: blockers 1–4 answered in public copy; evidence floor defined, versioned and rendered at every grade surface; supersession mechanism written; verifier binds authority to signer; decoder tests green against real captured transactions; both agents graded from indexed events; both operator-signed; attestations live on-chain.
+
 
