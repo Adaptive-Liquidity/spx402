@@ -104,7 +104,11 @@ export function BadgeSubscribeButton({ mint, tier, onSubscribed }: BadgeSubscrib
         await new Promise((r) => setTimeout(r, 3000));
         result = await subscribeBadge({ data: { txHash, mint, tier } });
       }
-      if (!result.ok) throw new Error(result.error ?? "Payment could not be verified");
+      if (!result.ok) {
+        throw new Error(
+          `${result.error ?? "Payment could not be verified"} — payment ${txHash} is on Base; send this hash to support@spx402.com and we will activate or refund it.`,
+        );
+      }
 
       setStatus(
         result.attestation?.uid
