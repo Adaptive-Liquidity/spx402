@@ -218,19 +218,23 @@ function StatusPage() {
         <div className="mt-6 overflow-hidden border border-bronze/50">
           {COMPONENT_ROWS.map((c, i) => {
             const run = runs[c.key] ?? null;
-            const h = healthFor(run);
+            const lane = laneByKey.get(c.key) ?? null;
+            const state = lane?.state ?? "STALLED";
             const Icon =
-              h === "operational" ? CheckCircle2 : h === "degraded" ? AlertTriangle : MinusCircle;
+              state === "OBSERVING"
+                ? CheckCircle2
+                : state === "STALLED"
+                  ? AlertTriangle
+                  : MinusCircle;
+            const toneName = laneTone(state);
             const tone =
-              h === "operational"
+              toneName === "verified"
                 ? "text-verified"
-                : h === "degraded"
+                : toneName === "critical"
                   ? "text-critical"
-                  : "text-wire";
-            const label =
-              h === "operational" ? "operational" : h === "degraded" ? "degraded" : "no data";
-            const note = run
-              ? `Last run ${relativeFromNow(run.ranAt)} · ${run.durationMs}ms`
+                  : "text-amber";
+            const heartbeat = run
+              ? `Heartbeat ${relativeFromNow(run.ranAt)} · ${run.durationMs}ms`
               : "Awaiting first heartbeat";
             return (
               <div
@@ -247,9 +251,12 @@ function StatusPage() {
                   <div className="font-mono text-[11px] text-wire">{c.description}</div>
                 </div>
                 <div className={`col-span-2 font-mono text-xs uppercase tracking-widest ${tone}`}>
-                  {label}
+                  {state}
                 </div>
-                <div className="col-span-3 font-mono text-xs text-paper-muted">{note}</div>
+                <div className="col-span-3 font-mono text-xs text-paper-muted">
+                  <div>{lane?.reason ?? heartbeat}</div>
+                  <div className="text-wire">{heartbeat}</div>
+                </div>
               </div>
             );
           })}
