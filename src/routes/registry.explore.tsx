@@ -111,6 +111,20 @@ function ExplorePage() {
 
   const active = GRADE_FILTERS.find((f) => f.id === filter)!;
 
+  const setFilter = (id: GradeFilter) =>
+    void navigate({
+      search: { grade: id === "all" ? undefined : id, page: undefined },
+      replace: true,
+    });
+  const setPage = (next: number) =>
+    void navigate({ search: (prev) => ({ ...prev, page: next > 1 ? next : undefined }) });
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const current = Math.min(page, pageCount);
+  const start = (current - 1) * PAGE_SIZE;
+
+
+
   // Columns that would print a full column of dashes for this page are dropped
   // rather than rendered empty.
   const hasBuybacks = rows.some((a) => a.totalBuybacksCount > 0);
