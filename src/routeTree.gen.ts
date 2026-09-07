@@ -9,12 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TapeRouteImport } from './routes/tape'
 import { Route as SubmitRouteImport } from './routes/submit'
+import { Route as StatusRouteImport } from './routes/status'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PreflightRouteImport } from './routes/preflight'
+import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as FlaggedRouteImport } from './routes/flagged'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BadgeRouteImport } from './routes/badge'
+import { Route as ApiRouteImport } from './routes/api'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RegistryIndexRouteImport } from './routes/registry.index'
@@ -35,6 +49,7 @@ import { Route as BuildPreflightRouteImport } from './routes/build.preflight'
 import { Route as BuildDocsRouteImport } from './routes/build.docs'
 import { Route as BuildBadgeRouteImport } from './routes/build.badge'
 import { Route as BuildAlertsRouteImport } from './routes/build.alerts'
+import { Route as ApiDocsRouteImport } from './routes/api.docs'
 import { Route as AgentMintRouteImport } from './routes/agent.$mint'
 import { Route as AboutDisclaimerRouteImport } from './routes/about.disclaimer'
 import { Route as AboutChangelogRouteImport } from './routes/about.changelog'
@@ -78,9 +93,19 @@ import { Route as ApiV1AgentMintEvidenceRouteImport } from './routes/api.v1.agen
 import { Route as ApiV1AgentMintDossierRouteImport } from './routes/api.v1.agent.$mint.dossier'
 import { Route as ApiPublicAgentSubjectEvidenceRouteImport } from './routes/api.public.agent.$subject.evidence'
 
+const TapeRoute = TapeRouteImport.update({
+  id: '/tape',
+  path: '/tape',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmitRoute = SubmitRouteImport.update({
   id: '/submit',
   path: '/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -93,9 +118,29 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PulseRoute = PulseRouteImport.update({
+  id: '/pulse',
+  path: '/pulse',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreflightRoute = PreflightRouteImport.update({
+  id: '/preflight',
+  path: '/preflight',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OperatorsRoute = OperatorsRouteImport.update({
+  id: '/operators',
+  path: '/operators',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -106,6 +151,46 @@ const MethodologyRoute = MethodologyRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlaggedRoute = FlaggedRouteImport.update({
+  id: '/flagged',
+  path: '/flagged',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BadgeRoute = BadgeRouteImport.update({
+  id: '/badge',
+  path: '/badge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRoute = ApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -138,9 +223,9 @@ const AboutIndexRoute = AboutIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TapeEventIdRoute = TapeEventIdRouteImport.update({
-  id: '/tape/$eventId',
-  path: '/tape/$eventId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$eventId',
+  path: '/$eventId',
+  getParentRoute: () => TapeRoute,
 } as any)
 const ServiceSlugRoute = ServiceSlugRouteImport.update({
   id: '/service/$slug',
@@ -207,6 +292,11 @@ const BuildAlertsRoute = BuildAlertsRouteImport.update({
   path: '/build/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDocsRoute = ApiDocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => ApiRoute,
+} as any)
 const AgentMintRoute = AgentMintRouteImport.update({
   id: '/agent/$mint',
   path: '/agent/$mint',
@@ -239,126 +329,126 @@ const AuthenticatedDashboardIndexRoute =
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const ApiPublicX402SelftestRoute = ApiPublicX402SelftestRouteImport.update({
-  id: '/api/public/x402-selftest',
-  path: '/api/public/x402-selftest',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/x402-selftest',
+  path: '/public/x402-selftest',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicWebhookHeliusRoute = ApiPublicWebhookHeliusRouteImport.update({
-  id: '/api/public/webhook-helius',
-  path: '/api/public/webhook-helius',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/webhook-helius',
+  path: '/public/webhook-helius',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicVerifiedRoute = ApiPublicVerifiedRouteImport.update({
-  id: '/api/public/verified',
-  path: '/api/public/verified',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/verified',
+  path: '/public/verified',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicShareDotpngRoute = ApiPublicShareDotpngRouteImport.update({
-  id: '/api/public/share.png',
-  path: '/api/public/share.png',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/share.png',
+  path: '/public/share.png',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicMcpRoute = ApiPublicMcpRouteImport.update({
-  id: '/api/public/mcp',
-  path: '/api/public/mcp',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/mcp',
+  path: '/public/mcp',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicIngestOcEvidenceRoute =
   ApiPublicIngestOcEvidenceRouteImport.update({
-    id: '/api/public/ingest-oc-evidence',
-    path: '/api/public/ingest-oc-evidence',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/ingest-oc-evidence',
+    path: '/public/ingest-oc-evidence',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicHeliusWebhookSetupRoute =
   ApiPublicHeliusWebhookSetupRouteImport.update({
-    id: '/api/public/helius-webhook-setup',
-    path: '/api/public/helius-webhook-setup',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/helius-webhook-setup',
+    path: '/public/helius-webhook-setup',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronVerifyCandidatesRoute =
   ApiPublicCronVerifyCandidatesRouteImport.update({
-    id: '/api/public/cron-verify-candidates',
-    path: '/api/public/cron-verify-candidates',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-verify-candidates',
+    path: '/public/cron-verify-candidates',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronScoringRoute = ApiPublicCronScoringRouteImport.update({
-  id: '/api/public/cron-scoring',
-  path: '/api/public/cron-scoring',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/cron-scoring',
+  path: '/public/cron-scoring',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicCronScoreSnapshotRoute =
   ApiPublicCronScoreSnapshotRouteImport.update({
-    id: '/api/public/cron-score-snapshot',
-    path: '/api/public/cron-score-snapshot',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-score-snapshot',
+    path: '/public/cron-score-snapshot',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronScanX402EvmRoute =
   ApiPublicCronScanX402EvmRouteImport.update({
-    id: '/api/public/cron-scan-x402-evm',
-    path: '/api/public/cron-scan-x402-evm',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-scan-x402-evm',
+    path: '/public/cron-scan-x402-evm',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronScanX402Route = ApiPublicCronScanX402RouteImport.update({
-  id: '/api/public/cron-scan-x402',
-  path: '/api/public/cron-scan-x402',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/cron-scan-x402',
+  path: '/public/cron-scan-x402',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicCronScanAgentRegistryRoute =
   ApiPublicCronScanAgentRegistryRouteImport.update({
-    id: '/api/public/cron-scan-agent-registry',
-    path: '/api/public/cron-scan-agent-registry',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-scan-agent-registry',
+    path: '/public/cron-scan-agent-registry',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronRegisteredAgentDiffRoute =
   ApiPublicCronRegisteredAgentDiffRouteImport.update({
-    id: '/api/public/cron-registered-agent-diff',
-    path: '/api/public/cron-registered-agent-diff',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-registered-agent-diff',
+    path: '/public/cron-registered-agent-diff',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronReconcilerRoute = ApiPublicCronReconcilerRouteImport.update({
-  id: '/api/public/cron-reconciler',
-  path: '/api/public/cron-reconciler',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/cron-reconciler',
+  path: '/public/cron-reconciler',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicCronProbeServicesRoute =
   ApiPublicCronProbeServicesRouteImport.update({
-    id: '/api/public/cron-probe-services',
-    path: '/api/public/cron-probe-services',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-probe-services',
+    path: '/public/cron-probe-services',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronFailureReconcilerRoute =
   ApiPublicCronFailureReconcilerRouteImport.update({
-    id: '/api/public/cron-failure-reconciler',
-    path: '/api/public/cron-failure-reconciler',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-failure-reconciler',
+    path: '/public/cron-failure-reconciler',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronBackfillRoute = ApiPublicCronBackfillRouteImport.update({
-  id: '/api/public/cron-backfill',
-  path: '/api/public/cron-backfill',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/cron-backfill',
+  path: '/public/cron-backfill',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicCronAttesterHealthRoute =
   ApiPublicCronAttesterHealthRouteImport.update({
-    id: '/api/public/cron-attester-health',
-    path: '/api/public/cron-attester-health',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-attester-health',
+    path: '/public/cron-attester-health',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCronAlertDispatchRoute =
   ApiPublicCronAlertDispatchRouteImport.update({
-    id: '/api/public/cron-alert-dispatch',
-    path: '/api/public/cron-alert-dispatch',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/cron-alert-dispatch',
+    path: '/public/cron-alert-dispatch',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicAdminAddServiceRoute =
   ApiPublicAdminAddServiceRouteImport.update({
-    id: '/api/public/admin-add-service',
-    path: '/api/public/admin-add-service',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/admin-add-service',
+    path: '/public/admin-add-service',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicAdminAddApiKeyRoute = ApiPublicAdminAddApiKeyRouteImport.update({
-  id: '/api/public/admin-add-api-key',
-  path: '/api/public/admin-add-api-key',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/admin-add-api-key',
+  path: '/public/admin-add-api-key',
+  getParentRoute: () => ApiRoute,
 } as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
@@ -391,69 +481,84 @@ const LovableEmailTransactionalPreviewRoute =
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicUserApiKeysRoute = ApiPublicUserApiKeysRouteImport.update({
-  id: '/api/public/user/api-keys',
-  path: '/api/public/user/api-keys',
-  getParentRoute: () => rootRouteImport,
+  id: '/public/user/api-keys',
+  path: '/public/user/api-keys',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicOgChar123subjectChar125DotsvgRoute =
   ApiPublicOgChar123subjectChar125DotsvgRouteImport.update({
-    id: '/api/public/og/{$subject}.svg',
-    path: '/api/public/og/{$subject}.svg',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/og/{$subject}.svg',
+    path: '/public/og/{$subject}.svg',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicEvidenceEventIdRoute =
   ApiPublicEvidenceEventIdRouteImport.update({
-    id: '/api/public/evidence/$eventId',
-    path: '/api/public/evidence/$eventId',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/evidence/$eventId',
+    path: '/public/evidence/$eventId',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicCardChar123subjectChar125DotpngRoute =
   ApiPublicCardChar123subjectChar125DotpngRouteImport.update({
-    id: '/api/public/card/{$subject}.png',
-    path: '/api/public/card/{$subject}.png',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/card/{$subject}.png',
+    path: '/public/card/{$subject}.png',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiPublicBadgeChar123mintChar125DotsvgRoute =
   ApiPublicBadgeChar123mintChar125DotsvgRouteImport.update({
-    id: '/api/public/badge/{$mint}.svg',
-    path: '/api/public/badge/{$mint}.svg',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/badge/{$mint}.svg',
+    path: '/public/badge/{$mint}.svg',
+    getParentRoute: () => ApiRoute,
   } as any)
 const ApiV1AgentMintScoreRoute = ApiV1AgentMintScoreRouteImport.update({
-  id: '/api/v1/agent/$mint/score',
-  path: '/api/v1/agent/$mint/score',
-  getParentRoute: () => rootRouteImport,
+  id: '/v1/agent/$mint/score',
+  path: '/v1/agent/$mint/score',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiV1AgentMintEvidenceRoute = ApiV1AgentMintEvidenceRouteImport.update({
-  id: '/api/v1/agent/$mint/evidence',
-  path: '/api/v1/agent/$mint/evidence',
-  getParentRoute: () => rootRouteImport,
+  id: '/v1/agent/$mint/evidence',
+  path: '/v1/agent/$mint/evidence',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiV1AgentMintDossierRoute = ApiV1AgentMintDossierRouteImport.update({
-  id: '/api/v1/agent/$mint/dossier',
-  path: '/api/v1/agent/$mint/dossier',
-  getParentRoute: () => rootRouteImport,
+  id: '/v1/agent/$mint/dossier',
+  path: '/v1/agent/$mint/dossier',
+  getParentRoute: () => ApiRoute,
 } as any)
 const ApiPublicAgentSubjectEvidenceRoute =
   ApiPublicAgentSubjectEvidenceRouteImport.update({
-    id: '/api/public/agent/$subject/evidence',
-    path: '/api/public/agent/$subject/evidence',
-    getParentRoute: () => rootRouteImport,
+    id: '/public/agent/$subject/evidence',
+    path: '/public/agent/$subject/evidence',
+    getParentRoute: () => ApiRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/api': typeof ApiRouteWithChildren
+  '/badge': typeof BadgeRoute
+  '/changelog': typeof ChangelogRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/explore': typeof ExploreRoute
+  '/flagged': typeof FlaggedRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
+  '/operators': typeof OperatorsRoute
+  '/preflight': typeof PreflightRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about/changelog': typeof AboutChangelogRoute
   '/about/disclaimer': typeof AboutDisclaimerRoute
   '/agent/$mint': typeof AgentMintRoute
+  '/api/docs': typeof ApiDocsRoute
   '/build/alerts': typeof BuildAlertsRoute
   '/build/badge': typeof BuildBadgeRoute
   '/build/docs': typeof BuildDocsRoute
@@ -512,16 +617,31 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/api': typeof ApiRouteWithChildren
+  '/badge': typeof BadgeRoute
+  '/changelog': typeof ChangelogRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/explore': typeof ExploreRoute
+  '/flagged': typeof FlaggedRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
+  '/operators': typeof OperatorsRoute
+  '/preflight': typeof PreflightRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/about/changelog': typeof AboutChangelogRoute
   '/about/disclaimer': typeof AboutDisclaimerRoute
   '/agent/$mint': typeof AgentMintRoute
+  '/api/docs': typeof ApiDocsRoute
   '/build/alerts': typeof BuildAlertsRoute
   '/build/badge': typeof BuildBadgeRoute
   '/build/docs': typeof BuildDocsRoute
@@ -582,17 +702,32 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/alerts': typeof AlertsRoute
+  '/api': typeof ApiRouteWithChildren
+  '/badge': typeof BadgeRoute
+  '/changelog': typeof ChangelogRoute
+  '/disclaimer': typeof DisclaimerRoute
+  '/explore': typeof ExploreRoute
+  '/flagged': typeof FlaggedRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
+  '/operators': typeof OperatorsRoute
+  '/preflight': typeof PreflightRoute
   '/pricing': typeof PricingRoute
+  '/pulse': typeof PulseRoute
+  '/register': typeof RegisterRoute
   '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
+  '/tape': typeof TapeRouteWithChildren
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about/changelog': typeof AboutChangelogRoute
   '/about/disclaimer': typeof AboutDisclaimerRoute
   '/agent/$mint': typeof AgentMintRoute
+  '/api/docs': typeof ApiDocsRoute
   '/build/alerts': typeof BuildAlertsRoute
   '/build/badge': typeof BuildBadgeRoute
   '/build/docs': typeof BuildDocsRoute
@@ -653,17 +788,32 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/alerts'
+    | '/api'
+    | '/badge'
+    | '/changelog'
+    | '/disclaimer'
+    | '/explore'
+    | '/flagged'
+    | '/leaderboard'
     | '/login'
     | '/methodology'
+    | '/operators'
+    | '/preflight'
     | '/pricing'
+    | '/pulse'
+    | '/register'
     | '/signup'
     | '/sitemap.xml'
+    | '/status'
     | '/submit'
+    | '/tape'
     | '/.well-known/x402'
     | '/dashboard'
     | '/about/changelog'
     | '/about/disclaimer'
     | '/agent/$mint'
+    | '/api/docs'
     | '/build/alerts'
     | '/build/badge'
     | '/build/docs'
@@ -722,16 +872,31 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/alerts'
+    | '/api'
+    | '/badge'
+    | '/changelog'
+    | '/disclaimer'
+    | '/explore'
+    | '/flagged'
+    | '/leaderboard'
     | '/login'
     | '/methodology'
+    | '/operators'
+    | '/preflight'
     | '/pricing'
+    | '/pulse'
+    | '/register'
     | '/signup'
     | '/sitemap.xml'
+    | '/status'
     | '/submit'
+    | '/tape'
     | '/.well-known/x402'
     | '/about/changelog'
     | '/about/disclaimer'
     | '/agent/$mint'
+    | '/api/docs'
     | '/build/alerts'
     | '/build/badge'
     | '/build/docs'
@@ -791,17 +956,32 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/alerts'
+    | '/api'
+    | '/badge'
+    | '/changelog'
+    | '/disclaimer'
+    | '/explore'
+    | '/flagged'
+    | '/leaderboard'
     | '/login'
     | '/methodology'
+    | '/operators'
+    | '/preflight'
     | '/pricing'
+    | '/pulse'
+    | '/register'
     | '/signup'
     | '/sitemap.xml'
+    | '/status'
     | '/submit'
+    | '/tape'
     | '/.well-known/x402'
     | '/_authenticated/dashboard'
     | '/about/changelog'
     | '/about/disclaimer'
     | '/agent/$mint'
+    | '/api/docs'
     | '/build/alerts'
     | '/build/badge'
     | '/build/docs'
@@ -862,12 +1042,26 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AlertsRoute: typeof AlertsRoute
+  ApiRoute: typeof ApiRouteWithChildren
+  BadgeRoute: typeof BadgeRoute
+  ChangelogRoute: typeof ChangelogRoute
+  DisclaimerRoute: typeof DisclaimerRoute
+  ExploreRoute: typeof ExploreRoute
+  FlaggedRoute: typeof FlaggedRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
+  OperatorsRoute: typeof OperatorsRoute
+  PreflightRoute: typeof PreflightRoute
   PricingRoute: typeof PricingRoute
+  PulseRoute: typeof PulseRoute
+  RegisterRoute: typeof RegisterRoute
   SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
+  TapeRoute: typeof TapeRouteWithChildren
   DotwellKnownX402Route: typeof DotwellKnownX402Route
   AboutChangelogRoute: typeof AboutChangelogRoute
   AboutDisclaimerRoute: typeof AboutDisclaimerRoute
@@ -885,52 +1079,34 @@ export interface RootRouteChildren {
   RegistryFlaggedRoute: typeof RegistryFlaggedRoute
   RegistryOperatorsRoute: typeof RegistryOperatorsRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
-  TapeEventIdRoute: typeof TapeEventIdRoute
   AboutIndexRoute: typeof AboutIndexRoute
   BuildIndexRoute: typeof BuildIndexRoute
   LiveIndexRoute: typeof LiveIndexRoute
   RegistryIndexRoute: typeof RegistryIndexRoute
-  ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
-  ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
-  ApiPublicCronAlertDispatchRoute: typeof ApiPublicCronAlertDispatchRoute
-  ApiPublicCronAttesterHealthRoute: typeof ApiPublicCronAttesterHealthRoute
-  ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
-  ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
-  ApiPublicCronProbeServicesRoute: typeof ApiPublicCronProbeServicesRoute
-  ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
-  ApiPublicCronRegisteredAgentDiffRoute: typeof ApiPublicCronRegisteredAgentDiffRoute
-  ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
-  ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
-  ApiPublicCronScanX402EvmRoute: typeof ApiPublicCronScanX402EvmRoute
-  ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
-  ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
-  ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
-  ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
-  ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
-  ApiPublicMcpRoute: typeof ApiPublicMcpRoute
-  ApiPublicShareDotpngRoute: typeof ApiPublicShareDotpngRoute
-  ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
-  ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
-  ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
-  ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
-  ApiPublicCardChar123subjectChar125DotpngRoute: typeof ApiPublicCardChar123subjectChar125DotpngRoute
-  ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
-  ApiPublicOgChar123subjectChar125DotsvgRoute: typeof ApiPublicOgChar123subjectChar125DotsvgRoute
-  ApiPublicUserApiKeysRoute: typeof ApiPublicUserApiKeysRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
-  ApiPublicAgentSubjectEvidenceRoute: typeof ApiPublicAgentSubjectEvidenceRoute
-  ApiV1AgentMintDossierRoute: typeof ApiV1AgentMintDossierRoute
-  ApiV1AgentMintEvidenceRoute: typeof ApiV1AgentMintEvidenceRoute
-  ApiV1AgentMintScoreRoute: typeof ApiV1AgentMintScoreRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tape': {
+      id: '/tape'
+      path: '/tape'
+      fullPath: '/tape'
+      preLoaderRoute: typeof TapeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submit': {
       id: '/submit'
       path: '/submit'
       fullPath: '/submit'
       preLoaderRoute: typeof SubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -947,11 +1123,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pulse': {
+      id: '/pulse'
+      path: '/pulse'
+      fullPath: '/pulse'
+      preLoaderRoute: typeof PulseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preflight': {
+      id: '/preflight'
+      path: '/preflight'
+      fullPath: '/preflight'
+      preLoaderRoute: typeof PreflightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/operators': {
+      id: '/operators'
+      path: '/operators'
+      fullPath: '/operators'
+      preLoaderRoute: typeof OperatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -966,6 +1170,62 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flagged': {
+      id: '/flagged'
+      path: '/flagged'
+      fullPath: '/flagged'
+      preLoaderRoute: typeof FlaggedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/badge': {
+      id: '/badge'
+      path: '/badge'
+      fullPath: '/badge'
+      preLoaderRoute: typeof BadgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api': {
+      id: '/api'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof ApiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1012,10 +1272,10 @@ declare module '@tanstack/react-router' {
     }
     '/tape/$eventId': {
       id: '/tape/$eventId'
-      path: '/tape/$eventId'
+      path: '/$eventId'
       fullPath: '/tape/$eventId'
       preLoaderRoute: typeof TapeEventIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof TapeRoute
     }
     '/service/$slug': {
       id: '/service/$slug'
@@ -1108,6 +1368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildAlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/docs': {
+      id: '/api/docs'
+      path: '/docs'
+      fullPath: '/api/docs'
+      preLoaderRoute: typeof ApiDocsRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/agent/$mint': {
       id: '/agent/$mint'
       path: '/agent/$mint'
@@ -1152,157 +1419,157 @@ declare module '@tanstack/react-router' {
     }
     '/api/public/x402-selftest': {
       id: '/api/public/x402-selftest'
-      path: '/api/public/x402-selftest'
+      path: '/public/x402-selftest'
       fullPath: '/api/public/x402-selftest'
       preLoaderRoute: typeof ApiPublicX402SelftestRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/webhook-helius': {
       id: '/api/public/webhook-helius'
-      path: '/api/public/webhook-helius'
+      path: '/public/webhook-helius'
       fullPath: '/api/public/webhook-helius'
       preLoaderRoute: typeof ApiPublicWebhookHeliusRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/verified': {
       id: '/api/public/verified'
-      path: '/api/public/verified'
+      path: '/public/verified'
       fullPath: '/api/public/verified'
       preLoaderRoute: typeof ApiPublicVerifiedRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/share.png': {
       id: '/api/public/share.png'
-      path: '/api/public/share.png'
+      path: '/public/share.png'
       fullPath: '/api/public/share.png'
       preLoaderRoute: typeof ApiPublicShareDotpngRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/mcp': {
       id: '/api/public/mcp'
-      path: '/api/public/mcp'
+      path: '/public/mcp'
       fullPath: '/api/public/mcp'
       preLoaderRoute: typeof ApiPublicMcpRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/ingest-oc-evidence': {
       id: '/api/public/ingest-oc-evidence'
-      path: '/api/public/ingest-oc-evidence'
+      path: '/public/ingest-oc-evidence'
       fullPath: '/api/public/ingest-oc-evidence'
       preLoaderRoute: typeof ApiPublicIngestOcEvidenceRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/helius-webhook-setup': {
       id: '/api/public/helius-webhook-setup'
-      path: '/api/public/helius-webhook-setup'
+      path: '/public/helius-webhook-setup'
       fullPath: '/api/public/helius-webhook-setup'
       preLoaderRoute: typeof ApiPublicHeliusWebhookSetupRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-verify-candidates': {
       id: '/api/public/cron-verify-candidates'
-      path: '/api/public/cron-verify-candidates'
+      path: '/public/cron-verify-candidates'
       fullPath: '/api/public/cron-verify-candidates'
       preLoaderRoute: typeof ApiPublicCronVerifyCandidatesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-scoring': {
       id: '/api/public/cron-scoring'
-      path: '/api/public/cron-scoring'
+      path: '/public/cron-scoring'
       fullPath: '/api/public/cron-scoring'
       preLoaderRoute: typeof ApiPublicCronScoringRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-score-snapshot': {
       id: '/api/public/cron-score-snapshot'
-      path: '/api/public/cron-score-snapshot'
+      path: '/public/cron-score-snapshot'
       fullPath: '/api/public/cron-score-snapshot'
       preLoaderRoute: typeof ApiPublicCronScoreSnapshotRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-scan-x402-evm': {
       id: '/api/public/cron-scan-x402-evm'
-      path: '/api/public/cron-scan-x402-evm'
+      path: '/public/cron-scan-x402-evm'
       fullPath: '/api/public/cron-scan-x402-evm'
       preLoaderRoute: typeof ApiPublicCronScanX402EvmRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-scan-x402': {
       id: '/api/public/cron-scan-x402'
-      path: '/api/public/cron-scan-x402'
+      path: '/public/cron-scan-x402'
       fullPath: '/api/public/cron-scan-x402'
       preLoaderRoute: typeof ApiPublicCronScanX402RouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-scan-agent-registry': {
       id: '/api/public/cron-scan-agent-registry'
-      path: '/api/public/cron-scan-agent-registry'
+      path: '/public/cron-scan-agent-registry'
       fullPath: '/api/public/cron-scan-agent-registry'
       preLoaderRoute: typeof ApiPublicCronScanAgentRegistryRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-registered-agent-diff': {
       id: '/api/public/cron-registered-agent-diff'
-      path: '/api/public/cron-registered-agent-diff'
+      path: '/public/cron-registered-agent-diff'
       fullPath: '/api/public/cron-registered-agent-diff'
       preLoaderRoute: typeof ApiPublicCronRegisteredAgentDiffRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-reconciler': {
       id: '/api/public/cron-reconciler'
-      path: '/api/public/cron-reconciler'
+      path: '/public/cron-reconciler'
       fullPath: '/api/public/cron-reconciler'
       preLoaderRoute: typeof ApiPublicCronReconcilerRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-probe-services': {
       id: '/api/public/cron-probe-services'
-      path: '/api/public/cron-probe-services'
+      path: '/public/cron-probe-services'
       fullPath: '/api/public/cron-probe-services'
       preLoaderRoute: typeof ApiPublicCronProbeServicesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-failure-reconciler': {
       id: '/api/public/cron-failure-reconciler'
-      path: '/api/public/cron-failure-reconciler'
+      path: '/public/cron-failure-reconciler'
       fullPath: '/api/public/cron-failure-reconciler'
       preLoaderRoute: typeof ApiPublicCronFailureReconcilerRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-backfill': {
       id: '/api/public/cron-backfill'
-      path: '/api/public/cron-backfill'
+      path: '/public/cron-backfill'
       fullPath: '/api/public/cron-backfill'
       preLoaderRoute: typeof ApiPublicCronBackfillRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-attester-health': {
       id: '/api/public/cron-attester-health'
-      path: '/api/public/cron-attester-health'
+      path: '/public/cron-attester-health'
       fullPath: '/api/public/cron-attester-health'
       preLoaderRoute: typeof ApiPublicCronAttesterHealthRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/cron-alert-dispatch': {
       id: '/api/public/cron-alert-dispatch'
-      path: '/api/public/cron-alert-dispatch'
+      path: '/public/cron-alert-dispatch'
       fullPath: '/api/public/cron-alert-dispatch'
       preLoaderRoute: typeof ApiPublicCronAlertDispatchRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/admin-add-service': {
       id: '/api/public/admin-add-service'
-      path: '/api/public/admin-add-service'
+      path: '/public/admin-add-service'
       fullPath: '/api/public/admin-add-service'
       preLoaderRoute: typeof ApiPublicAdminAddServiceRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/admin-add-api-key': {
       id: '/api/public/admin-add-api-key'
-      path: '/api/public/admin-add-api-key'
+      path: '/public/admin-add-api-key'
       fullPath: '/api/public/admin-add-api-key'
       preLoaderRoute: typeof ApiPublicAdminAddApiKeyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/_authenticated/dashboard/watchlist': {
       id: '/_authenticated/dashboard/watchlist'
@@ -1341,66 +1608,66 @@ declare module '@tanstack/react-router' {
     }
     '/api/public/user/api-keys': {
       id: '/api/public/user/api-keys'
-      path: '/api/public/user/api-keys'
+      path: '/public/user/api-keys'
       fullPath: '/api/public/user/api-keys'
       preLoaderRoute: typeof ApiPublicUserApiKeysRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/og/{$subject}.svg': {
       id: '/api/public/og/{$subject}.svg'
-      path: '/api/public/og/{$subject}.svg'
+      path: '/public/og/{$subject}.svg'
       fullPath: '/api/public/og/{$subject}.svg'
       preLoaderRoute: typeof ApiPublicOgChar123subjectChar125DotsvgRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/evidence/$eventId': {
       id: '/api/public/evidence/$eventId'
-      path: '/api/public/evidence/$eventId'
+      path: '/public/evidence/$eventId'
       fullPath: '/api/public/evidence/$eventId'
       preLoaderRoute: typeof ApiPublicEvidenceEventIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/card/{$subject}.png': {
       id: '/api/public/card/{$subject}.png'
-      path: '/api/public/card/{$subject}.png'
+      path: '/public/card/{$subject}.png'
       fullPath: '/api/public/card/{$subject}.png'
       preLoaderRoute: typeof ApiPublicCardChar123subjectChar125DotpngRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/badge/{$mint}.svg': {
       id: '/api/public/badge/{$mint}.svg'
-      path: '/api/public/badge/{$mint}.svg'
+      path: '/public/badge/{$mint}.svg'
       fullPath: '/api/public/badge/{$mint}.svg'
       preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/v1/agent/$mint/score': {
       id: '/api/v1/agent/$mint/score'
-      path: '/api/v1/agent/$mint/score'
+      path: '/v1/agent/$mint/score'
       fullPath: '/api/v1/agent/$mint/score'
       preLoaderRoute: typeof ApiV1AgentMintScoreRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/v1/agent/$mint/evidence': {
       id: '/api/v1/agent/$mint/evidence'
-      path: '/api/v1/agent/$mint/evidence'
+      path: '/v1/agent/$mint/evidence'
       fullPath: '/api/v1/agent/$mint/evidence'
       preLoaderRoute: typeof ApiV1AgentMintEvidenceRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/v1/agent/$mint/dossier': {
       id: '/api/v1/agent/$mint/dossier'
-      path: '/api/v1/agent/$mint/dossier'
+      path: '/v1/agent/$mint/dossier'
       fullPath: '/api/v1/agent/$mint/dossier'
       preLoaderRoute: typeof ApiV1AgentMintDossierRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
     '/api/public/agent/$subject/evidence': {
       id: '/api/public/agent/$subject/evidence'
-      path: '/api/public/agent/$subject/evidence'
+      path: '/public/agent/$subject/evidence'
       fullPath: '/api/public/agent/$subject/evidence'
       preLoaderRoute: typeof ApiPublicAgentSubjectEvidenceRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ApiRoute
     }
   }
 }
@@ -1439,37 +1706,43 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  LoginRoute: LoginRoute,
-  MethodologyRoute: MethodologyRoute,
-  PricingRoute: PricingRoute,
-  SignupRoute: SignupRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
-  SubmitRoute: SubmitRoute,
-  DotwellKnownX402Route: DotwellKnownX402Route,
-  AboutChangelogRoute: AboutChangelogRoute,
-  AboutDisclaimerRoute: AboutDisclaimerRoute,
-  AgentMintRoute: AgentMintRoute,
-  BuildAlertsRoute: BuildAlertsRoute,
-  BuildBadgeRoute: BuildBadgeRoute,
-  BuildDocsRoute: BuildDocsRoute,
-  BuildPreflightRoute: BuildPreflightRoute,
-  BuildRegisterRoute: BuildRegisterRoute,
-  EmbedSubjectRoute: EmbedSubjectRoute,
-  LivePulseRoute: LivePulseRoute,
-  LiveStatusRoute: LiveStatusRoute,
-  OperatorWalletRoute: OperatorWalletRoute,
-  RegistryExploreRoute: RegistryExploreRoute,
-  RegistryFlaggedRoute: RegistryFlaggedRoute,
-  RegistryOperatorsRoute: RegistryOperatorsRoute,
-  ServiceSlugRoute: ServiceSlugRoute,
-  TapeEventIdRoute: TapeEventIdRoute,
-  AboutIndexRoute: AboutIndexRoute,
-  BuildIndexRoute: BuildIndexRoute,
-  LiveIndexRoute: LiveIndexRoute,
-  RegistryIndexRoute: RegistryIndexRoute,
+interface ApiRouteChildren {
+  ApiDocsRoute: typeof ApiDocsRoute
+  ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
+  ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
+  ApiPublicCronAlertDispatchRoute: typeof ApiPublicCronAlertDispatchRoute
+  ApiPublicCronAttesterHealthRoute: typeof ApiPublicCronAttesterHealthRoute
+  ApiPublicCronBackfillRoute: typeof ApiPublicCronBackfillRoute
+  ApiPublicCronFailureReconcilerRoute: typeof ApiPublicCronFailureReconcilerRoute
+  ApiPublicCronProbeServicesRoute: typeof ApiPublicCronProbeServicesRoute
+  ApiPublicCronReconcilerRoute: typeof ApiPublicCronReconcilerRoute
+  ApiPublicCronRegisteredAgentDiffRoute: typeof ApiPublicCronRegisteredAgentDiffRoute
+  ApiPublicCronScanAgentRegistryRoute: typeof ApiPublicCronScanAgentRegistryRoute
+  ApiPublicCronScanX402Route: typeof ApiPublicCronScanX402Route
+  ApiPublicCronScanX402EvmRoute: typeof ApiPublicCronScanX402EvmRoute
+  ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
+  ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
+  ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
+  ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
+  ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
+  ApiPublicMcpRoute: typeof ApiPublicMcpRoute
+  ApiPublicShareDotpngRoute: typeof ApiPublicShareDotpngRoute
+  ApiPublicVerifiedRoute: typeof ApiPublicVerifiedRoute
+  ApiPublicWebhookHeliusRoute: typeof ApiPublicWebhookHeliusRoute
+  ApiPublicX402SelftestRoute: typeof ApiPublicX402SelftestRoute
+  ApiPublicBadgeChar123mintChar125DotsvgRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
+  ApiPublicCardChar123subjectChar125DotpngRoute: typeof ApiPublicCardChar123subjectChar125DotpngRoute
+  ApiPublicEvidenceEventIdRoute: typeof ApiPublicEvidenceEventIdRoute
+  ApiPublicOgChar123subjectChar125DotsvgRoute: typeof ApiPublicOgChar123subjectChar125DotsvgRoute
+  ApiPublicUserApiKeysRoute: typeof ApiPublicUserApiKeysRoute
+  ApiPublicAgentSubjectEvidenceRoute: typeof ApiPublicAgentSubjectEvidenceRoute
+  ApiV1AgentMintDossierRoute: typeof ApiV1AgentMintDossierRoute
+  ApiV1AgentMintEvidenceRoute: typeof ApiV1AgentMintEvidenceRoute
+  ApiV1AgentMintScoreRoute: typeof ApiV1AgentMintScoreRoute
+}
+
+const ApiRouteChildren: ApiRouteChildren = {
+  ApiDocsRoute: ApiDocsRoute,
   ApiPublicAdminAddApiKeyRoute: ApiPublicAdminAddApiKeyRoute,
   ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicCronAlertDispatchRoute: ApiPublicCronAlertDispatchRoute,
@@ -1500,11 +1773,69 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicOgChar123subjectChar125DotsvgRoute:
     ApiPublicOgChar123subjectChar125DotsvgRoute,
   ApiPublicUserApiKeysRoute: ApiPublicUserApiKeysRoute,
-  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   ApiPublicAgentSubjectEvidenceRoute: ApiPublicAgentSubjectEvidenceRoute,
   ApiV1AgentMintDossierRoute: ApiV1AgentMintDossierRoute,
   ApiV1AgentMintEvidenceRoute: ApiV1AgentMintEvidenceRoute,
   ApiV1AgentMintScoreRoute: ApiV1AgentMintScoreRoute,
+}
+
+const ApiRouteWithChildren = ApiRoute._addFileChildren(ApiRouteChildren)
+
+interface TapeRouteChildren {
+  TapeEventIdRoute: typeof TapeEventIdRoute
+}
+
+const TapeRouteChildren: TapeRouteChildren = {
+  TapeEventIdRoute: TapeEventIdRoute,
+}
+
+const TapeRouteWithChildren = TapeRoute._addFileChildren(TapeRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AlertsRoute: AlertsRoute,
+  ApiRoute: ApiRouteWithChildren,
+  BadgeRoute: BadgeRoute,
+  ChangelogRoute: ChangelogRoute,
+  DisclaimerRoute: DisclaimerRoute,
+  ExploreRoute: ExploreRoute,
+  FlaggedRoute: FlaggedRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  LoginRoute: LoginRoute,
+  MethodologyRoute: MethodologyRoute,
+  OperatorsRoute: OperatorsRoute,
+  PreflightRoute: PreflightRoute,
+  PricingRoute: PricingRoute,
+  PulseRoute: PulseRoute,
+  RegisterRoute: RegisterRoute,
+  SignupRoute: SignupRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StatusRoute: StatusRoute,
+  SubmitRoute: SubmitRoute,
+  TapeRoute: TapeRouteWithChildren,
+  DotwellKnownX402Route: DotwellKnownX402Route,
+  AboutChangelogRoute: AboutChangelogRoute,
+  AboutDisclaimerRoute: AboutDisclaimerRoute,
+  AgentMintRoute: AgentMintRoute,
+  BuildAlertsRoute: BuildAlertsRoute,
+  BuildBadgeRoute: BuildBadgeRoute,
+  BuildDocsRoute: BuildDocsRoute,
+  BuildPreflightRoute: BuildPreflightRoute,
+  BuildRegisterRoute: BuildRegisterRoute,
+  EmbedSubjectRoute: EmbedSubjectRoute,
+  LivePulseRoute: LivePulseRoute,
+  LiveStatusRoute: LiveStatusRoute,
+  OperatorWalletRoute: OperatorWalletRoute,
+  RegistryExploreRoute: RegistryExploreRoute,
+  RegistryFlaggedRoute: RegistryFlaggedRoute,
+  RegistryOperatorsRoute: RegistryOperatorsRoute,
+  ServiceSlugRoute: ServiceSlugRoute,
+  AboutIndexRoute: AboutIndexRoute,
+  BuildIndexRoute: BuildIndexRoute,
+  LiveIndexRoute: LiveIndexRoute,
+  RegistryIndexRoute: RegistryIndexRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
