@@ -338,6 +338,39 @@ function StatusPage() {
           <strong className="text-paper">not scored</strong>.
         </p>
 
+        {/* DISCLOSURE BEFORE SPEND — the paying wallets and the budget are
+            published here and on /methodology before the first paid probe. */}
+        <div className="mt-6 border border-bronze/50 bg-panel-deep p-5">
+          <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
+            Prober disclosure
+          </div>
+          <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                l: "Prober state",
+                v: proberConfig.enabled ? "enabled" : "disabled — no paid probes",
+              },
+              {
+                l: "Solana wallet",
+                v: proberConfig.solanaWallet ?? (proberConfig.hasSolanaKey ? "key present" : "unfunded"),
+              },
+              {
+                l: "Base wallet",
+                v: proberConfig.baseWallet ?? (proberConfig.hasBaseKey ? "key present" : "unfunded"),
+              },
+              {
+                l: "Budget",
+                v: `$${PROBE_CAPS.dailyBudgetUsd.toFixed(2)}/day · $${PROBE_CAPS.perProbeUsd.toFixed(2)}/probe`,
+              },
+            ].map((s) => (
+              <div key={s.l}>
+                <dt className="font-mono text-[10px] uppercase tracking-widest text-wire">{s.l}</dt>
+                <dd className="mt-1 break-all font-mono text-xs text-paper">{s.v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Panel eyebrow="Coverage" title="Service registry">
             <dl className="space-y-3">
