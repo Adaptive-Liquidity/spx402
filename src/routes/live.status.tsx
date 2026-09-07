@@ -471,6 +471,63 @@ function StatusPage() {
             </div>
           )}
         </div>
+
+        {/* PROBE LOG — who we bought from, what we paid, what came back. */}
+        <div className="mt-6 overflow-hidden border border-bronze/50">
+          <div className="border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[11px] uppercase tracking-widest text-wire">
+            Probe log · most recent {probeLog.length || ""}
+          </div>
+          {probeLog.length === 0 ? (
+            <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
+              No probe has ever been recorded. Nothing has been bought, so nothing is claimed.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
+                <div className="col-span-2">When</div>
+                <div className="col-span-4">Service</div>
+                <div className="col-span-2">Paid</div>
+                <div className="col-span-2">Response</div>
+                <div className="col-span-2 text-right">Verdict</div>
+              </div>
+              {probeLog.map((p, i) => (
+                <div
+                  key={p.id}
+                  className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
+                    i % 2 ? "bg-panel" : "bg-background"
+                  }`}
+                >
+                  <div className="col-span-2 font-mono text-xs text-paper-muted">
+                    {relativeFromNow(p.ranAt)}
+                  </div>
+                  <div className="col-span-4 truncate font-mono text-xs text-amber">
+                    {p.serviceSlug ? (
+                      <Link
+                        to="/service/$slug"
+                        params={{ slug: p.serviceSlug }}
+                        className="hover:underline"
+                      >
+                        {p.serviceUrl ?? p.serviceSlug}
+                      </Link>
+                    ) : (
+                      (p.serviceUrl ?? p.servicePayTo ?? "—")
+                    )}
+                  </div>
+                  <div className="num-display col-span-2 text-sm text-paper">
+                    {p.paidAmountUsd != null ? `$${p.paidAmountUsd.toFixed(4)}` : "—"}
+                  </div>
+                  <div className="col-span-2 font-mono text-xs text-paper-muted">
+                    {p.httpStatus ?? "—"}
+                    {p.delivered === true ? " · delivered" : p.delivered === false ? " · nothing" : ""}
+                  </div>
+                  <div className="col-span-2 text-right font-mono text-[10px] uppercase tracking-widest text-paper">
+                    {outcomeLabel(p.outcome)}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
       </section>
 
       {/* DECODER COVERAGE — surfaces dark categories. A category that has
