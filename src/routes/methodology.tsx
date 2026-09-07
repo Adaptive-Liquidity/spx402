@@ -490,16 +490,7 @@ function MethodologyPage() {
           What SPX402 refuses to measure
         </h2>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-          {[
-            "Token price",
-            "Expected return",
-            "Social momentum",
-            "Meme quality",
-            "Celebrity endorsement",
-            "Holder count",
-            "Vibes",
-            "Future revenue promises",
-          ].map((x) => (
+          {REFUSES_TO_MEASURE.map((x) => (
             <li
               key={x}
               className="border-l-2 border-critical/70 bg-panel-deep/40 px-4 py-2 font-mono text-sm text-paper-muted"
