@@ -403,8 +403,8 @@ function ChannelsPanel() {
   };
 
   const togglePause = async (c: AlertChannel) => {
-    setChannels((prev) =>
-      prev?.map((x) => (x.id === c.id ? { ...x, paused: !c.paused } : x)) ?? null,
+    setChannels(
+      (prev) => prev?.map((x) => (x.id === c.id ? { ...x, paused: !c.paused } : x)) ?? null,
     );
     try {
       await updateChannel(c.id, { paused: !c.paused });
@@ -417,8 +417,8 @@ function ChannelsPanel() {
     <div className="mt-6 space-y-6">
       <p className="max-w-xl text-sm leading-relaxed text-paper-muted">
         Alerts go where you tell them. Webhooks are signed with HMAC-SHA256 so you can prove the
-        notice came from us. Email alerts send from support@spx402.com. Text messages stay listed
-        as unavailable until a sending number is connected.
+        notice came from us. Email alerts send from support@spx402.com. Text messages stay listed as
+        unavailable until a sending number is connected.
       </p>
 
       {err && (
@@ -586,4 +586,3 @@ function ChannelsPanel() {
     </div>
   );
 }
-

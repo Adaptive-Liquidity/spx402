@@ -94,10 +94,7 @@ function toolError(message: string) {
   return { content: [{ type: "text", text: message }], isError: true };
 }
 
-async function callTool(
-  name: string,
-  args: Record<string, unknown>,
-): Promise<unknown> {
+async function callTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   switch (name) {
@@ -115,7 +112,10 @@ async function callTool(
         .eq("status", "active")
         .order("score", { ascending: false, nullsFirst: false })
         .limit(limit);
-      if (category && ["tokenized_buyback", "registered_agent", "x402_executor"].includes(category)) {
+      if (
+        category &&
+        ["tokenized_buyback", "registered_agent", "x402_executor"].includes(category)
+      ) {
         q = q.eq("category", category);
       }
       if (minScore !== null) q = q.gte("score", Math.min(Math.max(minScore, 0), 100));

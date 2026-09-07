@@ -73,7 +73,9 @@ function AeonAgentsPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">AEON Agent = identity + authority + evidence + reputation.</h2>
+        <h2 className="font-display text-2xl font-bold text-paper">
+          AEON Agent = identity + authority + evidence + reputation.
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           AEON is entering its first public SPX402 release path. Mainnet grading and attestations
           only appear after the backend confirms live deployment, indexed transactions and verified
@@ -84,19 +86,25 @@ function AeonAgentsPage() {
       <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-paper">Launch status</h2>
         <dl className="mt-4 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-3">
-          {["Release status", "Program address", "Indexed events", "Verified evidence", "Grading", "Attestations"].map(
-            (label) => (
-              <div key={label} className="bg-panel px-4 py-3">
-                <dt className="label-mono">{label}</dt>
-                <dd className="mt-1">
-                  <StatusChip status="unknown" />
-                </dd>
-              </div>
-            ),
-          )}
+          {[
+            "Release status",
+            "Program address",
+            "Indexed events",
+            "Verified evidence",
+            "Grading",
+            "Attestations",
+          ].map((label) => (
+            <div key={label} className="bg-panel px-4 py-3">
+              <dt className="label-mono">{label}</dt>
+              <dd className="mt-1">
+                <StatusChip status="unknown" />
+              </dd>
+            </div>
+          ))}
         </dl>
         <p className="mt-3 font-mono text-[11px] text-wire">
-          Expected from the backend: <code className="text-paper">GET /api/aeon/release-status</code>
+          Expected from the backend:{" "}
+          <code className="text-paper">GET /api/aeon/release-status</code>
         </p>
       </section>
 

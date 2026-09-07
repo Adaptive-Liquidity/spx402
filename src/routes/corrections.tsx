@@ -25,12 +25,30 @@ export const Route = createFileRoute("/corrections")({
 });
 
 const RULES = [
-  ["Every correction is dated", "The date a grade was wrong and the date it was corrected are both published."],
-  ["Both grades are shown", "The published grade and the corrected grade appear side by side. The wrong grade is never quietly removed."],
-  ["Versions are named", "Each correction names the decoder version, scoring version, evidence-floor version and methodology version in force at the time."],
-  ["Attestations are superseded, not deleted", "The original on-chain attestation stays. A new attestation is issued and references the one it supersedes."],
-  ["Corrections stay public", "A correction remains on the record permanently and links to both attestations and to the evidence bundle."],
-  ["Corrections protect trust", "Publishing an error is cheaper than hiding one. A grade you cannot audit is not a grade."],
+  [
+    "Every correction is dated",
+    "The date a grade was wrong and the date it was corrected are both published.",
+  ],
+  [
+    "Both grades are shown",
+    "The published grade and the corrected grade appear side by side. The wrong grade is never quietly removed.",
+  ],
+  [
+    "Versions are named",
+    "Each correction names the decoder version, scoring version, evidence-floor version and methodology version in force at the time.",
+  ],
+  [
+    "Attestations are superseded, not deleted",
+    "The original on-chain attestation stays. A new attestation is issued and references the one it supersedes.",
+  ],
+  [
+    "Corrections stay public",
+    "A correction remains on the record permanently and links to both attestations and to the evidence bundle.",
+  ],
+  [
+    "Corrections protect trust",
+    "Publishing an error is cheaper than hiding one. A grade you cannot audit is not a grade.",
+  ],
 ];
 
 function CorrectionsPage() {

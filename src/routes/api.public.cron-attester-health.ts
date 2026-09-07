@@ -22,7 +22,11 @@ export const Route = createFileRoute("/api/public/cron-attester-health")({
         try {
           balance = await checkAttesterBalance();
         } catch (e) {
-          await heartbeat(false, Date.now() - started, `balance read failed: ${String(e).slice(0, 120)}`);
+          await heartbeat(
+            false,
+            Date.now() - started,
+            `balance read failed: ${String(e).slice(0, 120)}`,
+          );
           return Response.json({ ok: false, error: "balance read failed" }, { status: 200 });
         }
 

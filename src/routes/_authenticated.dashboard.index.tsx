@@ -3,11 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useOperatorCounts } from "@/lib/operator-counts";
 import { fetchWatchlist } from "@/lib/watchlist";
-import {
-  fetchRecentEventsForMints,
-  relativeFromNow,
-  type WatchedEvent,
-} from "@/lib/live-data";
+import { fetchRecentEventsForMints, relativeFromNow, type WatchedEvent } from "@/lib/live-data";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -36,7 +32,10 @@ function Cell({
   loading: boolean;
 }) {
   return (
-    <Link to={to} className="metric-cell block bg-panel px-6 py-7 transition-colors hover:bg-panel-deep/60">
+    <Link
+      to={to}
+      className="metric-cell block bg-panel px-6 py-7 transition-colors hover:bg-panel-deep/60"
+    >
       <span className="metric-bracket metric-bracket-tl" aria-hidden />
       <span className="metric-bracket metric-bracket-br" aria-hidden />
       {loading ? (
@@ -173,7 +172,9 @@ function DashboardOverview() {
                       {e.type.replace(/_/g, " ")}
                     </div>
                     <div className="mt-0.5 truncate font-mono text-[10px] text-wire">
-                      {e.agentSymbol ? `$${e.agentSymbol}` : `${e.mint.slice(0, 6)}…${e.mint.slice(-4)}`}
+                      {e.agentSymbol
+                        ? `$${e.agentSymbol}`
+                        : `${e.mint.slice(0, 6)}…${e.mint.slice(-4)}`}
                     </div>
                   </div>
                   <div className="text-right font-mono text-[10px] uppercase tracking-[0.16em] text-wire">

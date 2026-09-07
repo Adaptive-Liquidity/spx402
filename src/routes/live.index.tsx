@@ -4,7 +4,13 @@
 // This is the public ledger that grades, attestations, and (later)
 // bonds must reconcile against.
 
-import { createFileRoute, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+  useRouter,
+  useRouterState,
+} from "@tanstack/react-router";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { CATEGORIES, categoryLabel } from "@/lib/agents/categories";
 import { PageHead } from "@/components/spx/PageHead";

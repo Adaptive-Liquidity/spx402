@@ -47,7 +47,7 @@ function ChangelogPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Every parser version, on the record.
       </h1>
       <p className="mt-4 text-paper-muted">

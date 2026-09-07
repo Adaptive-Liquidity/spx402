@@ -92,7 +92,7 @@ function AlertsPage() {
         <span className="h-1.5 w-1.5 rounded-full bg-amber pulse-amber" />
         Shipping soon
       </div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         When the tape changes,
         <br />
         <span className="text-amber">you hear it first.</span>

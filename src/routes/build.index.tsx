@@ -43,7 +43,7 @@ const ENDPOINTS = [
 function ApiPage() {
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Execution data for agents,
         <br />
         <span className="text-amber">funds, launchpads, and other machines.</span>

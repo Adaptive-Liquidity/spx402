@@ -91,7 +91,6 @@ export const Route = createFileRoute("/api/public/admin-add-api-key")({
 
         const result = { key_id: data.id, api_key: rawKey, key_hash: keyHash };
 
-
         return new Response(
           JSON.stringify({
             ok: true,

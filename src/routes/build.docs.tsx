@@ -181,8 +181,11 @@ function ApiDocsPage() {
               </li>
               <li>
                 <strong className="text-paper">AgentKit action provider</strong> — open-source
-                package <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">@spx402/agentkit-action-provider</code>; it
-                handles the 402 → pay → retry dance from the agent's own wallet.
+                package{" "}
+                <code className="font-mono text-[11px] bg-panel-deep px-1.5 py-0.5 rounded">
+                  @spx402/agentkit-action-provider
+                </code>
+                ; it handles the 402 → pay → retry dance from the agent's own wallet.
               </li>
             </ul>
           </Panel>

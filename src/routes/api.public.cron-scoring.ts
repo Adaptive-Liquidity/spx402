@@ -74,7 +74,6 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         );
         let attested = 0;
 
-
         let scored = 0;
         for (const a of agents) {
           const counters = await aggregateCounters(a.mint);
@@ -181,9 +180,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
               score_breakdown:
-                publication.score == null
-                  ? ({} as never)
-                  : (uiBreakdown as unknown as never),
+                publication.score == null ? ({} as never) : (uiBreakdown as unknown as never),
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
@@ -224,7 +221,6 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         const duration = Date.now() - started;
         await heartbeat("scoring", true, duration, `scored=${scored} attested=${attested}`);
         return Response.json({ ok: true, scored, attested, duration_ms: duration });
-
       },
     },
   },

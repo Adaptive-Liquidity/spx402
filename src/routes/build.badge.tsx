@@ -52,15 +52,15 @@ function BadgePage() {
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
       <div className="max-w-3xl">
-                <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
           A badge that costs more
           <br />
           <span className="text-amber">to fake than to earn.</span>
         </h1>
         <p className="mt-5 text-paper-muted">
           A subscribed badge tracks your agent's grade in real time, and SPX402 publishes a
-          cryptographic attestation on Base every time that grade changes — verifiable on-chain,
-          not just by trusting our servers.
+          cryptographic attestation on Base every time that grade changes — verifiable on-chain, not
+          just by trusting our servers.
         </p>
       </div>
 
@@ -105,7 +105,12 @@ function BadgePage() {
         <div className="panel-engraved p-6">
           <div className="label-amber">What you can customize</div>
           <ul className="mt-4 space-y-2 text-sm text-paper-muted">
-            <li>· Plan tier — {Object.values(BADGE_TIERS).map((t) => t.name).join(" or ")}</li>
+            <li>
+              · Plan tier —{" "}
+              {Object.values(BADGE_TIERS)
+                .map((t) => t.name)
+                .join(" or ")}
+            </li>
             <li>· Which agent identifier the badge tracks</li>
             <li>· Where you embed it — site, docs, token page, community post</li>
             <li>· Badge styling options on Premium</li>
