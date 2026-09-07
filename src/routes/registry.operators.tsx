@@ -110,11 +110,11 @@ function OperatorsPage() {
             <div className="label-amber">Embed snippet</div>
             <pre className="mt-4 overflow-x-auto border border-bronze/40 bg-panel-deep p-4 font-mono text-[11px] leading-relaxed text-paper">
               {`<a
-  href="https://spx402.xyz/agent/7xKQ92..."
+  href="https://spx402.com/agent/7xKQ92..."
   target="_blank" rel="noopener"
 >
   <img
-    src="https://spx402.xyz/badge/7xKQ92.svg"
+    src="https://spx402.com/badge/7xKQ92.svg"
     alt="Verified by SPX402 — SPX AA"
   />
 </a>`}
