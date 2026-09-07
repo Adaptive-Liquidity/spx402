@@ -68,7 +68,13 @@ Applied in evaluation order: Methodology → Registry → Agent dossier → Regi
 
 Verification, grade, score, decoded events, event count, evidence-floor status, attestation, wallet ownership, income routing, fee routing, issuer interest, correction history, public/private state and mainnet status are backend-owned. Missing values render as pending, unavailable, not returned, waiting for evidence, private, or not yet graded. No production-looking demo data.
 
+## Design-system lock document
+
+Before any code changes, `SPX402_DESIGN_SYSTEM_LOCK.md` is written at the project root as the single source of truth, so future pages can't drift back. It fixes: the two page widths and their gutters; the title hierarchy; the four spacing values; the four button variants and all six of their states; table density, row height, sticky header, hover, selected, sort and mobile stacking; the status-chip vocabulary and tones; the empty, loading and error patterns with their exact copy; every formatting rule for addresses, transactions, dates, SOL, USD, bps, score and percent; SPX402 Wallet naming and where "x402" is still allowed; the motion tokens and reduced-motion rule; the focus and accessibility baseline; and the list of backend-owned values that may never be invented, defaulted or demo'd on the client.
+
 ## Technical section
+
+
 
 - `src/styles.css` `@theme` tokens: container widths, spacing rhythm, motion duration and easing, focus ring, table density, panel border, status colors. Utilities exposed via `@utility`: `stage`, `stage-narrow`, `band`, `section`, `subsection`, `focus-ring`, `tabular`, `hairline`.
 - Primitives live in `src/components/spx/`; existing `Panel`, `DataTable`, `EmptyState`, `StatusChip`, `DetailSection` are extended rather than duplicated. `ActionButton` variants via `cva`.
