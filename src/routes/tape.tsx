@@ -4,10 +4,9 @@
 // This is the public ledger that grades, attestations, and (later)
 // bonds must reconcile against.
 
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { CATEGORIES, categoryLabel } from "@/lib/agents/categories";
-import { useState, useEffect } from "react";
 
 const SEVERITIES: Array<{ id: string | null; label: string }> = [
   { id: null, label: "All" },
@@ -36,7 +35,19 @@ export const Route = createFileRoute("/tape")({
       },
     ],
   }),
-  loader: () => fetchTape({ limit: 200 }),
+  // Filters live in the URL so every combination is its own cacheable loader
+  // result — revisiting a filter within the stale window is instant, and
+  // filtered views are shareable links.
+  validateSearch: (search: Record<string, unknown>): { category?: string; severity?: string } => ({
+    category: typeof search.category === "string" && search.category ? search.category : undefined,
+    severity: typeof search.severity === "string" && search.severity ? search.severity : undefined,
+  }),
+  loaderDeps: ({ search }) => ({
+    category: search.category ?? null,
+    severity: search.severity ?? null,
+  }),
+  loader: ({ deps }) =>
+    fetchTape({ limit: 200, category: deps.category, severity: deps.severity }),
   staleTime: 15_000,
   component: TapePage,
   errorComponent: ({ error, reset }) => {
