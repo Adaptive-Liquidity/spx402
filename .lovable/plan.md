@@ -46,28 +46,33 @@ Our two agents will be graded by brand-new decoder, listener and verifier code. 
 ## Plan
 
 ### 1. Make the AEON decoder real
-Derive the true instruction fingerprints from the deployed program's interface file and replace the placeholders. Add golden tests built from a captured real mainnet transaction of each kind (escrow created, escrow released, escrow canceled, bond deposited, bond slashed, receipt created) — same fixture discipline as the existing decoders. Also parse real amounts from the transaction's transfers instead of returning zero.
+Derive the true instruction fingerprints from the canonical on-chain interface record (or a verified build) and replace the placeholders. Add golden tests built from real captured mainnet transactions of each kind — escrow created, released, canceled, bond deposited, bond slashed, receipt created — same fixture discipline as the existing decoders. Fixture transaction signatures are committed to the repo and carried in the evidence bundle, pinned to the decoder commit that produced them, so re-derivation is actually reproducible rather than theoretically reproducible. Parse real amounts from the transaction's transfers instead of returning zero.
 
 ### 2. Start listening to AEON
-Add the AEON program address to the on-chain listener subscription so every AEON transaction reaches the pipeline, and add each agent's identity address alongside it. Backfill the agent's history so the grade reflects everything it has already done, not just what happens after we switch on.
+Add the AEON program address to the on-chain listener subscription so every AEON transaction reaches the pipeline, and add each agent's identity address alongside it. Backfill runs through the ordinary decode-then-score path — no bulk insert, no shortcut route, including under deadline.
 
 ### 3. Teach the verifier about AEON
-Add an AEON branch: a candidate passes when its identity address exists on-chain under the AEON program and it has at least one decoded escrow, bond or receipt. Wire it into the same candidate queue everything else uses.
+Add an AEON branch: a candidate passes when its identity address exists on-chain under the AEON program and it has at least one decoded escrow, bond or receipt. That is a listing bar, not a grading bar — see the thin-evidence guard in step 7.
 
 ### 4. Go live on-chain (if not already)
-If these agents haven't executed yet, we make them execute for real: post a bond, run at least one escrow through to release, and emit a receipt. That is the honest path to a grade — the score has to come from work that happened.
+If these agents haven't executed yet, we make them execute for real: post a bond, run at least one escrow through to release, emit a receipt. Blocker 1 applies — at least one escrow crosses a counterparty we don't control, or the circularity is disclosed on the agent page and in the evidence bundle before the grade is shown anywhere.
 
 ### 5. Register through the front door
 Submit both agents on `/build/register` like any operator would, let the verifier promote them, let the scoring sweep grade them. Then sign the operator challenge with each wallet so the VERIFIED chip is earned, not set.
 
 ### 6. Publish the proof
-Once graded: mint the on-chain attestation for each grade (the attester wallet is already live), and publish the evidence bundle so anyone can independently re-derive the score.
+Once graded: mint the on-chain attestation for each grade (the attester wallet is already live), and publish the evidence bundle — including counterparty labels, fixture signatures and decoder commit — so anyone can independently re-derive the score.
 
 ### 7. Show it the way a serious issuer would
-Both agents rank normally in the registry and leaderboard — no boosting, no pinning above better subjects. On top of that, a small permanent **Genesis Record**: a dated, signed entry stating that SPX402 registered its own agents as subject #1 and #2 under the same methodology, with the same public evidence, and holds no exemption from its own grades — including the commitment that if our own grade drops, it drops in public. Each of our agent pages carries a discreet "Issuer's own subject" mark so nobody can claim we hid the relationship. This is the credibility move: a ratings business is only worth anything if it is willing to be rated by its own rules first.
+Both agents rank normally in the registry and leaderboard — no boosting, no pinning above better subjects. Around that:
+
+- **The Genesis Record** — a dated, signed, permanent entry: AEON subjects #1 and #2, the first operator-verified graded mainnet subjects on SPX402, rated under the same methodology and the same public evidence as everyone else. It states our operational relationship to each subject (including whether we operate the AEON rails themselves), our financial interest and trading policy, the commitment that a drop in our own grade drops in public, and the commitment that every correction is versioned and published.
+- **Issuer-interest mark as standing policy** — any subject where SPX402 has operational or financial interest carries the mark, automatically, forever, no exceptions. Written into the methodology page as policy, not applied as a one-off to these two.
+- **Thin-evidence guard** — before launch I check what a single escrow actually produces. A confident-looking letter grade off one event is misleading no matter how honest the plumbing, so the agent page shows event count and observation window next to the grade, and a subject below the evidence floor reads as provisional rather than established.
 
 ## Notes
 
-- Nothing is seeded. If step 4 hasn't happened, both agents show as tracked-but-ungraded until real activity lands — that stays honest and is itself a demonstration.
+- Nothing is seeded. If step 4 hasn't happened, both agents show as tracked-but-ungraded until real activity lands — an honestly empty grade is better for a ratings platform than a fast one.
 - No changes to scoring weights, grade thresholds, palette, typography or existing copy.
-- Verification gate: decoder tests green against real captured transactions, both agents graded from indexed events, both operator-signed, attestations live on-chain.
+- Launch gate: blockers 1–4 answered in public copy; decoder tests green against real captured transactions; both agents graded from indexed events; both operator-signed; attestations live on-chain.
+
