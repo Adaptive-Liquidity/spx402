@@ -17,36 +17,36 @@ Tier 1 and Tier 2 finished the human-facing terminal. Tier 3 makes SPX402 legibl
 
 ## 3. MCP server — finish and publish
 
-The endpoint exists and answers `initialize`, `tools/list`, `tools/call`. Tier 3 makes it usable without inside knowledge:
+The endpoint already answers `initialize`, `tools/list`, `tools/call`, and a `GET` descriptor. Tier 3 makes it usable without inside knowledge — the existing POST JSON-RPC contract and the GET descriptor stay exactly as they are.
 
-- Add a `GET /api/public/mcp` descriptor (server info, protocol version, tool list) so a human or crawler hitting the URL sees what it is instead of a method error.
-- Add two tools that map to data the site already shows publicly: agent evidence summary (hashes and counts, not the paid bundle) and operator lookup.
+- Add two tools, both mapping only to data the site already shows publicly: agent evidence summary (hashes and counts, not the paid bundle) and operator lookup. No private fields, no new data exposure.
 - Add a connection panel on `/build/docs`: the endpoint URL, a copy-paste Claude/Cursor config block, the tool list with one-line descriptions, and the rate limit. Uses the existing `CopyBlock` — no new primitives.
-- Tests: one per tool asserting the JSON-RPC shape and that no private field leaks.
+- Tests: one per tool asserting the JSON-RPC shape and that no private field leaks, plus a regression test that POST JSON-RPC still answers.
 
 ## 4. Badge system — verifiable end to end
 
 Subscriptions, tiers, and EAS attestations already exist. What is missing is the public proof loop:
 
-- A public verification view for a subject's attestations: UID, kind, grade, score, transaction hash, attester, timestamp, each linking to Base — reachable from the badge itself and from the agent dossier.
+- A public verification view for a subject's attestations: UID, kind, grade, score, transaction hash, attester, timestamp, each linking to Base. Built from existing primitives only — `PageHeader`, `DataTable`, the standard stage width. No new layout language.
 - The badge SVG embeds a link to that view, so anyone seeing a badge can check it without trusting us.
 - Embed snippet on `/build/badge`: copy-paste `<img>` and iframe markup with the honest-grade rule shown next to it, verbatim.
 - Lapsed/cancelled state renders an explicitly degraded badge (monitoring inactive), never a stale grade presented as current.
+- If the dossier is touched to add the verification link, `LAST INDEXED` must render via `formatRelative` or "indexer lagging" — never raw seconds.
 
 ## 5. Housekeeping this tier picks up
 
-- `⌘K` currently has two owners: the new command palette and the homepage query console. The palette wins globally; the console keeps `/` when it is on screen.
-- `robots.txt` gains explicit allows for `/api/public/mcp`, `/.well-known/*`, and the llms files (currently blanket-blocked by `Disallow: /api/`).
+- Keyboard: `⌘K` / `Ctrl+K` stays the global palette binding. `/` is handled only while the homepage query field is focused. No new global `/` binding, no second owner of `⌘K`.
+- `robots.txt` adds targeted allows for exactly `/api/public/mcp`, `/.well-known/*`, `/llms.txt`, `/llms-full.txt`. `Disallow: /api/` stays — the rest of the API surface is not opened.
 - Sitemap gains the routes added since it was last touched.
 
 ## Technical notes
 
-- New routes: `src/routes/llms[.]txt.ts`, `src/routes/llms-full[.]txt.ts`, `src/routes/[.]well-known/agent-card[.]json.ts`, plus a `GET` handler on the existing MCP route. All are TanStack file routes returning `Response` directly.
-- Text surfaces are generated from shared constants in `src/lib/` (methodology copy, `ENDPOINT_PRICES`, `NAV_HUBS`) so wording and prices cannot drift from the pages.
+- New routes: `src/routes/llms[.]txt.ts`, `src/routes/llms-full[.]txt.ts`, `src/routes/[.]well-known/agent-card[.]json.ts`. All are TanStack file routes returning `Response` directly.
+- Text surfaces are generated from existing copy constants (methodology copy, `ENDPOINT_PRICES`, `NAV_HUBS`) — no new voice, no second wording that can drift from the pages.
 - Attestation reads use the existing public server function in `src/lib/badge.functions.ts`; no new table, no new grant.
 - Cache: `public, max-age=300, s-maxage=3600, stale-while-revalidate=86400` on the static text/JSON surfaces; attestation view is dynamic with a short s-maxage.
-- Verification: `bun run typecheck && bun run test`, plus a live fetch of each new URL and a screenshot of the docs MCP panel and the badge verification view at 1280 and 390.
+- Verification: `bun run typecheck && bun run test`; live-fetch `/llms.txt`, `/llms-full.txt`, `/.well-known/agent-card.json`, `/api/public/mcp`; screenshots at 1280 and 390 of the `/build/docs` MCP panel and the badge verification view. Then stop.
 
 ## Out of scope
 
-Base Tier 3 strategy items (ERC-7715 spend permissions, Talent Protocol Builder Score) stay in their own plan. No scoring, decoder, pricing, or design-token changes here.
+No restyling of any kind: no palette, type, hero copy, scoring, or pricing changes. Base Tier 3 strategy items (ERC-7715 spend permissions, Talent Protocol Builder Score) stay in their own plan.
