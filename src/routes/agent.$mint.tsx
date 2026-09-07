@@ -57,16 +57,11 @@ import {
   Check,
   Bell,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
+import { lazy, Suspense, useEffect, useState } from "react";
+
+// Charting library is heavy and only tokenized agents render a price chart —
+// load it on demand instead of shipping it with every dossier visit.
+const PriceContextChart = lazy(() => import("@/components/spx/PriceContextChart"));
 
 const KNOWN_EVENT_TYPES: EventType[] = [
   "DEPOSIT_RECEIVED",
@@ -1426,46 +1421,9 @@ function Dossier({
             </span>
           }
         >
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={agent.priceSeries}>
-                <defs>
-                  <linearGradient id="amberFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="oklch(0.78 0.16 75)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="oklch(0.78 0.16 75)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid stroke="oklch(0.32 0.04 65)" strokeOpacity={0.3} vertical={false} />
-                <XAxis
-                  dataKey="t"
-                  stroke="var(--wire)"
-                  tick={{ fontSize: 10, fontFamily: "monospace" }}
-                />
-                <YAxis
-                  stroke="var(--wire)"
-                  tick={{ fontSize: 10, fontFamily: "monospace" }}
-                  width={70}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--panel-deep)",
-                    border: "1px solid var(--bronze)",
-                    borderRadius: 0,
-                    fontFamily: "monospace",
-                    fontSize: 11,
-                  }}
-                  labelStyle={{ color: "var(--wire)" }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="v"
-                  stroke="var(--amber)"
-                  strokeWidth={2}
-                  fill="url(#amberFill)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <Suspense fallback={<div className="h-64 animate-pulse bg-panel/40" />}>
+            <PriceContextChart data={agent.priceSeries} />
+          </Suspense>
         </Panel>
       )}
 

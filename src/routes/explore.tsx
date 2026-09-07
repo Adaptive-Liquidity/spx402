@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AgentRow } from "@/components/spx/AgentRow";
 import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
-import { fetchAllAgents } from "@/lib/agents-db";
+import { fetchAgentIndex } from "@/lib/agents-db";
 import { isLowGrade, type Agent, type Grade } from "@/lib/agents";
 import { AlertTriangle } from "lucide-react";
 
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/explore")({
       },
     ],
   }),
-  loader: () => fetchAllAgents(),
+  loader: () => fetchAgentIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
     <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">

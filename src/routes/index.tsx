@@ -3,7 +3,7 @@ import { AgentSearchBar } from "@/components/spx/AgentSearchBar";
 import { Hero } from "@/components/spx/Hero";
 import { Aperture } from "@/components/spx/Aperture";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
-import { fetchAllAgents } from "@/lib/agents-db";
+import { fetchAgentIndex } from "@/lib/agents-db";
 import { qualifiesForLeaderboard, gradeColor, type Agent } from "@/lib/agents";
 import { Panel } from "@/components/spx/Panel";
 import { LiveTapeHero } from "@/components/spx/LiveTapeHero";
@@ -77,7 +77,7 @@ export const Route = createFileRoute("/")({
       activeFacilitators: 0,
     };
     const [agents, tape, stats] = await Promise.all([
-      safe<Agent[]>(fetchAllAgents(), []),
+      safe<Agent[]>(fetchAgentIndex(), []),
       safe<TapeRow[]>(fetchTape({ limit: 18 }), []),
       safe<HomeStats>(fetchHomeStats(), emptyStats),
     ]);

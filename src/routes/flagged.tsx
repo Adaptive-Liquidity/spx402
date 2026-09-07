@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AgentRow } from "@/components/spx/AgentRow";
 import type { Agent } from "@/lib/agents";
-import { fetchAllAgents } from "@/lib/agents-db";
+import { fetchAgentIndex } from "@/lib/agents-db";
 import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/flagged")({
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/flagged")({
     ],
   }),
   loader: async () => {
-    const all = await fetchAllAgents();
+    const all = await fetchAgentIndex();
     return all.filter((a) => a.flagged);
   },
   staleTime: 60_000,

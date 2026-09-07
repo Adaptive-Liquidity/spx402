@@ -545,8 +545,26 @@ interface SnapshotRow {
 // Movers (24h) — for each agent, compare the most recent snapshot at least
 // `windowHours` old to the current agents row. Returns agents with non-zero
 // score delta sorted by absolute delta.
-/** Fetch agents with the largest recent score changes. */
-export async function fetchScoreMovers(windowHours = 24, limit = 25): Promise<ScoreMover[]> {
+// Snapshots accumulate daily, so a short cache is invisible to users and
+// keeps the movers tab from re-querying on every visit/re-click.
+let moversCache: { key: string; at: number; promise: Promise<ScoreMover[]> } | null = null;
+const MOVERS_CACHE_TTL_MS = 5 * 60_000;
+
+/** Fetch agents with the largest recent score changes (briefly memoized). */
+export function fetchScoreMovers(windowHours = 24, limit = 25): Promise<ScoreMover[]> {
+  const key = `${windowHours}:${limit}`;
+  if (moversCache && moversCache.key === key && Date.now() - moversCache.at < MOVERS_CACHE_TTL_MS) {
+    return moversCache.promise;
+  }
+  const promise = fetchScoreMoversUncached(windowHours, limit);
+  moversCache = { key, at: Date.now(), promise };
+  promise.catch(() => {
+    if (moversCache?.promise === promise) moversCache = null;
+  });
+  return promise;
+}
+
+async function fetchScoreMoversUncached(windowHours = 24, limit = 25): Promise<ScoreMover[]> {
   const cutoff = new Date(Date.now() - windowHours * 60 * 60 * 1000).toISOString();
 
   // Pull the newest snapshot per mint that is older than `cutoff`.

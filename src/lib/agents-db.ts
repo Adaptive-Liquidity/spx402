@@ -43,6 +43,7 @@ type AgentRow = {
   verdict: string | null;
   events: unknown;
   price_series: unknown;
+  chain?: string | null;
   flagged: boolean | null;
   flag_reason: string | null;
   flagged_at: string | null;
@@ -132,14 +133,88 @@ function scoreBreakdown(value: unknown): AgentScoreBreakdown {
   };
 }
 
-/** Fetch all agents ordered by descending finite score. */
-export async function fetchAllAgents(): Promise<Agent[]> {
-  const { data, error } = await supabase
-    .from("agents")
-    .select("*")
-    .order("score", { ascending: false, nullsFirst: false });
-  if (error) throw error;
-  return (data as AgentRow[]).map(rowToAgent);
+/**
+ * Columns the list pages (home, leaderboard, explore, flagged) actually
+ * render. Excludes the heavy per-row blobs (events, price_series,
+ * score_breakdown) which only the agent detail route needs — pulling them
+ * for every row was the largest payload cost on the three busiest pages.
+ */
+const AGENT_LIST_COLUMNS = [
+  "mint",
+  "identifier_kind",
+  "category",
+  "executor_wallet",
+  "core_asset",
+  "symbol",
+  "name",
+  "tagline",
+  "grade",
+  "score",
+  "status",
+  "operator_verified",
+  "confidence",
+  "confidence_score",
+  "methodology_version",
+  "confidence_model_version",
+  "parser_version",
+  "last_indexed_seconds",
+  "total_deposits_count",
+  "total_buybacks_count",
+  "total_burns_count",
+  "failed_windows",
+  "total_deposited_sol",
+  "total_buyback_sol",
+  "total_burned_tokens",
+  "buyback_execution_rate",
+  "burn_confirmation_rate",
+  "buyback_bps",
+  "last_buyback_label",
+  "last_burn_label",
+  "config_last_changed_label",
+  "verdict",
+  "flagged",
+  "flag_reason",
+  "flagged_at",
+  "chain",
+  "aeon_cri_address",
+  "total_slashed_usd",
+  "active_bond_amount",
+  "escrow_success_rate",
+  "total_escrows_completed",
+  "total_escrows_failed",
+].join(", ");
+
+/** Safety bound so the index payload can never grow without limit. */
+const AGENT_INDEX_LIMIT = 5000;
+
+// Short-lived shared cache: home, leaderboard, explore and flagged all load
+// the same index, so navigating between them within the TTL reuses one copy
+// instead of re-fetching the whole table per route. The in-flight promise is
+// cached (not just the result) so concurrent loaders dedupe.
+let indexCache: { at: number; promise: Promise<Agent[]> } | null = null;
+const INDEX_CACHE_TTL_MS = 30_000;
+
+/** Fetch the slim agent index shared by all list pages, briefly memoized. */
+export function fetchAgentIndex(): Promise<Agent[]> {
+  if (indexCache && Date.now() - indexCache.at < INDEX_CACHE_TTL_MS) {
+    return indexCache.promise;
+  }
+  const promise = (async () => {
+    const { data, error } = await supabase
+      .from("agents")
+      .select(AGENT_LIST_COLUMNS)
+      .order("score", { ascending: false, nullsFirst: false })
+      .limit(AGENT_INDEX_LIMIT);
+    if (error) throw error;
+    return (data as unknown as AgentRow[]).map(rowToAgent);
+  })();
+  indexCache = { at: Date.now(), promise };
+  // A failed fetch must not poison the cache — drop it so the next
+  // navigation retries.
+  promise.catch(() => {
+    if (indexCache?.promise === promise) indexCache = null;
+  });
+  return promise;
 }
 
 /** Resolve one agent by exact mint, symbol, or mint prefix. */

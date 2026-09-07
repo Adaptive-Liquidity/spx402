@@ -102,7 +102,15 @@ export type Database = {
           slot?: number | null
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agent_events_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["mint"]
+          },
+        ]
       }
       agent_score_snapshots: {
         Row: {

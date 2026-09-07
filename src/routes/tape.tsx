@@ -4,10 +4,9 @@
 // This is the public ledger that grades, attestations, and (later)
 // bonds must reconcile against.
 
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { fetchTape, relativeFromNow, type TapeRow } from "@/lib/live-data";
 import { CATEGORIES, categoryLabel } from "@/lib/agents/categories";
-import { useState, useEffect } from "react";
 
 const SEVERITIES: Array<{ id: string | null; label: string }> = [
   { id: null, label: "All" },
@@ -36,7 +35,19 @@ export const Route = createFileRoute("/tape")({
       },
     ],
   }),
-  loader: () => fetchTape({ limit: 200 }),
+  // Filters live in the URL so every combination is its own cacheable loader
+  // result — revisiting a filter within the stale window is instant, and
+  // filtered views are shareable links.
+  validateSearch: (search: Record<string, unknown>): { category?: string; severity?: string } => ({
+    category: typeof search.category === "string" && search.category ? search.category : undefined,
+    severity: typeof search.severity === "string" && search.severity ? search.severity : undefined,
+  }),
+  loaderDeps: ({ search }) => ({
+    category: search.category ?? null,
+    severity: search.severity ?? null,
+  }),
+  loader: ({ deps }) =>
+    fetchTape({ limit: 200, category: deps.category, severity: deps.severity }),
   staleTime: 15_000,
   component: TapePage,
   errorComponent: ({ error, reset }) => {
@@ -67,30 +78,18 @@ function severityTone(sev: string): string {
 }
 
 function TapePage() {
-  const initial = Route.useLoaderData() as TapeRow[];
-  const [rows, setRows] = useState<TapeRow[]>(initial);
-  const [category, setCategory] = useState<string | null>(null);
-  const [severity, setSeverity] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const rows = Route.useLoaderData() as TapeRow[];
+  const search = Route.useSearch();
+  const category = search.category ?? null;
+  const severity = search.severity ?? null;
+  const navigate = useNavigate({ from: "/tape" });
+  const loading = useRouterState({ select: (s) => s.isLoading });
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      setLoading(true);
-      const fresh = await fetchTape({
-        limit: 200,
-        category,
-        severity,
-      });
-      if (!cancelled) {
-        setRows(fresh);
-        setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [category, severity]);
+  const setFilter = (key: "category" | "severity", value: string | null) =>
+    void navigate({
+      search: (prev) => ({ ...prev, [key]: value ?? undefined }),
+      replace: true,
+    });
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-16">
@@ -110,7 +109,7 @@ function TapePage() {
             Category:
           </span>
           <button
-            onClick={() => setCategory(null)}
+            onClick={() => setFilter("category", null)}
             className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
               category === null
                 ? "border-amber bg-amber/10 text-amber"
@@ -122,7 +121,7 @@ function TapePage() {
           {CATEGORIES.filter((c) => c.decoderLive).map((c) => (
             <button
               key={c.id}
-              onClick={() => setCategory(c.id)}
+              onClick={() => setFilter("category", c.id)}
               className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
                 category === c.id
                   ? "border-amber bg-amber/10 text-amber"
@@ -140,7 +139,7 @@ function TapePage() {
           {SEVERITIES.map((s) => (
             <button
               key={s.label}
-              onClick={() => setSeverity(s.id)}
+              onClick={() => setFilter("severity", s.id)}
               className={`border px-3 py-1.5 font-mono text-[11px] uppercase tracking-widest transition-colors ${
                 severity === s.id
                   ? "border-amber bg-amber/10 text-amber"
