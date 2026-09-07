@@ -1270,6 +1270,60 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          api_key_id: string | null
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          plan: string | null
+          price_id: string
+          product_id: string | null
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          api_key_id?: string | null
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          plan?: string | null
+          price_id: string
+          product_id?: string | null
+          status?: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          api_key_id?: string | null
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          plan?: string | null
+          price_id?: string
+          product_id?: string | null
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_auth_nonces: {
         Row: {
           created_at: string
@@ -1597,6 +1651,10 @@ export type Database = {
           used_this_month: number
           used_today: number
         }[]
+      }
+      has_active_subscription: {
+        Args: { check_env?: string; user_uuid: string }
+        Returns: boolean
       }
       rate_limit_hit: {
         Args: { p_bucket: string; p_limit: number; p_window_seconds: number }
