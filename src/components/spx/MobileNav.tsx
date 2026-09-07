@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import { NAV_ITEMS } from "./nav-items";
+import { MOBILE_NAV_ITEMS as NAV_ITEMS } from "./nav-items";
 
 export function MobileNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
