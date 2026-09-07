@@ -10,6 +10,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExecutionGradeBadge } from "@/components/spx/ExecutionGradeBadge";
 import { Panel } from "@/components/spx/Panel";
+import {
+  BLIND_SPOTS,
+  CONFIDENCE_INPUTS,
+  EVENT_TAXONOMY,
+  GRADES,
+  PARSER_VERSIONS,
+  REFUSES_TO_MEASURE,
+  RISK_INPUTS,
+  SCHEMA_CHANGELOG,
+  TASK_EXECUTOR_RISK_INPUTS,
+  X402_DETECTION_TIERS,
+  X402_EVM_DETECTION_TIERS,
+} from "@/lib/methodology-copy";
 
 export const Route = createFileRoute("/methodology")({
   head: () => ({
