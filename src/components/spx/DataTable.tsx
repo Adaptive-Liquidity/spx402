@@ -150,7 +150,8 @@ export function DataTable<T>({
           )}
         </tbody>
       </table>
-    </div>
+      </div>
+    </>
   );
 }
 
