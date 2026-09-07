@@ -17,7 +17,7 @@ import {
   type AlertSubscription,
 } from "@/lib/alerts";
 import { SCORING_VERSION } from "@/lib/versions";
-import { CopyButton, dossierFlags, scorePillarsFor, shortMint } from "./dossier-utils";
+import { CopyButton, dossierFlags, scorePillarsFor, shortMint, whyThisGrade } from "./dossier-utils";
 
 export function DossierHero({ agent }: { agent: Agent }) {
   const cat = categoryMeta(agent.category);
@@ -188,6 +188,10 @@ export function DossierHero({ agent }: { agent: Agent }) {
           </div>
           <div className="mt-8 rule-amber" />
           <p className="mt-6 max-w-2xl text-paper">{agent.verdict}</p>
+          {/* Why this grade — names the missing evidence class, never a judgement. */}
+          <p className="mt-3 max-w-2xl font-mono text-xs text-paper-muted">
+            {whyThisGrade(agent, flags)}
+          </p>
           <div className="mt-4 border-l-2 border-amber/60 pl-3 font-mono text-sm italic text-paper-muted">
             “{agent.tagline}”
           </div>

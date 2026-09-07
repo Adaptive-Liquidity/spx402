@@ -325,3 +325,44 @@ export function scorePillarsFor(agent: Agent, flags: DossierFlags) {
     },
   ];
 }
+
+/**
+ * One sentence explaining the grade by naming the evidence class that is
+ * missing. A grade is never a verdict on the operator — it is a statement
+ * about what the chain has shown us so far.
+ */
+export function whyThisGrade(agent: Agent, flags: DossierFlags): string {
+  const scoredEvents =
+    agent.totalDepositsCount +
+    agent.totalBuybacksCount +
+    agent.totalBurnsCount +
+    (agent.totalEscrowsCompleted ?? 0) +
+    (agent.totalEscrowsFailed ?? 0);
+
+  const missing: string[] = [];
+  if (flags.isTokenized) {
+    if (agent.totalDepositsCount === 0) missing.push("revenue deposits");
+    if (agent.totalBuybacksCount === 0) missing.push("executed buybacks");
+    if (agent.totalBurnsCount === 0) missing.push("confirmed burns");
+  } else if (flags.isTaskExecutor || flags.hasAeonPrimitives) {
+    if ((agent.totalEscrowsCompleted ?? 0) === 0) missing.push("completed escrows");
+    if ((agent.activeBondAmount ?? 0) === 0) missing.push("a slashable bond");
+  } else if (scoredEvents === 0) {
+    missing.push("settlement activity of any scored class");
+  }
+
+  const operatorNote = agent.operatorVerified
+    ? ""
+    : " The operator has not signed for this subject, so identity is unverified.";
+
+  if (missing.length === 0) {
+    return `Graded ${agent.grade} on ${scoredEvents.toLocaleString()} scored on-chain event${
+      scoredEvents === 1 ? "" : "s"
+    }.${operatorNote}`;
+  }
+  const list =
+    missing.length === 1
+      ? missing[0]
+      : `${missing.slice(0, -1).join(", ")} and ${missing[missing.length - 1]}`;
+  return `Graded ${agent.grade} because the ledger shows no ${list}. The grade moves when that evidence appears — nothing else moves it.${operatorNote}`;
+}

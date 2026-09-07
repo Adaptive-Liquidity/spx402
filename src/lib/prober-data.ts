@@ -140,6 +140,47 @@ export async function fetchProbeRuns(serviceId: string, limit = 100): Promise<Pr
   return ((data ?? []) as unknown[]).map(mapRun);
 }
 
+export interface ProbeLogEntry extends ProbeRunRow {
+  serviceSlug: string | null;
+  serviceUrl: string | null;
+  servicePayTo: string | null;
+}
+
+/**
+ * The public probe log: every purchase we made, what it cost and what came
+ * back. Displayed, never scored.
+ */
+export async function fetchRecentProbeRuns(limit = 25): Promise<ProbeLogEntry[]> {
+  const { data } = await supabase
+    .from("probe_run" as never)
+    .select(RUN_COLS)
+    .order("ran_at", { ascending: false })
+    .limit(limit);
+  const runs = ((data ?? []) as unknown[]).map(mapRun);
+  if (runs.length === 0) return [];
+
+  const ids = Array.from(new Set(runs.map((r) => r.serviceId).filter(Boolean)));
+  const { data: svcData } = await supabase
+    .from("x402_service" as never)
+    .select("id, slug, url, pay_to")
+    .in("id", ids);
+  const svc = new Map(
+    ((svcData ?? []) as Array<{ id: string; slug: string | null; url: string | null; pay_to: string | null }>).map(
+      (s) => [s.id, s],
+    ),
+  );
+
+  return runs.map((r) => {
+    const s = svc.get(r.serviceId);
+    return {
+      ...r,
+      serviceSlug: s?.slug ?? null,
+      serviceUrl: s?.url ?? null,
+      servicePayTo: s?.pay_to ?? null,
+    };
+  });
+}
+
 export interface SettleRatePoint {
   day: string;
   attempts: number;

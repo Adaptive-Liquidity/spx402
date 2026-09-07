@@ -12,7 +12,14 @@ import {
   type FacilitatorRow,
   type IndexerRunRow,
 } from "@/lib/live-data";
-import { fetchProberOverview, type ProberOverview } from "@/lib/prober-data";
+import { fetchLaneLiveness, laneTone, type LaneStatus } from "@/lib/lane-liveness";
+import {
+  fetchProberOverview,
+  fetchRecentProbeRuns,
+  type ProbeLogEntry,
+  type ProberOverview,
+} from "@/lib/prober-data";
+import { getProberPublicConfig, type ProberPublicConfig } from "@/lib/system.functions";
 import { outcomeLabel, PROBE_CAPS } from "@/lib/prober/outcomes";
 import { categoryLabel } from "@/lib/agents/categories";
 
@@ -33,14 +40,26 @@ export const Route = createFileRoute("/live/status")({
     ],
   }),
   loader: async () => {
-    const [runs, stats, coverage, facilitators, prober] = await Promise.all([
+    const [runs, stats, coverage, facilitators, prober, proberConfig] = await Promise.all([
       fetchLatestIndexerRuns(),
       fetchIndexerStats24h(),
       fetchEventCoverage(),
       fetchFacilitators(),
       fetchProberOverview(),
+      getProberPublicConfig(),
     ]);
-    return { runs, stats, coverage, facilitators, prober };
+    const probeLog = await fetchRecentProbeRuns(25);
+    // Liveness needs the heartbeats first: a lane is judged on cadence AND on
+    // whether its productive source actually gained a row.
+    const lanes = await fetchLaneLiveness(
+      Object.fromEntries(
+        Object.entries(runs).map(([key, run]) => [
+          key,
+          run ? { ranAt: run.ranAt, ok: run.ok } : null,
+        ]),
+      ),
+    );
+    return { runs, stats, coverage, facilitators, prober, proberConfig, lanes, probeLog };
   },
 
   staleTime: 15_000,
@@ -116,10 +135,22 @@ const COMPONENT_ROWS: Array<{
       "Cursor-resumable eth_getLogs scan of EIP-3009 / Permit2 settlements on Base. Tier A (registry sender) is scored; Tier B is discovery-only.",
   },
   {
+    key: "registry_scan",
+    name: "Agent registry scanner",
+    description:
+      "Hourly sweep of the MPL Agent Identity program for newly registered agents; writes candidates, never grades them.",
+  },
+  {
     key: "registered_agent_diff",
     name: "Registered-agent diff worker",
     description:
       "Hourly re-scan of MPL Agent Identity PDAs. Emits OPERATOR_CHANGED + CONFIG_CHANGED events when registered agents mutate on-chain.",
+  },
+  {
+    key: "directory_import",
+    name: "x402 directory import",
+    description:
+      "Pulls published x402 service directories and facilitator /supported endpoints into the service registry. Import only — a listing is a claim, never evidence.",
   },
   {
     key: "prober",
@@ -129,44 +160,37 @@ const COMPONENT_ROWS: Array<{
   },
 ];
 
-type Health = "operational" | "degraded" | "no-data";
-
-function healthFor(run: IndexerRunRow | null): Health {
-  if (!run) return "no-data";
-  if (!run.ok) return "degraded";
-  // If a heartbeat is older than 30 minutes, mark it as no-data so we don't
-  // claim things are operational when nothing is reporting in.
-  const age = Date.now() - new Date(run.ranAt).getTime();
-  if (age > 30 * 60 * 1000) return "no-data";
-  return "operational";
-}
-
 function StatusPage() {
-  const { runs, stats, coverage, facilitators, prober } = Route.useLoaderData() as {
-    runs: Record<string, IndexerRunRow | null>;
-    stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
-    coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
-    facilitators: FacilitatorRow[];
-    prober: ProberOverview;
-  };
+  const { runs, stats, coverage, facilitators, prober, proberConfig, lanes, probeLog } =
+    Route.useLoaderData() as {
+      runs: Record<string, IndexerRunRow | null>;
+      stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
+      coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
+      facilitators: FacilitatorRow[];
+      prober: ProberOverview;
+      proberConfig: ProberPublicConfig;
+      lanes: LaneStatus[];
+      probeLog: ProbeLogEntry[];
+    };
   const activeFacilitators = facilitators.filter((f) => f.active);
 
-  const healths = COMPONENT_ROWS.map((c) => healthFor(runs[c.key] ?? null));
-  const degraded = healths.filter((h) => h === "degraded").length;
-  const noData = healths.filter((h) => h === "no-data").length;
-  const operational = healths.filter((h) => h === "operational").length;
+  const laneByKey = new Map(lanes.map((l) => [l.key, l]));
+  const states = COMPONENT_ROWS.map((c) => laneByKey.get(c.key)?.state ?? "STALLED");
+  const stalled = states.filter((s) => s === "STALLED").length;
+  const quiet = states.filter((s) => s === "QUIET").length;
+  const observing = states.filter((s) => s === "OBSERVING").length;
 
+  // "Operational" is a claim about output, not about cron firing. A lane that
+  // runs on schedule and has never produced a row is STALLED, not nominal.
   const banner =
-    degraded > 0
-      ? `${degraded} component${degraded > 1 ? "s" : ""} degraded`
-      : noData === COMPONENT_ROWS.length
-        ? "Indexer not reporting yet · pre-launch"
-        : noData > 0
-          ? `${operational} of ${COMPONENT_ROWS.length} components reporting`
-          : "All components nominal";
+    stalled > 0
+      ? `${stalled} lane${stalled > 1 ? "s" : ""} stalled · ${observing} observing · ${quiet} quiet`
+      : quiet > 0
+        ? `${observing} observing · ${quiet} quiet — chain produced nothing in window`
+        : "All lanes observing";
 
-  const bannerTone =
-    degraded > 0 ? "critical" : noData === COMPONENT_ROWS.length ? "amber" : "verified";
+  const bannerTone = stalled > 0 ? "critical" : quiet > 0 ? "amber" : "verified";
+
 
   return (
     <div className="stage section">
@@ -201,19 +225,23 @@ function StatusPage() {
         <div className="mt-6 overflow-hidden border border-bronze/50">
           {COMPONENT_ROWS.map((c, i) => {
             const run = runs[c.key] ?? null;
-            const h = healthFor(run);
+            const lane = laneByKey.get(c.key) ?? null;
+            const state = lane?.state ?? "STALLED";
             const Icon =
-              h === "operational" ? CheckCircle2 : h === "degraded" ? AlertTriangle : MinusCircle;
+              state === "OBSERVING"
+                ? CheckCircle2
+                : state === "STALLED"
+                  ? AlertTriangle
+                  : MinusCircle;
+            const toneName = laneTone(state);
             const tone =
-              h === "operational"
+              toneName === "verified"
                 ? "text-verified"
-                : h === "degraded"
+                : toneName === "critical"
                   ? "text-critical"
-                  : "text-wire";
-            const label =
-              h === "operational" ? "operational" : h === "degraded" ? "degraded" : "no data";
-            const note = run
-              ? `Last run ${relativeFromNow(run.ranAt)} · ${run.durationMs}ms`
+                  : "text-amber";
+            const heartbeat = run
+              ? `Heartbeat ${relativeFromNow(run.ranAt)} · ${run.durationMs}ms`
               : "Awaiting first heartbeat";
             return (
               <div
@@ -230,9 +258,12 @@ function StatusPage() {
                   <div className="font-mono text-[11px] text-wire">{c.description}</div>
                 </div>
                 <div className={`col-span-2 font-mono text-xs uppercase tracking-widest ${tone}`}>
-                  {label}
+                  {state}
                 </div>
-                <div className="col-span-3 font-mono text-xs text-paper-muted">{note}</div>
+                <div className="col-span-3 font-mono text-xs text-paper-muted">
+                  <div>{lane?.reason ?? heartbeat}</div>
+                  <div className="text-wire">{heartbeat}</div>
+                </div>
               </div>
             );
           })}
@@ -313,6 +344,39 @@ function StatusPage() {
           <code className="font-mono text-xs text-paper">SPX402-Probe/1.0</code>. Probe results are{" "}
           <strong className="text-paper">not scored</strong>.
         </p>
+
+        {/* DISCLOSURE BEFORE SPEND — the paying wallets and the budget are
+            published here and on /methodology before the first paid probe. */}
+        <div className="mt-6 border border-bronze/50 bg-panel-deep p-5">
+          <div className="font-mono text-[11px] uppercase tracking-widest text-wire">
+            Prober disclosure
+          </div>
+          <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                l: "Prober state",
+                v: proberConfig.enabled ? "enabled" : "disabled — no paid probes",
+              },
+              {
+                l: "Solana wallet",
+                v: proberConfig.solanaWallet ?? (proberConfig.hasSolanaKey ? "key present" : "unfunded"),
+              },
+              {
+                l: "Base wallet",
+                v: proberConfig.baseWallet ?? (proberConfig.hasBaseKey ? "key present" : "unfunded"),
+              },
+              {
+                l: "Budget",
+                v: `$${PROBE_CAPS.dailyBudgetUsd.toFixed(2)}/day · $${PROBE_CAPS.perProbeUsd.toFixed(2)}/probe`,
+              },
+            ].map((s) => (
+              <div key={s.l}>
+                <dt className="font-mono text-[10px] uppercase tracking-widest text-wire">{s.l}</dt>
+                <dd className="mt-1 break-all font-mono text-xs text-paper">{s.v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Panel eyebrow="Coverage" title="Service registry">
@@ -412,6 +476,63 @@ function StatusPage() {
                   </span>
                 ))}
             </div>
+          )}
+        </div>
+
+        {/* PROBE LOG — who we bought from, what we paid, what came back. */}
+        <div className="mt-6 overflow-hidden border border-bronze/50">
+          <div className="border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[11px] uppercase tracking-widest text-wire">
+            Probe log · most recent {probeLog.length || ""}
+          </div>
+          {probeLog.length === 0 ? (
+            <div className="bg-panel p-6 font-mono text-sm text-paper-muted">
+              No probe has ever been recorded. Nothing has been bought, so nothing is claimed.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-12 gap-4 border-b border-bronze/40 bg-panel-deep px-5 py-2 font-mono text-[10px] uppercase tracking-widest text-wire">
+                <div className="col-span-2">When</div>
+                <div className="col-span-4">Service</div>
+                <div className="col-span-2">Paid</div>
+                <div className="col-span-2">Response</div>
+                <div className="col-span-2 text-right">Verdict</div>
+              </div>
+              {probeLog.map((p, i) => (
+                <div
+                  key={p.id}
+                  className={`grid grid-cols-12 items-center gap-4 px-5 py-3 ${
+                    i % 2 ? "bg-panel" : "bg-background"
+                  }`}
+                >
+                  <div className="col-span-2 font-mono text-xs text-paper-muted">
+                    {relativeFromNow(p.ranAt)}
+                  </div>
+                  <div className="col-span-4 truncate font-mono text-xs text-amber">
+                    {p.serviceSlug ? (
+                      <Link
+                        to="/service/$slug"
+                        params={{ slug: p.serviceSlug }}
+                        className="hover:underline"
+                      >
+                        {p.serviceUrl ?? p.serviceSlug}
+                      </Link>
+                    ) : (
+                      (p.serviceUrl ?? p.servicePayTo ?? "—")
+                    )}
+                  </div>
+                  <div className="num-display col-span-2 text-sm text-paper">
+                    {p.paidAmountUsd != null ? `$${p.paidAmountUsd.toFixed(4)}` : "—"}
+                  </div>
+                  <div className="col-span-2 font-mono text-xs text-paper-muted">
+                    {p.httpStatus ?? "—"}
+                    {p.delivered === true ? " · delivered" : p.delivered === false ? " · nothing" : ""}
+                  </div>
+                  <div className="col-span-2 text-right font-mono text-[10px] uppercase tracking-widest text-paper">
+                    {outcomeLabel(p.outcome)}
+                  </div>
+                </div>
+              ))}
+            </>
           )}
         </div>
       </section>
