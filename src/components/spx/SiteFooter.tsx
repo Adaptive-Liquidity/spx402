@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { CORE_PARSER_VERSION, SCORING_VERSION } from "@/lib/versions";
 
 const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }> }> = [
   {
