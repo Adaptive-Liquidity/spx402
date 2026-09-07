@@ -17,7 +17,7 @@ import {
   type AlertSubscription,
 } from "@/lib/alerts";
 import { SCORING_VERSION } from "@/lib/versions";
-import { CopyButton, dossierFlags, lastIndexedLabel, scorePillarsFor, shortMint } from "./dossier-utils";
+import { CopyButton, dossierFlags, scorePillarsFor, shortMint } from "./dossier-utils";
 
 export function DossierHero({ agent }: { agent: Agent }) {
   const cat = categoryMeta(agent.category);
@@ -66,14 +66,7 @@ export function DossierHero({ agent }: { agent: Agent }) {
             <span className="text-amber">SPX402</span> / AGENT DOSSIER / SOLANA MAINNET
           </span>
           <span>PARSER {agent.parserVersion}</span>
-          <span>LAST INDEXED {lastIndexedLabel(agent.lastIndexedSeconds)}</span>
-          <Link
-            to="/verify/$subject"
-            params={{ subject: agent.mint }}
-            className="text-amber hover:underline"
-          >
-            ATTESTATIONS ↗
-          </Link>
+          <span>LAST INDEXED {agent.lastIndexedSeconds}s AGO</span>
           <span>
             CONFIDENCE{" "}
             <span

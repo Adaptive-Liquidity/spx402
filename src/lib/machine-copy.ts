@@ -9,18 +9,6 @@
 import { NAV_HUBS } from "@/components/spx/nav-items";
 import { ENDPOINT_PRICES, TIER_LIMITS, usdc } from "@/lib/api-tiers";
 import { BADGE_TIERS, HONEST_GRADE_RULE } from "@/lib/badge-plans";
-import {
-  BLIND_SPOTS,
-  CONFIDENCE_INPUTS,
-  EVENT_TAXONOMY,
-  GRADES,
-  REFUSES_TO_MEASURE,
-  RISK_INPUTS,
-  SCHEMA_CHANGELOG,
-  TASK_EXECUTOR_RISK_INPUTS,
-  X402_DETECTION_TIERS,
-  X402_EVM_DETECTION_TIERS,
-} from "@/lib/methodology-copy";
 import { formatUsdc } from "@/lib/plans";
 import {
   CONFIDENCE_VERSION,
@@ -117,48 +105,7 @@ export function buildLlmsFullTxt(origin: string): string {
 - Facilitator registry: \`${FACILITATOR_REGISTRY_VERSION}\`
 - Active prober: \`${PROBER_VERSION}\`
 
-The canonical rendered version of everything below is ${origin}/methodology.
-
-## Methodology: risk score (0–100, grade by band)
-
-${RISK_INPUTS.map((r) => `- ${r.label} — ${r.weight}%: ${r.body}`).join("\n")}
-
-Σ = 100 points · Grade is assigned by the band the score falls in.
-
-task_executor slot mapping (same weighted slots, category-specific signals):
-${TASK_EXECUTOR_RISK_INPUTS.map((r) => `- ${r.slot} → ${r.signal}: ${r.body}`).join("\n")}
-
-## Methodology: confidence model (0–1)
-
-${CONFIDENCE_INPUTS.map((c) => `- ${c.label}: ${c.body}`).join("\n")}
-
-## Grade bands
-
-${GRADES.map((g) => `- ${g.g} (${g.r}) — ${g.t}`).join("\n")}
-
-## Event taxonomy
-
-${EVENT_TAXONOMY.map((e) => `- \`${e.type}\` [${e.severity}] — ${e.body}`).join("\n")}
-
-## x402 settlement detection (Solana)
-
-${X402_DETECTION_TIERS.map((t) => `- ${t.tier} · ${t.name} (confidence: ${t.confidence}) — ${t.body}`).join("\n")}
-
-## x402 settlement detection (Base / EVM)
-
-${X402_EVM_DETECTION_TIERS.map((t) => `- ${t.tier} · ${t.name} (confidence: ${t.confidence}) — ${t.body}`).join("\n")}
-
-## What SPX402 refuses to measure
-
-${REFUSES_TO_MEASURE.map((x) => `- ${x}`).join("\n")}
-
-## Known blind spots
-
-${BLIND_SPOTS.map((b) => `- ${b}`).join("\n")}
-
-## Schema changelog
-
-${SCHEMA_CHANGELOG.map((c) => `- \`${c.version}\` (${c.date}) — ${c.body}`).join("\n")}
+Full methodology, grade bands, and the anomaly taxonomy are published at ${origin}/methodology.
 
 ## Version changelog
 
