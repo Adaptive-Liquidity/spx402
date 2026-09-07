@@ -316,6 +316,8 @@ export async function fetchExplorePage(opts: {
   group: ExploreGradeGroup;
   page: number;
   pageSize: number;
+  /** "score" (default) ranks by execution score; "recent" by freshest indexing. */
+  sort?: "score" | "recent";
 }): Promise<ExplorePage> {
   const all = await fetchAgentIndex();
   const visible = all.filter((a) => !a.flagged);
@@ -335,7 +337,10 @@ export async function fetchExplorePage(opts: {
     opts.group === "all"
       ? visible
       : visible.filter((a) => EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade));
-  const sorted = [...filtered].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const sorted =
+    opts.sort === "recent"
+      ? [...filtered].sort((a, b) => a.lastIndexedSeconds - b.lastIndexedSeconds)
+      : [...filtered].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   const start = Math.max(0, (opts.page - 1) * opts.pageSize);
   return {
     rows: sorted.slice(start, start + opts.pageSize),

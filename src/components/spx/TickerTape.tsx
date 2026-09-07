@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { fetchLeaderboardTickerLines, fetchRecentTickerEvents } from "@/lib/live-data";
 import { fetchProberTickerLines } from "@/lib/prober-data";
 
+// The header telemetry readout is the only system-status channel on the site.
+// These fallbacks carry product facts only — never pipeline health.
 const FALLBACK_LINES = [
-  "SPX402 · pre-launch · indexer warming up",
-  "Awaiting first verified settlement",
+  "SPX402 · execution evidence for Solana and Base agents",
+  "Every grade is explainable from the tape",
   "Methodology v0.1.7 · operator weight 5%",
-  "Helius webhook bus · armed",
-  "Reconciler · standing by",
+  "Evidence bundles are Merkle-hashed per subject",
+  "Grades are earned on-chain, never purchased",
 ];
 
 export function TickerTape() {
