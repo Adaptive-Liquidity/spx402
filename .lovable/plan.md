@@ -1,69 +1,75 @@
-# Navigation restructure + frontend quality standard
+# Make the instrument finished — Tier 1 / 2 / 3
 
-Two things in one pass: fix the menu so it points at sections instead of tab views, and
-bring the whole front end up to a current, professional standard for speed, keyboard use
-and feel. No product, scoring, copy voice or URL changes.
+The design system is not the problem. Palette, graphite terminal, gold/cream type, voice,
+grade language and hero copy stay exactly as they are. The live site is behind that lock
+and reads unfinished. This plan closes that gap only.
 
-## 1. Menu: four sections, not seven links
+Out of scope: new palette, light mode, 3D, token, AEON cinematic site, purple, glass,
+particles, gamification, "top agents to buy".
 
-Today the header lists four links that all land inside two hubs that already have their
-own tab bars, so "Register Agent" and the Build tab bar are the same click twice.
+## Tier 1 — it currently looks unfinished
 
-New header:
+1. **One status line.** The status readout appears three times; keep one slim line. Real
+   UTC clock (no stuck `--:--:--`) and honest freshness — `14s ago`, or `indexer lagging`
+   when the last index is stale. Fix dossier last-indexed rendering (currently prints raw
+   seconds in the millions).
+2. **Remove the public Lovable badge.** Every footer `#` link points at a real route.
+   Badge and embed snippets use `spx402.com`, not `spx402.xyz`.
+3. **Header:** search plus one primary action. `Cmd+K` actually opens — it is advertised
+   today with nothing behind it.
+4. **Explore and Tape become tables.** `DataTable`, 50 rows per page, sort and page in the
+   URL, columns that would be all dashes collapse. Page height target under 3,000px
+   (Explore is ~74,000px today; Tape dumps 200 rows).
+5. **Pricing:** one complete comparison table, no blank cells.
+6. **Empty states name the gate.** "0 ranked because the evidence floor is not met — see
+   all indexed agents in Explore." Leaderboard and Pulse read broken without this.
+7. **Grade histogram** splits unsettled / insufficient evidence / graded instead of leading
+   with one red bar of 647 D. Today it reads "the product failed" rather than "the ledger
+   is empty".
 
-```text
-LIVE        Tape · Pulse · System status
-REGISTRY    Leaderboard · Explore · Flagged · Operators · AEON agents
-BUILD       Register · Endpoints · Preflight · Live badge · Alerts · Pricing
-METHODOLOGY (single link, trust anchor)
-[ search ]  [ Sign in / Dashboard ]
-```
+Verify: `bun run typecheck && bun run test`, plus screenshots of home, explore, tape and
+pricing at 1280 and 390.
 
-- Each of the three section names opens a small panel listing its pages with a one-line
-  description each; clicking the name itself goes to the hub's default page.
-- The panel is keyboard operable (arrow keys, Escape, focus returns to the trigger) and
-  closes on route change. On touch it opens on tap, not hover.
-- Methodology stays top-level. AEON agents moves under Registry — it is a listing.
-- Search moves into the header as a compact field that expands, plus a `/` and `Cmd+K`
-  shortcut opening a command palette (jump to any page, paste a mint to analyse).
-- Signed in, the right side shows Dashboard with a panel for Watchlist, Alerts, API keys,
-  Wallets, Agents, Account. Signed out it shows Sign in plus an Open Terminal action.
+## Tier 2 — Linear / Bloomberg class
 
-## 2. Mobile drawer mirrors the header
+- **Nav:** Terminal · Live · Registry · Build · Methodology · About. Pricing and account
+  sit on the right. One link per section — the hub tab bars already do the second level.
+- **Compact hub header** so data sits above the fold; the current dual header costs about
+  400px of restatement before any data.
+- **Command palette:** jump to a page, or paste a mint/wallet/PDA and go straight to it.
+- **Same primitives everywhere** — `PageHeader`, `stage`, `EmptyState` on About, Pricing,
+  Register, Build, login/signup and the dossier, which never passed the lock.
+- **Dossier order:** identity → pillars → evidence. Copy-mint control, explorer link,
+  honest confidence chip.
+- **Accessibility:** `focus-ring` on everything focusable, skip link first, real `<table>`
+  markup, 44px targets, and `prefers-reduced-motion` honoured by the ticker, aperture and
+  404 flicker.
 
-Same three groups as collapsible sections instead of one flat list of ten, search at the
-top, and the primary action pinned to the bottom above the safe area. Body scroll locks
-while open; the panel traps focus and restores it on close.
+## Tier 3 — once the instrument works
 
-## 3. Footer
+- Query console as the product: paste a mint, wallet or PDA from any page, skeleton to
+  dossier in under 300ms.
+- Evidence notes read like a rating file, not a blog post.
+- Embeddable SVG badge an operator will actually put on a pump page.
+- Machine surface: `llms.txt`, `agent-card.json`, MCP — we own the grade, not another
+  explorer.
+- Shareable filtered views: grade, chain and category all live in the URL.
 
-Regroup to match the header exactly (Live / Registry / Build / Company), add System
-status with a live dot and the current parser version, and keep the disclaimer block.
+## Enforced look-and-feel rules
 
-## 4. Quality standard applied across the front end
-
-- **Perceived speed** — prefetch a route's data on link hover/focus so a nav click feels
-  instant; keep the previous page painted during a transition instead of flashing a
-  skeleton; skeletons only on first load.
-- **Layout stability** — reserve height for tables, charts and images so nothing jumps as
-  data arrives.
-- **Weight** — charts and the wallet picker load only when their page needs them; icons
-  imported individually; fonts preconnected and swapped without invisible text.
-- **Motion** — one 150–240ms easing token for hover, tab and panel transitions; nothing
-  animates twice; everything collapses under reduced-motion.
-- **Focus and reachability** — one visible focus ring on every interactive element, skip
-  link first, 44px minimum touch targets, panels announced to screen readers.
-- **States** — every list and panel has a designed empty, loading and error state; no bare
-  "no rows" strings and no raw error text as a headline.
+- Surfaces come from background steps, never shadows. Colour carries state and risk only.
+- Tabular numbers throughout. Missing values print `—` or `NONE`, never `0`.
+- Motion 150–240ms, once, state changes only.
 
 ## Technical notes
 
-- New `NavMenu` component (Radix navigation-menu primitive already in the project) driving
-  both the header panels and the drawer from one `nav-items.ts` source of truth, extended
-  from a flat array to grouped sections with descriptions.
-- Command palette via the existing `cmdk` shadcn Command component in a Dialog.
-- Prefetch through TanStack Router `defaultPreload: "intent"` in `src/router.tsx` plus
-  `ensureQueryData` in the hub loaders; keep-previous behaviour via router pending config.
-- Chart and wallet modules moved behind `React.lazy` inside `ClientOnly` where not already.
-- Verification: typecheck, full vitest run, and a Playwright pass over each hub for
-  keyboard navigation, focus return and no console errors.
+- `nav-items.ts` becomes the single grouped source for header, drawer and footer.
+- Command palette uses the existing `cmdk` Command component in a Dialog, bound to `Cmd+K`
+  and `/`, with a mint/address branch that routes to `/agent/$mint`.
+- Explore already paginates server-side; Tape moves to the same `DataTable` + `Pager` +
+  `validateSearch` shape, so sort and page are shareable URLs.
+- Freshness comes from the existing indexer heartbeat; the clock renders client-only to
+  avoid a hydration mismatch.
+- Router `defaultPreload: "intent"` so section links feel instant.
+- Verification each tier: typecheck, full vitest run, and a Playwright pass at 1280 and
+  390 checking for console errors and page height.
