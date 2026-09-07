@@ -93,6 +93,7 @@ import { Route as ApiPublicOgChar123subjectChar125DotsvgRouteImport } from './ro
 import { Route as ApiPublicEvidenceEventIdRouteImport } from './routes/api.public.evidence.$eventId'
 import { Route as ApiPublicCardChar123subjectChar125DotpngRouteImport } from './routes/api.public.card.{$subject}[.]png'
 import { Route as ApiPublicBadgeChar123mintChar125DotsvgRouteImport } from './routes/api.public.badge.{$mint}[.]svg'
+import { Route as AuthenticatedDashboardAgentsIdRouteImport } from './routes/_authenticated.dashboard.agents.$id'
 import { Route as ApiV1AgentMintScoreRouteImport } from './routes/api.v1.agent.$mint.score'
 import { Route as ApiV1AgentMintEvidenceRouteImport } from './routes/api.v1.agent.$mint.evidence'
 import { Route as ApiV1AgentMintDossierRouteImport } from './routes/api.v1.agent.$mint.dossier'
@@ -540,6 +541,12 @@ const ApiPublicBadgeChar123mintChar125DotsvgRoute =
     path: '/public/badge/{$mint}.svg',
     getParentRoute: () => ApiRoute,
   } as any)
+const AuthenticatedDashboardAgentsIdRoute =
+  AuthenticatedDashboardAgentsIdRouteImport.update({
+    id: '/agents/$id',
+    path: '/agents/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const ApiV1AgentMintScoreRoute = ApiV1AgentMintScoreRouteImport.update({
   id: '/v1/agent/$mint/score',
   path: '/v1/agent/$mint/score',
@@ -639,6 +646,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/agents/$id': typeof AuthenticatedDashboardAgentsIdRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
@@ -723,6 +731,7 @@ export interface FileRoutesByTo {
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/agents/$id': typeof AuthenticatedDashboardAgentsIdRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
@@ -814,6 +823,7 @@ export interface FileRoutesById {
   '/api/public/webhook-helius': typeof ApiPublicWebhookHeliusRoute
   '/api/public/x402-selftest': typeof ApiPublicX402SelftestRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/dashboard/agents/$id': typeof AuthenticatedDashboardAgentsIdRoute
   '/api/public/badge/{$mint}.svg': typeof ApiPublicBadgeChar123mintChar125DotsvgRoute
   '/api/public/card/{$subject}.png': typeof ApiPublicCardChar123subjectChar125DotpngRoute
   '/api/public/evidence/$eventId': typeof ApiPublicEvidenceEventIdRoute
@@ -905,6 +915,7 @@ export interface FileRouteTypes {
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
     | '/dashboard/'
+    | '/dashboard/agents/$id'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
@@ -989,6 +1000,7 @@ export interface FileRouteTypes {
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
     | '/dashboard'
+    | '/dashboard/agents/$id'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
@@ -1079,6 +1091,7 @@ export interface FileRouteTypes {
     | '/api/public/webhook-helius'
     | '/api/public/x402-selftest'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/dashboard/agents/$id'
     | '/api/public/badge/{$mint}.svg'
     | '/api/public/card/{$subject}.png'
     | '/api/public/evidence/$eventId'
@@ -1717,6 +1730,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBadgeChar123mintChar125DotsvgRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/_authenticated/dashboard/agents/$id': {
+      id: '/_authenticated/dashboard/agents/$id'
+      path: '/agents/$id'
+      fullPath: '/dashboard/agents/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardAgentsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/api/v1/agent/$mint/score': {
       id: '/api/v1/agent/$mint/score'
       path: '/v1/agent/$mint/score'
@@ -1754,6 +1774,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
   AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedDashboardAgentsIdRoute: typeof AuthenticatedDashboardAgentsIdRoute
   AuthenticatedDashboardAgentsIndexRoute: typeof AuthenticatedDashboardAgentsIndexRoute
 }
 
@@ -1764,6 +1785,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
     AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+    AuthenticatedDashboardAgentsIdRoute: AuthenticatedDashboardAgentsIdRoute,
     AuthenticatedDashboardAgentsIndexRoute:
       AuthenticatedDashboardAgentsIndexRoute,
   }
