@@ -6,6 +6,9 @@ import { qualifiesForLeaderboard, type Agent } from "@/lib/agents";
 import { CATEGORIES, type AgentCategory } from "@/lib/agents/categories";
 import { fetchScoreMovers, type ScoreMover } from "@/lib/live-data";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { PageHead } from "@/components/spx/PageHead";
+import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
+
 
 export const Route = createFileRoute("/registry/")({
   head: () => ({
