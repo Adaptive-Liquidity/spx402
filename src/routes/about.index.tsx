@@ -24,9 +24,8 @@ export const Route = createFileRoute("/about/")({
 
 function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-24">
-      <div className="label-amber">About</div>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
+    <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         It reads escrows.
         <br />
         It watches bonds.

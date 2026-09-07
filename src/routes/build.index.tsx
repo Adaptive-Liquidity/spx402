@@ -2,9 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/build/")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/api" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/build" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/api" },
+      { property: "og:url", content: "https://spx402.com/build" },
       { title: "API — Execution data for agents · SPX402" },
       {
         name: "description",
@@ -42,9 +42,8 @@ const ENDPOINTS = [
 
 function ApiPage() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">API</div>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
+    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Execution data for agents,
         <br />
         <span className="text-amber">funds, launchpads, and other machines.</span>

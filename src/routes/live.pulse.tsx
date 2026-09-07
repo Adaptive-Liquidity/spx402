@@ -5,9 +5,9 @@ import { ArrowDown, ArrowUp, AlertTriangle, Activity } from "lucide-react";
 
 export const Route = createFileRoute("/live/pulse")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/pulse" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/live/pulse" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/pulse" },
+      { property: "og:url", content: "https://spx402.com/live/pulse" },
       { title: "Pulse — live score deltas & failures · SPX402" },
       {
         name: "description",

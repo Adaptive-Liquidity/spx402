@@ -22,9 +22,9 @@ const FACILITATOR_REGISTRY_VERSION = "v0.3.0";
 
 export const Route = createFileRoute("/live/status")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/status" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/live/status" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/status" },
+      { property: "og:url", content: "https://spx402.com/live/status" },
       { title: "Status — SPX402" },
       {
         name: "description",

@@ -8,9 +8,9 @@ import { PREFLIGHT_QUESTION, type PreflightCardModel } from "@/lib/preflight/mod
 
 export const Route = createFileRoute("/build/preflight")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/preflight" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/build/preflight" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/preflight" },
+      { property: "og:url", content: "https://spx402.com/build/preflight" },
       { title: "Preflight — Check an x402 endpoint before you pay it · SPX402" },
       {
         name: "description",
@@ -55,9 +55,8 @@ function PreflightPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">Preflight</div>
-      <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-paper lg:text-5xl">
+    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+            <h1 className="max-w-3xl font-display text-3xl font-bold tracking-tight text-paper">
         {PREFLIGHT_QUESTION}
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-paper-muted">

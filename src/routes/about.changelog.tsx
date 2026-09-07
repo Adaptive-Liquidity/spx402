@@ -3,9 +3,9 @@ import { fetchChangelog, formatReleaseDate, type ChangelogEntry } from "@/lib/li
 
 export const Route = createFileRoute("/about/changelog")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/changelog" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/about/changelog" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/changelog" },
+      { property: "og:url", content: "https://spx402.com/about/changelog" },
       { title: "Changelog — SPX402" },
       { name: "description", content: "Product and methodology updates." },
     ],
@@ -46,9 +46,8 @@ function ChangelogPage() {
   const { entries } = Route.useLoaderData() as { entries: ChangelogEntry[] };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 lg:px-8 lg:py-24">
-      <div className="label-amber">Changelog</div>
-      <h1 className="mt-3 font-display text-5xl font-bold text-paper">
+    <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Every parser version, on the record.
       </h1>
       <p className="mt-4 text-paper-muted">

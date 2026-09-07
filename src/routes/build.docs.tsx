@@ -58,9 +58,9 @@ function EndpointCard({
 
 export const Route = createFileRoute("/build/docs")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/api/docs" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/build/docs" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/api/docs" },
+      { property: "og:url", content: "https://spx402.com/build/docs" },
       { title: "API Docs — SPX402" },
       {
         name: "description",
@@ -73,9 +73,8 @@ export const Route = createFileRoute("/build/docs")({
 
 function ApiDocsPage() {
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8 lg:py-20">
-      <div className="label-amber">API · v1</div>
-      <h1 className="mt-3 font-display text-5xl font-bold text-paper">Endpoint reference.</h1>
+    <div className="mx-auto max-w-[1100px] px-4 py-8 lg:px-8">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">Endpoint reference.</h1>
       <p className="mt-5 max-w-2xl text-paper-muted">
         SPX402 exposes execution data over two layers:
         <br />

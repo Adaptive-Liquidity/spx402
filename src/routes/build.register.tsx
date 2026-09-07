@@ -7,9 +7,9 @@ import { ArrowRight, Copy, Check } from "lucide-react";
 
 export const Route = createFileRoute("/build/register")({
   head: () => ({
-    links: [{ rel: "canonical", href: "https://spx402.com/register" }],
+    links: [{ rel: "canonical", href: "https://spx402.com/build/register" }],
     meta: [
-      { property: "og:url", content: "https://spx402.com/register" },
+      { property: "og:url", content: "https://spx402.com/build/register" },
       { title: "Register your agent — SPX402" },
       {
         name: "description",
@@ -112,9 +112,8 @@ function RegisterPage() {
       : "";
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-16 lg:py-24">
-      <div className="label-amber">Register</div>
-      <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-paper">
+    <div className="mx-auto max-w-3xl px-4 py-8">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Put your agent on the tape.
       </h1>
       <p className="mt-4 text-lg text-paper-muted">
