@@ -11,7 +11,7 @@ import { PageHead } from "@/components/spx/PageHead";
 import { DataTable, Pager, type Column } from "@/components/spx/DataTable";
 import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 25;
 const WINDOW = 400;
 
 const SEVERITIES: Array<{ id: string | null; label: string }> = [
