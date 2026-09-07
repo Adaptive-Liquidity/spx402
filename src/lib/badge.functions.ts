@@ -29,6 +29,30 @@ export const getBadgePlans = createServerFn({ method: "GET" }).handler(
   },
 );
 
+/**
+ * Pre-payment guard. The browser pays USDC before the server ever sees the
+ * request, so an unknown subject would burn a real, unrefundable settlement.
+ * This public read lets checkout refuse to charge for a subject we do not
+ * monitor. It exposes nothing beyond "is this identifier on the terminal".
+ */
+export const checkBadgeSubject = createServerFn({ method: "GET" })
+  .inputValidator((input: { mint?: string }) => {
+    const mint = (input?.mint ?? "").trim();
+    if (mint.length < 8 || mint.length > 64 || !/^[a-zA-Z0-9]+$/.test(mint)) {
+      throw new Error("Invalid agent identifier");
+    }
+    return { mint };
+  })
+  .handler(async ({ data }): Promise<{ exists: boolean }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: agent } = await supabaseAdmin
+      .from("agents")
+      .select("mint")
+      .eq("mint", data.mint)
+      .maybeSingle();
+    return { exists: Boolean(agent) };
+  });
+
 export interface SubscribeResult {
   ok: boolean;
   error?: string;
