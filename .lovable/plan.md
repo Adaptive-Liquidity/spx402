@@ -1,75 +1,83 @@
-# Make the instrument finished — Tier 1 / 2 / 3
+# Tier 1 — finish the instrument
 
-The design system is not the problem. Palette, graphite terminal, gold/cream type, voice,
-grade language and hero copy stay exactly as they are. The live site is behind that lock
-and reads unfinished. This plan closes that gap only.
+Implement the existing SPX402 design lock. No redesign. No new palette, type, voice, hero
+copy, scoring, decoders or API contracts. No new button, table, empty-state, badge or
+header component — wire the primitives that already exist.
 
-Out of scope: new palette, light mode, 3D, token, AEON cinematic site, purple, glass,
-particles, gamification, "top agents to buy".
+Stop after Tier 1. Tier 2 (nav regroup, dossier rebuild, auth restyle, real command
+palette) and Tier 3 (llms.txt, agent-card.json, MCP, new badge system) are out of scope.
 
-## Tier 1 — it currently looks unfinished
+## 0. Probe
 
-1. **One status line.** The status readout appears three times; keep one slim line. Real
-   UTC clock (no stuck `--:--:--`) and honest freshness — `14s ago`, or `indexer lagging`
-   when the last index is stale. Fix dossier last-indexed rendering (currently prints raw
-   seconds in the millions).
-2. **Remove the public Lovable badge.** Every footer `#` link points at a real route.
-   Badge and embed snippets use `spx402.com`, not `spx402.xyz`.
-3. **Header:** search plus one primary action. `Cmd+K` actually opens — it is advertised
-   today with nothing behind it.
-4. **Explore and Tape become tables.** `DataTable`, 50 rows per page, sort and page in the
-   URL, columns that would be all dashes collapse. Page height target under 3,000px
-   (Explore is ~74,000px today; Tape dumps 200 rows).
-5. **Pricing:** one complete comparison table, no blank cells.
-6. **Empty states name the gate.** "0 ranked because the evidence floor is not met — see
-   all indexed agents in Explore." Leaderboard and Pulse read broken without this.
-7. **Grade histogram** splits unsettled / insufficient evidence / graded instead of leading
-   with one red bar of 647 D. Today it reads "the product failed" rather than "the ledger
-   is empty".
+Before touching anything, list which of SiteHeader, SiteFooter, TickerTape/Telemetry,
+nav-items, DataTable, DataToolbar, EmptyState, PageHeader, HubLayout are actually rendered
+on the live routes, and confirm no replacement is needed.
 
-Verify: `bun run typecheck && bun run test`, plus screenshots of home, explore, tape and
-pricing at 1280 and 390.
+## 1. One status line
 
-## Tier 2 — Linear / Bloomberg class
+Status renders about three times today. Keep one slim line in the shell.
 
-- **Nav:** Terminal · Live · Registry · Build · Methodology · About. Pricing and account
-  sit on the right. One link per section — the hub tab bars already do the second level.
-- **Compact hub header** so data sits above the fold; the current dual header costs about
-  400px of restatement before any data.
-- **Command palette:** jump to a page, or paste a mint/wallet/PDA and go straight to it.
-- **Same primitives everywhere** — `PageHeader`, `stage`, `EmptyState` on About, Pricing,
-  Register, Build, login/signup and the dossier, which never passed the lock.
-- **Dossier order:** identity → pillars → evidence. Copy-mint control, explorer link,
-  honest confidence chip.
-- **Accessibility:** `focus-ring` on everything focusable, skip link first, real `<table>`
-  markup, 44px targets, and `prefers-reduced-motion` honoured by the ticker, aperture and
-  404 flicker.
+- Real UTC clock, client-only so there is no hydration mismatch (currently stuck at
+  `--:--:--`).
+- Freshness from the indexer heartbeat through `formatRelative` / `formatUtc`.
+- When stale, print "indexer lagging" — never raw seconds in the millions, which is what
+  dossiers show now.
+- Touch the layout and the ticker/status component only.
 
-## Tier 3 — once the instrument works
+## 2. Trust hygiene
 
-- Query console as the product: paste a mint, wallet or PDA from any page, skeleton to
-  dossier in under 300ms.
-- Evidence notes read like a rating file, not a blog post.
-- Embeddable SVG badge an operator will actually put on a pump page.
-- Machine surface: `llms.txt`, `agent-card.json`, MCP — we own the grade, not another
-  explorer.
-- Shareable filtered views: grade, chain and category all live in the URL.
+- Remove the public Lovable badge.
+- Every footer `href="#"` points at a real route.
+- Public-facing badge/embed snippets show `spx402.com`. No global `.xyz` replace; API and
+  embed hosts stay as configured unless the string is a user-facing snippet.
 
-## Enforced look-and-feel rules
+## 3. Header
 
-- Surfaces come from background steps, never shadows. Colour carries state and risk only.
-- Tabular numbers throughout. Missing values print `—` or `NONE`, never `0`.
-- Motion 150–240ms, once, state changes only.
+- Search visible in the header.
+- Exactly one primary action: Open Terminal signed out, Dashboard signed in.
+- Where `Cmd+K` is advertised, it opens the existing AgentSearchBar / search UI. No new
+  palette system this pass.
 
-## Technical notes
+## 4. Explore and Tape
 
-- `nav-items.ts` becomes the single grouped source for header, drawer and footer.
-- Command palette uses the existing `cmdk` Command component in a Dialog, bound to `Cmd+K`
-  and `/`, with a mint/address branch that routes to `/agent/$mint`.
-- Explore already paginates server-side; Tape moves to the same `DataTable` + `Pager` +
-  `validateSearch` shape, so sort and page are shareable URLs.
-- Freshness comes from the existing indexer heartbeat; the clock renders client-only to
-  avoid a hydration mismatch.
-- Router `defaultPreload: "intent"` so section links feel instant.
-- Verification each tier: typecheck, full vitest run, and a Playwright pass at 1280 and
-  390 checking for console errors and page height.
+- Both render through `DataTable` + `DataToolbar`, reusing `AgentRow` where it is already
+  the row renderer.
+- 50 rows per page; `page` and `sort` live in URL search params.
+- Columns that would be entirely dashes collapse.
+- `EmptyState` says why — the evidence floor — and links to the unfiltered list.
+- Page height target under 3,000px (Explore is roughly 74,000px today; Tape dumps 200
+  rows).
+
+## 5. Pricing
+
+One comparison table built from the existing plan data. No blank cells — every plan/feature
+intersection is a check or a dash.
+
+## 6. Leaderboard and Pulse empty states
+
+Name the quality gate ("0 ranked because the evidence floor is not met"), mute zero-count
+filter chips, and link through to Explore.
+
+## 7. Grade histogram (home only)
+
+Scoring does not change. Presentation splits into unsettled / insufficient evidence (404) /
+graded, so the home page no longer leads with a single red bar of 647 D that reads as
+product failure rather than an empty ledger.
+
+## Enforced rules
+
+One `h1` per route. `stage` / `stage-narrow` only, no ad-hoc `max-w` on page wrappers.
+Missing values print `—` or `NONE`, never `0`, never invented sample data. Colour carries
+state only; grade is always the letter plus `ExecutionGradeBadge`. Surfaces from background
+steps, not shadows. Motion 150–240ms, once, state only, honouring reduced motion. Old
+routes are redirected, never deleted. No edits to `src/styles.css` tokens. No new files
+under `src/components/spx` unless a required primitive is genuinely missing.
+
+## Verification
+
+- `bun run typecheck && bun run test`.
+- Update the verbatim-copy tests only where a heading legitimately moved.
+- Screenshots of home, explore, tape, pricing and leaderboard at 1280 and 390.
+- Confirm: one status line, working clock, no Lovable badge, Explore and Tape paginated, no
+  blank pricing cells.
+- Then stop and report files changed plus any leftover live defects.
