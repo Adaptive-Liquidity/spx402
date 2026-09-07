@@ -83,6 +83,7 @@ import { Route as ApiPublicCronAlertDispatchRouteImport } from './routes/api.pub
 import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public.admin-add-api-key'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
+import { Route as AuthenticatedDashboardWalletsRouteImport } from './routes/_authenticated.dashboard.wallets'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
 import { Route as AuthenticatedDashboardAlertsRouteImport } from './routes/_authenticated.dashboard.alerts'
 import { Route as AuthenticatedDashboardAccountRouteImport } from './routes/_authenticated.dashboard.account'
@@ -482,6 +483,12 @@ const AuthenticatedDashboardWatchlistRoute =
     path: '/watchlist',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardWalletsRoute =
+  AuthenticatedDashboardWalletsRouteImport.update({
+    id: '/wallets',
+    path: '/wallets',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardApiKeysRoute =
   AuthenticatedDashboardApiKeysRouteImport.update({
     id: '/api-keys',
@@ -622,6 +629,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
@@ -707,6 +715,7 @@ export interface FileRoutesByTo {
   '/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
@@ -799,6 +808,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/account': typeof AuthenticatedDashboardAccountRoute
   '/_authenticated/dashboard/alerts': typeof AuthenticatedDashboardAlertsRoute
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
+  '/_authenticated/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
@@ -891,6 +901,7 @@ export interface FileRouteTypes {
     | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
+    | '/dashboard/wallets'
     | '/dashboard/watchlist'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
@@ -976,6 +987,7 @@ export interface FileRouteTypes {
     | '/dashboard/account'
     | '/dashboard/alerts'
     | '/dashboard/api-keys'
+    | '/dashboard/wallets'
     | '/dashboard/watchlist'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
@@ -1067,6 +1079,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/account'
     | '/_authenticated/dashboard/alerts'
     | '/_authenticated/dashboard/api-keys'
+    | '/_authenticated/dashboard/wallets'
     | '/_authenticated/dashboard/watchlist'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
@@ -1660,6 +1673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardWatchlistRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/wallets': {
+      id: '/_authenticated/dashboard/wallets'
+      path: '/wallets'
+      fullPath: '/dashboard/wallets'
+      preLoaderRoute: typeof AuthenticatedDashboardWalletsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/api-keys': {
       id: '/_authenticated/dashboard/api-keys'
       path: '/api-keys'
@@ -1772,6 +1792,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAccountRoute: typeof AuthenticatedDashboardAccountRoute
   AuthenticatedDashboardAlertsRoute: typeof AuthenticatedDashboardAlertsRoute
   AuthenticatedDashboardApiKeysRoute: typeof AuthenticatedDashboardApiKeysRoute
+  AuthenticatedDashboardWalletsRoute: typeof AuthenticatedDashboardWalletsRoute
   AuthenticatedDashboardWatchlistRoute: typeof AuthenticatedDashboardWatchlistRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardAgentsIdRoute: typeof AuthenticatedDashboardAgentsIdRoute
@@ -1783,6 +1804,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardAccountRoute: AuthenticatedDashboardAccountRoute,
     AuthenticatedDashboardAlertsRoute: AuthenticatedDashboardAlertsRoute,
     AuthenticatedDashboardApiKeysRoute: AuthenticatedDashboardApiKeysRoute,
+    AuthenticatedDashboardWalletsRoute: AuthenticatedDashboardWalletsRoute,
     AuthenticatedDashboardWatchlistRoute: AuthenticatedDashboardWatchlistRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
     AuthenticatedDashboardAgentsIdRoute: AuthenticatedDashboardAgentsIdRoute,
