@@ -58,7 +58,9 @@ function EndpointCard({
 
 export const Route = createFileRoute("/api/docs")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/api/docs" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/api/docs" },
       { title: "API Docs — SPX402" },
       {
         name: "description",

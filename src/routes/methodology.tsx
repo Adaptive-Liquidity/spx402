@@ -13,7 +13,9 @@ import { Panel } from "@/components/spx/Panel";
 
 export const Route = createFileRoute("/methodology")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/methodology" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/methodology" },
       { title: "Methodology — SPX402 reputation primitive" },
       {
         name: "description",

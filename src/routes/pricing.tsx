@@ -3,7 +3,9 @@ import { Check, X } from "lucide-react";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/pricing" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/pricing" },
       { title: "Pricing — SPX402" },
       {
         name: "description",

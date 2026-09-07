@@ -19,7 +19,9 @@ const SEVERITIES: Array<{ id: string | null; label: string }> = [
 
 export const Route = createFileRoute("/tape")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/tape" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/tape" },
       { title: "Execution Tape — SPX402" },
       {
         name: "description",

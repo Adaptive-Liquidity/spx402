@@ -3,7 +3,9 @@ import { fetchChangelog, formatReleaseDate, type ChangelogEntry } from "@/lib/li
 
 export const Route = createFileRoute("/changelog")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/changelog" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/changelog" },
       { title: "Changelog — SPX402" },
       { name: "description", content: "Product and methodology updates." },
     ],

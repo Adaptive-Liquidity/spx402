@@ -8,7 +8,9 @@ import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/explore")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/explore" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/explore" },
       { title: "Explore Agents — SPX402" },
       {
         name: "description",

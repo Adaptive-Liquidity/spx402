@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/disclaimer")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/disclaimer" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/disclaimer" },
       { title: "Disclaimer — SPX402" },
       {
         name: "description",

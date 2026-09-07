@@ -5,7 +5,9 @@ import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/badge")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/badge" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/badge" },
       { title: "Live badge — attested on Base · SPX402" },
       {
         name: "description",

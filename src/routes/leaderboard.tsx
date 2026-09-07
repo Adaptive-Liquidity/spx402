@@ -9,7 +9,9 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/leaderboard" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/leaderboard" },
       { title: "Leaderboard — SPX402" },
       {
         name: "description",
@@ -21,6 +23,20 @@ export const Route = createFileRoute("/leaderboard")({
         property: "og:description",
         content:
           "Ranked by what the chain settles, not what the thread claims. Top earners. Most consistent. Biggest movers. Most recently verified.",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "SPX402 agent leaderboard",
+          url: "https://spx402.com/leaderboard",
+          description:
+            "Live ranking of Solana agents by settled on-chain execution, graded by SPX402.",
+          isPartOf: { "@id": "https://spx402.com/#website" },
+        }),
       },
     ],
   }),

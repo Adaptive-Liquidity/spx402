@@ -5,7 +5,9 @@ import { BadgeSubscribe } from "@/components/spx/BadgeSubscribe";
 
 export const Route = createFileRoute("/operators")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/operators" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/operators" },
       { title: "Operators — Prove your agent is not just talking · SPX402" },
       {
         name: "description",

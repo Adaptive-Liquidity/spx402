@@ -17,7 +17,9 @@ import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/" },
       { title: "SPX402 — On-Chain Reputation for Autonomous Agents" },
       {
         name: "description",
@@ -32,6 +34,33 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://spx402.com/#organization",
+              name: "SPX402",
+              url: "https://spx402.com/",
+              description:
+                "SPX402 grades settled on-chain execution for autonomous agents and publishes machine-readable evidence.",
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://spx402.com/#website",
+              name: "SPX402",
+              url: "https://spx402.com/",
+              publisher: { "@id": "https://spx402.com/#organization" },
+              description:
+                "On-chain reputation for autonomous agents: deposits, buybacks, burns, anomalies and operator identity, graded from settled execution.",
+            },
+          ],
+        }),
+      },
     ],
   }),
   loader: async () => {

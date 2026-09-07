@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/api")({
   head: () => ({
+    links: [{ rel: "canonical", href: "https://spx402.com/api" }],
     meta: [
+      { property: "og:url", content: "https://spx402.com/api" },
       { title: "API — Execution data for agents · SPX402" },
       {
         name: "description",

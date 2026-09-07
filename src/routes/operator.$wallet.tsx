@@ -4,7 +4,9 @@ import { AlertTriangle, ExternalLink } from "lucide-react";
 
 export const Route = createFileRoute("/operator/$wallet")({
   head: ({ params }) => ({
+    links: [{ rel: "canonical", href: `https://spx402.com/operator/${params.wallet}` }],
     meta: [
+      { property: "og:url", content: `https://spx402.com/operator/${params.wallet}` },
       { title: `Operator ${shortWallet(params.wallet)} — SPX402` },
       {
         name: "description",
