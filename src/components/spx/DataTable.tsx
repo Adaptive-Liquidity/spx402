@@ -40,14 +40,14 @@ export function DataTable<T>({
   loading?: boolean;
   caption?: string;
 }) {
-  const pad = dense ? "px-3 py-1.5" : "px-3 py-3";
+  const pad = dense ? "px-3 py-2.5" : "px-3 py-3.5";
 
   return (
     <div className="overflow-x-auto border border-bronze/40">
       <table className="w-full border-collapse text-left">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead>
-          <tr className="border-b border-bronze/40 bg-panel-deep">
+          <tr className="sticky top-0 z-10 border-b border-bronze/40 bg-panel-deep">
             {columns.map((c) => (
               <th
                 key={c.key}
@@ -107,7 +107,7 @@ export function DataTable<T>({
                 <tr
                   key={rowKey(row)}
                   className={cn(
-                    "border-b border-bronze/15 transition-colors last:border-0 hover:bg-panel-deep",
+                    "border-b border-bronze/15 transition-colors duration-[var(--motion-fast)] last:border-0 hover:bg-panel-deep",
                     i % 2 ? "bg-panel/60" : "bg-background",
                   )}
                 >
@@ -149,7 +149,7 @@ export function Pager({
           type="button"
           onClick={() => onPage(page - 1)}
           disabled={page <= 1}
-          className="border border-bronze/40 px-2.5 py-1 transition-colors enabled:hover:border-amber enabled:hover:text-amber disabled:opacity-30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
+          className="focus-ring border border-bronze/40 px-2.5 py-1 transition-colors enabled:hover:border-amber enabled:hover:text-amber disabled:opacity-30"
         >
           ← Prev
         </button>
@@ -160,7 +160,7 @@ export function Pager({
           type="button"
           onClick={() => onPage(page + 1)}
           disabled={page >= pageCount}
-          className="border border-bronze/40 px-2.5 py-1 transition-colors enabled:hover:border-amber enabled:hover:text-amber disabled:opacity-30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber"
+          className="focus-ring border border-bronze/40 px-2.5 py-1 transition-colors enabled:hover:border-amber enabled:hover:text-amber disabled:opacity-30"
         >
           Next →
         </button>
