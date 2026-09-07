@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { ActionButton } from "./ActionButton";
 import { MobileNav } from "./MobileNav";
 import { NAV_ITEMS as NAV } from "./nav-items";
+import { SearchDialog } from "./SearchDialog";
 import { Telemetry } from "./Telemetry";
 
 /** Condenses the header once the page has scrolled past the first fold. */
