@@ -1,107 +1,116 @@
 import { createFileRoute } from "@tanstack/react-router";
-import type {} from "@tanstack/react-start";
-
-const BASE_URL = "https://spx402.com";
-
-interface SitemapEntry {
-  path: string;
-  changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
-  priority?: string;
-}
-
-const STATIC_PATHS: SitemapEntry[] = [
-  { path: "/", changefreq: "daily", priority: "1.0" },
-  { path: "/leaderboard", changefreq: "hourly", priority: "0.9" },
-  { path: "/tape", changefreq: "hourly", priority: "0.9" },
-  { path: "/explore", changefreq: "daily", priority: "0.8" },
-  { path: "/flagged", changefreq: "daily", priority: "0.7" },
-  { path: "/pulse", changefreq: "hourly", priority: "0.7" },
-  { path: "/preflight", changefreq: "weekly", priority: "0.8" },
-  { path: "/operators", changefreq: "weekly", priority: "0.7" },
-  { path: "/methodology", changefreq: "weekly", priority: "0.8" },
-  { path: "/pricing", changefreq: "weekly", priority: "0.7" },
-  { path: "/badge", changefreq: "weekly", priority: "0.6" },
-  { path: "/api", changefreq: "weekly", priority: "0.6" },
-  { path: "/api/docs", changefreq: "weekly", priority: "0.6" },
-  { path: "/alerts", changefreq: "weekly", priority: "0.6" },
-  { path: "/about", changefreq: "monthly", priority: "0.5" },
-  { path: "/register", changefreq: "monthly", priority: "0.5" },
-  { path: "/status", changefreq: "daily", priority: "0.4" },
-  { path: "/changelog", changefreq: "weekly", priority: "0.4" },
-  { path: "/disclaimer", changefreq: "yearly", priority: "0.2" },
-];
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { listVerifiedServices } from "@/lib/x402";
+import { listRegisteredExecutors } from "@/lib/executors";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const entries: SitemapEntry[] = [...STATIC_PATHS];
-
         try {
-          const { createClient } = await import("@supabase/supabase-js");
-          const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
-          const supabase = createClient(process.env["SUPABASE_URL"]!, key, {
-            auth: { persistSession: false, autoRefreshToken: false },
-            global: {
-              fetch: (input, init) => {
-                const headers = new Headers(init?.headers);
-                if (key.startsWith("sb_") && headers.get("Authorization") === "Bearer " + key) {
-                  headers.delete("Authorization");
-                }
-                headers.set("apikey", key);
-                return fetch(input, { ...init, headers });
-              },
-            },
-          });
+          const baseUrl = "https://spx402.com";
 
+          const staticPages = [
+            "",
+            "/agents",
+            "/leaderboard",
+            "/explore",
+            "/tape",
+            "/methodology",
+            "/replay",
+            "/api-docs",
+            "/register",
+            "/faq",
+            "/about",
+            "/status",
+            "/badge",
+            "/pulse",
+            "/feeds",
+            "/operators",
+            "/flagged",
+            "/glossary",
+            "/agent-integrations",
+            "/trust/api",
+            "/trust/embed",
+            "/developers",
+            "/legal/terms",
+            "/legal/privacy",
+            "/x402",
+          ];
+
+          // Keyset-paginate by mint — the table is small now, but offset
+          // paging gets linearly slower as it grows. The shared admin client
+          // also avoids constructing a new client per request.
+          const mints: string[] = [];
+          let lastMint: string | null = null;
           const pageSize = 1000;
-          for (let offset = 0; ; offset += pageSize) {
-            const { data, error } = await supabase
+          for (;;) {
+            let query = supabaseAdmin
               .from("agents")
               .select("mint")
-              .order("mint")
-              .range(offset, offset + pageSize - 1);
-            if (error || !data) break;
-            entries.push(
-              ...data
-                .filter((a): a is { mint: string } => typeof a.mint === "string" && !!a.mint)
-                .map((a) => ({
-                  path: `/agent/${encodeURIComponent(a.mint)}`,
-                  changefreq: "daily" as const,
-                  priority: "0.6",
-                })),
-            );
-            if (data.length < pageSize) break;
+              .order("mint", { ascending: true })
+              .limit(pageSize);
+            if (lastMint) query = query.gt("mint", lastMint);
+            const { data: rows } = await query;
+            const page = rows ?? [];
+            for (const r of page) mints.push(r.mint);
+            if (page.length < pageSize) break;
+            lastMint = page[page.length - 1].mint;
           }
-        } catch {
-          // A database hiccup must never 500 the sitemap: serve static routes.
+
+          // x402 service and AEON operator pages are public dossiers too.
+          const [services, executors] = await Promise.all([
+            listVerifiedServices(1000),
+            listRegisteredExecutors(1000),
+          ]);
+
+          const urls = [
+            ...staticPages.map(
+              (page) => `  <url>
+    <loc>${baseUrl}${page}</loc>
+    <changefreq>daily</changefreq>
+    <priority>${page === "" ? "1.0" : "0.8"}</priority>
+  </url>`,
+            ),
+            ...mints.map(
+              (mint) => `  <url>
+    <loc>${baseUrl}/agent/${mint}</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.6</priority>
+  </url>`,
+            ),
+            ...services.map(
+              (s) => `  <url>
+    <loc>${baseUrl}/service/${s.id}</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.5</priority>
+  </url>`,
+            ),
+            ...executors.map(
+              (e) => `  <url>
+    <loc>${baseUrl}/operator/${e.cri_address}</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.5</priority>
+  </url>`,
+            ),
+          ];
+
+          const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join("\n")}
+</urlset>`;
+
+          return new Response(xml, {
+            status: 200,
+            headers: {
+              "Content-Type": "application/xml",
+              "Cache-Control": "public, max-age=3600",
+            },
+          });
+        } catch (error) {
+          console.error("Sitemap generation error:", error);
+          return new Response("Error generating sitemap", { status: 500 });
         }
-
-        const urls = entries.map((e) =>
-          [
-            `  <url>`,
-            `    <loc>${BASE_URL}${e.path}</loc>`,
-            e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
-            e.priority ? `    <priority>${e.priority}</priority>` : null,
-            `  </url>`,
-          ]
-            .filter(Boolean)
-            .join("\n"),
-        );
-
-        const xml = [
-          `<?xml version="1.0" encoding="UTF-8"?>`,
-          `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
-          ...urls,
-          `</urlset>`,
-        ].join("\n");
-
-        return new Response(xml, {
-          headers: {
-            "Content-Type": "application/xml",
-            "Cache-Control": "public, max-age=3600",
-          },
-        });
       },
     },
   },
