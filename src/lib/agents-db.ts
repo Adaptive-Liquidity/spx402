@@ -279,6 +279,60 @@ export async function fetchLeaderboardIndex(): Promise<LeaderboardIndex> {
   };
 }
 
+export type ExploreGradeGroup = "all" | "high" | "mid" | "low" | "spx404";
+
+const EXPLORE_GROUPS: Record<Exclude<ExploreGradeGroup, "all">, ReadonlyArray<Grade>> = {
+  high: ["SPX AAA", "SPX AA", "SPX A"],
+  mid: ["SPX BBB", "SPX BB"],
+  low: ["SPX B", "SPX D"],
+  spx404: ["SPX404"],
+};
+
+export type ExplorePage = {
+  rows: Agent[];
+  counts: Record<ExploreGradeGroup, number>;
+  total: number;
+  flaggedCount: number;
+};
+
+/**
+ * Explore projection: the table shows one page of rows plus filter counts.
+ * Paging and counting on the server keeps the serialized payload to the 50
+ * rows actually rendered instead of the entire index.
+ */
+export async function fetchExplorePage(opts: {
+  group: ExploreGradeGroup;
+  page: number;
+  pageSize: number;
+}): Promise<ExplorePage> {
+  const all = await fetchAgentIndex();
+  const visible = all.filter((a) => !a.flagged);
+  const counts: Record<ExploreGradeGroup, number> = {
+    all: visible.length,
+    high: 0,
+    mid: 0,
+    low: 0,
+    spx404: 0,
+  };
+  for (const a of visible) {
+    for (const key of ["high", "mid", "low", "spx404"] as const) {
+      if (EXPLORE_GROUPS[key].includes(a.grade)) counts[key]++;
+    }
+  }
+  const filtered =
+    opts.group === "all"
+      ? visible
+      : visible.filter((a) => EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade));
+  const sorted = [...filtered].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const start = Math.max(0, (opts.page - 1) * opts.pageSize);
+  return {
+    rows: sorted.slice(start, start + opts.pageSize),
+    counts,
+    total: sorted.length,
+    flaggedCount: all.length - visible.length,
+  };
+}
+
 /** Resolve one agent by exact mint, symbol, or mint prefix. */
 export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   const q = mintOrSymbol.trim();
