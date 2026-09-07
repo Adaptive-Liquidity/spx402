@@ -26,12 +26,15 @@ import { getProberPublicConfig, type ProberPublicConfig } from "@/lib/system.fun
 import { PROBE_USER_AGENT } from "@/lib/prober/outcomes";
 
 export const Route = createFileRoute("/service/$slug")({
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     const d = loaderData as unknown as { service: X402ServiceRow } | undefined;
     const host = d?.service.url ? safeHost(d.service.url) : "service";
+    const url = `https://spx402.com/service/${params.slug}`;
     return {
+      links: [{ rel: "canonical", href: url }],
       meta: [
         { title: `${host} — x402 probe transcript · SPX402` },
+        { property: "og:url", content: url },
         {
           name: "description",
           content: `Active-verification transcript for ${host}: challenge validity, settlement rate, delivery and latency, measured by the SPX402 prober.`,

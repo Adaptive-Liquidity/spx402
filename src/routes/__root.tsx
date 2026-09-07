@@ -48,24 +48,10 @@ export const Route = createRootRoute({
           "Payment required. Proof provided. The execution-grade terminal for tokenized AI agents on Solana.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "SPX402" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@SPX402" },
       { name: "twitter:title", content: "SPX402 — Execution Grade for Tokenized AI Agents" },
-      {
-        name: "description",
-        content:
-          "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
-      },
-      {
-        property: "og:description",
-        content:
-          "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
-      },
-      {
-        name: "twitter:description",
-        content:
-          "SPX402 verifies tokenized AI agents by reading the only witness that does not care about narratives: the chain. Paste a mint. See deposits, buybacks, burns, con",
-      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

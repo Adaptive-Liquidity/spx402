@@ -7,13 +7,19 @@ import { fetchTapeEventWithRaw, relativeFromNow } from "@/lib/live-data";
 import { categoryLabel } from "@/lib/agents/categories";
 
 export const Route = createFileRoute("/tape/$eventId")({
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
+    const eventId = params.eventId;
     const r = loaderData as unknown as Awaited<ReturnType<typeof fetchTapeEventWithRaw>>;
     const subject = r?.agentSymbol ? `$${r.agentSymbol}` : "agent";
     const title = r ? `${r.type} · ${subject} — SPX402 Tape` : "Event — SPX402 Tape";
+    const url = `https://spx402.com/tape/${eventId}`;
     return {
+      links: [{ rel: "canonical", href: url }],
       meta: [
         { title },
+        { property: "og:url", content: url },
+        { property: "og:title", content: title },
+        { property: "og:type", content: "article" },
         {
           name: "description",
           content:
