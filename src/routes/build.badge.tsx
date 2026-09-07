@@ -50,7 +50,7 @@ function BadgePage() {
   const { session } = useAuth();
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+    <div className="stage section">
       <div className="max-w-3xl">
                 <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
           A badge that costs more
@@ -122,7 +122,7 @@ function BadgePage() {
           </p>
           <Link
             to="/methodology"
-            className="mt-5 inline-flex border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring mt-5 inline-flex border border-amber/80 bg-amber/10 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Read the methodology →
           </Link>

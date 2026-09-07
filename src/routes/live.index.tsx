@@ -69,7 +69,7 @@ export const Route = createFileRoute("/live/")({
             router.invalidate();
             reset();
           }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
@@ -165,7 +165,7 @@ function TapePage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+    <div className="stage section">
       <PageHead
         title="Execution tape"
         description="Canonical evidence ledger. Every row is a permalinked on-chain event the indexer observed — every grade is explainable from the tape."
@@ -207,7 +207,7 @@ function TapePage() {
               <button
                 type="button"
                 onClick={() => setPage(1)}
-                className="border border-bronze/40 px-2.5 py-1 transition-colors hover:border-amber hover:text-amber"
+                className="focus-ring border border-bronze/40 px-2.5 py-1 transition-colors hover:border-amber hover:text-amber"
               >
                 Jump to newest
               </button>

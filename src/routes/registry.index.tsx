@@ -47,12 +47,12 @@ export const Route = createFileRoute("/registry/")({
   loader: () => fetchLeaderboardIndex(),
   staleTime: 30_000,
   pendingComponent: () => (
-    <div className="mx-auto max-w-[1400px] px-4 py-20 text-center font-mono text-xs uppercase tracking-widest text-wire">
+    <div className="stage section text-center font-mono text-xs uppercase tracking-widest text-wire">
       Loading leaderboard…
     </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="mx-auto max-w-[1400px] px-4 py-20 text-center">
+    <div className="stage section text-center">
       <div className="label-amber">Leaderboard unavailable</div>
       <p className="mt-3 text-paper-muted">{error.message}</p>
     </div>
@@ -175,7 +175,7 @@ function LeaderboardPage() {
   );
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8">
+    <div className="stage section">
       <PageHead
         title="Leaderboard"
         description="Ranked by what the chain settles — not holders, not sentiment. SPX402 ranks Solana agents by the execution patterns it can verify on-chain."
@@ -289,7 +289,7 @@ function LeaderboardPage() {
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/registry/explore"
-                className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+                className="focus-ring border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
               >
                 Show everything indexed →
               </Link>
@@ -331,7 +331,7 @@ function LeaderboardPage() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/build/register"
-            className="inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring inline-flex items-center gap-2 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Register your agent
           </Link>

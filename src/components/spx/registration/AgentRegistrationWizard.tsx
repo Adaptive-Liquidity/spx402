@@ -603,7 +603,7 @@ export function AgentRegistrationWizard() {
             type="button"
             disabled={step === 0}
             onClick={() => setStep((s) => Math.max(0, s - 1))}
-            className="border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber disabled:opacity-40"
+            className="focus-ring border border-bronze/70 px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber disabled:opacity-40"
           >
             Back
           </button>
@@ -612,7 +612,7 @@ export function AgentRegistrationWizard() {
               type="button"
               onClick={submit}
               disabled={submitting || !user}
-              className="border border-amber/80 bg-amber/10 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
+              className="focus-ring border border-amber/80 bg-amber/10 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
             >
               {submitting ? "Submitting…" : "Submit registration"}
             </button>
@@ -620,7 +620,7 @@ export function AgentRegistrationWizard() {
             <button
               type="button"
               onClick={goNext}
-              className="border border-amber/80 bg-amber/10 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+              className="focus-ring border border-amber/80 bg-amber/10 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
             >
               Continue
             </button>

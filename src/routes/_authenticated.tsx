@@ -28,7 +28,7 @@ function useUtcClock() {
 
 function ShellFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-10 lg:px-8 lg:py-16">
+    <div className="stage section">
       <div className="reg-frame p-8 lg:p-14">
         <span className="reg-mark reg-mark-tl" aria-hidden />
         <span className="reg-mark reg-mark-tr" aria-hidden />
@@ -101,7 +101,7 @@ function AuthenticatedLayout() {
   const name = user?.user_metadata?.display_name || user?.email || "Operator";
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-8 lg:px-8 lg:py-12">
+    <div className="stage section">
       <div className="reg-frame">
         <span className="reg-mark reg-mark-tl" aria-hidden />
         <span className="reg-mark reg-mark-tr" aria-hidden />
@@ -109,7 +109,7 @@ function AuthenticatedLayout() {
         <span className="reg-mark reg-mark-br" aria-hidden />
 
         {/* MASTHEAD */}
-        <header className="flex flex-wrap items-end justify-between gap-5 px-5 py-6 lg:px-8 lg:py-7">
+        <header className="flex flex-wrap items-end justify-between gap-5 px-5 py-6 lg:py-7">
           <div className="min-w-0">
             <div className="band-spine">
               <b>SPX402</b>
@@ -153,7 +153,7 @@ function AuthenticatedLayout() {
           })}
         </nav>
 
-        <div className="px-5 py-8 lg:px-8 lg:py-10">
+        <div className="px-5 py-8 lg:py-10">
           <Outlet />
         </div>
       </div>

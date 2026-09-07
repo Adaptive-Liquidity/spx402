@@ -55,7 +55,7 @@ function PreflightPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+    <div className="stage section">
             <h1 className="max-w-3xl font-display text-3xl font-bold tracking-tight text-paper">
         {PREFLIGHT_QUESTION}
       </h1>

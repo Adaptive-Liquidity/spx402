@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHeader } from "@/components/spx/PageHeader";
 import { StatusChip } from "@/components/spx/StatusChip";
 
 export const Route = createFileRoute("/corrections")({
@@ -35,14 +36,13 @@ const RULES = [
 
 function CorrectionsPage() {
   return (
-    <div className="mx-auto max-w-[900px] px-4 py-12 lg:px-8">
-      <h1 className="font-display text-4xl font-bold tracking-tight text-paper">
-        Corrections Policy
-      </h1>
-      <p className="mt-5 text-lg text-paper-muted">
-        SPX402 publishes grades from decoded on-chain evidence. Decoders change, evidence arrives
-        late, and mistakes happen. When a grade was wrong, the record says so.
-      </p>
+    <div className="stage-narrow section">
+      <PageHeader
+        eyebrow="Trust"
+        title="Corrections Policy"
+        standfirst="SPX402 publishes grades from decoded on-chain evidence. Decoders change, evidence arrives late, and mistakes happen. When a grade was wrong, the record says so."
+        meta={[{ label: "Correction log", value: <StatusChip status="unknown" /> }]}
+      />
 
       <div className="mt-10 space-y-px overflow-hidden border border-bronze/40 bg-bronze/40">
         {RULES.map(([title, body]) => (

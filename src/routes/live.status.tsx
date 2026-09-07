@@ -56,7 +56,7 @@ export const Route = createFileRoute("/live/status")({
             router.invalidate();
             reset();
           }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
@@ -169,7 +169,7 @@ function StatusPage() {
     degraded > 0 ? "critical" : noData === COMPONENT_ROWS.length ? "amber" : "verified";
 
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+    <div className="stage section">
       <PageHead
         title="System status"
         description="Every observer that feeds the tape, with its last heartbeat."

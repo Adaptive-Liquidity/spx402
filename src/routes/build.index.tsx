@@ -42,7 +42,7 @@ const ENDPOINTS = [
 
 function ApiPage() {
   return (
-    <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
+    <div className="stage section">
             <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Execution data for agents,
         <br />
@@ -56,13 +56,13 @@ function ApiPage() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           to="/build/docs"
-          className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Open Endpoints →
         </Link>
         <Link
           to="/pricing"
-          className="border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+          className="focus-ring border border-bronze/70 px-5 py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
         >
           Pricing
         </Link>

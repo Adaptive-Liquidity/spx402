@@ -41,7 +41,7 @@ export const Route = createFileRoute("/tape/$eventId")({
       <p className="mt-3 text-paper-muted">That event id is not in the SPX402 ledger.</p>
       <Link
         to="/live"
-        className="mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+        className="focus-ring mt-6 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
       >
         Browse the tape
       </Link>
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/tape/$eventId")({
             router.invalidate();
             reset();
           }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Retry
         </button>
@@ -79,7 +79,7 @@ function TapeEventPage() {
   const subject = r.agentSymbol ? `$${r.agentSymbol}` : `${r.mint.slice(0, 4)}…${r.mint.slice(-4)}`;
 
   return (
-    <div className="mx-auto max-w-[900px] px-4 py-12 lg:px-8 lg:py-16">
+    <div className="stage-narrow section">
       <Link
         to="/live"
         className="font-mono text-[11px] uppercase tracking-widest text-amber hover:underline"
@@ -141,7 +141,7 @@ function TapeEventPage() {
             href={`https://solscan.io/tx/${r.signature}`}
             target="_blank"
             rel="noreferrer"
-            className="mt-3 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+            className="focus-ring mt-3 inline-block border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
           >
             Open on Solscan ↗
           </a>

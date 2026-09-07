@@ -83,7 +83,7 @@ export function ProbeStatusPanel({
               <Link
                 to="/service/$slug"
                 params={{ slug: service.slug }}
-                className="border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+                className="focus-ring border border-amber/80 bg-amber/10 px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
               >
                 Probe transcript
               </Link>

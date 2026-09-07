@@ -73,7 +73,7 @@ export const Route = createFileRoute("/build/docs")({
 
 function ApiDocsPage() {
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-8 lg:px-8">
+    <div className="stage section">
       <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Endpoint reference.
       </h1>

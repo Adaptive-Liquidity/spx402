@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PageHeader } from "@/components/spx/PageHeader";
 import { StatusChip } from "@/components/spx/StatusChip";
 
 export const Route = createFileRoute("/aeon-agents")({
@@ -36,17 +37,15 @@ function Card({ title, body }: { title: string; body: string }) {
 
 function AeonAgentsPage() {
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-12 lg:px-8">
-      <h1 className="font-display text-4xl font-bold tracking-tight text-paper">
-        AEON Agents are agents with receipts.
-      </h1>
-      <p className="mt-5 max-w-3xl text-lg text-paper-muted">
-        AEON gives agents identity, scoped authority, escrow, receipts, bonds and fail-closed
-        accounting. SPX402 turns that activity into public reputation.
-      </p>
+    <div className="stage-narrow section">
+      <PageHeader
+        eyebrow="Product"
+        title="AEON Agents are agents with receipts."
+        standfirst="AEON gives agents identity, scoped authority, escrow, receipts, bonds and fail-closed accounting. SPX402 turns that activity into public reputation."
+        meta={[{ label: "Release status", value: <StatusChip status="unknown" /> }]}
+      />
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <StatusChip status="unknown" />
+      <div className="mt-6 flex flex-wrap gap-2">
         <span className="font-mono text-[11px] text-wire">
           Release status is read from the backend. Until it reports a deployed program, indexed
           events and verified evidence, nothing here claims mainnet.
@@ -103,13 +102,13 @@ function AeonAgentsPage() {
       <div className="mt-12 flex flex-wrap gap-3">
         <Link
           to="/build/register"
-          className="border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+          className="focus-ring border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-[11px] uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
         >
           Register an Agent
         </Link>
         <Link
           to="/methodology"
-          className="border border-bronze/70 px-5 py-3 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
+          className="focus-ring border border-bronze/70 px-5 py-3 font-mono text-[11px] uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
         >
           See how evidence becomes reputation
         </Link>
