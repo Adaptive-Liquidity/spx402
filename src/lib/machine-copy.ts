@@ -9,6 +9,18 @@
 import { NAV_HUBS } from "@/components/spx/nav-items";
 import { ENDPOINT_PRICES, TIER_LIMITS, usdc } from "@/lib/api-tiers";
 import { BADGE_TIERS, HONEST_GRADE_RULE } from "@/lib/badge-plans";
+import {
+  BLIND_SPOTS,
+  CONFIDENCE_INPUTS,
+  EVENT_TAXONOMY,
+  GRADES,
+  REFUSES_TO_MEASURE,
+  RISK_INPUTS,
+  SCHEMA_CHANGELOG,
+  TASK_EXECUTOR_RISK_INPUTS,
+  X402_DETECTION_TIERS,
+  X402_EVM_DETECTION_TIERS,
+} from "@/lib/methodology-copy";
 import { formatUsdc } from "@/lib/plans";
 import {
   CONFIDENCE_VERSION,
