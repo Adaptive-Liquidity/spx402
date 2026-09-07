@@ -2,25 +2,29 @@ import { Link } from "@tanstack/react-router";
 
 const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }> }> = [
   {
-    heading: "Terminal",
+    heading: "Live",
     links: [
-      { to: "/", label: "Query console" },
-      { to: "/live", label: "Tape" },
+      { to: "/live", label: "Execution tape" },
       { to: "/live/pulse", label: "Pulse" },
+      { to: "/live/status", label: "System status" },
+    ],
+  },
+  {
+    heading: "Registry",
+    links: [
       { to: "/registry", label: "Leaderboard" },
       { to: "/registry/explore", label: "Explore" },
+      { to: "/registry/flagged", label: "Flagged" },
       { to: "/registry/operators", label: "Operators" },
     ],
   },
   {
     heading: "Build",
     links: [
-      { to: "/build", label: "API overview" },
+      { to: "/build", label: "API" },
       { to: "/build/docs", label: "Endpoints" },
-      { to: "/build/preflight", label: "Preflight" },
-      { to: "/build/badge", label: "Live badge" },
       { to: "/build/register", label: "Register agent" },
-      { to: "/live/status", label: "System status" },
+      { to: "/pricing", label: "Pricing" },
     ],
   },
   {
@@ -30,7 +34,6 @@ const COLS: Array<{ heading: string; links: Array<{ to: string; label: string }>
       { to: "/about", label: "About" },
       { to: "/about/changelog", label: "Changelog" },
       { to: "/about/disclaimer", label: "Disclaimer" },
-      { to: "/pricing", label: "Pricing" },
     ],
   },
 ];
