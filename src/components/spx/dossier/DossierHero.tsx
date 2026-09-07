@@ -66,7 +66,14 @@ export function DossierHero({ agent }: { agent: Agent }) {
             <span className="text-amber">SPX402</span> / AGENT DOSSIER / SOLANA MAINNET
           </span>
           <span>PARSER {agent.parserVersion}</span>
-          <span>LAST INDEXED {agent.lastIndexedSeconds}s AGO</span>
+          <span>LAST INDEXED {lastIndexedLabel(agent.lastIndexedSeconds)}</span>
+          <Link
+            to="/verify/$subject"
+            params={{ subject: agent.mint }}
+            className="text-amber hover:underline"
+          >
+            ATTESTATIONS ↗
+          </Link>
           <span>
             CONFIDENCE{" "}
             <span
