@@ -35,14 +35,25 @@ export const Route = createFileRoute("/live/status")({
     ],
   }),
   loader: async () => {
-    const [runs, stats, coverage, facilitators, prober] = await Promise.all([
+    const [runs, stats, coverage, facilitators, prober, proberConfig] = await Promise.all([
       fetchLatestIndexerRuns(),
       fetchIndexerStats24h(),
       fetchEventCoverage(),
       fetchFacilitators(),
       fetchProberOverview(),
+      getProberPublicConfig(),
     ]);
-    return { runs, stats, coverage, facilitators, prober };
+    // Liveness needs the heartbeats first: a lane is judged on cadence AND on
+    // whether its productive source actually gained a row.
+    const lanes = await fetchLaneLiveness(
+      Object.fromEntries(
+        Object.entries(runs).map(([key, run]) => [
+          key,
+          run ? { ranAt: run.ranAt, ok: run.ok } : null,
+        ]),
+      ),
+    );
+    return { runs, stats, coverage, facilitators, prober, proberConfig, lanes };
   },
 
   staleTime: 15_000,
