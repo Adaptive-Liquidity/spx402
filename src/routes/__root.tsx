@@ -52,6 +52,11 @@ export const Route = createRootRoute({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@SPX402" },
       { name: "twitter:title", content: "SPX402 — Execution Grade for Tokenized AI Agents" },
+      {
+        name: "twitter:description",
+        content:
+          "Payment required. Proof provided. The execution-grade terminal for tokenized AI agents on Solana.",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
