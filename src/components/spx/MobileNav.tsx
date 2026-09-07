@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import { MOBILE_NAV_ITEMS as NAV_ITEMS } from "./nav-items";
+import { NAV_HUBS } from "./nav-items";
 
 export function MobileNav({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
@@ -25,16 +25,24 @@ export function MobileNav({ signedIn }: { signedIn: boolean }) {
       {open && mounted && createPortal(
         <div className="fixed inset-x-0 bottom-0 top-[64px] z-50 overflow-y-auto border-t border-bronze/40 bg-background/98 backdrop-blur-md">
           <nav className="flex flex-col divide-y divide-bronze/25 px-4 py-2">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={close}
-                className="py-4 font-mono text-[13px] uppercase tracking-widest text-paper-muted transition-colors hover:text-amber"
-                activeProps={{ className: "text-amber" }}
-              >
-                {item.label}
-              </Link>
+            {NAV_HUBS.map((hub) => (
+              <div key={hub.label} className="py-3">
+                <div className="label-amber text-[10px]">{hub.label}</div>
+                <div className="mt-1 flex flex-col">
+                  {hub.items.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={close}
+                      className="py-2.5 pl-3 font-mono text-[13px] uppercase tracking-widest text-paper-muted transition-colors hover:text-amber"
+                      activeProps={{ className: "text-amber" }}
+                      activeOptions={{ exact: item.to === hub.to }}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
           <div className="flex flex-col gap-3 px-4 pb-10 pt-6">

@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth";
 import { getWalletAuthMessage, verifyWalletSignature } from "@/lib/wallet-auth.functions";
 import { WalletPicker } from "@/components/WalletPicker";
+import { ActionButton } from "@/components/spx/ActionButton";
 import type { DetectedWallet, InjectedProvider } from "@/lib/wallets";
 
 export const Route = createFileRoute("/login")({
@@ -106,18 +107,29 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col items-stretch px-4 py-16 lg:py-24">
-      <div className="label-amber text-center">{isSignup ? "Open Terminal" : "Sign in"}</div>
-      <h1 className="mt-3 text-center font-display text-3xl font-bold text-paper">
-        {isSignup ? "Create your operator account." : "Welcome back."}
-      </h1>
-      <p className="mt-3 text-center text-sm text-paper-muted">
-        {isSignup
-          ? "Free tier includes unlimited public dossier views."
-          : "Resume monitoring your watched agents."}
-      </p>
+    <div className="stage-narrow section">
+      <div className="flex flex-wrap items-center justify-between gap-3 border border-bronze/50 bg-panel-deep/60 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-wire">
+        <span>
+          <span className="text-amber">SPX402</span> / {isSignup ? "OPEN TERMINAL" : "OPERATOR AUTH"}
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-verified pulse-amber" />
+          SECURE CHANNEL
+        </span>
+      </div>
 
-      <form onSubmit={submit} className="panel-engraved mt-10 space-y-4 p-6">
+      <div className="mx-auto mt-10 flex max-w-md flex-col items-stretch lg:mt-14">
+        <div className="label-amber text-center">{isSignup ? "Open Terminal" : "Sign in"}</div>
+        <h1 className="mt-3 text-center font-display text-3xl font-bold text-paper">
+          {isSignup ? "Create your operator account." : "Welcome back."}
+        </h1>
+        <p className="mt-3 text-center text-sm text-paper-muted">
+          {isSignup
+            ? "Free tier includes unlimited public dossier views."
+            : "Resume monitoring your watched agents."}
+        </p>
+
+        <form onSubmit={submit} className="panel-engraved mt-10 space-y-4 p-6">
         {isSignup && (
           <div>
             <label className="label-mono mb-1.5 block">Display name</label>
@@ -165,65 +177,59 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full border border-amber bg-amber py-3 font-mono text-xs uppercase tracking-widest text-panel-deep hover:bg-amber-dim disabled:opacity-50"
-        >
-          {busy ? "…" : isSignup ? "Create account" : "Sign in"}
-        </button>
+        <ActionButton type="submit" variant="primary" size="lg" block loading={busy}>
+          {isSignup ? "Create account" : "Sign in"}
+        </ActionButton>
         <div className="rule-bronze" />
-        <button
-          type="button"
+        <ActionButton
+          variant="primary"
+          size="lg"
+          block
           onClick={() => setShowWalletPicker((v) => !v)}
           disabled={busy}
-          className="focus-ring flex w-full items-center justify-center gap-2 border border-amber/70 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep disabled:opacity-50"
         >
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
           </svg>
-          {busy ? "…" : "Sign in with wallet"}
-        </button>
+          Sign in with wallet
+        </ActionButton>
         <p className="text-center font-mono text-[10px] leading-relaxed text-wire">
           We never collect a single piece of sensitive or private information — no email, no name,
           no keys. Your wallet signs one free message to prove ownership. Nothing else.
         </p>
         {showWalletPicker && <WalletPicker onSelect={walletSignIn} disabled={busy} />}
-        <button
-          type="button"
-          onClick={() => oauth("google")}
-          className="focus-ring flex w-full items-center justify-center gap-2 border border-bronze/60 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
-        >
+        <ActionButton variant="secondary" size="lg" block onClick={() => oauth("google")}>
           Continue with Google
-        </button>
-        <button
-          type="button"
-          onClick={() => oauth("apple")}
-          className="focus-ring flex w-full items-center justify-center gap-2 border border-bronze/60 bg-panel-deep py-3 font-mono text-xs uppercase tracking-widest text-paper-muted hover:border-amber hover:text-amber"
-        >
+        </ActionButton>
+        <ActionButton variant="secondary" size="lg" block onClick={() => oauth("apple")}>
           <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
             <path d="M16.365 1.43c0 1.14-.43 2.22-1.21 3.01-.81.83-2.12 1.47-3.21 1.38-.13-1.1.42-2.24 1.18-3.02.83-.86 2.24-1.5 3.24-1.37zM20.5 17.36c-.55 1.27-.81 1.84-1.51 2.97-.98 1.57-2.36 3.53-4.07 3.55-1.52.02-1.91-.99-3.97-.98-2.06.01-2.49 1-4.01.98-1.71-.02-3.02-1.78-4-3.35C.6 15.97-.04 11.4 1.74 8.36c1.26-2.16 3.25-3.43 5.11-3.43 1.9 0 3.09 1.04 4.66 1.04 1.52 0 2.45-1.04 4.65-1.04 1.66 0 3.42.91 4.67 2.47-4.1 2.25-3.43 8.1.67 9.96z" />
           </svg>
           Continue with Apple
-        </button>
+        </ActionButton>
       </form>
 
-      <p className="mt-6 text-center font-mono text-xs uppercase tracking-widest text-wire">
-        {isSignup ? (
-          <>
-            Already have a terminal?{" "}
-            <Link to="/login" className="text-amber hover:underline">
-              Sign in
-            </Link>
-          </>
-        ) : (
-          <>
-            New here?{" "}
-            <Link to="/signup" className="text-amber hover:underline">
-              Open terminal
-            </Link>
-          </>
-        )}
+        <p className="mt-6 text-center font-mono text-xs uppercase tracking-widest text-wire">
+          {isSignup ? (
+            <>
+              Already have a terminal?{" "}
+              <Link to="/login" className="text-amber hover:underline">
+                Sign in
+              </Link>
+            </>
+          ) : (
+            <>
+              New here?{" "}
+              <Link to="/signup" className="text-amber hover:underline">
+                Open terminal
+              </Link>
+            </>
+          )}
+        </p>
+      </div>
+
+      <p className="mt-12 text-center font-mono text-[10px] uppercase tracking-widest text-wire">
+        Terminal session · TLS enforced · auth.events logged
       </p>
     </div>
   );
