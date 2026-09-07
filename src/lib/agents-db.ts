@@ -4,6 +4,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { SCORING_VERSION } from "@/lib/versions";
+import { qualifiesForLeaderboard } from "./agents";
 import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
 import type { AgentCategory, IdentifierKind } from "./agents/categories";
 
