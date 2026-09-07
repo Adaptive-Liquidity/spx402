@@ -57,7 +57,7 @@ Restyle `src/routes/login.tsx` and `src/routes/signup.tsx` to match the rest of 
 - Wrap the form in `panel-engraved` with consistent spacing.
 - Replace the raw `<button>` elements with `ActionButton` / `ActionLink`.
 - Keep email, password, display-name, wallet, Google, and Apple flows unchanged.
-- Ensure the form width uses `stage-narrow` or `max-w-md` but does not add a new ad-hoc wrapper class.
+- Form width is `stage-narrow` only. Never `max-w-md` or any ad-hoc width class.
 - Add a small terminal-style footer line under each form: parser/scoring versions or the "We never collect keys" note, in the existing `label-mono` style.
 
 ## 4. Real command palette — route + agent search
