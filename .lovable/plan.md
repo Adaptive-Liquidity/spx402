@@ -7,11 +7,15 @@ header component — wire the primitives that already exist.
 Stop after Tier 1. Tier 2 (nav regroup, dossier rebuild, auth restyle, real command
 palette) and Tier 3 (llms.txt, agent-card.json, MCP, new badge system) are out of scope.
 
+This brief is the only assignment; every other file under `.lovable/plan/` is ignored.
+
 ## 0. Probe
 
 Before touching anything, list which of SiteHeader, SiteFooter, TickerTape/Telemetry,
 nav-items, DataTable, DataToolbar, EmptyState, PageHeader, HubLayout are actually rendered
-on the live routes, and confirm no replacement is needed.
+on the live routes, and confirm no replacement is needed. Probe the canonical paths first —
+they are likely `/registry/explore` and `/live`, not `/explore` and `/tape`. Existing 301s
+stay; no duplicate pages get created.
 
 ## 1. One status line
 
