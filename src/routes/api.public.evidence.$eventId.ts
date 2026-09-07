@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
 import { enforceRateLimit, RATE_LIMITS } from "@/lib/http/rate-limit.server";
-import {
-  canonicalJsonStringify,
-  sha256Hex,
-  merkleRootHex,
-} from "@/lib/evidence/hash.server";
+import { canonicalJsonStringify, sha256Hex, merkleRootHex } from "@/lib/evidence/hash.server";
 import { SCORING_VERSION } from "@/lib/versions";
 
 function getServerSupabase() {

@@ -37,7 +37,8 @@ export function HubLayout({
       const i = links.indexOf(document.activeElement as HTMLAnchorElement);
       if (i === -1) return;
       e.preventDefault();
-      const next = e.key === "ArrowRight" ? (i + 1) % links.length : (i - 1 + links.length) % links.length;
+      const next =
+        e.key === "ArrowRight" ? (i + 1) % links.length : (i - 1 + links.length) % links.length;
       links[next]?.focus();
     };
     el.addEventListener("keydown", onKey);

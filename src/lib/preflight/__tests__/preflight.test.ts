@@ -63,7 +63,10 @@ describe("quote comparison", () => {
   });
 
   it("reports a rotated receiving address as 'quote changed'", () => {
-    const c = compareQuotes(challenge(), challenge({ payTo: "9zQqRt5VmEeFf1122334455667788990011AaBbCc" }));
+    const c = compareQuotes(
+      challenge(),
+      challenge({ payTo: "9zQqRt5VmEeFf1122334455667788990011AaBbCc" }),
+    );
     expect(c.payToChanged).toBe(true);
     expect(c.label).toBe("QUOTE CHANGED — payTo");
   });

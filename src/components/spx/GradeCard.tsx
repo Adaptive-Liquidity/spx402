@@ -59,7 +59,6 @@ export function GradeCard({ card, className }: { card: GradeCardModel; className
         <div className="truncate border-t border-bronze/50 pt-3 font-mono text-[10px] uppercase tracking-[0.15em] text-wire">
           {card.url}
         </div>
-
       </div>
     </figure>
   );

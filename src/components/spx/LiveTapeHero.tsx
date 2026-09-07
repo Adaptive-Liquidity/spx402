@@ -25,7 +25,6 @@ const SORT_LABEL: Record<SortKey, string> = {
   largest: "Largest SOL",
 };
 
-
 function severityTone(sev: string): string {
   if (sev === "success") return "text-verified";
   if (sev === "critical") return "text-critical";
@@ -132,7 +131,8 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
   }, []);
 
   function cycleCount() {
-    const next = ROW_STEPS[(ROW_STEPS.indexOf(count as (typeof ROW_STEPS)[number]) + 1) % ROW_STEPS.length];
+    const next =
+      ROW_STEPS[(ROW_STEPS.indexOf(count as (typeof ROW_STEPS)[number]) + 1) % ROW_STEPS.length];
     setCount(next);
     // Only hit the server when the new window is deeper than what we hold.
     if (next > rows.length) {
@@ -154,7 +154,9 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
     });
   const visible = filtered.slice(0, count);
 
-  const categories = Array.from(new Set(rows.map((r) => r.agentCategory).filter(Boolean))) as string[];
+  const categories = Array.from(
+    new Set(rows.map((r) => r.agentCategory).filter(Boolean)),
+  ) as string[];
   const types = Array.from(new Set(rows.map((r) => r.type)));
 
   const selectCls =
@@ -235,7 +237,6 @@ export function LiveTapeHero({ initialRows }: { initialRows: TapeRow[] }) {
           ))}
         </select>
       </div>
-
 
       <div className="tape-window">
         {visible.length === 0 ? (

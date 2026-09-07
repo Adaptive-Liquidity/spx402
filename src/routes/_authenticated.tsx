@@ -84,9 +84,7 @@ function AuthenticatedLayout() {
           <span>// RESTRICTED</span>
         </div>
         <div className="mt-3 h-px w-full bg-bronze/40" />
-        <h1 className="mt-8 font-display text-3xl font-bold text-paper">
-          This record is sealed.
-        </h1>
+        <h1 className="mt-8 font-display text-3xl font-bold text-paper">This record is sealed.</h1>
         <p className="mt-3 max-w-md text-sm text-paper-muted">
           The operator terminal holds your watchlist, alert subscriptions and API keys. Sign in to
           open it.

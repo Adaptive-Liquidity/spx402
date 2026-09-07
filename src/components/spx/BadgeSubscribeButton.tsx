@@ -138,8 +138,8 @@ export function BadgeSubscribeButton({ mint, tier, onSubscribed }: BadgeSubscrib
           : !authLoading && !session
             ? "Sign in to activate a badge"
             : payTo === null
-            ? "Badge subscriptions unavailable"
-            : `${spec.name} · ${formatUsdc(spec.priceUsdc)} USDC / 30 days`}
+              ? "Badge subscriptions unavailable"
+              : `${spec.name} · ${formatUsdc(spec.priceUsdc)} USDC / 30 days`}
       </button>
 
       {picking && (

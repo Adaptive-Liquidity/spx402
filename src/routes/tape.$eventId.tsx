@@ -47,24 +47,7 @@ export const Route = createFileRoute("/tape/$eventId")({
       </Link>
     </div>
   ),
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="label-amber">Event error</div>
-        <p className="mt-3 text-paper-muted">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  },
+  errorComponent: TapeEventError,
 });
 
 function severityTone(sev: string): string {
@@ -204,6 +187,25 @@ function Field({
       >
         {value}
       </div>
+    </div>
+  );
+}
+
+function TapeEventError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="label-amber">Event error</div>
+      <p className="mt-3 text-paper-muted">{error.message}</p>
+      <button
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
+        className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        Retry
+      </button>
     </div>
   );
 }

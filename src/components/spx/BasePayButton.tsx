@@ -4,13 +4,7 @@
 import { useEffect, useState } from "react";
 import { encodeFunctionData, parseAbi } from "viem";
 import { watchWallets, type DetectedWallet, type InjectedProvider } from "@/lib/wallets";
-import {
-  BASE_CHAIN_ID_HEX,
-  BASE_USDC,
-  formatUsdc,
-  PLANS,
-  type PlanId,
-} from "@/lib/plans";
+import { BASE_CHAIN_ID_HEX, BASE_USDC, formatUsdc, PLANS, type PlanId } from "@/lib/plans";
 import { getBasePayConfig, redeemPlanPayment } from "@/lib/base-pay.functions";
 
 const ERC20 = parseAbi(["function transfer(address to, uint256 value) returns (bool)"]);

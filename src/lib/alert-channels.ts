@@ -77,8 +77,7 @@ export async function createChannel(
   target: string,
   label: string,
 ): Promise<AlertChannel> {
-  const secret =
-    kind === "webhook" ? `whsec_${crypto.randomUUID().replace(/-/g, "")}` : null;
+  const secret = kind === "webhook" ? `whsec_${crypto.randomUUID().replace(/-/g, "")}` : null;
   const { data, error } = await supabase
     .from("alert_channels")
     .insert({ user_id: userId, kind, target: target.trim(), label: label.trim(), secret })

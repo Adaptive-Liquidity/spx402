@@ -23,9 +23,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/wallets")({
 });
 
 function Addr({ value }: { value: string | null }) {
-  return (
-    <span className="break-all font-mono text-[11px] text-paper">{value || "—"}</span>
-  );
+  return <span className="break-all font-mono text-[11px] text-paper">{value || "—"}</span>;
 }
 
 function WalletsPage() {
@@ -89,7 +87,9 @@ function WalletsPage() {
               ))}
             </dl>
             <div className="mt-3 flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-widest text-wire">
-              <span>Route all income to treasury · {r.route_all_income_to_treasury ? "Yes" : "No"}</span>
+              <span>
+                Route all income to treasury · {r.route_all_income_to_treasury ? "Yes" : "No"}
+              </span>
               <span>Change authority · {r.routing_change_authority.replace(/_/g, " ")}</span>
               <span>Updated · {new Date(r.updated_at).toISOString().slice(0, 10)}</span>
             </div>

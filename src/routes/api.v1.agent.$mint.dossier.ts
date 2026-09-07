@@ -5,6 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchAgent } from "@/lib/agents-db";
 import { fetchAgentEvents } from "@/lib/live-data";
+import type { Agent } from "@/lib/agents";
 import { withX402Payment } from "@/lib/indexer/x402-middleware";
 import type { X402Endpoint } from "@/lib/indexer/x402-middleware";
 
@@ -96,7 +97,16 @@ export const Route = createFileRoute("/api/v1/agent/$mint/dossier")({
   },
 });
 
-function generateTerminalCardSVG(agent: any, events: any[]): string {
+interface DossierCardEvent {
+  type: string;
+  signature: string;
+  severity: string;
+  occurredAt: string;
+  amount?: number;
+  tokenAmount?: number;
+}
+
+function generateTerminalCardSVG(agent: Agent, events: DossierCardEvent[]): string {
   const gradeColor = getGradeColor(agent.grade);
   const shortMint = `${agent.mint.slice(0, 6)}…${agent.mint.slice(-6)}`;
   const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
@@ -131,8 +141,8 @@ function generateTerminalCardSVG(agent: any, events: any[]): string {
 
   <!-- Score -->
   <circle cx="650" cy="195" r="50" stroke="#24231F" stroke-width="10" fill="none"/>
-  <circle cx="650" cy="195" r="50" stroke="${gradeColor}" stroke-width="10" fill="none" stroke-dasharray="${(agent.score / 100) * 314} 314" stroke-linecap="round" transform="rotate(-90 650 195)"/>
-  <text x="650" y="190" font-family="'Space Grotesk', sans-serif" font-size="24" font-weight="bold" fill="#E8E8E0" text-anchor="middle">${agent.score}</text>
+  <circle cx="650" cy="195" r="50" stroke="${gradeColor}" stroke-width="10" fill="none" stroke-dasharray="${((agent.score ?? 0) / 100) * 314} 314" stroke-linecap="round" transform="rotate(-90 650 195)"/>
+  <text x="650" y="190" font-family="'Space Grotesk', sans-serif" font-size="24" font-weight="bold" fill="#E8E8E0" text-anchor="middle">${agent.score ?? "—"}</text>
   <text x="650" y="215" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#B8B8AA" text-anchor="middle">SCORE</text>
 
   <!-- Key Metrics -->

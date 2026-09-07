@@ -128,8 +128,8 @@ function OperatorsPage() {
           </h3>
           <p className="mt-2 max-w-2xl text-sm text-paper-muted">
             A subscribed badge reflects your current grade in real time, and SPX402 publishes a
-            cryptographic attestation on Base (via the Ethereum Attestation Service) every time
-            your grade changes — verifiable on-chain, not just by trusting our servers.
+            cryptographic attestation on Base (via the Ethereum Attestation Service) every time your
+            grade changes — verifiable on-chain, not just by trusting our servers.
           </p>
           <div className="mt-6">
             <BadgeSubscribe />
@@ -142,7 +142,6 @@ function OperatorsPage() {
           </Link>
         </div>
       </section>
-
 
       {/* ALERTS */}
       <section className="mt-12">

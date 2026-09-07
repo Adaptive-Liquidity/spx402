@@ -254,16 +254,24 @@ function HomePage() {
           <div className="bg-panel p-6">
             <div className="label-mono">Grade / unverified</div>
             <div className="mt-4 font-mono text-lg text-paper">{gradeSummary || "NO GRADES"}</div>
-            <div className="mt-2 font-mono text-xs uppercase text-critical">{unverifiedCount.toLocaleString()} unverified</div>
+            <div className="mt-2 font-mono text-xs uppercase text-critical">
+              {unverifiedCount.toLocaleString()} unverified
+            </div>
           </div>
           <div className="bg-panel p-6">
             <div className="label-mono">Last tape print</div>
             {newestTape ? (
               <>
-                <div className="mt-4 font-mono text-lg text-paper">{newestTape.type.replaceAll("_", " ")}</div>
-                <div className="mt-2 font-mono text-xs text-wire">{new Date(newestTape.occurredAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC</div>
+                <div className="mt-4 font-mono text-lg text-paper">
+                  {newestTape.type.replaceAll("_", " ")}
+                </div>
+                <div className="mt-2 font-mono text-xs text-wire">
+                  {new Date(newestTape.occurredAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC
+                </div>
               </>
-            ) : <div className="mt-4 font-mono text-lg text-wire">NO PRINT</div>}
+            ) : (
+              <div className="mt-4 font-mono text-lg text-wire">NO PRINT</div>
+            )}
           </div>
           <div className="bg-panel p-6">
             <div className="label-mono">Bonded / slashed</div>
@@ -309,10 +317,22 @@ function HomePage() {
           <div className="lg:col-span-7">
             <div className="grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-2">
               {[
-                ["Identity", "A durable on-chain identity and reputation account, not a fresh wallet each run."],
-                ["Authority", "Scoped, revocable spending power: budget limits, category limits, expiry, pause."],
-                ["Evidence", "Escrows, receipts, bonds and payments — decoded, hashed and bundled."],
-                ["Reputation", "Score, grade, attestation and corrections, published from that evidence only."],
+                [
+                  "Identity",
+                  "A durable on-chain identity and reputation account, not a fresh wallet each run.",
+                ],
+                [
+                  "Authority",
+                  "Scoped, revocable spending power: budget limits, category limits, expiry, pause.",
+                ],
+                [
+                  "Evidence",
+                  "Escrows, receipts, bonds and payments — decoded, hashed and bundled.",
+                ],
+                [
+                  "Reputation",
+                  "Score, grade, attestation and corrections, published from that evidence only.",
+                ],
               ].map(([t, b]) => (
                 <div key={t} className="bg-panel p-6">
                   <h3 className="font-display text-lg font-semibold text-paper">{t}</h3>
@@ -328,8 +348,6 @@ function HomePage() {
         </div>
       </Aperture>
 
-
-
       {/* GRADE INPUTS */}
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12">
@@ -339,8 +357,8 @@ function HomePage() {
               If it didn’t settle, it didn’t happen.
             </h2>
             <p className="mt-5 max-w-sm text-paper-muted">
-              SPX402 evaluates observable on-chain execution. We do not measure token price,
-              social momentum, vibes, or future promises.
+              SPX402 evaluates observable on-chain execution. We do not measure token price, social
+              momentum, vibes, or future promises.
             </p>
           </div>
           <div className="lg:col-span-8">
@@ -401,9 +419,12 @@ function HomePage() {
         </h2>
         <div className="mt-6 flex flex-col items-start gap-6 border-y border-bronze/40 py-8 md:flex-row md:items-center md:justify-between">
           <p className="max-w-2xl leading-relaxed text-paper-muted">
-            Sign once, claim the dossier, and deploy a dynamic badge backed by the same attested evidence.
+            Sign once, claim the dossier, and deploy a dynamic badge backed by the same attested
+            evidence.
           </p>
-          <Link to="/build/register" className="btn-ghost shrink-0">[ Claim Your Agent ]</Link>
+          <Link to="/build/register" className="btn-ghost shrink-0">
+            [ Claim Your Agent ]
+          </Link>
         </div>
       </Aperture>
 
@@ -418,8 +439,8 @@ function HomePage() {
                 <span className="text-paper-muted">We grade the machines.</span>
               </h2>
               <p className="mt-5 text-paper-muted">
-                Eight grades, from SPX AAA to SPX D, computed from nothing but observable
-                execution. Not predictions. Not recommendations. Never financial advice.
+                Eight grades, from SPX AAA to SPX D, computed from nothing but observable execution.
+                Not predictions. Not recommendations. Never financial advice.
               </p>
               <p className="mt-3 font-mono text-sm text-wire">
                 A grade you can verify down to the signature.
@@ -464,7 +485,6 @@ function HomePage() {
         </Aperture>
       </section>
 
-
       {/* API */}
       <Aperture as="section" className="stage py-24">
         <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
@@ -480,16 +500,10 @@ function HomePage() {
               built for machine buyers, auditable by anyone.
             </p>
             <div className="mt-8 flex gap-3">
-              <Link
-                to="/build"
-                className="btn-gold"
-              >
+              <Link to="/build" className="btn-gold">
                 API Overview
               </Link>
-              <Link
-                to="/build/docs"
-                className="btn-ghost"
-              >
+              <Link to="/build/docs" className="btn-ghost">
                 Endpoints
               </Link>
             </div>
@@ -524,8 +538,7 @@ function HomePage() {
             <div>
               <BandSpine n="07" code="ACCESS" label="Pricing" />
               <h2 className="mt-3 font-display text-4xl font-bold text-paper">
-                Verification is free.{" "}
-                <span className="text-paper-muted">Vigilance is paid.</span>
+                Verification is free. <span className="text-paper-muted">Vigilance is paid.</span>
               </h2>
             </div>
             <Link

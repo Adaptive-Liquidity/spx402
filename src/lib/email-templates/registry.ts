@@ -1,13 +1,16 @@
-import type { ComponentType } from 'react'
-import { template as spxAlertTemplate } from './spx-alert'
+import type { ComponentType } from "react";
+
+/** JSON-safe template payload. `unknown` values must be narrowed at use sites. */
+export type TemplateData = Record<string, unknown>;
+import { template as spxAlertTemplate } from "./spx-alert";
 
 export interface TemplateEntry {
-  component: ComponentType<any>
-  subject: string | ((data: Record<string, any>) => string)
-  displayName?: string
-  previewData?: Record<string, any>
+  component: ComponentType<TemplateData>;
+  subject: string | ((data: TemplateData) => string);
+  displayName?: string;
+  previewData?: TemplateData;
   /** Fixed recipient — overrides caller-provided recipientEmail when set. */
-  to?: string
+  to?: string;
 }
 
 /**
@@ -19,5 +22,5 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  'spx-alert': spxAlertTemplate,
-}
+  "spx-alert": spxAlertTemplate,
+};

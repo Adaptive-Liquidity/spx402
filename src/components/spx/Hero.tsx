@@ -14,7 +14,12 @@ interface Metric {
 function Sparkline({ series }: { series: number[] }) {
   const max = Math.max(1, ...series);
   return (
-    <svg className="metric-spark" viewBox={`0 0 ${series.length * 4} 24`} preserveAspectRatio="none" aria-hidden>
+    <svg
+      className="metric-spark"
+      viewBox={`0 0 ${series.length * 4} 24`}
+      preserveAspectRatio="none"
+      aria-hidden
+    >
       {series.map((v, i) => {
         const h = Math.max(1, (v / max) * 22);
         return (
@@ -38,7 +43,15 @@ function Sparkline({ series }: { series: number[] }) {
  * cleaves into the hero's bounding rules while the frame opens through a
  * single clip expansion. No per-element cascade.
  */
-export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; slices: GradeSlice[]; indexedCount: number }) {
+export function Hero({
+  metrics,
+  slices,
+  indexedCount,
+}: {
+  metrics: Metric[];
+  slices: GradeSlice[];
+  indexedCount: number;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
 
@@ -112,7 +125,10 @@ export function Hero({ metrics, slices, indexedCount }: { metrics: Metric[]; sli
           {/* instruments: tabular registration inside coordinate brackets */}
           <div className="register-grid mt-10 grid gap-px border border-bronze/40 bg-bronze/40 sm:grid-cols-2 lg:grid-cols-4">
             {metrics.map((m) => (
-              <div key={m.label} className="register-cell metric-cell bg-panel px-6 py-5 text-center">
+              <div
+                key={m.label}
+                className="register-cell metric-cell bg-panel px-6 py-5 text-center"
+              >
                 <span className="metric-bracket metric-bracket-tl" aria-hidden />
                 <span className="metric-bracket metric-bracket-br" aria-hidden />
                 <div className="num-display text-3xl font-bold text-paper">{m.value}</div>

@@ -61,8 +61,7 @@ const RESOURCES: ResourceDef[] = [
   {
     endpoint: "dossier",
     path: "/api/v1/agent/{mint}/dossier",
-    description:
-      "SPX402 Full Agent Dossier — complete terminal data with events and SVG card",
+    description: "SPX402 Full Agent Dossier — complete terminal data with events and SVG card",
     inputSchema: MINT_INPUT,
     outputSchema: {
       type: "object",

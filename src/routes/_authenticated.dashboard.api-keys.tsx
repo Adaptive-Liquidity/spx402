@@ -13,7 +13,6 @@ import { CopyButton } from "@/components/spx/CopyButton";
 import { BasePayButton } from "@/components/spx/BasePayButton";
 import { PLANS, formatUsdc, type PlanId } from "@/lib/plans";
 
-
 export const Route = createFileRoute("/_authenticated/dashboard/api-keys")({
   head: () => ({
     meta: [
@@ -40,7 +39,6 @@ function ApiKeysPage() {
   const [creating, setCreating] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
   const [upgradeFor, setUpgradeFor] = useState<string | null>(null);
-
 
   const load = async () => {
     if (!user) return;
@@ -210,7 +208,6 @@ function ApiKeysPage() {
                       </span>
                     )}
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -268,7 +265,6 @@ function ApiKeysPage() {
       )}
 
       <div className="border-l-2 border-amber/70 bg-amber/5 p-4 text-sm text-paper-muted">
-
         <span className="font-mono text-[10px] uppercase tracking-widest text-amber">Note · </span>
         {active.length} active {active.length === 1 ? "key" : "keys"}. Send it as{" "}
         <span className="font-mono text-paper">Authorization: Bearer &lt;key&gt;</span>.

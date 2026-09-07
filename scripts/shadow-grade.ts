@@ -19,6 +19,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { computeRiskScore, type ScoringInputs } from "../src/lib/scoring/risk-score";
+import type { AgentCategory } from "../src/lib/agents/categories";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { resolve } from "path";
 
@@ -108,6 +109,13 @@ interface ShadowAgent {
   verdict: string;
 }
 
+const SHADOW_CATEGORY_MAP: Record<ShadowAgent["category"], AgentCategory> = {
+  tokenized_buyback: "tokenized_buyback",
+  registered_agent: "registered_agent",
+  executor: "x402_executor",
+  unknown: "general",
+};
+
 function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
   // For non-AEON agents, they have NO escrows, NO bonds, NO receipts
   // They fall back to the legacy tokenized_buyback model but with
@@ -127,7 +135,7 @@ function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
     escrowSuccessRate: agent.escrowSuccessRate,
     activeBondAmount: agent.activeBondAmount,
     totalSlashedUsd: agent.totalSlashedUsd,
-    category: agent.category as any,
+    category: SHADOW_CATEGORY_MAP[agent.category],
   };
 
   const result = computeRiskScore(inputs);
@@ -144,6 +152,18 @@ function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
 // Data Sources: Top Agents (fetch from Supabase for testing)
 // ─────────────────────────────────────────────────────────────────────
 
+interface SupabaseAgentRow {
+  mint: string;
+  symbol: string | null;
+  name: string | null;
+  category: string | null;
+  active_bond_amount: number | string | null;
+  total_slashed_usd: number | string | null;
+  escrow_success_rate: number | string | null;
+  total_escrows_completed: number | null;
+  total_escrows_failed: number | null;
+}
+
 async function fetchSupabaseDemoAgents(limit: number = 30): Promise<ShadowAgent[]> {
   try {
     const { data, error } = await supabase
@@ -155,10 +175,10 @@ async function fetchSupabaseDemoAgents(limit: number = 30): Promise<ShadowAgent[
 
     if (error) throw error;
 
-    return (data ?? []).map((a: any) => ({
+    return ((data ?? []) as SupabaseAgentRow[]).map((a) => ({
       mint: a.mint,
-      symbol: a.symbol,
-      name: a.name,
+      symbol: a.symbol ?? "",
+      name: a.name ?? "",
       category: a.category ?? "tokenized_buyback",
       depositAddress: null,
       executorWallet: null,

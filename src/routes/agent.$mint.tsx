@@ -383,24 +383,7 @@ export const Route = createFileRoute("/agent/$mint")({
   },
   staleTime: 30_000,
   component: AgentRoutePage,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="label-amber">Dossier error</div>
-        <p className="mt-3 text-paper-muted">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  },
+  errorComponent: AgentPageError,
 });
 
 function VerifyingState({
@@ -723,7 +706,6 @@ function Dossier({
           ? ["all", "swap", "x402", "anomaly"]
           : ["all", "buyback", "burn", "deposit", "swap", "x402", "anomaly", "config"];
 
-
   // Aggregate counts for non-tokenized metric cards.
   const swapCount = agent.events.filter((e) => e.type === "SWAP_EXECUTED").length;
   const x402Count = agent.events.filter((e) => e.type === "X402_PAYMENT_RECEIVED").length;
@@ -823,7 +805,6 @@ function Dossier({
             max: 5,
             tone: "text-paper",
           },
-
         ];
 
   const isSPX404 = agent.grade === "SPX404";
@@ -1023,37 +1004,37 @@ function Dossier({
         <div className="lg:col-span-4 space-y-6">
           <ShareCard card={buildGradeCard(agent)} />
 
-        <Panel eyebrow="SPX Execution Score" title="Reputation pillars">
-          <div className="flex flex-col items-center">
-            <TransparencyScoreRing score={agent.score} />
-          </div>
-          <div className="mt-6 space-y-4">
-            {scorePillars.map((row) => {
-              const pct = row.max === 0 ? 0 : (row.value / row.max) * 100;
-              return (
-                <div key={row.pillar}>
-                  <div className="flex items-baseline justify-between">
-                    <span className={`font-display text-sm font-semibold ${row.tone}`}>
-                      {row.pillar}
-                    </span>
-                    <span className="num-display text-sm text-paper">
-                      {row.value} <span className="text-wire">/ {row.max}</span>
-                    </span>
+          <Panel eyebrow="SPX Execution Score" title="Reputation pillars">
+            <div className="flex flex-col items-center">
+              <TransparencyScoreRing score={agent.score} />
+            </div>
+            <div className="mt-6 space-y-4">
+              {scorePillars.map((row) => {
+                const pct = row.max === 0 ? 0 : (row.value / row.max) * 100;
+                return (
+                  <div key={row.pillar}>
+                    <div className="flex items-baseline justify-between">
+                      <span className={`font-display text-sm font-semibold ${row.tone}`}>
+                        {row.pillar}
+                      </span>
+                      <span className="num-display text-sm text-paper">
+                        {row.value} <span className="text-wire">/ {row.max}</span>
+                      </span>
+                    </div>
+                    <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-wire">
+                      {row.hint}
+                    </div>
+                    <div className="mt-1.5 h-1 w-full bg-bronze-dim/60">
+                      <div className="h-full bg-amber" style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
-                  <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-wire">
-                    {row.hint}
-                  </div>
-                  <div className="mt-1.5 h-1 w-full bg-bronze-dim/60">
-                    <div className="h-full bg-amber" style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-5 border-t border-bronze/30 pt-4 text-[10px] font-mono uppercase tracking-widest text-wire">
-            Pillars compose the SPX Execution Score. Methodology · {SCORING_VERSION}
-          </div>
-        </Panel>
+                );
+              })}
+            </div>
+            <div className="mt-5 border-t border-bronze/30 pt-4 text-[10px] font-mono uppercase tracking-widest text-wire">
+              Pillars compose the SPX Execution Score. Methodology · {SCORING_VERSION}
+            </div>
+          </Panel>
         </div>
       </div>
 
@@ -1632,3 +1613,21 @@ function AlertSubscribeButton({ mint }: { mint: string }) {
   );
 }
 
+function AgentPageError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="label-amber">Dossier error</div>
+      <p className="mt-3 text-paper-muted">{error.message}</p>
+      <button
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
+        className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        Retry
+      </button>
+    </div>
+  );
+}

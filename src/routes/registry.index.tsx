@@ -9,7 +9,6 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { PageHead } from "@/components/spx/PageHead";
 import { DataToolbar, FilterChip, FilterRow } from "@/components/spx/DataToolbar";
 
-
 export const Route = createFileRoute("/registry/")({
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/registry" }],
@@ -187,9 +186,7 @@ function LeaderboardPage() {
               className="panel-engraved flex items-center gap-4 px-4 py-3 transition-colors hover:bg-panel/60"
             >
               <span className="label-amber">#1 Earner</span>
-              <span className="font-display text-lg font-bold text-paper">
-                ${topEarner.symbol}
-              </span>
+              <span className="font-display text-lg font-bold text-paper">${topEarner.symbol}</span>
               <span className="num-display text-base font-bold text-amber">
                 {topEarner.totalBuybackSol.toFixed(2)} SOL
               </span>
@@ -302,7 +299,6 @@ function LeaderboardPage() {
             </div>
           </div>
         ) : (
-
           ranked.map((a, i) => (
             <div key={a.mint} className="relative">
               <span

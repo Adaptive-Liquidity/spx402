@@ -56,7 +56,7 @@ function PreflightPage() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-8 lg:px-8">
-            <h1 className="max-w-3xl font-display text-3xl font-bold tracking-tight text-paper">
+      <h1 className="max-w-3xl font-display text-3xl font-bold tracking-tight text-paper">
         {PREFLIGHT_QUESTION}
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-paper-muted">
@@ -106,8 +106,8 @@ function PreflightPage() {
             </li>
             <li>
               Asks a second time and compares the two quotes. A difference is reported as{" "}
-              <span className="text-paper">quote changed</span>, nothing more: services
-              legitimately rotate receiving addresses and vary pricing.
+              <span className="text-paper">quote changed</span>, nothing more: services legitimately
+              rotate receiving addresses and vary pricing.
             </li>
             <li>
               Compares the listed price against the sample of prices we have recorded ourselves,

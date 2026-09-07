@@ -66,7 +66,9 @@ function FlaggedPage() {
       key: "grade",
       header: "Last grade",
       className: "w-32",
-      cell: (a) => <ExecutionGradeBadge grade={a.grade} size="sm" confidenceScore={a.confidenceScore} />,
+      cell: (a) => (
+        <ExecutionGradeBadge grade={a.grade} size="sm" confidenceScore={a.confidenceScore} />
+      ),
     },
     {
       key: "reason",

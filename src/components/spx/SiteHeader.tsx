@@ -5,7 +5,6 @@ import { MobileNav } from "./MobileNav";
 import { NAV_ITEMS as NAV } from "./nav-items";
 import { Telemetry } from "./Telemetry";
 
-
 export function SiteHeader() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { session } = useAuth();

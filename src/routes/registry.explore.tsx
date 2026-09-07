@@ -123,8 +123,6 @@ function ExplorePage() {
   const current = Math.min(page, pageCount);
   const start = (current - 1) * PAGE_SIZE;
 
-
-
   // Columns that would print a full column of dashes for this page are dropped
   // rather than rendered empty.
   const hasBuybacks = rows.some((a) => a.totalBuybacksCount > 0);
@@ -148,7 +146,10 @@ function ExplorePage() {
           <span className="font-display text-sm font-semibold text-paper">${a.symbol}</span>
           <span className="truncate text-[11px] text-wire">{a.name}</span>
           {a.operatorVerified ? (
-            <ShieldCheck className="h-3 w-3 shrink-0 text-verified" aria-label="Operator verified" />
+            <ShieldCheck
+              className="h-3 w-3 shrink-0 text-verified"
+              aria-label="Operator verified"
+            />
           ) : null}
         </Link>
       ),
@@ -275,7 +276,10 @@ function ExplorePage() {
       )}
 
       <div className="mt-10 grid gap-3 sm:grid-cols-3">
-        <Link to="/registry" className="panel-engraved block p-5 transition-colors hover:bg-panel/60">
+        <Link
+          to="/registry"
+          className="panel-engraved block p-5 transition-colors hover:bg-panel/60"
+        >
           <div className="label-amber">Leaderboard</div>
           <div className="mt-2 font-display text-base font-semibold text-paper">
             High-trust agents only →

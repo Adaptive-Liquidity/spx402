@@ -37,15 +37,7 @@ function Notice({ tone, children }: { tone: "ok" | "bad"; children: React.ReactN
   );
 }
 
-function Band({
-  n,
-  code,
-  children,
-}: {
-  n: string;
-  code: string;
-  children: React.ReactNode;
-}) {
+function Band({ n, code, children }: { n: string; code: string; children: React.ReactNode }) {
   return (
     <section>
       <div className="band-spine">
@@ -87,9 +79,7 @@ function AccountPage() {
     });
     setSavingName(false);
     setNameMsg(
-      error
-        ? { tone: "bad", text: error.message }
-        : { tone: "ok", text: "Display name recorded." },
+      error ? { tone: "bad", text: error.message } : { tone: "ok", text: "Display name recorded." },
     );
   };
 
@@ -251,7 +241,11 @@ function AccountPage() {
               API keys
             </div>
             <div className="mt-2 font-display text-2xl font-bold tabular-nums text-paper">
-              {counts === null ? <span className="skel inline-block h-7 w-10" /> : counts.keysActive}
+              {counts === null ? (
+                <span className="skel inline-block h-7 w-10" />
+              ) : (
+                counts.keysActive
+              )}
             </div>
             <p className="mt-3 text-sm text-paper-muted">
               Active keys authenticating against the v1 endpoints. Secrets are stored only as

@@ -71,11 +71,14 @@ export async function checkRateLimit(
   const key = bucketKey(rule, callerKey(request));
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.rpc("rate_limit_hit" as never, {
-      p_bucket: key,
-      p_window_seconds: rule.windowSeconds,
-      p_limit: rule.limit,
-    } as never);
+    const { data, error } = await supabaseAdmin.rpc(
+      "rate_limit_hit" as never,
+      {
+        p_bucket: key,
+        p_window_seconds: rule.windowSeconds,
+        p_limit: rule.limit,
+      } as never,
+    );
     if (error || !data) {
       return { allowed: true, limit: rule.limit, remaining: rule.limit, resetAt: null };
     }

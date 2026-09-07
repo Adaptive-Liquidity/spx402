@@ -13,24 +13,7 @@ export const Route = createFileRoute("/about/changelog")({
   loader: async () => ({ entries: await fetchChangelog() }),
   staleTime: 60_000,
   component: ChangelogPage,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <div className="label-amber">Changelog error</div>
-        <p className="mt-3 text-paper-muted">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  },
+  errorComponent: ChangelogError,
 });
 
 const TYPE_COLORS: Record<string, string> = {
@@ -47,7 +30,7 @@ function ChangelogPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 lg:px-8">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-paper">
         Every parser version, on the record.
       </h1>
       <p className="mt-4 text-paper-muted">
@@ -90,6 +73,25 @@ function ChangelogPage() {
           ))}
         </ol>
       )}
+    </div>
+  );
+}
+
+function ChangelogError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <div className="label-amber">Changelog error</div>
+      <p className="mt-3 text-paper-muted">{error.message}</p>
+      <button
+        onClick={() => {
+          router.invalidate();
+          reset();
+        }}
+        className="mt-6 border border-amber/80 bg-amber/10 px-5 py-3 font-mono text-xs uppercase tracking-widest text-amber hover:bg-amber hover:text-panel-deep"
+      >
+        Retry
+      </button>
     </div>
   );
 }

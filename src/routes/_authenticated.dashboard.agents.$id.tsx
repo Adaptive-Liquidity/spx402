@@ -60,9 +60,7 @@ function AgentWorkspace() {
     );
 
   if (!reg)
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-8 font-mono text-sm text-wire">Loading…</div>
-    );
+    return <div className="mx-auto max-w-3xl px-4 py-8 font-mono text-sm text-wire">Loading…</div>;
 
   const checklist = setupChecklist(reg);
 

@@ -31,9 +31,7 @@ export async function fetchApiKeys(userId: string): Promise<ApiKeyRow[]> {
  * Mints a key server-side. The raw secret is returned once and never stored;
  * only its SHA-256 hash is persisted.
  */
-export async function createApiKey(
-  name: string,
-): Promise<{ row: ApiKeyRow; secret: string }> {
+export async function createApiKey(name: string): Promise<{ row: ApiKeyRow; secret: string }> {
   const res = await mintApiKey({ data: { name } });
   return { row: res.row as ApiKeyRow, secret: res.secret };
 }

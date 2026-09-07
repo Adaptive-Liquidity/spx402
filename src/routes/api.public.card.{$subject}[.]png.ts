@@ -17,9 +17,7 @@ export const Route = createFileRoute("/api/public/card/{$subject}.png")({
 
         const subject = params.subject;
         const agent = await fetchAgent(subject).catch(() => null);
-        const card: GradeCardModel = agent
-          ? buildGradeCard(agent)
-          : unindexedCard(subject);
+        const card: GradeCardModel = agent ? buildGradeCard(agent) : unindexedCard(subject);
 
         const square = new URL(request.url).searchParams.has("square");
         const png = renderGradeCardPng(
