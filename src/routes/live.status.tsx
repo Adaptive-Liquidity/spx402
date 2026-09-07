@@ -154,44 +154,36 @@ const COMPONENT_ROWS: Array<{
   },
 ];
 
-type Health = "operational" | "degraded" | "no-data";
-
-function healthFor(run: IndexerRunRow | null): Health {
-  if (!run) return "no-data";
-  if (!run.ok) return "degraded";
-  // If a heartbeat is older than 30 minutes, mark it as no-data so we don't
-  // claim things are operational when nothing is reporting in.
-  const age = Date.now() - new Date(run.ranAt).getTime();
-  if (age > 30 * 60 * 1000) return "no-data";
-  return "operational";
-}
-
 function StatusPage() {
-  const { runs, stats, coverage, facilitators, prober } = Route.useLoaderData() as {
-    runs: Record<string, IndexerRunRow | null>;
-    stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
-    coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
-    facilitators: FacilitatorRow[];
-    prober: ProberOverview;
-  };
+  const { runs, stats, coverage, facilitators, prober, proberConfig, lanes } =
+    Route.useLoaderData() as {
+      runs: Record<string, IndexerRunRow | null>;
+      stats: Awaited<ReturnType<typeof fetchIndexerStats24h>>;
+      coverage: Awaited<ReturnType<typeof fetchEventCoverage>>;
+      facilitators: FacilitatorRow[];
+      prober: ProberOverview;
+      proberConfig: ProberPublicConfig;
+      lanes: LaneStatus[];
+    };
   const activeFacilitators = facilitators.filter((f) => f.active);
 
-  const healths = COMPONENT_ROWS.map((c) => healthFor(runs[c.key] ?? null));
-  const degraded = healths.filter((h) => h === "degraded").length;
-  const noData = healths.filter((h) => h === "no-data").length;
-  const operational = healths.filter((h) => h === "operational").length;
+  const laneByKey = new Map(lanes.map((l) => [l.key, l]));
+  const states = COMPONENT_ROWS.map((c) => laneByKey.get(c.key)?.state ?? "STALLED");
+  const stalled = states.filter((s) => s === "STALLED").length;
+  const quiet = states.filter((s) => s === "QUIET").length;
+  const observing = states.filter((s) => s === "OBSERVING").length;
 
+  // "Operational" is a claim about output, not about cron firing. A lane that
+  // runs on schedule and has never produced a row is STALLED, not nominal.
   const banner =
-    degraded > 0
-      ? `${degraded} component${degraded > 1 ? "s" : ""} degraded`
-      : noData === COMPONENT_ROWS.length
-        ? "Indexer not reporting yet · pre-launch"
-        : noData > 0
-          ? `${operational} of ${COMPONENT_ROWS.length} components reporting`
-          : "All components nominal";
+    stalled > 0
+      ? `${stalled} lane${stalled > 1 ? "s" : ""} stalled · ${observing} observing · ${quiet} quiet`
+      : quiet > 0
+        ? `${observing} observing · ${quiet} quiet — chain produced nothing in window`
+        : "All lanes observing";
 
-  const bannerTone =
-    degraded > 0 ? "critical" : noData === COMPONENT_ROWS.length ? "amber" : "verified";
+  const bannerTone = stalled > 0 ? "critical" : quiet > 0 ? "amber" : "verified";
+
 
   return (
     <div className="stage section">
