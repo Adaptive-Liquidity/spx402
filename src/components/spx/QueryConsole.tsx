@@ -26,20 +26,8 @@ export function QueryConsole() {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      const typing =
-        e.target instanceof HTMLElement &&
-        ["INPUT", "TEXTAREA"].includes(e.target.tagName);
-      if (typing) return;
-      if (e.key === "/" || (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey))) {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  // No global key binding here: ⌘K / Ctrl+K belongs to the command palette,
+  // and "/" only acts while this field already has focus (handled inline).
 
   function submit(e: React.FormEvent) {
     e.preventDefault();

@@ -2,8 +2,29 @@ import { PageHead } from "@/components/spx/PageHead";
 import { createFileRoute } from "@tanstack/react-router";
 import { Panel } from "@/components/spx/Panel";
 import { CopyButton } from "@/components/spx/CopyButton";
+import { CopyBlock } from "@/components/spx/CopyBlock";
 
 const BASE_URL = "https://api.spx402.xyz";
+
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "spx402": {
+      "type": "http",
+      "url": "https://spx402.com/api/public/mcp"
+    }
+  }
+}`;
+
+const MCP_TOOL_DOCS: Array<{ name: string; desc: string }> = [
+  { name: "spx_get_agent", desc: "Grade, score, confidence and failed windows for one agent." },
+  { name: "spx_get_tape", desc: "Recent verified execution events, optionally filtered by agent." },
+  { name: "spx_list_facilitators", desc: "Tracked x402 facilitators with chain and status." },
+  {
+    name: "spx_get_evidence_summary",
+    desc: "30-day event counts by type and severity, plus the public bundle URL.",
+  },
+  { name: "spx_get_operator", desc: "Agents operated by a wallet, with grades and scores." },
+];
 
 function EndpointCard({
   method,
@@ -89,6 +110,7 @@ function ApiDocsPage() {
           { id: "x402", label: "x402 endpoints" },
           { id: "rest", label: "REST endpoints" },
           { id: "tiers", label: "Tiers" },
+          { id: "mcp", label: "MCP" },
           { id: "webhooks", label: "Webhooks" },
           { id: "quickstarts", label: "Quickstarts" },
         ].map((s) => (
@@ -339,6 +361,55 @@ function ApiDocsPage() {
               </tbody>
             </table>
           </div>
+        </Panel>
+
+        <div id="mcp" className="scroll-mt-16" />
+        {/* MCP */}
+        <Panel eyebrow="MCP server" title="Connect an assistant to the tape">
+          <p className="text-paper-muted">
+            SPX402 speaks the Model Context Protocol over Streamable HTTP at{" "}
+            <code className="rounded bg-panel-deep px-1.5 py-0.5 font-mono text-[11px]">
+              https://spx402.com/api/public/mcp
+            </code>
+            . No key required — the tools read only public, indexed data, at the same rate limit as
+            the free JSON feeds (60 requests per minute per IP).
+          </p>
+          <div className="mt-4">
+            <CopyBlock method="CONFIG" endpoint="claude / cursor" body={MCP_CONFIG} />
+          </div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full border-collapse text-left font-mono text-xs">
+              <thead>
+                <tr className="border-b border-bronze/50 text-[10px] uppercase tracking-widest text-wire">
+                  <th className="p-3">Tool</th>
+                  <th className="p-3">Returns</th>
+                </tr>
+              </thead>
+              <tbody className="text-paper-muted">
+                {MCP_TOOL_DOCS.map((t) => (
+                  <tr key={t.name} className="border-b border-bronze/30">
+                    <td className="p-3 text-paper">{t.name}</td>
+                    <td className="p-3">{t.desc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-xs text-paper-muted">
+            Machine-readable descriptions of this site also live at{" "}
+            <a href="/llms.txt" className="text-amber hover:underline">
+              /llms.txt
+            </a>
+            ,{" "}
+            <a href="/llms-full.txt" className="text-amber hover:underline">
+              /llms-full.txt
+            </a>{" "}
+            and{" "}
+            <a href="/.well-known/agent-card.json" className="text-amber hover:underline">
+              /.well-known/agent-card.json
+            </a>
+            .
+          </p>
         </Panel>
 
         <div id="webhooks" className="scroll-mt-16" />

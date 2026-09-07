@@ -2,6 +2,16 @@ import { PageHead } from "@/components/spx/PageHead";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeSubscribe } from "@/components/spx/BadgeSubscribe";
 import { BADGE_TIERS, HONEST_GRADE_RULE } from "@/lib/badge-plans";
+import { CopyBlock } from "@/components/spx/CopyBlock";
+
+const EMBED_IMG = `<a href="https://spx402.com/verify/MINT">
+  <img src="https://spx402.com/api/public/badge/MINT.svg"
+       alt="SPX402 execution grade" width="300" height="300" />
+</a>`;
+
+const EMBED_IFRAME = `<iframe src="https://spx402.com/embed/MINT"
+  width="300" height="300" frameborder="0"
+  title="SPX402 execution grade"></iframe>`;
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/build/badge")({
@@ -119,6 +129,30 @@ function BadgePage() {
           >
             Read the methodology →
           </Link>
+        </div>
+      </section>
+
+      <section className="mt-16">
+        <div className="panel-engraved p-6">
+          <div className="label-amber">Embed the badge</div>
+          <p className="mt-4 text-sm text-paper-muted">
+            Replace <code className="font-mono text-[11px]">MINT</code> with your agent identifier.
+            The image is cached for five minutes at the edge and always prints the current measured
+            grade — including a failing one.
+          </p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <CopyBlock method="HTML" endpoint="image" body={EMBED_IMG} />
+            <CopyBlock method="HTML" endpoint="iframe" body={EMBED_IFRAME} />
+          </div>
+          <p className="mt-4 border-l-2 border-amber/60 bg-panel-deep/40 px-3 py-3 font-mono text-[11px] leading-relaxed text-paper-muted">
+            {HONEST_GRADE_RULE}
+          </p>
+          <p className="mt-4 text-sm text-paper-muted">
+            Every badge links to its public attestation record at{" "}
+            <code className="font-mono text-[11px]">/verify/MINT</code>. If a badge lapses or is
+            cancelled, monitoring stops and the card renders as inactive rather than freezing on a
+            flattering grade.
+          </p>
         </div>
       </section>
     </div>

@@ -71,7 +71,35 @@ const TOOLS = [
       "List the x402 payment facilitators SPX402 tracks, with chain, settlement address and active status.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
+  {
+    name: "spx_get_evidence_summary",
+    description:
+      "Summarize the public evidence window for one agent — event counts by type and severity over the rolling 30 days, plus the URL of the full public evidence bundle. Counts only; the Merkle-rooted bundle itself is the paid resource.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        mint: { type: "string", description: "Agent identifier" },
+      },
+      required: ["mint"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "spx_get_operator",
+    description:
+      "Look up a public operator wallet: the agents it operates with their grades, scores and verification status, exactly as the operator page shows them.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        wallet: { type: "string", description: "Operator wallet address" },
+      },
+      required: ["wallet"],
+      additionalProperties: false,
+    },
+  },
 ] as const;
+
+const EVIDENCE_WINDOW_DAYS = 30;
 
 type JsonRpcId = string | number | null;
 
@@ -197,6 +225,85 @@ async function callTool(
         .limit(100);
       if (error) return toolError("upstream_unavailable");
       return textResult({ facilitators: data ?? [] });
+    }
+
+    case "spx_get_evidence_summary": {
+      const mint = typeof args["mint"] === "string" ? args["mint"].trim() : "";
+      if (!mint || mint.length > 128) return toolError("invalid mint");
+      const { data: agent, error: agentError } = await supabaseAdmin
+        .from("agents")
+        .select("mint, symbol, category, grade, score")
+        .eq("mint", mint)
+        .maybeSingle();
+      if (agentError) return toolError("upstream_unavailable");
+      if (!agent) return toolError("not_found: no agent indexed under that identifier");
+
+      const since = new Date(
+        Date.now() - EVIDENCE_WINDOW_DAYS * 24 * 60 * 60 * 1000,
+      ).toISOString();
+      const { data: events, error } = await supabaseAdmin
+        .from("agent_events")
+        .select("type, severity, occurred_at")
+        .eq("mint", mint)
+        .gte("occurred_at", since)
+        .order("occurred_at", { ascending: false })
+        .limit(5_000);
+      if (error) return toolError("upstream_unavailable");
+
+      const byType: Record<string, number> = {};
+      const bySeverity: Record<string, number> = {};
+      for (const e of events ?? []) {
+        const t = String(e.type ?? "unknown");
+        const s = String(e.severity ?? "unknown");
+        byType[t] = (byType[t] ?? 0) + 1;
+        bySeverity[s] = (bySeverity[s] ?? 0) + 1;
+      }
+      return textResult({
+        mint: agent.mint,
+        symbol: agent.symbol,
+        category: agent.category,
+        grade: agent.grade,
+        score: agent.score,
+        window_days: EVIDENCE_WINDOW_DAYS,
+        window_start: since,
+        event_count: events?.length ?? 0,
+        latest_event_at: events?.[0]?.occurred_at ?? null,
+        by_type: byType,
+        by_severity: bySeverity,
+        evidence_bundle: `/api/public/agent/${agent.mint}/evidence`,
+        permalink: `/agent/${agent.mint}`,
+      });
+    }
+
+    case "spx_get_operator": {
+      const wallet = typeof args["wallet"] === "string" ? args["wallet"].trim() : "";
+      if (!wallet || wallet.length > 128) return toolError("invalid wallet");
+      const { data, error } = await supabaseAdmin
+        .from("agents")
+        .select("mint, symbol, name, category, grade, score, operator_verified, status")
+        .eq("operator_wallet", wallet)
+        .order("score", { ascending: false, nullsFirst: false })
+        .limit(100);
+      if (error) return toolError("upstream_unavailable");
+      if (!data || data.length === 0) {
+        return toolError("not_found: no agents recorded for that operator wallet");
+      }
+      return textResult({
+        wallet,
+        agent_count: data.length,
+        verified: data.some((r) => r.operator_verified === true),
+        agents: data.map((r) => ({
+          mint: r.mint,
+          symbol: r.symbol,
+          name: r.name,
+          category: r.category,
+          grade: r.grade,
+          score: r.score,
+          status: r.status,
+          permalink: `/agent/${r.mint}`,
+        })),
+        permalink: `/operator/${wallet}`,
+      });
     }
 
     default:

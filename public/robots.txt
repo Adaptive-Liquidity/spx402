@@ -3,4 +3,10 @@ Allow: /
 Disallow: /api/
 Disallow: /dashboard/
 
+# Machine-readable surfaces — intentionally crawlable.
+Allow: /api/public/mcp
+Allow: /.well-known/
+Allow: /llms.txt
+Allow: /llms-full.txt
+
 Sitemap: https://spx402.com/sitemap.xml

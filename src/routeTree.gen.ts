@@ -22,6 +22,8 @@ import { Route as PreflightRouteImport } from './routes/preflight'
 import { Route as OperatorsRouteImport } from './routes/operators'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GenesisRecordRouteImport } from './routes/genesis-record'
@@ -42,6 +44,7 @@ import { Route as RegistryIndexRouteImport } from './routes/registry.index'
 import { Route as LiveIndexRouteImport } from './routes/live.index'
 import { Route as BuildIndexRouteImport } from './routes/build.index'
 import { Route as AboutIndexRouteImport } from './routes/about.index'
+import { Route as VerifySubjectRouteImport } from './routes/verify.$subject'
 import { Route as TapeEventIdRouteImport } from './routes/tape.$eventId'
 import { Route as ServiceSlugRouteImport } from './routes/service.$slug'
 import { Route as RegistryOperatorsRouteImport } from './routes/registry.operators'
@@ -62,6 +65,7 @@ import { Route as AboutDisclaimerRouteImport } from './routes/about.disclaimer'
 import { Route as AboutChangelogRouteImport } from './routes/about.changelog'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as DotwellKnownX402RouteImport } from './routes/[.]well-known/x402'
+import { Route as DotwellKnownAgentCardDotjsonRouteImport } from './routes/[.]well-known/agent-card[.]json'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated.dashboard.index'
 import { Route as ApiPublicX402SelftestRouteImport } from './routes/api.public.x402-selftest'
 import { Route as ApiPublicWebhookHeliusRouteImport } from './routes/api.public.webhook-helius'
@@ -168,6 +172,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
+  id: '/llms-full.txt',
+  path: '/llms-full.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LiveRoute = LiveRouteImport.update({
   id: '/live',
   path: '/live',
@@ -266,6 +280,11 @@ const AboutIndexRoute = AboutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AboutRoute,
+} as any)
+const VerifySubjectRoute = VerifySubjectRouteImport.update({
+  id: '/verify/$subject',
+  path: '/verify/$subject',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TapeEventIdRoute = TapeEventIdRouteImport.update({
   id: '/$eventId',
@@ -367,6 +386,12 @@ const DotwellKnownX402Route = DotwellKnownX402RouteImport.update({
   path: '/.well-known/x402',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownAgentCardDotjsonRoute =
+  DotwellKnownAgentCardDotjsonRouteImport.update({
+    id: '/.well-known/agent-card.json',
+    path: '/.well-known/agent-card.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
@@ -610,6 +635,8 @@ export interface FileRoutesByFullPath {
   '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRouteWithChildren
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -623,6 +650,7 @@ export interface FileRoutesByFullPath {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
+  '/.well-known/agent-card.json': typeof DotwellKnownAgentCardDotjsonRoute
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about/changelog': typeof AboutChangelogRoute
@@ -643,6 +671,7 @@ export interface FileRoutesByFullPath {
   '/registry/operators': typeof RegistryOperatorsRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/verify/$subject': typeof VerifySubjectRoute
   '/about/': typeof AboutIndexRoute
   '/build/': typeof BuildIndexRoute
   '/live/': typeof LiveIndexRoute
@@ -701,6 +730,8 @@ export interface FileRoutesByTo {
   '/flagged': typeof FlaggedRoute
   '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -713,6 +744,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
+  '/.well-known/agent-card.json': typeof DotwellKnownAgentCardDotjsonRoute
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/about/changelog': typeof AboutChangelogRoute
   '/about/disclaimer': typeof AboutDisclaimerRoute
@@ -732,6 +764,7 @@ export interface FileRoutesByTo {
   '/registry/operators': typeof RegistryOperatorsRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/verify/$subject': typeof VerifySubjectRoute
   '/about': typeof AboutIndexRoute
   '/build': typeof BuildIndexRoute
   '/live': typeof LiveIndexRoute
@@ -795,6 +828,8 @@ export interface FileRoutesById {
   '/genesis-record': typeof GenesisRecordRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live': typeof LiveRouteWithChildren
+  '/llms-full.txt': typeof LlmsFullDottxtRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/operators': typeof OperatorsRoute
@@ -808,6 +843,7 @@ export interface FileRoutesById {
   '/status': typeof StatusRoute
   '/submit': typeof SubmitRoute
   '/tape': typeof TapeRouteWithChildren
+  '/.well-known/agent-card.json': typeof DotwellKnownAgentCardDotjsonRoute
   '/.well-known/x402': typeof DotwellKnownX402Route
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/about/changelog': typeof AboutChangelogRoute
@@ -828,6 +864,7 @@ export interface FileRoutesById {
   '/registry/operators': typeof RegistryOperatorsRoute
   '/service/$slug': typeof ServiceSlugRoute
   '/tape/$eventId': typeof TapeEventIdRoute
+  '/verify/$subject': typeof VerifySubjectRoute
   '/about/': typeof AboutIndexRoute
   '/build/': typeof BuildIndexRoute
   '/live/': typeof LiveIndexRoute
@@ -891,6 +928,8 @@ export interface FileRouteTypes {
     | '/genesis-record'
     | '/leaderboard'
     | '/live'
+    | '/llms-full.txt'
+    | '/llms.txt'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -904,6 +943,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
+    | '/.well-known/agent-card.json'
     | '/.well-known/x402'
     | '/dashboard'
     | '/about/changelog'
@@ -924,6 +964,7 @@ export interface FileRouteTypes {
     | '/registry/operators'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/verify/$subject'
     | '/about/'
     | '/build/'
     | '/live/'
@@ -982,6 +1023,8 @@ export interface FileRouteTypes {
     | '/flagged'
     | '/genesis-record'
     | '/leaderboard'
+    | '/llms-full.txt'
+    | '/llms.txt'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -994,6 +1037,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
+    | '/.well-known/agent-card.json'
     | '/.well-known/x402'
     | '/about/changelog'
     | '/about/disclaimer'
@@ -1013,6 +1057,7 @@ export interface FileRouteTypes {
     | '/registry/operators'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/verify/$subject'
     | '/about'
     | '/build'
     | '/live'
@@ -1075,6 +1120,8 @@ export interface FileRouteTypes {
     | '/genesis-record'
     | '/leaderboard'
     | '/live'
+    | '/llms-full.txt'
+    | '/llms.txt'
     | '/login'
     | '/methodology'
     | '/operators'
@@ -1088,6 +1135,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/submit'
     | '/tape'
+    | '/.well-known/agent-card.json'
     | '/.well-known/x402'
     | '/_authenticated/dashboard'
     | '/about/changelog'
@@ -1108,6 +1156,7 @@ export interface FileRouteTypes {
     | '/registry/operators'
     | '/service/$slug'
     | '/tape/$eventId'
+    | '/verify/$subject'
     | '/about/'
     | '/build/'
     | '/live/'
@@ -1171,6 +1220,8 @@ export interface RootRouteChildren {
   GenesisRecordRoute: typeof GenesisRecordRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveRoute: typeof LiveRouteWithChildren
+  LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   OperatorsRoute: typeof OperatorsRoute
@@ -1184,11 +1235,13 @@ export interface RootRouteChildren {
   StatusRoute: typeof StatusRoute
   SubmitRoute: typeof SubmitRoute
   TapeRoute: typeof TapeRouteWithChildren
+  DotwellKnownAgentCardDotjsonRoute: typeof DotwellKnownAgentCardDotjsonRoute
   DotwellKnownX402Route: typeof DotwellKnownX402Route
   AgentMintRoute: typeof AgentMintRoute
   EmbedSubjectRoute: typeof EmbedSubjectRoute
   OperatorWalletRoute: typeof OperatorWalletRoute
   ServiceSlugRoute: typeof ServiceSlugRoute
+  VerifySubjectRoute: typeof VerifySubjectRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -1283,6 +1336,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms-full.txt': {
+      id: '/llms-full.txt'
+      path: '/llms-full.txt'
+      fullPath: '/llms-full.txt'
+      preLoaderRoute: typeof LlmsFullDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/live': {
@@ -1425,6 +1492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutIndexRouteImport
       parentRoute: typeof AboutRoute
     }
+    '/verify/$subject': {
+      id: '/verify/$subject'
+      path: '/verify/$subject'
+      fullPath: '/verify/$subject'
+      preLoaderRoute: typeof VerifySubjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tape/$eventId': {
       id: '/tape/$eventId'
       path: '/$eventId'
@@ -1563,6 +1637,13 @@ declare module '@tanstack/react-router' {
       path: '/.well-known/x402'
       fullPath: '/.well-known/x402'
       preLoaderRoute: typeof DotwellKnownX402RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/agent-card.json': {
+      id: '/.well-known/agent-card.json'
+      path: '/.well-known/agent-card.json'
+      fullPath: '/.well-known/agent-card.json'
+      preLoaderRoute: typeof DotwellKnownAgentCardDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard/': {
@@ -2057,6 +2138,8 @@ const rootRouteChildren: RootRouteChildren = {
   GenesisRecordRoute: GenesisRecordRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveRoute: LiveRouteWithChildren,
+  LlmsFullDottxtRoute: LlmsFullDottxtRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   OperatorsRoute: OperatorsRoute,
@@ -2070,11 +2153,13 @@ const rootRouteChildren: RootRouteChildren = {
   StatusRoute: StatusRoute,
   SubmitRoute: SubmitRoute,
   TapeRoute: TapeRouteWithChildren,
+  DotwellKnownAgentCardDotjsonRoute: DotwellKnownAgentCardDotjsonRoute,
   DotwellKnownX402Route: DotwellKnownX402Route,
   AgentMintRoute: AgentMintRoute,
   EmbedSubjectRoute: EmbedSubjectRoute,
   OperatorWalletRoute: OperatorWalletRoute,
   ServiceSlugRoute: ServiceSlugRoute,
+  VerifySubjectRoute: VerifySubjectRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
