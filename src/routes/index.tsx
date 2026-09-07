@@ -77,7 +77,7 @@ export const Route = createFileRoute("/")({
       activeFacilitators: 0,
     };
     const [agents, tape, stats] = await Promise.all([
-      safe<Agent[]>(fetchAllAgents(), []),
+      safe<Agent[]>(fetchAgentIndex(), []),
       safe<TapeRow[]>(fetchTape({ limit: 18 }), []),
       safe<HomeStats>(fetchHomeStats(), emptyStats),
     ]);
