@@ -27,7 +27,6 @@ export function DataTable<T>({
   columns,
   rows,
   rowKey,
-  rowHref,
   dense = true,
   empty,
   loading,
@@ -36,8 +35,6 @@ export function DataTable<T>({
   columns: Array<Column<T>>;
   rows: T[];
   rowKey: (row: T) => string;
-  /** Renders the row as a clickable link wrapper (whole-row navigation). */
-  rowHref?: (row: T) => ReactNode;
   dense?: boolean;
   empty?: ReactNode;
   loading?: boolean;
@@ -114,14 +111,7 @@ export function DataTable<T>({
                     i % 2 ? "bg-panel/60" : "bg-background",
                   )}
                 >
-                  {rowHref ? (
-                    <>
-                      {cells}
-                      <td className="w-0 p-0">{rowHref(row)}</td>
-                    </>
-                  ) : (
-                    cells
-                  )}
+                  {cells}
                 </tr>
               );
             })
