@@ -27,6 +27,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as FlaggedRouteImport } from './routes/flagged'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as CorrectionsRouteImport } from './routes/corrections'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as BuildRouteImport } from './routes/build'
 import { Route as BadgeRouteImport } from './routes/badge'
@@ -189,6 +190,11 @@ const ExploreRoute = ExploreRouteImport.update({
 const DisclaimerRoute = DisclaimerRouteImport.update({
   id: '/disclaimer',
   path: '/disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorrectionsRoute = CorrectionsRouteImport.update({
+  id: '/corrections',
+  path: '/corrections',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChangelogRoute = ChangelogRouteImport.update({
@@ -591,6 +597,7 @@ export interface FileRoutesByFullPath {
   '/badge': typeof BadgeRoute
   '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
+  '/corrections': typeof CorrectionsRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
@@ -681,6 +688,7 @@ export interface FileRoutesByTo {
   '/api': typeof ApiRouteWithChildren
   '/badge': typeof BadgeRoute
   '/changelog': typeof ChangelogRoute
+  '/corrections': typeof CorrectionsRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
@@ -772,6 +780,7 @@ export interface FileRoutesById {
   '/badge': typeof BadgeRoute
   '/build': typeof BuildRouteWithChildren
   '/changelog': typeof ChangelogRoute
+  '/corrections': typeof CorrectionsRoute
   '/disclaimer': typeof DisclaimerRoute
   '/explore': typeof ExploreRoute
   '/flagged': typeof FlaggedRoute
@@ -866,6 +875,7 @@ export interface FileRouteTypes {
     | '/badge'
     | '/build'
     | '/changelog'
+    | '/corrections'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
@@ -956,6 +966,7 @@ export interface FileRouteTypes {
     | '/api'
     | '/badge'
     | '/changelog'
+    | '/corrections'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
@@ -1046,6 +1057,7 @@ export interface FileRouteTypes {
     | '/badge'
     | '/build'
     | '/changelog'
+    | '/corrections'
     | '/disclaimer'
     | '/explore'
     | '/flagged'
@@ -1140,6 +1152,7 @@ export interface RootRouteChildren {
   BadgeRoute: typeof BadgeRoute
   BuildRoute: typeof BuildRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
+  CorrectionsRoute: typeof CorrectionsRoute
   DisclaimerRoute: typeof DisclaimerRoute
   ExploreRoute: typeof ExploreRoute
   FlaggedRoute: typeof FlaggedRoute
@@ -1292,6 +1305,13 @@ declare module '@tanstack/react-router' {
       path: '/disclaimer'
       fullPath: '/disclaimer'
       preLoaderRoute: typeof DisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corrections': {
+      id: '/corrections'
+      path: '/corrections'
+      fullPath: '/corrections'
+      preLoaderRoute: typeof CorrectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/changelog': {
@@ -2010,6 +2030,7 @@ const rootRouteChildren: RootRouteChildren = {
   BadgeRoute: BadgeRoute,
   BuildRoute: BuildRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
+  CorrectionsRoute: CorrectionsRoute,
   DisclaimerRoute: DisclaimerRoute,
   ExploreRoute: ExploreRoute,
   FlaggedRoute: FlaggedRoute,
