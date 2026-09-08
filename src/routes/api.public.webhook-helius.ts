@@ -91,19 +91,13 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           aeonCfg = resolveAeonProgramId();
         } catch (e) {
           aeonCfg = { enabled: false, reason: "invalid_config" } as const;
-          aeonSkipDetail =
-            e instanceof Error ? e.message.slice(0, 200) : "invalid_config";
+          aeonSkipDetail = e instanceof Error ? e.message.slice(0, 200) : "invalid_config";
         }
         const aeonEvents: DecodedEvent[] = [];
         if (!aeonCfg.enabled) {
           // Single skip heartbeat per request (detail prefers the throw
           // message when the guard itself rejected the config).
-          await heartbeat(
-            "webhook_ingest_aeon_skip",
-            true,
-            0,
-            aeonSkipDetail ?? aeonCfg.reason,
-          );
+          await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonSkipDetail ?? aeonCfg.reason);
         }
         if (aeonCfg.enabled && aeonAgents.length > 0) {
           for (const tx of txs) {

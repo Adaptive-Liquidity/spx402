@@ -113,7 +113,12 @@ function EmbedSubject() {
           </div>
           <div className="mt-0.5 truncate text-sm font-bold text-paper">{agent.name}</div>
           <div className="mt-2">
-            <ExecutionGradeBadge grade={agent.grade} confidenceScore={confidence} size="sm" />
+            <ExecutionGradeBadge
+              grade={agent.grade}
+              confidenceScore={confidence}
+              size="sm"
+              withheld={agent.withheldReason != null}
+            />
           </div>
         </div>
         <div className="text-right">
@@ -122,7 +127,9 @@ function EmbedSubject() {
             {agent.score ?? "—"}
           </div>
           <div className="mt-1 text-[9px] uppercase tracking-widest text-paper-muted">
-            conf {(confidence * 100).toFixed(0)}%
+            {agent.withheldReason != null
+              ? "conf withheld"
+              : `conf ${(confidence * 100).toFixed(0)}%`}
           </div>
         </div>
       </div>

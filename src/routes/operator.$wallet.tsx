@@ -203,9 +203,7 @@ function OperatorAgentCard({ agent }: { agent: OperatorAgentSummary }) {
         <div className="flex items-baseline gap-2">
           <span className="font-display text-lg font-bold text-paper">${agent.symbol}</span>
           <span className="font-mono text-[10px] uppercase tracking-widest text-wire">
-            {agent.withheldReason != null
-              ? "WITHHELD"
-              : (agent.grade ?? "UNGRADED")}
+            {agent.withheldReason != null ? "WITHHELD" : (agent.grade ?? "UNGRADED")}
           </span>
           {agent.flagged && (
             <span className="font-mono text-[10px] uppercase tracking-widest text-critical">

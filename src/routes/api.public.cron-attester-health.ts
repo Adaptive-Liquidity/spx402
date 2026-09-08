@@ -70,7 +70,8 @@ export const Route = createFileRoute("/api/public/cron-attester-health")({
                 .select("grade, score, withheld_reason")
                 .eq("mint", mint)
                 .maybeSingle();
-              if (error || !data) return null;
+              if (error) throw error;
+              if (!data) return null;
               const row = data as unknown as {
                 grade: string | null;
                 score: number | null;

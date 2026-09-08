@@ -137,6 +137,20 @@ describe("processDueActivationRetries", () => {
     expect(row!.last_error).toBe("chain hiccup");
   });
 
+  it("does not drop a row when agent lookup throws (fail-closed)", async () => {
+    const store = memoryStore([dueRow]);
+    await expect(
+      processDueActivationRetries({
+        store,
+        readAgent: async () => {
+          throw new Error("supabase blip");
+        },
+        attest: async () => ({ ok: true }),
+      }),
+    ).rejects.toThrow("supabase blip");
+    expect(await store.read(MINT)).not.toBeNull();
+  });
+
   it("drops rows whose agent no longer exists", async () => {
     const store = memoryStore([dueRow]);
     const res = await processDueActivationRetries({

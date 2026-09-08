@@ -332,6 +332,17 @@ export function scorePillarsFor(agent: Agent, flags: DossierFlags) {
  * about what the chain has shown us so far.
  */
 export function whyThisGrade(agent: Agent, flags: DossierFlags): string {
+  const operatorNote = agent.operatorVerified
+    ? ""
+    : " The operator has not signed for this subject, so identity is unverified.";
+
+  if (agent.withheldReason != null) {
+    return `Grade withheld (${agent.withheldReason}). This is not an evidence-based grade; scoring resumes when the AEON pipeline is available.${operatorNote}`;
+  }
+  if (agent.grade == null) {
+    return `Ungraded — not enough scored evidence yet.${operatorNote}`;
+  }
+
   const scoredEvents =
     agent.totalDepositsCount +
     agent.totalBuybacksCount +
@@ -350,10 +361,6 @@ export function whyThisGrade(agent: Agent, flags: DossierFlags): string {
   } else if (scoredEvents === 0) {
     missing.push("settlement activity of any scored class");
   }
-
-  const operatorNote = agent.operatorVerified
-    ? ""
-    : " The operator has not signed for this subject, so identity is unverified.";
 
   if (missing.length === 0) {
     return `Graded ${agent.grade} on ${scoredEvents.toLocaleString()} scored on-chain event${
