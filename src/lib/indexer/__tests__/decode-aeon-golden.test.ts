@@ -5,10 +5,7 @@ import { decodeAeonTx } from "../decode-aeon.server";
 import { AEON_PROGRAM_ID_DEVNET } from "../../trust/config";
 import type { HeliusEnhancedTx, HeliusInstruction } from "../helius.server";
 
-const FIXTURE = join(
-  process.cwd(),
-  "src/lib/indexer/__tests__/fixtures/aeon-devnet-pay.json",
-);
+const FIXTURE = join(process.cwd(), "src/lib/indexer/__tests__/fixtures/aeon-devnet-pay.json");
 
 const PAYER_CRI = "8QaxxWzTSp4ensq71fYr8SbhaLYDuhzTsGNLEcCW87t8";
 const PAYER = "4bpiP5ddQhEbYxtJJL1qTecvMzzqw38NafoqfUF6R6CY";

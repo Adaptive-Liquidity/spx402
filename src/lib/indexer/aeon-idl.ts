@@ -106,8 +106,7 @@ export function namedIssueAuthorityAccounts(
   accounts: string[],
   args: Record<string, unknown> | null,
 ): Record<string, string> {
-  const metas =
-    instructions.find((ix) => ix.name === "issue_authority")?.accounts ?? [];
+  const metas = instructions.find((ix) => ix.name === "issue_authority")?.accounts ?? [];
   const named: Record<string, string> = {};
   if (accounts.length >= metas.length && metas.length > 0) {
     // Sentinel form: positions are authoritative.
@@ -193,7 +192,11 @@ function readU8(buf: Buffer, offset: number): { value: number; offset: number } 
   return { value: buf.readUInt8(offset), offset: offset + 1 };
 }
 
-function readBytes(buf: Buffer, offset: number, n: number): { value: Buffer; offset: number } | null {
+function readBytes(
+  buf: Buffer,
+  offset: number,
+  n: number,
+): { value: Buffer; offset: number } | null {
   if (offset + n > buf.length) return null;
   return { value: buf.subarray(offset, offset + n), offset: offset + n };
 }
@@ -284,10 +287,7 @@ export function decodeAeonArgs(
 }
 
 /** Borsh-decode an Anchor event payload (discriminator + IDL event fields). */
-export function decodeAeonEvent(
-  eventName: string,
-  data: Buffer,
-): Record<string, unknown> | null {
+export function decodeAeonEvent(eventName: string, data: Buffer): Record<string, unknown> | null {
   const fields = eventFields(eventName);
   if (!fields) return null;
   let offset = 8;

@@ -44,10 +44,15 @@ function encodeIx(name: string, args: Buffer): string {
   return bs58.encode(Buffer.concat([Buffer.from(disc), args]));
 }
 
-function bondSlashedLog(amount: number): string {
+function bondSlashedLog(amount: number, authorityId = 7): string {
   const disc = aeonEventDiscBytes("BondSlashed");
   if (!disc) throw new Error("missing BondSlashed event");
-  const payload = Buffer.concat([Buffer.from(disc), u64le(7), u64le(amount), Buffer.alloc(32, 2)]);
+  const payload = Buffer.concat([
+    Buffer.from(disc),
+    u64le(authorityId),
+    u64le(amount),
+    Buffer.alloc(32, 2),
+  ]);
   return `Program data: ${payload.toString("base64")}`;
 }
 
@@ -202,5 +207,83 @@ describe("slash_bond attribution and amount", () => {
       AEON_PROGRAM_ID_DEVNET,
     );
     expect(events[0]?.amountToken).toBe(125_000);
+  });
+
+  it("matches each batched slash_bond to its own BondSlashed amount, not the first log", () => {
+    const bondedMint2 = "BondedMint22222222222222222222222222222222222";
+    const authority2 = "AuthPda2222222222222222222222222222222222222";
+    const bond2 = "BondPda22222222222222222222222222222222222222";
+    const vault2 = "BondVault22222222222222222222222222222222222";
+    const slashAccounts2 = [
+      SLASHER_WALLET,
+      CONFIG,
+      authority2,
+      bond2,
+      vault2,
+      DESTINATION,
+      AEON_MINT,
+      SPL_TOKEN_PROGRAM_ID,
+    ];
+    const secondAgent = {
+      mint: bondedMint2,
+      aeonCriAddress: null,
+      executorWallet: BONDED_WALLET,
+      aeonAuthorityAddress: authority2,
+      aeonBondAddress: bond2,
+    };
+    const events = decodeAeonTx(
+      {
+        signature: SIG,
+        slot: 11,
+        timestamp: 1_700_000_100,
+        // Logs are reversed vs instruction order so a first-log scan would
+        // assign 125_000 to both slashes.
+        logMessages: [bondSlashedLog(125_000, 9), bondSlashedLog(500_000, 7)],
+        instructions: [
+          {
+            programId: AEON_PROGRAM_ID_DEVNET,
+            data: encodeIx("slash_bond", u64le(7)),
+            accounts: SLASH_ACCOUNTS,
+          },
+          {
+            programId: AEON_PROGRAM_ID_DEVNET,
+            data: encodeIx("slash_bond", u64le(9)),
+            accounts: slashAccounts2,
+          },
+        ],
+      },
+      [bondedAgent, secondAgent],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events).toHaveLength(2);
+    const byMint = Object.fromEntries(events.map((e) => [e.mint, e.amountToken]));
+    expect(byMint[BONDED_MINT]).toBe(500_000);
+    expect(byMint[bondedMint2]).toBe(125_000);
+  });
+
+  it("consumes BondSlashed logs in order when two slashes share an authority_id", () => {
+    const events = decodeAeonTx(
+      {
+        signature: SIG,
+        slot: 11,
+        timestamp: 1_700_000_100,
+        logMessages: [bondSlashedLog(100_000, 7), bondSlashedLog(200_000, 7)],
+        instructions: [
+          {
+            programId: AEON_PROGRAM_ID_DEVNET,
+            data: encodeIx("slash_bond", u64le(7)),
+            accounts: SLASH_ACCOUNTS,
+          },
+          {
+            programId: AEON_PROGRAM_ID_DEVNET,
+            data: encodeIx("slash_bond", u64le(7)),
+            accounts: SLASH_ACCOUNTS,
+          },
+        ],
+      },
+      [bondedAgent],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events.map((e) => e.amountToken)).toEqual([100_000, 200_000]);
   });
 });

@@ -242,8 +242,7 @@ const supabaseOcEvidenceRepository: OcEvidenceRepository = {
   },
   async insert(row) {
     const event_uid =
-      row.event_uid ||
-      makeEventUid({ signature: row.signature, type: row.type, mint: row.mint });
+      row.event_uid || makeEventUid({ signature: row.signature, type: row.type, mint: row.mint });
     const { data, error } = await supabaseAdmin
       .from("agent_events")
       .insert({ ...row, event_uid, raw: row.raw as never } as never)

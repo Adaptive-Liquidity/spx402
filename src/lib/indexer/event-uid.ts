@@ -22,12 +22,9 @@ export function makeEventUid(parts: EventUidParts): string {
   return `${parts.signature}:${ix}:${disc}:${parts.type}:${parts.mint}`;
 }
 
-export function eventUidFromRaw(
-  parts: EventUidParts & { raw?: Record<string, unknown> },
-): string {
+export function eventUidFromRaw(parts: EventUidParts & { raw?: Record<string, unknown> }): string {
   const raw = parts.raw ?? {};
-  const ixIndex =
-    parts.ixIndex ?? (typeof raw.ixIndex === "number" ? raw.ixIndex : null);
+  const ixIndex = parts.ixIndex ?? (typeof raw.ixIndex === "number" ? raw.ixIndex : null);
   const discHex =
     parts.discHex ?? (typeof raw.discriminator === "string" ? raw.discriminator : null);
   return makeEventUid({

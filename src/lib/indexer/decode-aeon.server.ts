@@ -176,7 +176,14 @@ function txLogLines(tx: HeliusEnhancedTx): string[] {
   return tx.logMessages ?? tx.logs ?? [];
 }
 
-function bondSlashedAmountFromLogs(tx: HeliusEnhancedTx): number {
+interface BondSlashedLogEvent {
+  authorityId: number;
+  amount: number;
+}
+
+/** Parse BondSlashed program events in log order. Each is consumed once per slash_bond. */
+function parseBondSlashedEvents(tx: HeliusEnhancedTx): BondSlashedLogEvent[] {
+  const out: BondSlashedLogEvent[] = [];
   for (const line of txLogLines(tx)) {
     const prefix = "Program data: ";
     const idx = line.indexOf(prefix);
@@ -194,9 +201,24 @@ function bondSlashedAmountFromLogs(tx: HeliusEnhancedTx): number {
     if (name !== "BondSlashed") continue;
     const parsed = decodeAeonEvent("BondSlashed", bytes);
     const amount = asFiniteNumber(parsed?.amount);
-    if (amount > 0) return amount;
+    if (amount <= 0) continue;
+    out.push({
+      authorityId: asFiniteNumber(parsed?.authority_id),
+      amount,
+    });
   }
-  return 0;
+  return out;
+}
+
+function takeBondSlashedAmount(
+  remaining: BondSlashedLogEvent[],
+  authorityId: number | null,
+): number {
+  if (authorityId === null) return 0;
+  const idx = remaining.findIndex((event) => event.authorityId === authorityId);
+  if (idx < 0) return 0;
+  const [hit] = remaining.splice(idx, 1);
+  return hit?.amount ?? 0;
 }
 
 function rawTokenDecreaseAt(tx: HeliusEnhancedTx, tokenAccount: string | undefined): number {
@@ -220,10 +242,7 @@ function innerTransferAmountFromVault(
 ): number {
   if (!bondVault) return 0;
   for (const inner of ix.innerInstructions ?? []) {
-    if (
-      inner.programId !== SPL_TOKEN_PROGRAM_ID &&
-      inner.programId !== SPL_TOKEN_2022_PROGRAM_ID
-    ) {
+    if (inner.programId !== SPL_TOKEN_PROGRAM_ID && inner.programId !== SPL_TOKEN_2022_PROGRAM_ID) {
       continue;
     }
     const info = inner.parsed?.info ?? {};
@@ -235,10 +254,13 @@ function innerTransferAmountFromVault(
   return 0;
 }
 
-function slashAmountFromVerifiedData(tx: HeliusEnhancedTx, ix: HeliusInstruction): number {
-  const named = namedInstructionAccounts("slash_bond", ix.accounts ?? []);
-  const fromEvent = bondSlashedAmountFromLogs(tx);
+function slashAmountFromVerifiedData(
+  tx: HeliusEnhancedTx,
+  ix: HeliusInstruction,
+  fromEvent: number,
+): number {
   if (fromEvent > 0) return fromEvent;
+  const named = namedInstructionAccounts("slash_bond", ix.accounts ?? []);
   const fromVault = rawTokenDecreaseAt(tx, named.bond_vault);
   if (fromVault > 0) return fromVault;
   return innerTransferAmountFromVault(ix, named.bond_vault);
@@ -313,6 +335,7 @@ export function decodeAeonTx(
   if (tx.transactionError) return events;
 
   const flat = flattenInstructions(tx.instructions ?? []);
+  const remainingBondSlashed = parseBondSlashedEvents(tx);
   for (let ixIndex = 0; ixIndex < flat.length; ixIndex++) {
     const ix = flat[ixIndex];
     if (ix.programId !== programId) continue;
@@ -334,13 +357,21 @@ export function decodeAeonTx(
         ? namedIssueAuthorityAccounts(ix.accounts ?? [], parsed)
         : null;
     const mints =
-      instructionName === "slash_bond"
-        ? matchSlashBondMints(ix, agents)
-        : matchMints(ix, agents);
+      instructionName === "slash_bond" ? matchSlashBondMints(ix, agents) : matchMints(ix, agents);
     if (mints.length === 0) continue;
 
+    const slashAuthorityId =
+      instructionName === "slash_bond" && parsed && parsed.authority_id != null
+        ? asFiniteNumber(parsed.authority_id)
+        : null;
     const slashAmount =
-      instructionName === "slash_bond" ? slashAmountFromVerifiedData(tx, ix) : 0;
+      instructionName === "slash_bond"
+        ? slashAmountFromVerifiedData(
+            tx,
+            ix,
+            takeBondSlashedAmount(remainingBondSlashed, slashAuthorityId),
+          )
+        : 0;
     const amountToken = tokenAmountFromArgs(parsed);
     const bondAmount = asFiniteNumber(parsed?.bond_amount);
 

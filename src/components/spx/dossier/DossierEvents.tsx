@@ -36,7 +36,9 @@ export function DossierTimeline({ agent }: { agent: Agent }) {
     if (filter === "x402") return e.type === "X402_PAYMENT_RECEIVED";
     if (filter === "outcome") return e.type.startsWith("OC_");
     if (filter === "escrow")
-      return e.type.startsWith("ESCROW_") || e.type === "AEON_PAYMENT" || e.type === "AEON_ATOMIC_SPLIT";
+      return (
+        e.type.startsWith("ESCROW_") || e.type === "AEON_PAYMENT" || e.type === "AEON_ATOMIC_SPLIT"
+      );
     if (filter === "bond")
       return (
         e.type.startsWith("BOND_") ||

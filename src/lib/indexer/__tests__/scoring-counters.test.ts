@@ -144,7 +144,9 @@ describe("aggregateCounters fail-closed behavior", () => {
       ok(null),
       ok([], 0),
     ]);
-    await expect(aggregateCounters(client as never, "mint1")).rejects.toThrow(/30-day event window truncated/);
+    await expect(aggregateCounters(client as never, "mint1")).rejects.toThrow(
+      /30-day event window truncated/,
+    );
   });
 
   it("aggregates counters across multiple AEON keyset pages", async () => {
