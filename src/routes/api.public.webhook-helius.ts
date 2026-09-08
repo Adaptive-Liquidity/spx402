@@ -17,6 +17,7 @@ import {
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
 import { decodeAeonTx, type AeonLookup } from "@/lib/indexer/decode-aeon.server";
+import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
 import {
@@ -48,7 +49,9 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         // Load the agent lookup table once.
         const { data: agentsRows } = await supabaseAdmin
           .from("agents")
-          .select("mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address");
+          .select(
+            "mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address",
+          );
         const agents = (agentsRows ?? []).map((r) => ({
           mint: r.mint,
           depositAddress: r.deposit_address ?? null,
@@ -77,11 +80,28 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           events.push(...decodeTx(tx, agents));
         }
 
-        // AEON Execution Primitive decoding
+        // AEON Execution Primitive decoding. Guard-gated: an unconfigured
+        // or invalid AEON_PROGRAM_ID skips AEON decoding without affecting
+        // other decoders. resolveAeonProgramId() throws on invalid production
+        // config, so resolve defensively here; boot/health surfacing owns the
+        // failure (see /api/public/health), not per-request 500s.
+        let aeonCfg: ReturnType<typeof resolveAeonProgramId>;
+        let aeonSkipDetail: string | null = null;
+        try {
+          aeonCfg = resolveAeonProgramId();
+        } catch (e) {
+          aeonCfg = { enabled: false, reason: "invalid_config" } as const;
+          aeonSkipDetail = e instanceof Error ? e.message.slice(0, 200) : "invalid_config";
+        }
         const aeonEvents: DecodedEvent[] = [];
-        if (aeonAgents.length > 0) {
+        if (!aeonCfg.enabled) {
+          // Single skip heartbeat per request (detail prefers the throw
+          // message when the guard itself rejected the config).
+          await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonSkipDetail ?? aeonCfg.reason);
+        }
+        if (aeonCfg.enabled && aeonAgents.length > 0) {
           for (const tx of txs) {
-            for (const ev of decodeAeonTx(tx, aeonAgents)) {
+            for (const ev of decodeAeonTx(tx, aeonAgents, aeonCfg.programId)) {
               aeonEvents.push({
                 mint: ev.mint,
                 type: ev.type,

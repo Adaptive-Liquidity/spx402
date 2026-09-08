@@ -112,7 +112,25 @@ export const subscribeBadge = createServerFn({ method: "POST" })
       const result = await attestSubject(
         data.mint,
         "badge_activated",
-        agent.grade ?? "SPX404",
+        // Withheld agents must never be stamped with a fabricated grade.
+        // "WITHHELD" is honest metadata on a subscription activation stamp.
+        (await (async () => {
+          // A lookup error throws into the catch below: the subscription
+          // still completes (payment is already claimed and non-refundable),
+          // but no stamp is minted and a retry row is persisted instead of
+          // falling back to a possibly stale grade.
+          const { data: wrow, error: werr } = await supabaseAdmin
+            .from("agents" as never)
+            .select("withheld_reason")
+            .eq("mint", data.mint)
+            .maybeSingle();
+          if (werr) throw new Error("withheld-state lookup failed");
+          return (
+            (wrow as unknown as { withheld_reason: string | null } | null)?.withheld_reason ?? null
+          );
+        })()) != null
+          ? "WITHHELD"
+          : (agent.grade ?? "SPX404"),
         Number(agent.score ?? 0),
       );
       attestation = {
@@ -121,8 +139,41 @@ export const subscribeBadge = createServerFn({ method: "POST" })
         skipped: result.skipped,
         reason: result.reason,
       };
+      // A non-ok stamp without a throw (e.g. receipt without Attested event)
+      // also needs an independent retry - unless the attester itself is
+      // unconfigured, in which case every retry is pointless until an operator
+      // funds it (attester-health reports that state instead).
+      if (!result.ok && result.reason !== "EAS_ATTESTER_PRIVATE_KEY not configured") {
+        try {
+          const { enqueueActivationRetry } = await import("@/lib/badge-attestation-queue");
+          const { supabaseActivationQueueStore } =
+            await import("@/lib/badge-attestation-queue.server");
+          await enqueueActivationRetry(
+            supabaseActivationQueueStore,
+            data.mint,
+            result.reason ?? "activation stamp not ok",
+          );
+        } catch (qe) {
+          console.error("[badge] activation retry enqueue failed:", String(qe).slice(0, 200));
+        }
+      }
     } catch (e) {
       console.error("[badge] activation attestation failed:", String(e).slice(0, 300));
+      // Persist for independent retry: the scoring sweep only retries grade
+      // stamps, so without this row the activation stamp would stay missing.
+      // Enqueue is best-effort and can never break the paid subscription.
+      try {
+        const { enqueueActivationRetry } = await import("@/lib/badge-attestation-queue");
+        const { supabaseActivationQueueStore } =
+          await import("@/lib/badge-attestation-queue.server");
+        await enqueueActivationRetry(
+          supabaseActivationQueueStore,
+          data.mint,
+          String(e).slice(0, 200),
+        );
+      } catch (qe) {
+        console.error("[badge] activation retry enqueue failed:", String(qe).slice(0, 200));
+      }
       attestation = { skipped: true, reason: "Attestation will retry on the next sweep" };
     }
 

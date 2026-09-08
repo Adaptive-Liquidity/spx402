@@ -48,6 +48,9 @@ type AgentRow = {
   flagged: boolean | null;
   flag_reason: string | null;
   flagged_at: string | null;
+  // Optional until generated types are regenerated post-migration;
+  // rowToAgent defaults it to null when the column is absent.
+  withheld_reason?: string | null;
   // AEON primitives
   aeon_cri_address: string | null;
   total_slashed_usd: number | string;
@@ -80,7 +83,8 @@ function rowToAgent(r: AgentRow): Agent {
     symbol: r.symbol,
     name: r.name,
     tagline: r.tagline ?? "",
-    grade: r.grade as Grade,
+    grade: r.grade as Grade | null,
+    withheldReason: r.withheld_reason ?? null,
     score: r.score,
     status: (r.status as Agent["status"]) ?? "unknown",
     operatorVerified: r.operator_verified,
@@ -176,6 +180,7 @@ const AGENT_LIST_COLUMNS = [
   "flagged",
   "flag_reason",
   "flagged_at",
+  "withheld_reason",
   "chain",
   "aeon_cri_address",
   "total_slashed_usd",
@@ -220,7 +225,7 @@ export function fetchAgentIndex(): Promise<Agent[]> {
 
 export type HomeIndexSummary = {
   featured: Agent[];
-  gradeSlices: Array<{ grade: Agent["grade"]; count: number }>;
+  gradeSlices: Array<{ grade: Grade; count: number }>;
   /** Graded, but the evidence base is too thin to trust the letter. */
   insufficientEvidenceCount: number;
   /** No settlement observed at all (SPX404). */
@@ -238,21 +243,26 @@ export type HomeIndexSummary = {
  */
 export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
   const all = await fetchAgentIndex();
-  const gradeCounts = new Map<Agent["grade"], number>();
+  const gradeCounts = new Map<Grade, number>();
   let unverifiedCount = 0;
   let insufficientEvidenceCount = 0;
   let unsettledCount = 0;
   let totalBonded = 0;
   let totalSlashed = 0;
   for (const a of all) {
+    // Money and verification aggregates count real on-chain facts, including
+    // withheld rows. Only the grade-distribution arcs skip withheld/grade-less
+    // rows below.
+    if (!a.operatorVerified) unverifiedCount++;
+    totalBonded += a.activeBondAmount;
+    totalSlashed += a.totalSlashedUsd;
+    // Withheld rows carry no grade: skip the distribution arcs entirely.
+    if (a.withheldReason != null || a.grade == null) continue;
     // Three structurally different states, never blended into one arc:
     // nothing settled, settled but thin evidence, and a trusted graded letter.
     if (a.grade === "SPX404") unsettledCount++;
     else if (a.confidence === "low") insufficientEvidenceCount++;
     else gradeCounts.set(a.grade, (gradeCounts.get(a.grade) ?? 0) + 1);
-    if (!a.operatorVerified) unverifiedCount++;
-    totalBonded += a.activeBondAmount;
-    totalSlashed += a.totalSlashedUsd;
   }
   return {
     featured: all.filter(qualifiesForLeaderboard).slice(0, 3),
@@ -264,8 +274,6 @@ export async function fetchHomeIndex(): Promise<HomeIndexSummary> {
     totalSlashed,
   };
 }
-
-
 
 export type LeaderboardIndex = {
   agents: Agent[];
@@ -320,7 +328,7 @@ export async function fetchExplorePage(opts: {
   sort?: "score" | "recent";
 }): Promise<ExplorePage> {
   const all = await fetchAgentIndex();
-  const visible = all.filter((a) => !a.flagged);
+  const visible = all.filter((a) => !a.flagged && a.withheldReason == null);
   const counts: Record<ExploreGradeGroup, number> = {
     all: visible.length,
     high: 0,
@@ -330,13 +338,17 @@ export async function fetchExplorePage(opts: {
   };
   for (const a of visible) {
     for (const key of ["high", "mid", "low", "spx404"] as const) {
-      if (EXPLORE_GROUPS[key].includes(a.grade)) counts[key]++;
+      if (a.grade != null && EXPLORE_GROUPS[key].includes(a.grade)) counts[key]++;
     }
   }
   const filtered =
     opts.group === "all"
       ? visible
-      : visible.filter((a) => EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade));
+      : visible.filter(
+          (a) =>
+            a.grade != null &&
+            EXPLORE_GROUPS[opts.group as Exclude<ExploreGradeGroup, "all">].includes(a.grade),
+        );
   const sorted =
     opts.sort === "recent"
       ? [...filtered].sort((a, b) => a.lastIndexedSeconds - b.lastIndexedSeconds)
@@ -346,7 +358,7 @@ export async function fetchExplorePage(opts: {
     rows: sorted.slice(start, start + opts.pageSize),
     counts,
     total: sorted.length,
-    flaggedCount: all.length - visible.length,
+    flaggedCount: all.filter((a) => a.flagged === true).length,
   };
 }
 

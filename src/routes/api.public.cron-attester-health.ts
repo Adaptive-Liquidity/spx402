@@ -22,7 +22,11 @@ export const Route = createFileRoute("/api/public/cron-attester-health")({
         try {
           balance = await checkAttesterBalance();
         } catch (e) {
-          await heartbeat(false, Date.now() - started, `balance read failed: ${String(e).slice(0, 120)}`);
+          await heartbeat(
+            false,
+            Date.now() - started,
+            `balance read failed: ${String(e).slice(0, 120)}`,
+          );
           return Response.json({ ok: false, error: "balance read failed" }, { status: 200 });
         }
 
@@ -48,13 +52,67 @@ export const Route = createFileRoute("/api/public/cron-attester-health")({
           });
         }
 
-        await heartbeat(true, Date.now() - started, `attester ok: ${balance.balanceEth} ETH`);
+        // Independent retry for skipped badge_activated stamps. Runs here
+        // (not in scoring) because it is decoupled from grades: retries use
+        // freshly-read agent state. Skipped entirely while gas is low.
+        let retried = { processed: 0, minted: 0, rescheduled: 0 };
+        try {
+          const { processDueActivationRetries } = await import("@/lib/badge-attestation-queue");
+          const { supabaseActivationQueueStore } =
+            await import("@/lib/badge-attestation-queue.server");
+          const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
+          const { attestSubject } = await import("@/lib/eas.server");
+          retried = await processDueActivationRetries({
+            store: supabaseActivationQueueStore,
+            readAgent: async (mint: string) => {
+              const { data, error } = await admin
+                .from("agents")
+                .select("grade, score, withheld_reason")
+                .eq("mint", mint)
+                .maybeSingle();
+              if (error) throw error;
+              if (!data) return null;
+              const row = data as unknown as {
+                grade: string | null;
+                score: number | null;
+                withheld_reason: string | null;
+              };
+              return {
+                grade: row.grade ?? null,
+                score: row.score ?? null,
+                withheldReason: row.withheld_reason ?? null,
+              };
+            },
+            attest: async (mint: string, grade: string, score: number) => {
+              try {
+                const res = await attestSubject(mint, "badge_activated", grade, score);
+                return res.ok
+                  ? { ok: true as const }
+                  : { ok: false as const, error: res.reason ?? "attest not ok" };
+              } catch (e) {
+                return { ok: false as const, error: String(e).slice(0, 200) };
+              }
+            },
+          });
+        } catch (e) {
+          console.error(
+            "[attester-health] activation retry sweep failed:",
+            String(e).slice(0, 200),
+          );
+        }
+
+        await heartbeat(
+          true,
+          Date.now() - started,
+          `attester ok: ${balance.balanceEth} ETH; activation retries minted=${retried.minted} rescheduled=${retried.rescheduled}`,
+        );
         return Response.json({
           ok: true,
           configured: true,
           low: false,
           address: balance.address,
           balanceEth: balance.balanceEth,
+          activationRetries: retried,
         });
       },
     },

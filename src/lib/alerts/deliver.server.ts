@@ -91,7 +91,7 @@ export async function deliverAlert(
   if (channel.kind === "email") {
     try {
       const result = await sendTemplateEmail("spx-alert", channel.target, {
-        templateData: payload,
+        templateData: { ...payload },
         idempotencyKey: `spx-alert-${payload.event}-${payload.mint}-${payload.signature ?? payload.occurredAt}`,
       });
       if (!result.sent) {

@@ -5,6 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchAgent } from "@/lib/agents-db";
 import { fetchAgentEvents } from "@/lib/live-data";
+import type { AgentEventRow } from "@/lib/live-data";
 import { withX402Payment } from "@/lib/indexer/x402-middleware";
 import type { X402Endpoint } from "@/lib/indexer/x402-middleware";
 import { createHash } from "crypto";
@@ -63,6 +64,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
             name: agent.name,
             grade: agent.grade,
             score: agent.score,
+            withheldReason: agent.withheldReason ?? null,
             // Evidence Bundle
             merkleRoot,
             merkleProofs,
@@ -113,7 +115,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
  * Each leaf = keccak256(event canonical JSON)
  * Root = commitment to the entire event set.
  */
-function buildMerkleTree(events: any[]): {
+function buildMerkleTree(events: AgentEventRow[]): {
   merkleRoot: string;
   merkleProofs: string[][];
   leaves: string[];

@@ -18,7 +18,15 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import { computeRiskScore, type ScoringInputs } from "../src/lib/scoring/risk-score";
+import type { Database } from "../src/integrations/supabase/types";
+import { computeRiskScore } from "../src/lib/scoring/risk-score";
+import type { ScoringInputs } from "../src/lib/indexer/scoring.server";
+import type { AgentCategory } from "../src/lib/agents/categories";
+import {
+  SHADOW_CATEGORY_MAP,
+  toShadowCategory,
+  type ShadowCategory,
+} from "../src/lib/shadow-categories";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { resolve } from "path";
 
@@ -37,7 +45,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !HELIUS_API_KEY) {
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const OUTPUT_DIR = resolve(process.cwd(), "shadow-grade-output");
 if (!existsSync(OUTPUT_DIR)) mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -87,7 +95,7 @@ interface ShadowAgent {
   mint: string;
   symbol: string;
   name: string;
-  category: "tokenized_buyback" | "registered_agent" | "executor" | "unknown";
+  category: ShadowCategory;
   depositAddress: string | null;
   executorWallet: string | null;
   // On-chain counters (from Helius)
@@ -108,7 +116,13 @@ interface ShadowAgent {
   verdict: string;
 }
 
-function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
+/**
+ * Map a raw database category value onto the ShadowAgent category union.
+ * Database rows predate this mapper and may carry x402_executor (the live
+ * SPX402 category id) or null/unknown values. Never forward the raw string:
+ * an unmapped value becomes "unknown", never a silent tokenized_buyback.
+ */
+export function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
   // For non-AEON agents, they have NO escrows, NO bonds, NO receipts
   // They fall back to the legacy tokenized_buyback model but with
   // the reality that they have 0 bonds and 0 escrows
@@ -127,7 +141,7 @@ function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
     escrowSuccessRate: agent.escrowSuccessRate,
     activeBondAmount: agent.activeBondAmount,
     totalSlashedUsd: agent.totalSlashedUsd,
-    category: agent.category as any,
+    category: SHADOW_CATEGORY_MAP[agent.category],
   };
 
   const result = computeRiskScore(inputs);
@@ -144,6 +158,18 @@ function computeShadowGrade(agent: ShadowAgent): ShadowAgent {
 // Data Sources: Top Agents (fetch from Supabase for testing)
 // ─────────────────────────────────────────────────────────────────────
 
+type SupabaseAgentRow = Pick<
+  Database["public"]["Tables"]["agents"]["Row"],
+  | "mint"
+  | "symbol"
+  | "name"
+  | "category"
+  | "active_bond_amount"
+  | "total_slashed_usd"
+  | "escrow_success_rate"
+  | "total_escrows_completed"
+  | "total_escrows_failed"
+>;
 async function fetchSupabaseDemoAgents(limit: number = 30): Promise<ShadowAgent[]> {
   try {
     const { data, error } = await supabase
@@ -155,11 +181,11 @@ async function fetchSupabaseDemoAgents(limit: number = 30): Promise<ShadowAgent[
 
     if (error) throw error;
 
-    return (data ?? []).map((a: any) => ({
+    return ((data ?? []) as SupabaseAgentRow[]).map((a) => ({
       mint: a.mint,
-      symbol: a.symbol,
-      name: a.name,
-      category: a.category ?? "tokenized_buyback",
+      symbol: a.symbol ?? "",
+      name: a.name ?? "",
+      category: toShadowCategory(a.category),
       depositAddress: null,
       executorWallet: null,
       totalDeposits: 0,

@@ -10,6 +10,7 @@ import { checkCronAuth } from "@/lib/indexer/auth.server";
 import { computeRiskScore, RISK_SCORE_MODEL_VERSION } from "@/lib/scoring/risk-score";
 import { computeConfidence, CONFIDENCE_MODEL_VERSION } from "@/lib/scoring/confidence";
 import { isLiveCategory, type AgentCategory } from "@/lib/agents/categories";
+import { resolveAeonProgramId } from "@/lib/trust/config";
 import { aggregateOutcomeContractCounters } from "@/lib/indexer/oc-evidence.server";
 
 // Wave 2 — Failure-decoder coverage by category. Reflects which negative-event
@@ -19,7 +20,7 @@ const FAILURE_DECODER_COVERAGE: Record<AgentCategory, number> = {
   tokenized_buyback: 1.0, // FAILED_BUYBACK_WINDOW + PROMISED_BUYBACK_NOT_SETTLED shipped
   registered_agent: 0.3, // partial — config/operator change decoders pending
   x402_executor: 0.6, // X402_PAYMENT_REVERTED shipped, refund-decoder pending
-  aeon_executor: 1.0, // ESCROW_CANCELED + BOND_SLASHED decoders shipped
+  aeon_executor: 0, // Trust-engine P1: fingerprints unverified against mainnet; no AEON failure-decoder coverage may be claimed until golden replays pass
   copy_trader: 0,
   task_executor: 0,
   general: 0,
@@ -74,8 +75,18 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         );
         let attested = 0;
 
+        // AEON pipeline state, resolved once per run. When disabled, aeon_executor
+        // rows are persisted into an explicit withheld state below (never scored,
+        // never attested) instead of keeping stale grades publishable.
+        let aeonEnabled = false;
+        try {
+          aeonEnabled = resolveAeonProgramId().enabled;
+        } catch {
+          aeonEnabled = false;
+        }
 
         let scored = 0;
+        let withheld = 0;
         for (const a of agents) {
           const counters = await aggregateCounters(a.mint);
           const category =
@@ -93,6 +104,34 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
           // registered_agent category as standing proof until a re-check
           // worker invalidates it.
           const registryProof = category === "registered_agent";
+          // Withheld state: AEON disabled means no valid grading is available.
+          // Persist grade/score nulls and clear grading-derived fields so no
+          // stale grade, breakdown, or confidence can leak through another
+          // reader. Raw evidence counters are preserved untouched.
+          if (category === "aeon_executor" && !aeonEnabled) {
+            // Nulls below require the withheld-state migration (nullable
+            // grade/score/confidence + withheld_reason) and a types regen.
+            // `as never` matches the codebase pattern for post-migration
+            // columns (cf. badge_subscriptions insert above).
+            const { error: werr } = await supabaseAdmin
+              .from("agents")
+              .update({
+                score: null,
+                grade: null,
+                verdict: "AEON pipeline disabled - grade withheld",
+                withheld_reason: "aeon_pipeline_disabled",
+                confidence: null,
+                confidence_score: null,
+                confidence_breakdown: {},
+                score_breakdown: {},
+                methodology_version: null,
+                confidence_model_version: null,
+                scored_at: new Date().toISOString(),
+              } as never)
+              .eq("mint", a.mint);
+            if (!werr) withheld++;
+            continue;
+          }
           const result = computeRiskScore({
             ...counters,
             category,
@@ -169,9 +208,15 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
                   operator: b.operator,
                   raw: b,
                 };
+          // A successful rescore clears any prior withheld state: without this,
+          // a re-enabled agent would keep a fresh grade that stays hidden.
+          // withheld_reason is post-migration (see withheld-state migration);
+          // `as never` matches the codebase pattern until types are regen'd.
           const { error } = await supabaseAdmin
             .from("agents")
             .update({
+              withheld_reason: null,
+
               score: publication.score,
               grade: publication.grade,
               verdict: publication.verdict,
@@ -181,9 +226,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               methodology_version: RISK_SCORE_MODEL_VERSION,
               confidence_model_version: CONFIDENCE_MODEL_VERSION,
               score_breakdown:
-                publication.score == null
-                  ? ({} as never)
-                  : (uiBreakdown as unknown as never),
+                publication.score == null ? ({} as never) : (uiBreakdown as unknown as never),
               total_deposits_count: counters.totalDepositsCount,
               total_buybacks_count: counters.totalBuybacksCount,
               total_burns_count: counters.totalBurnsCount,
@@ -195,7 +238,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               burn_confirmation_rate: counters.burnConfirmationRate,
               last_indexed_seconds: counters.lastIndexedSeconds,
               scored_at: new Date().toISOString(),
-            })
+            } as never)
             .eq("mint", a.mint);
           if (!error) scored++;
 
@@ -222,9 +265,13 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         }
 
         const duration = Date.now() - started;
-        await heartbeat("scoring", true, duration, `scored=${scored} attested=${attested}`);
-        return Response.json({ ok: true, scored, attested, duration_ms: duration });
-
+        await heartbeat(
+          "scoring",
+          true,
+          duration,
+          `scored=${scored} withheld=${withheld} attested=${attested}`,
+        );
+        return Response.json({ ok: true, scored, withheld, attested, duration_ms: duration });
       },
     },
   },

@@ -55,6 +55,7 @@ export function AgentRow({ agent }: { agent: Agent }) {
               grade={agent.grade}
               size="sm"
               confidenceScore={agent.confidenceScore}
+              withheld={agent.withheldReason != null}
             />
           </div>
         </div>

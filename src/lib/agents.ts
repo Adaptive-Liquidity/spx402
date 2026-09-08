@@ -88,7 +88,8 @@ export interface Agent {
   symbol: string;
   name: string;
   tagline: string;
-  grade: Grade;
+  grade: Grade | null;
+  withheldReason: string | null;
   score: number | null;
   status: "active" | "degraded" | "stale" | "inactive" | "unknown";
   operatorVerified: boolean;
@@ -146,7 +147,8 @@ const LEADERBOARD_GRADES: ReadonlySet<Grade> = new Set([
 /** Return whether an agent satisfies the public leaderboard quality gate. */
 export function qualifiesForLeaderboard(agent: Agent): boolean {
   if (agent.flagged) return false;
-  if (!LEADERBOARD_GRADES.has(agent.grade)) return false;
+  if (agent.withheldReason != null) return false;
+  if (agent.grade == null || !LEADERBOARD_GRADES.has(agent.grade)) return false;
   if ((agent.score ?? 0) < 50) return false;
   return true;
 }
@@ -157,7 +159,8 @@ export function isLowGrade(agent: Agent): boolean {
 }
 
 /** Map an execution grade to its shared UI color token. */
-export function gradeColor(grade: Grade): string {
+export function gradeColor(grade: Grade | null): string {
+  if (grade == null) return "paper-muted";
   if (grade === "SPX AAA" || grade === "SPX AA") return "verified";
   if (grade === "SPX A" || grade === "SPX BBB") return "amber";
   if (grade === "SPX BB" || grade === "SPX B") return "amber-dim";
