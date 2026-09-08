@@ -6,11 +6,18 @@
 // This module does not invent or hard-code discriminator hex.
 
 import type { HeliusEnhancedTx, HeliusInstruction } from "./helius.server";
-import { flattenInstructions } from "./helius.server";
 import {
+  flattenInstructions,
+  SPL_TOKEN_2022_PROGRAM_ID,
+  SPL_TOKEN_PROGRAM_ID,
+} from "./helius.server";
+import {
+  aeonEventName,
   aeonInstructionName,
   decodeAeonArgs,
+  decodeAeonEvent,
   decodeInstructionDataBytes,
+  namedInstructionAccounts,
 } from "./aeon-idl";
 import { makeEventUid } from "./event-uid";
 
@@ -18,6 +25,10 @@ export interface AeonLookup {
   mint: string;
   aeonCriAddress: string | null;
   executorWallet?: string | null;
+  /** Authority PDA owned by this agent (IDL seeds ["authority", authority_id]). */
+  aeonAuthorityAddress?: string | null;
+  /** Bond PDA owned by this agent (IDL seeds ["authority_bond", authority_id]). */
+  aeonBondAddress?: string | null;
 }
 
 export type AeonEventType =
@@ -120,6 +131,103 @@ function matchMints(ix: HeliusInstruction, agents: AeonLookup[]): string[] {
   return mints;
 }
 
+/**
+ * slash_bond accounts are slasher, config, authority, bond, vault, destination,
+ * mint, and token program. The bonded agent's wallet/CRI is not present, so
+ * matching any tracked wallet would attribute the slash to the slasher.
+ * Resolve only via the authority or bond PDA from the IDL account list.
+ */
+function matchSlashBondMints(ix: HeliusInstruction, agents: AeonLookup[]): string[] {
+  const named = namedInstructionAccounts("slash_bond", ix.accounts ?? []);
+  const authority = named.authority;
+  const bond = named.bond;
+  if (!authority && !bond) return [];
+  const mints: string[] = [];
+  const seen = new Set<string>();
+  for (const a of agents) {
+    const matchesAuthority = Boolean(authority && a.aeonAuthorityAddress === authority);
+    const matchesBond = Boolean(bond && a.aeonBondAddress === bond);
+    if (!matchesAuthority && !matchesBond) continue;
+    if (!seen.has(a.mint)) {
+      seen.add(a.mint);
+      mints.push(a.mint);
+    }
+  }
+  return mints;
+}
+
+function txLogLines(tx: HeliusEnhancedTx): string[] {
+  return tx.logMessages ?? tx.logs ?? [];
+}
+
+function bondSlashedAmountFromLogs(tx: HeliusEnhancedTx): number {
+  for (const line of txLogLines(tx)) {
+    const prefix = "Program data: ";
+    const idx = line.indexOf(prefix);
+    if (idx < 0) continue;
+    const encoded = line.slice(idx + prefix.length).trim();
+    if (!encoded) continue;
+    let bytes: Buffer;
+    try {
+      bytes = Buffer.from(encoded, "base64");
+    } catch {
+      continue;
+    }
+    if (bytes.length < 8) continue;
+    const name = aeonEventName(bytes.subarray(0, 8).toString("hex"));
+    if (name !== "BondSlashed") continue;
+    const parsed = decodeAeonEvent("BondSlashed", bytes);
+    const amount = asFiniteNumber(parsed?.amount);
+    if (amount > 0) return amount;
+  }
+  return 0;
+}
+
+function rawTokenDecreaseAt(tx: HeliusEnhancedTx, tokenAccount: string | undefined): number {
+  if (!tokenAccount) return 0;
+  let out = 0;
+  for (const account of tx.accountData ?? []) {
+    for (const change of account.tokenBalanceChanges ?? []) {
+      if (change.tokenAccount !== tokenAccount && account.account !== tokenAccount) continue;
+      const raw = change.rawTokenAmount?.tokenAmount;
+      if (typeof raw !== "string" || !/^-?\d+$/.test(raw)) continue;
+      const n = Number(raw);
+      if (Number.isFinite(n) && n < 0) out += Math.abs(n);
+    }
+  }
+  return out;
+}
+
+function innerTransferAmountFromVault(
+  ix: HeliusInstruction,
+  bondVault: string | undefined,
+): number {
+  if (!bondVault) return 0;
+  for (const inner of ix.innerInstructions ?? []) {
+    if (
+      inner.programId !== SPL_TOKEN_PROGRAM_ID &&
+      inner.programId !== SPL_TOKEN_2022_PROGRAM_ID
+    ) {
+      continue;
+    }
+    const info = inner.parsed?.info ?? {};
+    const source = typeof info.source === "string" ? info.source : undefined;
+    if (source !== bondVault) continue;
+    const amount = asFiniteNumber(info.amount);
+    if (amount > 0) return amount;
+  }
+  return 0;
+}
+
+function slashAmountFromVerifiedData(tx: HeliusEnhancedTx, ix: HeliusInstruction): number {
+  const named = namedInstructionAccounts("slash_bond", ix.accounts ?? []);
+  const fromEvent = bondSlashedAmountFromLogs(tx);
+  if (fromEvent > 0) return fromEvent;
+  const fromVault = rawTokenDecreaseAt(tx, named.bond_vault);
+  if (fromVault > 0) return fromVault;
+  return innerTransferAmountFromVault(ix, named.bond_vault);
+}
+
 function pushEvent(
   events: AeonDecodedEvent[],
   input: {
@@ -136,6 +244,7 @@ function pushEvent(
     programId: string;
     accounts: string[];
     parsed: Record<string, unknown> | null;
+    extraRaw?: Record<string, unknown>;
   },
 ): void {
   const raw: Record<string, unknown> = {
@@ -145,6 +254,7 @@ function pushEvent(
     ixIndex: input.ixIndex,
     accounts: input.accounts,
     parsedData: input.parsed,
+    ...input.extraRaw,
   };
   events.push({
     mint: input.mint,
@@ -201,9 +311,14 @@ export function decodeAeonTx(
     if (!mapping) continue;
 
     const parsed = decodeAeonArgs(instructionName, bytes);
-    const mints = matchMints(ix, agents);
+    const mints =
+      instructionName === "slash_bond"
+        ? matchSlashBondMints(ix, agents)
+        : matchMints(ix, agents);
     if (mints.length === 0) continue;
 
+    const slashAmount =
+      instructionName === "slash_bond" ? slashAmountFromVerifiedData(tx, ix) : 0;
     const amountToken = tokenAmountFromArgs(parsed);
     const bondAmount = asFiniteNumber(parsed?.bond_amount);
 
@@ -215,13 +330,20 @@ export function decodeAeonTx(
         signature: sig,
         slot,
         occurredAt,
-        amountToken: mapping.type === "BOND_DEPOSITED" ? bondAmount : amountToken,
+        amountToken:
+          mapping.type === "BOND_DEPOSITED"
+            ? bondAmount
+            : mapping.type === "BOND_SLASHED"
+              ? slashAmount
+              : amountToken,
         ixIndex,
         discHex,
         instructionName,
         programId,
         accounts: ix.accounts ?? [],
         parsed,
+        extraRaw:
+          mapping.type === "BOND_SLASHED" ? { amountSource: "verified_tx" } : undefined,
       });
 
       if (instructionName === "issue_authority" && bondAmount > 0) {

@@ -12,13 +12,30 @@ export interface AeonIdlArg {
   type: unknown;
 }
 
+export interface AeonIdlAccountMeta {
+  name: string;
+}
+
 export interface AeonIdlInstruction {
   name: string;
   discriminator: number[];
   args: AeonIdlArg[];
+  accounts?: AeonIdlAccountMeta[];
+}
+
+interface AeonIdlEvent {
+  name: string;
+  discriminator: number[];
+}
+
+interface AeonIdlType {
+  name: string;
+  type: { kind: string; fields?: AeonIdlArg[] };
 }
 
 const instructions = (idlJson as { instructions: AeonIdlInstruction[] }).instructions;
+const idlEvents = (idlJson as { events: AeonIdlEvent[] }).events ?? [];
+const idlTypes = (idlJson as { types: AeonIdlType[] }).types ?? [];
 
 function discHex(bytes: number[]): string {
   return Buffer.from(bytes).toString("hex");
@@ -43,6 +60,45 @@ export function aeonInstructionDiscBytes(name: string): Uint8Array | null {
   const ix = instructions.find((i) => i.name === name);
   if (!ix) return null;
   return Uint8Array.from(ix.discriminator);
+}
+
+/** IDL account names in declared order for an instruction. */
+export function aeonInstructionAccountNames(instructionName: string): string[] {
+  const ix = instructions.find((i) => i.name === instructionName);
+  return (ix?.accounts ?? []).map((account) => account.name);
+}
+
+/** Map IDL account names onto the instruction's account keys. */
+export function namedInstructionAccounts(
+  instructionName: string,
+  accounts: string[],
+): Record<string, string> {
+  const names = aeonInstructionAccountNames(instructionName);
+  const named: Record<string, string> = {};
+  for (let i = 0; i < names.length && i < accounts.length; i++) {
+    named[names[i]] = accounts[i];
+  }
+  return named;
+}
+
+export const AEON_EVENT_BY_DISC: ReadonlyMap<string, string> = new Map(
+  idlEvents.map((event) => [discHex(event.discriminator), event.name]),
+);
+
+export function aeonEventName(discHex8: string): string | null {
+  return AEON_EVENT_BY_DISC.get(discHex8.toLowerCase()) ?? null;
+}
+
+export function aeonEventDiscBytes(name: string): Uint8Array | null {
+  const event = idlEvents.find((item) => item.name === name);
+  if (!event) return null;
+  return Uint8Array.from(event.discriminator);
+}
+
+function eventFields(eventName: string): AeonIdlArg[] | null {
+  const spec = idlTypes.find((item) => item.name === eventName);
+  if (!spec || spec.type.kind !== "struct" || !spec.type.fields) return null;
+  return spec.type.fields;
 }
 
 /**
@@ -166,6 +222,24 @@ export function decodeAeonArgs(
     const decoded = decodeType(data, offset, arg.type);
     if (!decoded) return null;
     out[arg.name] = decoded.value;
+    offset = decoded.offset;
+  }
+  return out;
+}
+
+/** Borsh-decode an Anchor event payload (discriminator + IDL event fields). */
+export function decodeAeonEvent(
+  eventName: string,
+  data: Buffer,
+): Record<string, unknown> | null {
+  const fields = eventFields(eventName);
+  if (!fields) return null;
+  let offset = 8;
+  const out: Record<string, unknown> = {};
+  for (const field of fields) {
+    const decoded = decodeType(data, offset, field.type);
+    if (!decoded) return null;
+    out[field.name] = decoded.value;
     offset = decoded.offset;
   }
   return out;
