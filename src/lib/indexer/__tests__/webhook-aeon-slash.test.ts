@@ -5,7 +5,7 @@ import {
   aeonInstructionDiscBytes,
   namedIssueAuthorityAccounts,
 } from "../aeon-idl";
-import { decodeAeonWebhookBatch } from "../aeon-lookup.server";
+import { decodeAeonWebhookBatch, resolveAeonOwnershipQuery } from "../aeon-lookup.server";
 import { AEON_PROGRAM_ID_DEVNET } from "../../trust/config";
 import { SPL_TOKEN_PROGRAM_ID, type HeliusEnhancedTx } from "../helius.server";
 
@@ -172,5 +172,49 @@ describe("webhook AEON lookup for slash_bond", () => {
     const events = decodeAeonWebhookBatch([slashTx()], agentRows, [], AEON_PROGRAM_ID_DEVNET);
     expect(events.filter((e) => e.type === "BOND_SLASHED")).toEqual([]);
     expect(events.map((e) => e.mint)).not.toContain(SLASHER_MINT);
+  });
+
+  it("emits no success-path slash when the slash transaction reverted", () => {
+    const failed = { ...slashTx(), transactionError: "InstructionError" };
+    const events = decodeAeonWebhookBatch(
+      [failed],
+      agentRows,
+      [
+        {
+          mint: BONDED_MINT,
+          type: "AEON_AUTHORITY_ISSUED",
+          raw: {
+            instruction: "issue_authority",
+            accounts: ISSUE_ACCOUNTS,
+            parsedData: { parent_id: 0, bond_amount: 500 },
+          },
+        },
+      ],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events.filter((e) => e.type === "BOND_SLASHED")).toEqual([]);
+  });
+
+  it("treats a successful empty ownership query as fail-closed, not an error", () => {
+    const rows = [
+      {
+        mint: BONDED_MINT,
+        type: "AEON_AUTHORITY_ISSUED",
+        raw: { instruction: "issue_authority" },
+      },
+    ];
+    expect(resolveAeonOwnershipQuery(null, null)).toEqual({ ok: true, rows: [] });
+    expect(resolveAeonOwnershipQuery([], undefined)).toEqual({ ok: true, rows: [] });
+    expect(resolveAeonOwnershipQuery(rows, null)).toEqual({ ok: true, rows });
+  });
+
+  it("treats a Supabase ownership query error as retryable, not empty", () => {
+    const staleRows = [
+      { mint: BONDED_MINT, type: "AEON_AUTHORITY_ISSUED", raw: {} },
+    ];
+    expect(resolveAeonOwnershipQuery(staleRows, { message: "connection refused" })).toEqual({
+      ok: false,
+    });
+    expect(resolveAeonOwnershipQuery(null, { code: "PGRST301" })).toEqual({ ok: false });
   });
 });

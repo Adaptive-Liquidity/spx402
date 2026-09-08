@@ -16,7 +16,10 @@ import {
   type HeliusEnhancedTx,
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
-import { decodeAeonWebhookBatch } from "@/lib/indexer/aeon-lookup.server";
+import {
+  decodeAeonWebhookBatch,
+  resolveAeonOwnershipQuery,
+} from "@/lib/indexer/aeon-lookup.server";
 import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
@@ -99,12 +102,23 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           const aeonMints = aeonAgentRows.map((r) => r.mint);
           let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
           if (aeonMints.length > 0) {
-            const { data: ownershipRows } = await supabaseAdmin
+            const { data: ownershipRows, error: ownershipError } = await supabaseAdmin
               .from("agent_events")
               .select("mint, type, raw")
               .in("mint", aeonMints)
               .in("type", ["AEON_AUTHORITY_ISSUED", "BOND_DEPOSITED"]);
-            ownershipEvents = ownershipRows ?? [];
+            const ownership = resolveAeonOwnershipQuery(ownershipRows, ownershipError);
+            if (!ownership.ok) {
+              const duration = Date.now() - startedAt;
+              await heartbeat(
+                "webhook_ingest",
+                false,
+                duration,
+                "aeon_ownership_lookup_failed",
+              );
+              return new Response("aeon ownership lookup failed", { status: 500 });
+            }
+            ownershipEvents = ownership.rows;
           }
           for (const ev of decodeAeonWebhookBatch(
             txs,

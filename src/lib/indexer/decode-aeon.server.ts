@@ -309,6 +309,8 @@ export function decodeAeonTx(
     : new Date().toISOString();
 
   if (!sig || agents.length === 0) return events;
+  // Success-path only. Failed txs still flow through decode-failure.server.ts.
+  if (tx.transactionError) return events;
 
   const flat = flattenInstructions(tx.instructions ?? []);
   for (let ixIndex = 0; ixIndex < flat.length; ixIndex++) {

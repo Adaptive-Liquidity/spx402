@@ -158,6 +158,18 @@ export function buildWebhookAeonLookup(
   });
 }
 
+/**
+ * Distinguish a failed ownership query from a successful empty result.
+ * Query failures must be retryable; empty rows fail closed at decode time.
+ */
+export function resolveAeonOwnershipQuery(
+  data: AeonOwnershipEventRow[] | null | undefined,
+  error: unknown,
+): { ok: true; rows: AeonOwnershipEventRow[] } | { ok: false } {
+  if (error) return { ok: false };
+  return { ok: true, rows: data ?? [] };
+}
+
 /** Decode AEON events using the same lookup the Helius webhook builds. */
 export function decodeAeonWebhookBatch(
   txs: HeliusEnhancedTx[],

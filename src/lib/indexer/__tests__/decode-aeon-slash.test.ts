@@ -150,6 +150,31 @@ describe("slash_bond attribution and amount", () => {
     expect(events[0]?.amountToken).toBe(250_000);
   });
 
+  it("emits no success-path AEON events when transactionError is present", () => {
+    const events = decodeAeonTx(
+      slashTx({
+        logMessages: [bondSlashedLog(500_000)],
+        transactionError: "InstructionError",
+      }),
+      [slasherAgent, bondedAgent],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events).toEqual([]);
+  });
+
+  it("still emits BOND_SLASHED when transactionError is null", () => {
+    const events = decodeAeonTx(
+      slashTx({
+        logMessages: [bondSlashedLog(500_000)],
+        transactionError: null,
+      }),
+      [slasherAgent, bondedAgent],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events).toHaveLength(1);
+    expect(events[0]?.type).toBe("BOND_SLASHED");
+  });
+
   it("records the slashed amount from a parsed inner SPL transfer off the vault", () => {
     const events = decodeAeonTx(
       {
