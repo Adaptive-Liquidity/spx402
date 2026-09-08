@@ -174,7 +174,6 @@ function StatusPage() {
 
   const bannerTone = stalled > 0 ? "critical" : quiet > 0 ? "amber" : "verified";
 
-
   return (
     <div className="stage section">
       <PageHead
@@ -342,11 +341,14 @@ function StatusPage() {
               },
               {
                 l: "Solana wallet",
-                v: proberConfig.solanaWallet ?? (proberConfig.hasSolanaKey ? "key present" : "unfunded"),
+                v:
+                  proberConfig.solanaWallet ??
+                  (proberConfig.hasSolanaKey ? "key present" : "unfunded"),
               },
               {
                 l: "Base wallet",
-                v: proberConfig.baseWallet ?? (proberConfig.hasBaseKey ? "key present" : "unfunded"),
+                v:
+                  proberConfig.baseWallet ?? (proberConfig.hasBaseKey ? "key present" : "unfunded"),
               },
               {
                 l: "Budget",
@@ -508,7 +510,11 @@ function StatusPage() {
                   </div>
                   <div className="col-span-2 font-mono text-xs text-paper-muted">
                     {p.httpStatus ?? "—"}
-                    {p.delivered === true ? " · delivered" : p.delivered === false ? " · nothing" : ""}
+                    {p.delivered === true
+                      ? " · delivered"
+                      : p.delivered === false
+                        ? " · nothing"
+                        : ""}
                   </div>
                   <div className="col-span-2 text-right font-mono text-[10px] uppercase tracking-widest text-paper">
                     {outcomeLabel(p.outcome)}
