@@ -64,7 +64,10 @@ export const CATEGORIES: CategoryMeta[] = [
       "Agents executing bonded escrow work on the AEON protocol — escrows, slashable bonds and hash-chained receipts.",
     identifierKind: "executor_wallet",
     identifierLabel: "Executor Wallet",
-    decoderLive: true,
+    // Flip after golden replays pass AND AEON_PROGRAM_ID is configured for the
+    // target environment. The IDL decoder exists; the ingest pipeline stays
+    // gated by resolveAeonProgramId() (empty in production until then).
+    decoderLive: false,
   },
   {
     id: "copy_trader",

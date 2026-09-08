@@ -17,6 +17,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import {
   diffRegisteredAgent,
   type RegisteredAgentSnapshot,
@@ -138,19 +139,21 @@ export const Route = createFileRoute("/api/public/cron-registered-agent-diff")({
           // Insert the diff events. (signature) is the upsert key on
           // agent_events so a hour-collision is naturally idempotent.
           const { error: insertErr } = await supabaseAdmin.from("agent_events").upsert(
-            diffs.map((d) => ({
-              mint: d.mint,
-              type: d.type,
-              severity: d.severity,
-              signature: d.signature,
-              slot: undefined,
-              occurred_at: d.occurredAt,
-              amount_sol: d.amountSol,
-              amount_token: d.amountToken,
-              raw: d.raw as never,
-              parser_version: "spx-parser-v0.1.7",
-            })) as never,
-            { onConflict: "signature", ignoreDuplicates: true },
+            diffs.map((d) =>
+              toAgentEventRow({
+                mint: d.mint,
+                type: d.type,
+                severity: d.severity,
+                signature: d.signature,
+                slot: undefined,
+                occurredAt: d.occurredAt,
+                amountSol: d.amountSol,
+                amountToken: d.amountToken,
+                raw: d.raw,
+                parserVersion: "spx-parser-v0.1.7",
+              }),
+            ) as never,
+            { onConflict: AGENT_EVENTS_ON_CONFLICT, ignoreDuplicates: true },
           );
           if (!insertErr) {
             changed += 1;

@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/spx/PageHeader";
 import { StatusChip } from "@/components/spx/StatusChip";
+import { getReleaseStatus } from "@/lib/aeon-release.functions";
+import type { StatusKey } from "@/lib/registration/status";
 
 export const Route = createFileRoute("/aeon-agents")({
+  loader: async () => ({ release: await getReleaseStatus() }),
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/aeon-agents" }],
     meta: [
@@ -36,13 +39,31 @@ function Card({ title, body }: { title: string; body: string }) {
 }
 
 function AeonAgentsPage() {
+  const { release } = Route.useLoaderData();
+  const gradingStatus: StatusKey =
+    release.grading === "withheld" ? "ungraded" : "waiting_for_evidence";
+  const attestationStatus: StatusKey =
+    release.attestations === "disabled" ? "attestation_pending" : "unknown";
+  const facts: Array<{ label: string; status: StatusKey; detail?: string }> = [
+    { label: "Release status", status: "devnet_live" },
+    { label: "Program address", status: "devnet_live", detail: release.program_address },
+    {
+      label: "Indexed events",
+      status: release.pipeline_enabled ? "tracked" : "waiting_for_evidence",
+    },
+    { label: "Verified evidence", status: "unknown" },
+    { label: "Grading", status: gradingStatus },
+    { label: "Attestations", status: attestationStatus },
+    { label: "Mainnet", status: "mainnet_pending" },
+  ];
+
   return (
     <div className="stage-narrow section">
       <PageHeader
         eyebrow="Product"
         title="AEON Agents are agents with receipts."
         standfirst="AEON gives agents identity, scoped authority, escrow, receipts, bonds and fail-closed accounting. SPX402 turns that activity into public reputation."
-        meta={[{ label: "Release status", value: <StatusChip status="unknown" /> }]}
+        meta={[{ label: "Release status", value: <StatusChip status="devnet_live" /> }]}
       />
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -72,7 +93,9 @@ function AeonAgentsPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">AEON Agent = identity + authority + evidence + reputation.</h2>
+        <h2 className="font-display text-2xl font-bold text-paper">
+          AEON Agent = identity + authority + evidence + reputation.
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           AEON is entering its first public SPX402 release path. Mainnet grading and attestations
           only appear after the backend confirms live deployment, indexed transactions and verified
@@ -83,19 +106,21 @@ function AeonAgentsPage() {
       <section className="mt-12">
         <h2 className="font-display text-2xl font-bold text-paper">Launch status</h2>
         <dl className="mt-4 grid gap-px overflow-hidden border border-bronze/40 bg-bronze/40 sm:grid-cols-3">
-          {["Release status", "Program address", "Indexed events", "Verified evidence", "Grading", "Attestations"].map(
-            (label) => (
-              <div key={label} className="bg-panel px-4 py-3">
-                <dt className="label-mono">{label}</dt>
-                <dd className="mt-1">
-                  <StatusChip status="unknown" />
-                </dd>
-              </div>
-            ),
-          )}
+          {facts.map(({ label, status, detail }) => (
+            <div key={label} className="bg-panel px-4 py-3">
+              <dt className="label-mono">{label}</dt>
+              <dd className="mt-1">
+                <StatusChip status={status} />
+              </dd>
+              {detail ? (
+                <dd className="mt-2 break-all font-mono text-[10px] text-paper-muted">{detail}</dd>
+              ) : null}
+            </div>
+          ))}
         </dl>
         <p className="mt-3 font-mono text-[11px] text-wire">
-          Expected from the backend: <code className="text-paper">GET /api/aeon/release-status</code>
+          Source: <code className="text-paper">GET /api/aeon/release-status</code>. Mainnet stays
+          pending until a real mainnet program ID exists. This page never invents one.
         </p>
       </section>
 

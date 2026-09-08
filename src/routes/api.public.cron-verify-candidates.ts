@@ -8,6 +8,7 @@ import { checkCronAuth } from "@/lib/indexer/auth.server";
 import { fetchAddressTxs } from "@/lib/indexer/helius.server";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import type { Json } from "@/integrations/supabase/types";
 
 const MAX_PER_RUN = 10;
@@ -83,35 +84,39 @@ export const Route = createFileRoute("/api/public/cron-verify-candidates")({
                 const rows: Array<Record<string, unknown>> = [];
                 for (const tx of txs) {
                   for (const ev of decodeSwapTx(tx, [wallet])) {
-                    rows.push({
-                      mint: c.mint,
-                      type: "SWAP_EXECUTED",
-                      severity: "info",
-                      signature: ev.signature,
-                      slot: ev.slot ?? undefined,
-                      occurred_at: ev.occurredAt,
-                      amount_sol: ev.amountSol,
-                      amount_token: ev.amountToken,
-                      raw: { ...ev.raw, wallet, backfill: true } as never,
-                    });
+                    rows.push(
+                      toAgentEventRow({
+                        mint: c.mint,
+                        type: "SWAP_EXECUTED",
+                        severity: "info",
+                        signature: ev.signature,
+                        slot: ev.slot,
+                        occurredAt: ev.occurredAt,
+                        amountSol: ev.amountSol,
+                        amountToken: ev.amountToken,
+                        raw: { ...ev.raw, wallet, backfill: true },
+                      }),
+                    );
                   }
                   for (const ev of decodeX402Tx(tx, [wallet])) {
-                    rows.push({
-                      mint: c.mint,
-                      type: "X402_PAYMENT_RECEIVED",
-                      severity: "success",
-                      signature: ev.signature,
-                      slot: ev.slot ?? undefined,
-                      occurred_at: ev.occurredAt,
-                      amount_sol: ev.amountSol,
-                      amount_token: ev.amountToken,
-                      raw: { ...ev.raw, wallet, backfill: true } as never,
-                    });
+                    rows.push(
+                      toAgentEventRow({
+                        mint: c.mint,
+                        type: "X402_PAYMENT_RECEIVED",
+                        severity: "success",
+                        signature: ev.signature,
+                        slot: ev.slot,
+                        occurredAt: ev.occurredAt,
+                        amountSol: ev.amountSol,
+                        amountToken: ev.amountToken,
+                        raw: { ...ev.raw, wallet, backfill: true },
+                      }),
+                    );
                   }
                 }
                 if (rows.length > 0) {
                   await supabaseAdmin.from("agent_events").upsert(rows as never, {
-                    onConflict: "signature",
+                    onConflict: AGENT_EVENTS_ON_CONFLICT,
                     ignoreDuplicates: true,
                   });
                 }
