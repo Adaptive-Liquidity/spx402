@@ -89,13 +89,37 @@ function asU64(value: unknown): number {
 }
 
 /**
- * Map issue_authority account keys using IDL names, skipping optional accounts
- * that the program omits when parent_id=0 or bond_amount=0.
+ * Map issue_authority account keys using IDL names.
+ *
+ * Anchor optional accounts are NEVER positionally compacted on real
+ * transactions: an absent optional account carries the program ID as a
+ * sentinel so every later account keeps its IDL position. When the account
+ * list covers every IDL position, map by position and treat sentinel values
+ * as absent — filtering names instead would shift authority/bond onto the
+ * wrong keys (e.g. parent_id=0 maps the sentinel to `authority` and the real
+ * authority PDA to `bond`, and slash_bond then silently misses).
+ *
+ * A compacted list (optional accounts omitted entirely, as in older captures)
+ * is still accepted: then, and only then, skip the args-implied absent names.
  */
 export function namedIssueAuthorityAccounts(
   accounts: string[],
   args: Record<string, unknown> | null,
 ): Record<string, string> {
+  const metas =
+    instructions.find((ix) => ix.name === "issue_authority")?.accounts ?? [];
+  const named: Record<string, string> = {};
+  if (accounts.length >= metas.length && metas.length > 0) {
+    // Sentinel form: positions are authoritative.
+    for (let i = 0; i < metas.length; i++) {
+      const value = accounts[i];
+      if (typeof value !== "string" || value.length === 0) continue;
+      if (metas[i].optional && value === AEON_IDL_ADDRESS) continue; // absent sentinel
+      named[metas[i].name] = value;
+    }
+    return named;
+  }
+  // Compacted form: omit the accounts the args mark as absent.
   const skip = new Set<string>();
   if (asU64(args?.parent_id) === 0) skip.add("parent_authority");
   if (asU64(args?.bond_amount) <= 0) {
@@ -106,8 +130,7 @@ export function namedIssueAuthorityAccounts(
     skip.add("token_program");
     skip.add("associated_token_program");
   }
-  const names = aeonInstructionAccountNames("issue_authority").filter((name) => !skip.has(name));
-  const named: Record<string, string> = {};
+  const names = metas.map((meta) => meta.name).filter((name) => !skip.has(name));
   for (let i = 0; i < names.length && i < accounts.length; i++) {
     named[names[i]] = accounts[i];
   }

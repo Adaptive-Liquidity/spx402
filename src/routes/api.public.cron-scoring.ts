@@ -89,21 +89,6 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
         let withheld = 0;
         let skipped = 0;
         for (const a of agents) {
-          // Fail closed on a counter-query failure: skip this agent entirely.
-          // Never persist zeroed counters, never flip a grade, never attest —
-          // the previous grade stays untouched and the next run retries.
-          let counters: Awaited<ReturnType<typeof aggregateCounters>>;
-          try {
-            counters = await aggregateCounters(supabaseAdmin, a.mint);
-          } catch (e) {
-            skipped++;
-            console.error(
-              "[scoring] counter query failed, skipping",
-              a.mint,
-              String(e).slice(0, 200),
-            );
-            continue;
-          }
           const category =
             (a.category as
               | "tokenized_buyback"
@@ -122,7 +107,9 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
           // Withheld state: AEON disabled means no valid grading is available.
           // Persist grade/score nulls and clear grading-derived fields so no
           // stale grade, breakdown, or confidence can leak through another
-          // reader. Raw evidence counters are preserved untouched.
+          // reader. Raw evidence counters are preserved untouched. This runs
+          // BEFORE counter aggregation: a counter-query failure must never
+          // leave a stale public grade in place for a disabled-pipeline agent.
           if (category === "aeon_executor" && !aeonEnabled) {
             // Nulls below require the withheld-state migration (nullable
             // grade/score/confidence + withheld_reason) and a types regen.
@@ -145,6 +132,21 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               } as never)
               .eq("mint", a.mint);
             if (!werr) withheld++;
+            continue;
+          }
+          // Fail closed on a counter-query failure: skip this agent entirely.
+          // Never persist zeroed counters, never flip a grade, never attest —
+          // the previous grade stays untouched and the next run retries.
+          let counters: Awaited<ReturnType<typeof aggregateCounters>>;
+          try {
+            counters = await aggregateCounters(supabaseAdmin, a.mint);
+          } catch (e) {
+            skipped++;
+            console.error(
+              "[scoring] counter query failed, skipping",
+              a.mint,
+              String(e).slice(0, 200),
+            );
             continue;
           }
           const result = computeRiskScore({

@@ -18,6 +18,7 @@ import {
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
 import {
   AEON_OWNERSHIP_EVENT_TYPES,
+  AEON_OWNERSHIP_PAGE_SIZE,
   decodeAeonWebhookBatch,
   fetchAeonOwnershipEvents,
 } from "@/lib/indexer/aeon-lookup.server";
@@ -103,19 +104,22 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           const aeonMints = aeonAgentRows.map((r) => r.mint);
           let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
           if (aeonMints.length > 0) {
-            // Paginated with deterministic order + exact-count verification:
-            // PostgREST truncates silently at db-max-rows, and a partial
-            // ownership history would drop or misattribute slash_bond. Any
-            // page error, count mismatch, or page-cap exhaustion fails closed.
-            const ownership = await fetchAeonOwnershipEvents(async (from, to) => {
-              const { data, error, count } = await supabaseAdmin
+            // Keyset-paginated on the primary key with exact-count
+            // verification: PostgREST truncates silently at db-max-rows, and
+            // offset pages can shift under concurrent inserts. A partial or
+            // inconsistent ownership history would drop or misattribute
+            // slash_bond, so any page error, short count, or page-cap
+            // exhaustion fails closed into the retryable 500 path.
+            const ownership = await fetchAeonOwnershipEvents(async (afterId) => {
+              let q = supabaseAdmin
                 .from("agent_events")
-                .select("mint, type, raw", { count: "exact" })
+                .select("id, mint, type, raw", { count: "exact" })
                 .in("mint", aeonMints)
                 .in("type", [...AEON_OWNERSHIP_EVENT_TYPES])
-                .order("occurred_at", { ascending: true })
                 .order("id", { ascending: true })
-                .range(from, to);
+                .limit(AEON_OWNERSHIP_PAGE_SIZE);
+              if (afterId) q = q.gt("id", afterId);
+              const { data, error, count } = await q;
               return { data, error, count };
             });
             if (!ownership.ok) {

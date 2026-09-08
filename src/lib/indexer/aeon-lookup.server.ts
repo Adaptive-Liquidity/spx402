@@ -19,6 +19,8 @@ export interface AeonAgentRow {
 }
 
 export interface AeonOwnershipEventRow {
+  /** Primary key — required while paginating (keyset cursor), optional elsewhere. */
+  id?: string | null;
   mint: string;
   type: string;
   raw: unknown;
@@ -187,8 +189,8 @@ export interface AeonOwnershipPage {
   count: number | null;
 }
 
-/** One page of the ownership query. `from`/`to` are inclusive range bounds. */
-export type AeonOwnershipPageFetcher = (from: number, to: number) => Promise<AeonOwnershipPage>;
+/** One keyset page: rows with id > afterId, ordered by id ascending. */
+export type AeonOwnershipPageFetcher = (afterId: string | null) => Promise<AeonOwnershipPage>;
 
 /**
  * Fetch ALL AEON ownership events through the page fetcher, verifying
@@ -197,6 +199,19 @@ export type AeonOwnershipPageFetcher = (from: number, to: number) => Promise<Aeo
  * Any page error, count mismatch, or cap exhaustion returns { ok: false } so
  * the caller can retry instead of decoding against silently truncated history.
  */
+/**
+ * Fetch ALL AEON ownership events through the page fetcher using keyset
+ * pagination on the primary key (id ascending, id > cursor). Unlike offset
+ * pagination, a concurrent insert can never shift a page boundary: a row
+ * inserted behind the cursor is simply excluded (consistent snapshot
+ * semantics), a row inserted ahead of it is included exactly once.
+ *
+ * Completeness is still verified: the first page's exact PostgREST count is
+ * the total at fetch start, so finishing with FEWER rows means truncation or
+ * deletion and fails closed. Any page error, a missing cursor id on a full
+ * page, or page-cap exhaustion also returns { ok: false } so the caller
+ * retries instead of decoding against partial ownership history.
+ */
 export async function fetchAeonOwnershipEvents(
   fetchPage: AeonOwnershipPageFetcher,
   pageSize: number = AEON_OWNERSHIP_PAGE_SIZE,
@@ -204,23 +219,23 @@ export async function fetchAeonOwnershipEvents(
 ): Promise<{ ok: true; rows: AeonOwnershipEventRow[] } | { ok: false }> {
   const rows: AeonOwnershipEventRow[] = [];
   let expected: number | null = null;
-  let exhausted = false;
+  let afterId: string | null = null;
   for (let page = 0; page < maxPages; page++) {
-    const from = page * pageSize;
-    const { data, error, count } = await fetchPage(from, from + pageSize - 1);
+    const { data, error, count } = await fetchPage(afterId);
     const resolved = resolveAeonOwnershipQuery(data, error);
     if (!resolved.ok) return resolved;
-    if (typeof count === "number") expected = count;
-    rows.push(...resolved.rows);
-    if (resolved.rows.length < pageSize) {
-      exhausted = true;
-      break;
+    if (afterId === null && typeof count === "number") expected = count;
+    const batch = resolved.rows;
+    rows.push(...batch);
+    if (batch.length < pageSize) {
+      if (expected !== null && rows.length < expected) return { ok: false };
+      return { ok: true, rows };
     }
+    const cursor = batch[batch.length - 1]?.id;
+    if (typeof cursor !== "string" || cursor.length === 0) return { ok: false };
+    afterId = cursor;
   }
-  if (expected !== null) {
-    return rows.length === expected ? { ok: true, rows } : { ok: false };
-  }
-  return exhausted ? { ok: true, rows } : { ok: false };
+  return { ok: false };
 }
 
 /** Decode AEON events using the same lookup the Helius webhook builds. */

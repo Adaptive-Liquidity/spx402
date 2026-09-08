@@ -10,6 +10,10 @@ const h = vi.hoisted(() => ({
 
 vi.mock("@/lib/indexer/auth.server", () => ({ checkCronAuth: async () => true }));
 
+vi.mock("@/lib/trust/config", () => ({
+  resolveAeonProgramId: () => ({ enabled: false, reason: "not_configured" }),
+}));
+
 vi.mock("@/integrations/supabase/client.server", () => ({
   supabaseAdmin: {
     from: (table: string) => {
@@ -69,7 +73,34 @@ beforeEach(() => {
   h.calls.length = 0;
 });
 
+const AEON_AGENT = { ...AGENT, category: "aeon_executor", grade: "SPX401" };
+
 describe("cron-scoring fail-closed skip", () => {
+  it("withholds an aeon_executor before counter aggregation when the pipeline is disabled", async () => {
+    h.queue.push(
+      ok([AEON_AGENT]), // agents list
+      ok([]), // badge_subscriptions
+      ok(null), // withheld agents update — must run before any counter query
+      ok(null), // heartbeat insert
+    );
+    const res = await post();
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      scored: number;
+      skipped: number;
+      withheld: number;
+      attested: number;
+    };
+    expect(body.scored).toBe(0);
+    expect(body.skipped).toBe(0);
+    expect(body.withheld).toBe(1);
+    expect(body.attested).toBe(0);
+    expect(h.calls.some((c) => c.table === "agent_events")).toBe(false);
+    const withheldUpdate = h.calls.find((c) => c.table === "agents" && c.method === "update");
+    expect(JSON.stringify(withheldUpdate?.args)).toContain("aeon_pipeline_disabled");
+    expect(JSON.stringify(withheldUpdate?.args)).toContain('"grade":null');
+  });
+
   it("skips the agent without any agents update when the AEON counter query errors", async () => {
     h.queue.push(
       ok([AGENT]), // agents list

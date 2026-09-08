@@ -16,10 +16,48 @@ import { AEON_COUNTER_TYPES, aggregateAeonCounters } from "@/lib/indexer/aeon-co
 /** Thrown when any scoring counter query fails or returns a truncated page. */
 export class CountersQueryError extends Error {}
 
+const AEON_COUNTER_PAGE_SIZE = 1000;
+const AEON_COUNTER_MAX_PAGES = 50;
+
+/**
+ * Fetch every lifetime AEON counter event for a subject, keyset-paginated on
+ * the primary key (id ascending, id > cursor) so concurrent inserts can never
+ * shift a page boundary. Throws CountersQueryError on any page error, a
+ * missing cursor id, or page-cap exhaustion — never returns a partial set.
+ */
+async function fetchAeonCounterRows(
+  client: SupabaseClient<Database>,
+  mint: string,
+): Promise<Array<{ type: string; amount_token: number | null }>> {
+  const rows: Array<{ type: string; amount_token: number | null }> = [];
+  let afterId: string | null = null;
+  for (let page = 0; page < AEON_COUNTER_MAX_PAGES; page++) {
+    let q = client
+      .from("agent_events")
+      .select("id, type, amount_token")
+      .eq("mint", mint)
+      .in("type", [...AEON_COUNTER_TYPES])
+      .order("id", { ascending: true })
+      .limit(AEON_COUNTER_PAGE_SIZE);
+    if (afterId) q = q.gt("id", afterId);
+    const { data, error } = await q;
+    if (error) throw new CountersQueryError(error.message ?? "AEON counter query failed");
+    const batch = data ?? [];
+    rows.push(...batch);
+    if (batch.length < AEON_COUNTER_PAGE_SIZE) return rows;
+    const cursor = batch[batch.length - 1]?.id;
+    if (typeof cursor !== "string" || cursor.length === 0) {
+      throw new CountersQueryError("AEON counter page missing id cursor");
+    }
+    afterId = cursor;
+  }
+  throw new CountersQueryError("AEON counter pagination exceeded page cap");
+}
+
 export async function aggregateCounters(client: SupabaseClient<Database>, mint: string) {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [eventResult, latestResult, firstResult, aeonResult] = await Promise.all([
+  const [eventResult, latestResult, firstResult, aeonRows] = await Promise.all([
     client
       .from("agent_events")
       .select("type, severity, amount_sol, amount_token, occurred_at, raw", {
@@ -43,28 +81,25 @@ export async function aggregateCounters(client: SupabaseClient<Database>, mint: 
       .order("occurred_at", { ascending: true })
       .limit(1)
       .maybeSingle(),
-    // AEON bond/escrow state is lifetime, not a 30-day window. count: "exact"
-    // lets us detect silent db-max-rows truncation below.
-    client
-      .from("agent_events")
-      .select("type, amount_token", { count: "exact" })
-      .eq("mint", mint)
-      .in("type", [...AEON_COUNTER_TYPES]),
+    // AEON bond/escrow state is lifetime, not a 30-day window. Fully
+    // keyset-paginated: a single page would silently truncate at db-max-rows,
+    // and failing permanently once an agent crosses the cap is not an option.
+    fetchAeonCounterRows(client, mint),
   ]);
 
-  const queryError =
-    eventResult.error ?? latestResult.error ?? firstResult.error ?? aeonResult.error;
+  const queryError = eventResult.error ?? latestResult.error ?? firstResult.error;
   if (queryError) {
     throw new CountersQueryError(queryError.message ?? "agent_events counter query failed");
   }
-  const aeonRows = aeonResult.data ?? [];
-  if (typeof aeonResult.count === "number" && aeonResult.count !== aeonRows.length) {
-    throw new CountersQueryError(
-      `AEON counter query truncated: ${aeonRows.length}/${aeonResult.count} rows`,
-    );
-  }
 
   const rows = eventResult.data ?? [];
+  // The 30-day window is scored directly, so a silently truncated page is a
+  // scoring error — never derive counters from incomplete evidence.
+  if (typeof eventResult.count === "number" && eventResult.count !== rows.length) {
+    throw new CountersQueryError(
+      `30-day event window truncated: ${rows.length}/${eventResult.count} rows`,
+    );
+  }
   const latest = latestResult.data;
   const first = firstResult.data;
   const outcomeEvidenceComplete = eventResult.count === rows.length;
