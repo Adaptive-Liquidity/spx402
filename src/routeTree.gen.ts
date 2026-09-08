@@ -75,7 +75,6 @@ import { Route as ApiPublicMcpRouteImport } from './routes/api/public/mcp'
 import { Route as ApiPublicIngestOcEvidenceRouteImport } from './routes/api.public.ingest-oc-evidence'
 import { Route as ApiPublicHeliusWebhookSetupRouteImport } from './routes/api.public.helius-webhook-setup'
 import { Route as ApiPublicHealthRouteImport } from './routes/api.public.health'
-import { Route as ApiAeonReleaseStatusRouteImport } from './routes/api.aeon.release-status'
 import { Route as ApiPublicCronVerifyCandidatesRouteImport } from './routes/api.public.cron-verify-candidates'
 import { Route as ApiPublicCronScoringRouteImport } from './routes/api.public.cron-scoring'
 import { Route as ApiPublicCronScoreSnapshotRouteImport } from './routes/api.public.cron-score-snapshot'
@@ -91,6 +90,7 @@ import { Route as ApiPublicCronAttesterHealthRouteImport } from './routes/api.pu
 import { Route as ApiPublicCronAlertDispatchRouteImport } from './routes/api.public.cron-alert-dispatch'
 import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public.admin-add-api-key'
+import { Route as ApiAeonReleaseStatusRouteImport } from './routes/api.aeon.release-status'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardWalletsRouteImport } from './routes/_authenticated.dashboard.wallets'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
@@ -442,11 +442,6 @@ const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
   path: '/public/health',
   getParentRoute: () => ApiRoute,
 } as any)
-const ApiAeonReleaseStatusRoute = ApiAeonReleaseStatusRouteImport.update({
-  id: '/aeon/release-status',
-  path: '/aeon/release-status',
-  getParentRoute: () => ApiRoute,
-} as any)
 const ApiPublicCronVerifyCandidatesRoute =
   ApiPublicCronVerifyCandidatesRouteImport.update({
     id: '/public/cron-verify-candidates',
@@ -530,6 +525,11 @@ const ApiPublicAdminAddServiceRoute =
 const ApiPublicAdminAddApiKeyRoute = ApiPublicAdminAddApiKeyRouteImport.update({
   id: '/public/admin-add-api-key',
   path: '/public/admin-add-api-key',
+  getParentRoute: () => ApiRoute,
+} as any)
+const ApiAeonReleaseStatusRoute = ApiAeonReleaseStatusRouteImport.update({
+  id: '/aeon/release-status',
+  path: '/aeon/release-status',
   getParentRoute: () => ApiRoute,
 } as any)
 const AuthenticatedDashboardWatchlistRoute =
@@ -693,6 +693,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
@@ -708,7 +709,6 @@ export interface FileRoutesByFullPath {
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
-  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
@@ -788,6 +788,7 @@ export interface FileRoutesByTo {
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
@@ -803,7 +804,6 @@ export interface FileRoutesByTo {
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
-  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
@@ -890,6 +890,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
@@ -905,7 +906,6 @@ export interface FileRoutesById {
   '/api/public/cron-score-snapshot': typeof ApiPublicCronScoreSnapshotRoute
   '/api/public/cron-scoring': typeof ApiPublicCronScoringRoute
   '/api/public/cron-verify-candidates': typeof ApiPublicCronVerifyCandidatesRoute
-  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/helius-webhook-setup': typeof ApiPublicHeliusWebhookSetupRoute
   '/api/public/ingest-oc-evidence': typeof ApiPublicIngestOcEvidenceRoute
@@ -992,6 +992,7 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/wallets'
     | '/dashboard/watchlist'
+    | '/api/aeon/release-status'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
@@ -1007,7 +1008,6 @@ export interface FileRouteTypes {
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
-    | '/api/aeon/release-status'
     | '/api/public/health'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
@@ -1087,6 +1087,7 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/wallets'
     | '/dashboard/watchlist'
+    | '/api/aeon/release-status'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
@@ -1102,7 +1103,6 @@ export interface FileRouteTypes {
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
-    | '/api/aeon/release-status'
     | '/api/public/health'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
@@ -1188,6 +1188,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/wallets'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/aeon/release-status'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
@@ -1203,7 +1204,6 @@ export interface FileRouteTypes {
     | '/api/public/cron-score-snapshot'
     | '/api/public/cron-scoring'
     | '/api/public/cron-verify-candidates'
-    | '/api/aeon/release-status'
     | '/api/public/health'
     | '/api/public/helius-webhook-setup'
     | '/api/public/ingest-oc-evidence'
@@ -1726,13 +1726,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHeliusWebhookSetupRouteImport
       parentRoute: typeof ApiRoute
     }
-    '/api/aeon/release-status': {
-      id: '/api/aeon/release-status'
-      path: '/aeon/release-status'
-      fullPath: '/api/aeon/release-status'
-      preLoaderRoute: typeof ApiAeonReleaseStatusRouteImport
-      parentRoute: typeof ApiRoute
-    }
     '/api/public/health': {
       id: '/api/public/health'
       path: '/public/health'
@@ -1843,6 +1836,13 @@ declare module '@tanstack/react-router' {
       path: '/public/admin-add-api-key'
       fullPath: '/api/public/admin-add-api-key'
       preLoaderRoute: typeof ApiPublicAdminAddApiKeyRouteImport
+      parentRoute: typeof ApiRoute
+    }
+    '/api/aeon/release-status': {
+      id: '/api/aeon/release-status'
+      path: '/aeon/release-status'
+      fullPath: '/api/aeon/release-status'
+      preLoaderRoute: typeof ApiAeonReleaseStatusRouteImport
       parentRoute: typeof ApiRoute
     }
     '/_authenticated/dashboard/watchlist': {
@@ -2024,6 +2024,7 @@ const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiAeonReleaseStatusRoute: typeof ApiAeonReleaseStatusRoute
   ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
   ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
   ApiPublicCronAlertDispatchRoute: typeof ApiPublicCronAlertDispatchRoute
@@ -2039,7 +2040,6 @@ interface ApiRouteChildren {
   ApiPublicCronScoreSnapshotRoute: typeof ApiPublicCronScoreSnapshotRoute
   ApiPublicCronScoringRoute: typeof ApiPublicCronScoringRoute
   ApiPublicCronVerifyCandidatesRoute: typeof ApiPublicCronVerifyCandidatesRoute
-  ApiAeonReleaseStatusRoute: typeof ApiAeonReleaseStatusRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicHeliusWebhookSetupRoute: typeof ApiPublicHeliusWebhookSetupRoute
   ApiPublicIngestOcEvidenceRoute: typeof ApiPublicIngestOcEvidenceRoute
@@ -2061,6 +2061,7 @@ interface ApiRouteChildren {
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiAeonReleaseStatusRoute: ApiAeonReleaseStatusRoute,
   ApiPublicAdminAddApiKeyRoute: ApiPublicAdminAddApiKeyRoute,
   ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicCronAlertDispatchRoute: ApiPublicCronAlertDispatchRoute,
@@ -2076,7 +2077,6 @@ const ApiRouteChildren: ApiRouteChildren = {
   ApiPublicCronScoreSnapshotRoute: ApiPublicCronScoreSnapshotRoute,
   ApiPublicCronScoringRoute: ApiPublicCronScoringRoute,
   ApiPublicCronVerifyCandidatesRoute: ApiPublicCronVerifyCandidatesRoute,
-  ApiAeonReleaseStatusRoute: ApiAeonReleaseStatusRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicHeliusWebhookSetupRoute: ApiPublicHeliusWebhookSetupRoute,
   ApiPublicIngestOcEvidenceRoute: ApiPublicIngestOcEvidenceRoute,

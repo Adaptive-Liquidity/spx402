@@ -14,6 +14,7 @@ export interface AeonIdlArg {
 
 export interface AeonIdlAccountMeta {
   name: string;
+  optional?: boolean;
 }
 
 export interface AeonIdlInstruction {
@@ -74,6 +75,38 @@ export function namedInstructionAccounts(
   accounts: string[],
 ): Record<string, string> {
   const names = aeonInstructionAccountNames(instructionName);
+  const named: Record<string, string> = {};
+  for (let i = 0; i < names.length && i < accounts.length; i++) {
+    named[names[i]] = accounts[i];
+  }
+  return named;
+}
+
+function asU64(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && /^\d+$/.test(value)) return Number(value);
+  return 0;
+}
+
+/**
+ * Map issue_authority account keys using IDL names, skipping optional accounts
+ * that the program omits when parent_id=0 or bond_amount=0.
+ */
+export function namedIssueAuthorityAccounts(
+  accounts: string[],
+  args: Record<string, unknown> | null,
+): Record<string, string> {
+  const skip = new Set<string>();
+  if (asU64(args?.parent_id) === 0) skip.add("parent_authority");
+  if (asU64(args?.bond_amount) <= 0) {
+    skip.add("bond");
+    skip.add("agent_vault");
+    skip.add("bond_vault");
+    skip.add("aeon_mint");
+    skip.add("token_program");
+    skip.add("associated_token_program");
+  }
+  const names = aeonInstructionAccountNames("issue_authority").filter((name) => !skip.has(name));
   const named: Record<string, string> = {};
   for (let i = 0; i < names.length && i < accounts.length; i++) {
     named[names[i]] = accounts[i];

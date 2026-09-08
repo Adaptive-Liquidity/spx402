@@ -16,7 +16,7 @@ import {
   type HeliusEnhancedTx,
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
-import { decodeAeonTx, type AeonLookup } from "@/lib/indexer/decode-aeon.server";
+import { decodeAeonWebhookBatch } from "@/lib/indexer/aeon-lookup.server";
 import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
@@ -68,15 +68,6 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           }));
         const executorWallets = executorAgents.map((e) => e.wallet);
 
-        // Build AEON lookup (CRI PDA and/or executor wallet).
-        const aeonAgents: AeonLookup[] = (agentsRows ?? [])
-          .filter((r) => !!r.aeon_cri_address || !!r.executor_wallet)
-          .map((r) => ({
-            mint: r.mint,
-            aeonCriAddress: (r.aeon_cri_address as string | null) ?? null,
-            executorWallet: (r.executor_wallet as string | null) ?? null,
-          }));
-
         const events: DecodedEvent[] = [];
         for (const tx of txs) {
           events.push(...decodeTx(tx, agents));
@@ -101,22 +92,38 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           // message when the guard itself rejected the config).
           await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonSkipDetail ?? aeonCfg.reason);
         }
-        if (aeonCfg.enabled && aeonAgents.length > 0) {
-          for (const tx of txs) {
-            for (const ev of decodeAeonTx(tx, aeonAgents, aeonCfg.programId)) {
-              aeonEvents.push({
-                mint: ev.mint,
-                type: ev.type,
-                severity: ev.severity,
-                signature: ev.signature,
-                slot: ev.slot,
-                occurredAt: ev.occurredAt,
-                amountSol: ev.amountSol,
-                amountToken: ev.amountToken,
-                eventUid: ev.eventUid,
-                raw: ev.raw,
-              });
-            }
+        if (aeonCfg.enabled) {
+          const aeonAgentRows = (agentsRows ?? []).filter(
+            (r) => !!r.aeon_cri_address || !!r.executor_wallet,
+          );
+          const aeonMints = aeonAgentRows.map((r) => r.mint);
+          let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
+          if (aeonMints.length > 0) {
+            const { data: ownershipRows } = await supabaseAdmin
+              .from("agent_events")
+              .select("mint, type, raw")
+              .in("mint", aeonMints)
+              .in("type", ["AEON_AUTHORITY_ISSUED", "BOND_DEPOSITED"]);
+            ownershipEvents = ownershipRows ?? [];
+          }
+          for (const ev of decodeAeonWebhookBatch(
+            txs,
+            aeonAgentRows,
+            ownershipEvents,
+            aeonCfg.programId,
+          )) {
+            aeonEvents.push({
+              mint: ev.mint,
+              type: ev.type,
+              severity: ev.severity,
+              signature: ev.signature,
+              slot: ev.slot,
+              occurredAt: ev.occurredAt,
+              amountSol: ev.amountSol,
+              amountToken: ev.amountToken,
+              eventUid: ev.eventUid,
+              raw: ev.raw,
+            });
           }
         }
 

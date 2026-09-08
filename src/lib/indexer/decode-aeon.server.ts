@@ -18,6 +18,7 @@ import {
   decodeAeonEvent,
   decodeInstructionDataBytes,
   namedInstructionAccounts,
+  namedIssueAuthorityAccounts,
 } from "./aeon-idl";
 import { makeEventUid } from "./event-uid";
 
@@ -29,6 +30,8 @@ export interface AeonLookup {
   aeonAuthorityAddress?: string | null;
   /** Bond PDA owned by this agent (IDL seeds ["authority_bond", authority_id]). */
   aeonBondAddress?: string | null;
+  aeonAuthorityAddresses?: string[];
+  aeonBondAddresses?: string[];
 }
 
 export type AeonEventType =
@@ -137,6 +140,17 @@ function matchMints(ix: HeliusInstruction, agents: AeonLookup[]): string[] {
  * matching any tracked wallet would attribute the slash to the slasher.
  * Resolve only via the authority or bond PDA from the IDL account list.
  */
+function pdaList(primary: string | null | undefined, extra?: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const value of [primary, ...(extra ?? [])]) {
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
 function matchSlashBondMints(ix: HeliusInstruction, agents: AeonLookup[]): string[] {
   const named = namedInstructionAccounts("slash_bond", ix.accounts ?? []);
   const authority = named.authority;
@@ -145,8 +159,10 @@ function matchSlashBondMints(ix: HeliusInstruction, agents: AeonLookup[]): strin
   const mints: string[] = [];
   const seen = new Set<string>();
   for (const a of agents) {
-    const matchesAuthority = Boolean(authority && a.aeonAuthorityAddress === authority);
-    const matchesBond = Boolean(bond && a.aeonBondAddress === bond);
+    const authorities = pdaList(a.aeonAuthorityAddress, a.aeonAuthorityAddresses);
+    const bonds = pdaList(a.aeonBondAddress, a.aeonBondAddresses);
+    const matchesAuthority = Boolean(authority && authorities.includes(authority));
+    const matchesBond = Boolean(bond && bonds.includes(bond));
     if (!matchesAuthority && !matchesBond) continue;
     if (!seen.has(a.mint)) {
       seen.add(a.mint);
@@ -311,6 +327,10 @@ export function decodeAeonTx(
     if (!mapping) continue;
 
     const parsed = decodeAeonArgs(instructionName, bytes);
+    const issueNamed =
+      instructionName === "issue_authority"
+        ? namedIssueAuthorityAccounts(ix.accounts ?? [], parsed)
+        : null;
     const mints =
       instructionName === "slash_bond"
         ? matchSlashBondMints(ix, agents)
@@ -342,8 +362,11 @@ export function decodeAeonTx(
         programId,
         accounts: ix.accounts ?? [],
         parsed,
-        extraRaw:
-          mapping.type === "BOND_SLASHED" ? { amountSource: "verified_tx" } : undefined,
+        extraRaw: {
+          ...(mapping.type === "BOND_SLASHED" ? { amountSource: "verified_tx" } : {}),
+          ...(issueNamed?.authority ? { authority: issueNamed.authority } : {}),
+          ...(issueNamed?.bond ? { bond: issueNamed.bond } : {}),
+        },
       });
 
       if (instructionName === "issue_authority" && bondAmount > 0) {
@@ -361,6 +384,10 @@ export function decodeAeonTx(
           programId,
           accounts: ix.accounts ?? [],
           parsed,
+          extraRaw: {
+            ...(issueNamed?.authority ? { authority: issueNamed.authority } : {}),
+            ...(issueNamed?.bond ? { bond: issueNamed.bond } : {}),
+          },
         });
       }
     }
