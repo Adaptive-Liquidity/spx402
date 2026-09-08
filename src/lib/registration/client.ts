@@ -110,7 +110,26 @@ export async function readCorrections(): Promise<Result<{ corrections: unknown[]
 export async function readAeonReleaseStatus(): Promise<
   Result<{ release_status: string; mainnet_status: string; program_address: string }>
 > {
-  return pending("GET /api/aeon/release-status");
+  try {
+    const res = await fetch("/api/aeon/release-status");
+    if (!res.ok) return pending("GET /api/aeon/release-status");
+    const body = (await res.json()) as {
+      release_status?: string;
+      mainnet_status?: string;
+      program_address?: string;
+    };
+    if (!body.release_status || !body.mainnet_status || !body.program_address) {
+      return pending("GET /api/aeon/release-status");
+    }
+    return {
+      available: true,
+      release_status: body.release_status,
+      mainnet_status: body.mainnet_status,
+      program_address: body.program_address,
+    };
+  } catch {
+    return pending("GET /api/aeon/release-status");
+  }
 }
 
 /** Human-readable list used by the developer docs page. */

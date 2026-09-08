@@ -21,6 +21,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import {
   decodeX402Tx,
   type X402DetectionMethod,
@@ -191,18 +192,18 @@ async function persistSettlementIfKnownAgent(ev: X402Event): Promise<boolean> {
       .maybeSingle();
     if (!agent) return false;
     const { error } = await supabaseAdmin.from("agent_events").upsert(
-      {
+      toAgentEventRow({
         mint: agent.mint,
         type: "X402_PAYMENT_RECEIVED",
         severity: "info",
         signature: ev.signature,
         slot: ev.slot,
-        occurred_at: ev.occurredAt,
-        amount_sol: ev.amountSol,
-        amount_token: ev.amountToken,
+        occurredAt: ev.occurredAt,
+        amountSol: ev.amountSol,
+        amountToken: ev.amountToken,
         raw: { ...ev.raw, confidence: ev.confidence },
-      },
-      { onConflict: "signature", ignoreDuplicates: true },
+      }) as never,
+      { onConflict: AGENT_EVENTS_ON_CONFLICT, ignoreDuplicates: true },
     );
     return !error;
   } catch {

@@ -73,6 +73,24 @@ export interface HeliusInstruction {
   innerInstructions?: HeliusInstruction[];
 }
 
+export interface HeliusRawTokenAmount {
+  tokenAmount?: string;
+  decimals?: number;
+}
+
+export interface HeliusTokenBalanceChange {
+  userAccount?: string;
+  tokenAccount?: string;
+  mint?: string;
+  rawTokenAmount?: HeliusRawTokenAmount;
+}
+
+export interface HeliusAccountData {
+  account?: string;
+  nativeBalanceChange?: number;
+  tokenBalanceChanges?: HeliusTokenBalanceChange[];
+}
+
 export interface HeliusEnhancedTx {
   signature?: string;
   slot?: number;
@@ -84,6 +102,9 @@ export interface HeliusEnhancedTx {
   feePayer?: string;
   nativeTransfers?: HeliusNativeTransfer[];
   tokenTransfers?: HeliusTokenTransfer[];
+  accountData?: HeliusAccountData[];
+  logs?: string[];
+  logMessages?: string[];
   instructions?: HeliusInstruction[];
   events?: Record<string, unknown>;
   transactionError?: unknown;
@@ -118,7 +139,7 @@ export function extractBurn(tx: HeliusEnhancedTx): { mint: string; amount: numbe
   return null;
 }
 
-function flattenInstructions(ixs: HeliusInstruction[]): HeliusInstruction[] {
+export function flattenInstructions(ixs: HeliusInstruction[]): HeliusInstruction[] {
   const out: HeliusInstruction[] = [];
   for (const ix of ixs) {
     out.push(ix);
