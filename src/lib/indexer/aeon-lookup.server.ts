@@ -62,7 +62,11 @@ export function ownershipPdasFromEventRaw(raw: unknown): { authority?: string; b
   return { authority, bond };
 }
 
-function mergeOwnership(into: Map<string, OwnershipPdas>, mint: string, pdas: { authority?: string; bond?: string }) {
+function mergeOwnership(
+  into: Map<string, OwnershipPdas>,
+  mint: string,
+  pdas: { authority?: string; bond?: string },
+) {
   const current = into.get(mint) ?? emptyOwnership();
   addPda(current.authorities, pdas.authority);
   addPda(current.bonds, pdas.bond);
@@ -168,6 +172,55 @@ export function resolveAeonOwnershipQuery(
 ): { ok: true; rows: AeonOwnershipEventRow[] } | { ok: false } {
   if (error) return { ok: false };
   return { ok: true, rows: data ?? [] };
+}
+
+// PostgREST silently truncates every response at the server's db-max-rows
+// (Supabase default: 1000) with a 206 Partial Content that supabase-js does
+// NOT surface as an error. Ownership history feeds slash attribution, so a
+// truncated page must fail closed (retryable), never decode with partial PDAs.
+export const AEON_OWNERSHIP_PAGE_SIZE = 1000;
+export const AEON_OWNERSHIP_MAX_PAGES = 50;
+
+export interface AeonOwnershipPage {
+  data: AeonOwnershipEventRow[] | null;
+  error: unknown;
+  count: number | null;
+}
+
+/** One page of the ownership query. `from`/`to` are inclusive range bounds. */
+export type AeonOwnershipPageFetcher = (from: number, to: number) => Promise<AeonOwnershipPage>;
+
+/**
+ * Fetch ALL AEON ownership events through the page fetcher, verifying
+ * completeness two ways: the exact PostgREST count must match the accumulated
+ * rows, and pagination must terminate on a short page within the page cap.
+ * Any page error, count mismatch, or cap exhaustion returns { ok: false } so
+ * the caller can retry instead of decoding against silently truncated history.
+ */
+export async function fetchAeonOwnershipEvents(
+  fetchPage: AeonOwnershipPageFetcher,
+  pageSize: number = AEON_OWNERSHIP_PAGE_SIZE,
+  maxPages: number = AEON_OWNERSHIP_MAX_PAGES,
+): Promise<{ ok: true; rows: AeonOwnershipEventRow[] } | { ok: false }> {
+  const rows: AeonOwnershipEventRow[] = [];
+  let expected: number | null = null;
+  let exhausted = false;
+  for (let page = 0; page < maxPages; page++) {
+    const from = page * pageSize;
+    const { data, error, count } = await fetchPage(from, from + pageSize - 1);
+    const resolved = resolveAeonOwnershipQuery(data, error);
+    if (!resolved.ok) return resolved;
+    if (typeof count === "number") expected = count;
+    rows.push(...resolved.rows);
+    if (resolved.rows.length < pageSize) {
+      exhausted = true;
+      break;
+    }
+  }
+  if (expected !== null) {
+    return rows.length === expected ? { ok: true, rows } : { ok: false };
+  }
+  return exhausted ? { ok: true, rows } : { ok: false };
 }
 
 /** Decode AEON events using the same lookup the Helius webhook builds. */

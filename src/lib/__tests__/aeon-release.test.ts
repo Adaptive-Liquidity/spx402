@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getAeonReleaseStatus } from "../aeon-release";
+import { getAeonReleaseStatus } from "../aeon-release.server";
 import { AEON_PROGRAM_ID_DEVNET } from "../trust/config";
 
 describe("getAeonReleaseStatus", () => {

@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/spx/PageHeader";
 import { StatusChip } from "@/components/spx/StatusChip";
-import { getAeonReleaseStatus } from "@/lib/aeon-release";
+import { getReleaseStatus } from "@/lib/aeon-release.functions";
 import type { StatusKey } from "@/lib/registration/status";
 
 export const Route = createFileRoute("/aeon-agents")({
-  loader: () => ({ release: getAeonReleaseStatus() }),
+  loader: async () => ({ release: await getReleaseStatus() }),
   head: () => ({
     links: [{ rel: "canonical", href: "https://spx402.com/aeon-agents" }],
     meta: [
@@ -40,7 +40,8 @@ function Card({ title, body }: { title: string; body: string }) {
 
 function AeonAgentsPage() {
   const { release } = Route.useLoaderData();
-  const gradingStatus: StatusKey = release.grading === "withheld" ? "ungraded" : "waiting_for_evidence";
+  const gradingStatus: StatusKey =
+    release.grading === "withheld" ? "ungraded" : "waiting_for_evidence";
   const attestationStatus: StatusKey =
     release.attestations === "disabled" ? "attestation_pending" : "unknown";
   const facts: Array<{ label: string; status: StatusKey; detail?: string }> = [
@@ -92,7 +93,9 @@ function AeonAgentsPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold text-paper">AEON Agent = identity + authority + evidence + reputation.</h2>
+        <h2 className="font-display text-2xl font-bold text-paper">
+          AEON Agent = identity + authority + evidence + reputation.
+        </h2>
         <p className="mt-3 max-w-3xl text-paper-muted">
           AEON is entering its first public SPX402 release path. Mainnet grading and attestations
           only appear after the backend confirms live deployment, indexed transactions and verified

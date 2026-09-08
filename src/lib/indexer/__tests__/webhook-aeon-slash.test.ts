@@ -5,7 +5,12 @@ import {
   aeonInstructionDiscBytes,
   namedIssueAuthorityAccounts,
 } from "../aeon-idl";
-import { decodeAeonWebhookBatch, resolveAeonOwnershipQuery } from "../aeon-lookup.server";
+import {
+  decodeAeonWebhookBatch,
+  fetchAeonOwnershipEvents,
+  resolveAeonOwnershipQuery,
+  type AeonOwnershipEventRow,
+} from "../aeon-lookup.server";
 import { AEON_PROGRAM_ID_DEVNET } from "../../trust/config";
 import { SPL_TOKEN_PROGRAM_ID, type HeliusEnhancedTx } from "../helius.server";
 
@@ -209,12 +214,86 @@ describe("webhook AEON lookup for slash_bond", () => {
   });
 
   it("treats a Supabase ownership query error as retryable, not empty", () => {
-    const staleRows = [
-      { mint: BONDED_MINT, type: "AEON_AUTHORITY_ISSUED", raw: {} },
-    ];
+    const staleRows = [{ mint: BONDED_MINT, type: "AEON_AUTHORITY_ISSUED", raw: {} }];
     expect(resolveAeonOwnershipQuery(staleRows, { message: "connection refused" })).toEqual({
       ok: false,
     });
     expect(resolveAeonOwnershipQuery(null, { code: "PGRST301" })).toEqual({ ok: false });
+  });
+});
+
+describe("fetchAeonOwnershipEvents", () => {
+  const row = (i: number): AeonOwnershipEventRow => ({
+    mint: BONDED_MINT,
+    type: "AEON_AUTHORITY_ISSUED",
+    raw: { i },
+  });
+  const paged =
+    (all: AeonOwnershipEventRow[], opts: { errorFrom?: number; count?: number | null } = {}) =>
+    async (from: number, to: number) => {
+      if (opts.errorFrom !== undefined && from >= opts.errorFrom) {
+        return { data: null, error: { message: "connection reset" }, count: null };
+      }
+      return {
+        data: all.slice(from, to + 1),
+        error: null,
+        count: opts.count === undefined ? all.length : opts.count,
+      };
+    };
+
+  it("accumulates multiple pages until a short page", async () => {
+    const all = [row(1), row(2), row(3), row(4), row(5)];
+    let calls = 0;
+    const res = await fetchAeonOwnershipEvents(async (from, to) => {
+      calls++;
+      return paged(all)(from, to);
+    }, 2);
+    expect(res).toEqual({ ok: true, rows: all });
+    expect(calls).toBe(3);
+  });
+
+  it("fails closed when any page errors", async () => {
+    const all = [row(1), row(2), row(3)];
+    const res = await fetchAeonOwnershipEvents(paged(all, { errorFrom: 2 }), 2);
+    expect(res).toEqual({ ok: false });
+  });
+
+  it("fails closed when the exact count exceeds the accumulated rows (silent truncation)", async () => {
+    // PostgREST db-max-rows cap: 1000 rows exist, one truncated page returned.
+    const res = await fetchAeonOwnershipEvents(paged([row(1), row(2)], { count: 1000 }), 1000);
+    expect(res).toEqual({ ok: false });
+  });
+
+  it("treats a successful empty first page as complete", async () => {
+    const res = await fetchAeonOwnershipEvents(paged([]), 1000);
+    expect(res).toEqual({ ok: true, rows: [] });
+  });
+
+  it("fails closed when the page cap is exhausted without a short page", async () => {
+    // Fetcher always returns full pages and no count: completeness unprovable.
+    const res = await fetchAeonOwnershipEvents(
+      async () => ({ data: [row(1), row(2)], error: null, count: null }),
+      2,
+      3,
+    );
+    expect(res).toEqual({ ok: false });
+  });
+
+  it("feeds page-2 ownership rows into slash attribution", async () => {
+    const pdaRow: AeonOwnershipEventRow = {
+      mint: BONDED_MINT,
+      type: "AEON_AUTHORITY_ISSUED",
+      raw: {
+        instruction: "issue_authority",
+        accounts: ISSUE_ACCOUNTS,
+        parsedData: { parent_id: 0, bond_amount: 500 },
+      },
+    };
+    const res = await fetchAeonOwnershipEvents(paged([row(1), pdaRow]), 1);
+    if (!res.ok) throw new Error("lookup should succeed");
+    const events = decodeAeonWebhookBatch([slashTx()], agentRows, res.rows, AEON_PROGRAM_ID_DEVNET);
+    const slashed = events.filter((e) => e.type === "BOND_SLASHED");
+    expect(slashed).toHaveLength(1);
+    expect(slashed[0]?.mint).toBe(BONDED_MINT);
   });
 });

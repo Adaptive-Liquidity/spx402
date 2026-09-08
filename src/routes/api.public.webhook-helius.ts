@@ -17,8 +17,9 @@ import {
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
 import {
+  AEON_OWNERSHIP_EVENT_TYPES,
   decodeAeonWebhookBatch,
-  resolveAeonOwnershipQuery,
+  fetchAeonOwnershipEvents,
 } from "@/lib/indexer/aeon-lookup.server";
 import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import { resolveAeonProgramId } from "@/lib/trust/config";
@@ -102,20 +103,24 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           const aeonMints = aeonAgentRows.map((r) => r.mint);
           let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
           if (aeonMints.length > 0) {
-            const { data: ownershipRows, error: ownershipError } = await supabaseAdmin
-              .from("agent_events")
-              .select("mint, type, raw")
-              .in("mint", aeonMints)
-              .in("type", ["AEON_AUTHORITY_ISSUED", "BOND_DEPOSITED"]);
-            const ownership = resolveAeonOwnershipQuery(ownershipRows, ownershipError);
+            // Paginated with deterministic order + exact-count verification:
+            // PostgREST truncates silently at db-max-rows, and a partial
+            // ownership history would drop or misattribute slash_bond. Any
+            // page error, count mismatch, or page-cap exhaustion fails closed.
+            const ownership = await fetchAeonOwnershipEvents(async (from, to) => {
+              const { data, error, count } = await supabaseAdmin
+                .from("agent_events")
+                .select("mint, type, raw", { count: "exact" })
+                .in("mint", aeonMints)
+                .in("type", [...AEON_OWNERSHIP_EVENT_TYPES])
+                .order("occurred_at", { ascending: true })
+                .order("id", { ascending: true })
+                .range(from, to);
+              return { data, error, count };
+            });
             if (!ownership.ok) {
               const duration = Date.now() - startedAt;
-              await heartbeat(
-                "webhook_ingest",
-                false,
-                duration,
-                "aeon_ownership_lookup_failed",
-              );
+              await heartbeat("webhook_ingest", false, duration, "aeon_ownership_lookup_failed");
               return new Response("aeon ownership lookup failed", { status: 500 });
             }
             ownershipEvents = ownership.rows;

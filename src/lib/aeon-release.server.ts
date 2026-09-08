@@ -1,5 +1,8 @@
 // Honest AEON release facts. Never claims mainnet. The documented program ID
 // is the live v0.2 *devnet* deployment from Adaptive-Liquidity/aeon-program.
+//
+// Server-only: reads process.env. Client surfaces reach this through
+// aeon-release.functions.ts (createServerFn) or GET /api/aeon/release-status.
 
 import { AEON_PROGRAM_ID_DEVNET, resolveAeonProgramId } from "@/lib/trust/config";
 
