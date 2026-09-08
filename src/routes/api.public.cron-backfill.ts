@@ -7,6 +7,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { fetchAddressTxs } from "@/lib/indexer/helius.server";
 import { decodeTx } from "@/lib/indexer/decode.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 
 export const Route = createFileRoute("/api/public/cron-backfill")({
   server: {
@@ -34,20 +35,25 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
             const events = txs.flatMap((tx) => decodeTx(tx, lookup));
             totalDecoded += events.length;
             if (events.length === 0) continue;
-            const rows = events.map((e) => ({
-              mint: e.mint,
-              type: e.type,
-              severity: e.severity,
-              signature: e.signature,
-              slot: e.slot ?? undefined,
-              occurred_at: e.occurredAt,
-              amount_sol: e.amountSol,
-              amount_token: e.amountToken,
-              raw: e.raw as never,
-            }));
+            const rows = events.map((e) =>
+              toAgentEventRow({
+                mint: e.mint,
+                type: e.type,
+                severity: e.severity,
+                signature: e.signature,
+                slot: e.slot,
+                occurredAt: e.occurredAt,
+                amountSol: e.amountSol,
+                amountToken: e.amountToken,
+                raw: e.raw,
+              }),
+            );
             const { data } = await supabaseAdmin
               .from("agent_events")
-              .upsert(rows, { onConflict: "signature", ignoreDuplicates: true })
+              .upsert(rows as never, {
+                onConflict: AGENT_EVENTS_ON_CONFLICT,
+                ignoreDuplicates: true,
+              })
               .select("id");
             totalInserted += data?.length ?? 0;
           }

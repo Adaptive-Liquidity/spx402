@@ -36,6 +36,21 @@ export const KNOWN_EVENT_TYPES: EventType[] = [
   "BOND_DEPOSITED",
   "BOND_SLASHED",
   "RECEIPT_CREATED",
+  "AEON_PAYMENT",
+  "AEON_AGENT_REGISTERED",
+  "AEON_AUTHORITY_ISSUED",
+  "AEON_AUTHORITY_REVOKED",
+  "AEON_AUTHORITY_EXPIRED",
+  "AEON_ATOMIC_SPLIT",
+  "AEON_ORG_CREATED",
+  "AEON_ORG_DEPOSIT",
+  "AEON_ORG_SPLIT",
+  "AEON_ORG_DISSOLVED",
+  "AEON_ORG_JOINED",
+  "AEON_ORG_SHARE_SET",
+  "AEON_ORG_RESIDUAL_RECLAIMED",
+  "AEON_PAUSE_SET",
+  "AEON_CONFIG_INITIALIZED",
 ];
 
 export const KNOWN_SEVERITIES: Severity[] = ["info", "warn", "critical", "success"];
@@ -85,6 +100,36 @@ export function eventTitleFor(type: string): string {
       return "Bond slashed";
     case "RECEIPT_CREATED":
       return "Receipt created";
+    case "AEON_PAYMENT":
+      return "AEON payment";
+    case "AEON_AGENT_REGISTERED":
+      return "AEON agent registered";
+    case "AEON_AUTHORITY_ISSUED":
+      return "AEON authority issued";
+    case "AEON_AUTHORITY_REVOKED":
+      return "AEON authority revoked";
+    case "AEON_AUTHORITY_EXPIRED":
+      return "AEON authority expired";
+    case "AEON_ATOMIC_SPLIT":
+      return "AEON atomic split";
+    case "AEON_ORG_CREATED":
+      return "AEON org created";
+    case "AEON_ORG_DEPOSIT":
+      return "AEON org deposit";
+    case "AEON_ORG_SPLIT":
+      return "AEON org split";
+    case "AEON_ORG_DISSOLVED":
+      return "AEON org dissolved";
+    case "AEON_ORG_JOINED":
+      return "AEON org joined";
+    case "AEON_ORG_SHARE_SET":
+      return "AEON org share set";
+    case "AEON_ORG_RESIDUAL_RECLAIMED":
+      return "AEON org residual reclaimed";
+    case "AEON_PAUSE_SET":
+      return "AEON pause updated";
+    case "AEON_CONFIG_INITIALIZED":
+      return "AEON config initialized";
     default:
       return type;
   }
@@ -137,6 +182,36 @@ export function eventDescFor(row: AgentEventRow): string {
       return `Operator bond of ${row.amountSol.toFixed(4)} SOL slashed due to failed execution.`;
     case "RECEIPT_CREATED":
       return `AEON hash-chained receipt recorded. Execution attested on-chain.`;
+    case "AEON_PAYMENT":
+      return `AEON pay instruction settled ${row.amountToken.toLocaleString()} token units.`;
+    case "AEON_AGENT_REGISTERED":
+      return "Agent identity registered on the AEON program.";
+    case "AEON_AUTHORITY_ISSUED":
+      return "Spending authority issued on the AEON program.";
+    case "AEON_AUTHORITY_REVOKED":
+      return "Spending authority revoked on the AEON program.";
+    case "AEON_AUTHORITY_EXPIRED":
+      return "Spending authority expired on the AEON program.";
+    case "AEON_ATOMIC_SPLIT":
+      return "AEON atomic split executed.";
+    case "AEON_ORG_CREATED":
+      return "AEON organization created.";
+    case "AEON_ORG_DEPOSIT":
+      return "Tokens deposited to an AEON organization treasury.";
+    case "AEON_ORG_SPLIT":
+      return "AEON organization split executed.";
+    case "AEON_ORG_DISSOLVED":
+      return "AEON organization dissolved.";
+    case "AEON_ORG_JOINED":
+      return "Member joined an AEON organization.";
+    case "AEON_ORG_SHARE_SET":
+      return "AEON organization member share updated.";
+    case "AEON_ORG_RESIDUAL_RECLAIMED":
+      return "Residual AEON organization funds reclaimed.";
+    case "AEON_PAUSE_SET":
+      return "AEON scoped pause flag updated.";
+    case "AEON_CONFIG_INITIALIZED":
+      return "AEON program config initialized.";
     default:
       return "Decoded program event.";
   }
@@ -198,6 +273,21 @@ export const EVENT_ICON: Record<string, typeof Activity> = {
   BOND_DEPOSITED: ShieldCheck,
   BOND_SLASHED: AlertTriangle,
   RECEIPT_CREATED: CheckCircle2,
+  AEON_PAYMENT: ArrowDownToLine,
+  AEON_AGENT_REGISTERED: ShieldCheck,
+  AEON_AUTHORITY_ISSUED: ShieldCheck,
+  AEON_AUTHORITY_REVOKED: AlertTriangle,
+  AEON_AUTHORITY_EXPIRED: AlertTriangle,
+  AEON_ATOMIC_SPLIT: Repeat,
+  AEON_ORG_CREATED: Activity,
+  AEON_ORG_DEPOSIT: ArrowDownToLine,
+  AEON_ORG_SPLIT: Repeat,
+  AEON_ORG_DISSOLVED: AlertTriangle,
+  AEON_ORG_JOINED: ShieldCheck,
+  AEON_ORG_SHARE_SET: Settings,
+  AEON_ORG_RESIDUAL_RECLAIMED: ArrowDownToLine,
+  AEON_PAUSE_SET: AlertTriangle,
+  AEON_CONFIG_INITIALIZED: Settings,
 };
 
 export function shortMint(m: string) {

@@ -35,6 +35,7 @@ export const Route = createFileRoute("/api/v1/agent/$mint/evidence")({
               e.type.startsWith("ESCROW_") ||
               e.type.startsWith("BOND_") ||
               e.type === "RECEIPT_CREATED" ||
+              e.type.startsWith("AEON_") ||
               e.type === "DEPOSIT_RECEIVED" ||
               e.type === "BUYBACK_EXECUTED" ||
               e.type === "BURN_CONFIRMED" ||

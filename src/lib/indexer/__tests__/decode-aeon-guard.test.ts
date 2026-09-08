@@ -18,9 +18,9 @@ function txWithProgram(programId: string): HeliusEnhancedTx {
 
 const LOOKUP = [{ mint: MINT, aeonCriAddress: CRI }];
 
-// NOTE: positive decode assertions (discriminator -> event mapping) belong to
-// the P5 golden tests replaying real mainnet signatures. These tests cover
-// only program-ID routing: the configured ID is the single source of truth.
+// NOTE: positive decode assertions live in decode-aeon-idl.test.ts and
+// decode-aeon-golden.test.ts (IDL discs + documented devnet replay).
+// These tests cover only program-ID routing.
 describe("decodeAeonTx program-ID guard", () => {
   it("emits nothing for instructions under any non-configured program ID", () => {
     expect(decodeAeonTx(txWithProgram(OTHER_PROGRAM), LOOKUP, AEON_PROGRAM_ID_DEVNET)).toEqual([]);

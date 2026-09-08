@@ -16,6 +16,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 
 const BUYBACK_TOLERANCE_MS = 60 * 60 * 1000; // 60 min from deposit to buyback
 const LOOKBACK_MS = 24 * 60 * 60 * 1000;
@@ -77,22 +78,22 @@ export const Route = createFileRoute("/api/public/cron-failure-reconciler")({
             });
             if (!matched) {
               const { error: insertErr } = await supabaseAdmin.from("agent_events").upsert(
-                {
+                toAgentEventRow({
                   mint: a.mint,
                   type: "FAILED_BUYBACK_WINDOW",
                   severity: "critical",
                   signature: failureSig,
-                  occurred_at: new Date(dTime + BUYBACK_TOLERANCE_MS).toISOString(),
-                  amount_sol: Number(d.amount_sol ?? 0),
-                  amount_token: 0,
+                  occurredAt: new Date(dTime + BUYBACK_TOLERANCE_MS).toISOString(),
+                  amountSol: Number(d.amount_sol ?? 0),
+                  amountToken: 0,
                   raw: {
                     sourceSignature: d.signature,
                     depositOccurredAt: d.occurred_at,
                     toleranceMs: BUYBACK_TOLERANCE_MS,
                     reason: "no_buyback_in_tolerance",
-                  } as never,
-                },
-                { onConflict: "signature", ignoreDuplicates: true },
+                  },
+                }) as never,
+                { onConflict: AGENT_EVENTS_ON_CONFLICT, ignoreDuplicates: true },
               );
               if (!insertErr) flagged++;
             }

@@ -17,6 +17,7 @@ import {
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
 import { decodeAeonTx, type AeonLookup } from "@/lib/indexer/decode-aeon.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
@@ -67,12 +68,13 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           }));
         const executorWallets = executorAgents.map((e) => e.wallet);
 
-        // Build AEON lookup (mint -> CRI address)
+        // Build AEON lookup (CRI PDA and/or executor wallet).
         const aeonAgents: AeonLookup[] = (agentsRows ?? [])
-          .filter((r) => !!r.aeon_cri_address)
+          .filter((r) => !!r.aeon_cri_address || !!r.executor_wallet)
           .map((r) => ({
             mint: r.mint,
-            aeonCriAddress: r.aeon_cri_address as string,
+            aeonCriAddress: (r.aeon_cri_address as string | null) ?? null,
+            executorWallet: (r.executor_wallet as string | null) ?? null,
           }));
 
         const events: DecodedEvent[] = [];
@@ -111,6 +113,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
                 occurredAt: ev.occurredAt,
                 amountSol: ev.amountSol,
                 amountToken: ev.amountToken,
+                eventUid: ev.eventUid,
                 raw: ev.raw,
               });
             }
@@ -197,21 +200,27 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
 
         let inserted = 0;
         if (allEvents.length > 0) {
-          const rows = allEvents.map((e) => ({
-            mint: e.mint,
-            type: e.type,
-            severity: e.severity,
-            signature: e.signature,
-            slot: e.slot ?? undefined,
-            occurred_at: e.occurredAt,
-            amount_sol: e.amountSol,
-            amount_token: e.amountToken,
-            raw: e.raw as never,
-          }));
-          // Avoid double-counting if the same signature is replayed.
+          const rows = allEvents.map((e) =>
+            toAgentEventRow({
+              mint: e.mint,
+              type: e.type,
+              severity: e.severity,
+              signature: e.signature,
+              slot: e.slot,
+              occurredAt: e.occurredAt,
+              amountSol: e.amountSol,
+              amountToken: e.amountToken,
+              raw: e.raw,
+              eventUid: e.eventUid,
+            }),
+          );
+          // Avoid double-counting on Helius retries (event_uid, not signature).
           const { data, error } = await supabaseAdmin
             .from("agent_events")
-            .upsert(rows, { onConflict: "signature", ignoreDuplicates: true })
+            .upsert(rows as never, {
+              onConflict: AGENT_EVENTS_ON_CONFLICT,
+              ignoreDuplicates: true,
+            })
             .select("id");
           if (!error && data) inserted = data.length;
         }

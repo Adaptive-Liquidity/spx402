@@ -118,7 +118,7 @@ export function extractBurn(tx: HeliusEnhancedTx): { mint: string; amount: numbe
   return null;
 }
 
-function flattenInstructions(ixs: HeliusInstruction[]): HeliusInstruction[] {
+export function flattenInstructions(ixs: HeliusInstruction[]): HeliusInstruction[] {
   const out: HeliusInstruction[] = [];
   for (const ix of ixs) {
     out.push(ix);

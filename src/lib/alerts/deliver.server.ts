@@ -114,6 +114,7 @@ export const EVENT_TO_FLAG: Record<string, string> = {
   BOND_DEPOSITED: "event_bond_deposited",
   BOND_SLASHED: "event_bond_slashed",
   RECEIPT_CREATED: "event_receipt_created",
+  AEON_PAYMENT: "event_deposit",
   DEPOSIT: "event_deposit",
   DEPOSIT_RECEIVED: "event_deposit",
   BUYBACK_EXECUTED: "event_buyback",

@@ -12,6 +12,7 @@ import { computeConfidence, CONFIDENCE_MODEL_VERSION } from "@/lib/scoring/confi
 import { isLiveCategory, type AgentCategory } from "@/lib/agents/categories";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { aggregateOutcomeContractCounters } from "@/lib/indexer/oc-evidence.server";
+import { AEON_COUNTER_TYPES, aggregateAeonCounters } from "@/lib/indexer/aeon-counters";
 
 // Wave 2 — Failure-decoder coverage by category. Reflects which negative-event
 // decoders are actually shipped today. Update this map as new decoders land
@@ -20,7 +21,7 @@ const FAILURE_DECODER_COVERAGE: Record<AgentCategory, number> = {
   tokenized_buyback: 1.0, // FAILED_BUYBACK_WINDOW + PROMISED_BUYBACK_NOT_SETTLED shipped
   registered_agent: 0.3, // partial — config/operator change decoders pending
   x402_executor: 0.6, // X402_PAYMENT_REVERTED shipped, refund-decoder pending
-  aeon_executor: 0, // Trust-engine P1: fingerprints unverified against mainnet; no AEON failure-decoder coverage may be claimed until golden replays pass
+  aeon_executor: 0, // Golden pay replay exists; no AEON *failure* decoder may be claimed yet
   copy_trader: 0,
   task_executor: 0,
   general: 0,
@@ -152,12 +153,13 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             outcomeFulfillmentRate: counters.outcomeFulfillmentRate,
             outcomeAwardDensity: counters.outcomeAwardDensity,
             outcomeOnTimeRate: counters.outcomeOnTimeRate ?? undefined,
-            // AEON execution primitives (ignored by the non-AEON branches).
-            totalEscrowsCompleted: Number(a.total_escrows_completed ?? 0),
-            totalEscrowsFailed: Number(a.total_escrows_failed ?? 0),
-            escrowSuccessRate: Number(a.escrow_success_rate ?? 0),
-            activeBondAmount: Number(a.active_bond_amount ?? 0),
-            totalSlashedUsd: Number(a.total_slashed_usd ?? 0),
+            // AEON execution primitives derived from decoded agent_events
+            // (not the stale agents.* columns, which nothing used to write).
+            totalEscrowsCompleted: counters.totalEscrowsCompleted,
+            totalEscrowsFailed: counters.totalEscrowsFailed,
+            escrowSuccessRate: counters.escrowSuccessRate,
+            activeBondAmount: counters.activeBondAmount,
+            totalSlashedUsd: counters.totalSlashedUsd,
             hasPublicCapsule: counters.hasPublicCapsule,
             outcomeEvidenceComplete: counters.outcomeEvidenceComplete,
           });
@@ -169,12 +171,16 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             counters.totalBurnsCount +
             counters.totalSwapCount +
             counters.totalX402Count +
-            counters.totalOutcomeFulfilled;
+            counters.totalOutcomeFulfilled +
+            counters.totalEscrowsCompleted +
+            counters.totalReceipts +
+            counters.totalAeonPayments;
           const failureCount =
             counters.failedWindows +
             counters.failedNegativeCount +
             counters.totalOutcomeFailed +
-            counters.totalOutcomeSlashed;
+            counters.totalOutcomeSlashed +
+            counters.totalEscrowsFailed;
           const totalEvents =
             counters.totalDepositsCount +
             counters.totalOutcomeOpened +
@@ -237,6 +243,11 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
               buyback_execution_rate: counters.buybackExecutionRate,
               burn_confirmation_rate: counters.burnConfirmationRate,
               last_indexed_seconds: counters.lastIndexedSeconds,
+              total_escrows_completed: counters.totalEscrowsCompleted,
+              total_escrows_failed: counters.totalEscrowsFailed,
+              escrow_success_rate: counters.escrowSuccessRate,
+              active_bond_amount: counters.activeBondAmount,
+              total_slashed_usd: counters.totalSlashedUsd,
               scored_at: new Date().toISOString(),
             } as never)
             .eq("mint", a.mint);
@@ -280,7 +291,7 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
 async function aggregateCounters(mint: string) {
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [eventResult, { data: latest }, { data: first }] = await Promise.all([
+  const [eventResult, { data: latest }, { data: first }, { data: aeonRows }] = await Promise.all([
     supabaseAdmin
       .from("agent_events")
       .select("type, severity, amount_sol, amount_token, occurred_at, raw", {
@@ -304,6 +315,12 @@ async function aggregateCounters(mint: string) {
       .order("occurred_at", { ascending: true })
       .limit(1)
       .maybeSingle(),
+    // AEON bond/escrow state is lifetime, not a 30-day window.
+    supabaseAdmin
+      .from("agent_events")
+      .select("type, amount_token")
+      .eq("mint", mint)
+      .in("type", [...AEON_COUNTER_TYPES]),
   ]);
 
   const rows = eventResult.data ?? [];
@@ -356,14 +373,18 @@ async function aggregateCounters(mint: string) {
     ? Math.max(0, Math.floor((Date.now() - new Date(lastIso).getTime()) / 1000))
     : 60 * 60 * 24 * 30;
 
-  // Distinct event types observed in window — drives parser_coverage.
-  const distinctEventTypes = new Set(rows.map((r) => r.type)).size;
+  // Distinct event types observed — 30-day window plus lifetime AEON types.
+  const distinctEventTypes = new Set([
+    ...rows.map((r) => r.type),
+    ...(aeonRows ?? []).map((r) => r.type),
+  ]).size;
 
   // Observation window: seconds since the very first event for this subject.
   const firstIso = first?.occurred_at ?? null;
   const observationWindowSeconds = firstIso
     ? Math.max(0, Math.floor((Date.now() - new Date(firstIso).getTime()) / 1000))
     : 0;
+  const aeon = aggregateAeonCounters(aeonRows ?? []);
   return {
     totalDepositsCount,
     totalBuybacksCount,
@@ -385,6 +406,7 @@ async function aggregateCounters(mint: string) {
     observationWindowSeconds,
     ...outcome,
     outcomeEvidenceComplete,
+    ...aeon,
   };
 }
 
