@@ -54,6 +54,7 @@ export const Route = createFileRoute("/api/public/verified")({
             "mint, symbol, name, category, identifier_kind, executor_wallet, core_asset, operator_wallet, operator_verified, score, grade, confidence_score, methodology_version, confidence_model_version, parser_version, status, total_buyback_sol, total_burned_tokens, failed_windows, scored_at, updated_at",
           )
           .eq("status", "active")
+          .neq("publication_status", "unpublished")
           .order("score", { ascending: false, nullsFirst: false })
           .order("mint", { ascending: true })
           .limit(limit + 1); // peek for next-cursor

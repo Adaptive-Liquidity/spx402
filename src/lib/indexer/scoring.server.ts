@@ -405,7 +405,8 @@ function scoreAeonExecution(inputs: ScoringInputs): ScoreResult {
   const escrowCompletion = totalEscrows > 0 ? clamp(Math.round(successRate * 40), 0, 40) : 0;
 
   // 30% Active Slashable Bond
-  // Cap at $10,000 USD for max points, but heavily penalize slashed history
+  // Cap at 10,000 AEON display units for max points. Column total_slashed_usd
+  // stores token units until an oracle exists — not USD.
   let slashableBond = clamp(Math.round((activeBond / 10000) * 30), 0, 30);
   if (slashedUsd > 0) {
     slashableBond = Math.max(0, slashableBond - clamp(Math.round((slashedUsd / 1000) * 10), 0, 30));
@@ -508,9 +509,9 @@ function verdictForAeon(
   if (escrows === 0 && bond === 0)
     return "No verifiable AEON escrows or bonds observed. Agent operates in the dark.";
   if (slashed > 0)
-    return `Agent has had $${slashed.toFixed(2)} in bonds slashed due to failed execution. Extreme caution.`;
+    return `Agent has had ${slashed.toFixed(2)} AEON in bonds slashed due to failed execution. Extreme caution.`;
   if (total >= 80)
-    return `Verified execution. ${escrows} escrows settled (${Math.round(successRate * 100)}% success) with $${bond.toFixed(2)} bonded.`;
+    return `Verified execution. ${escrows} escrows settled (${Math.round(successRate * 100)}% success) with ${bond.toFixed(2)} AEON bonded.`;
   if (total >= 60)
     return `Execution observed. ${escrows} escrows settled. Monitor for consistency.`;
   return `Execution below the SPX402 baseline. Treat metrics as indicative only.`;

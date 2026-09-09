@@ -9,6 +9,7 @@ import {
   handleOcEvidenceIngest,
   type OcEvidenceRepository,
 } from "@/routes/api.public.ingest-oc-evidence";
+import { makeEventUid } from "@/lib/indexer/event-uid";
 
 const SUBJECT = "11111111111111111111111111111111";
 const OBSERVED_AT = new Date("2026-08-20T20:00:00.000Z");
@@ -71,6 +72,7 @@ function request(body: Record<string, unknown>): Request {
 class MemoryOcRepository implements OcEvidenceRepository {
   private readonly rows = new Map<string, { id: string; row: OcAgentEventInsert }>();
   raceNextInsert = false;
+  lastInserted: OcAgentEventInsert | null = null;
 
   async findSubject(subject: string) {
     return {
@@ -112,6 +114,7 @@ class MemoryOcRepository implements OcEvidenceRepository {
   }
 
   async insert(row: OcAgentEventInsert) {
+    this.lastInserted = row;
     const id = `event-${this.rows.size + 1}`;
     if (this.raceNextInsert) {
       this.raceNextInsert = false;
@@ -145,6 +148,22 @@ afterEach(() => {
 });
 
 describe("Outcome Contract durable ingest behavior", () => {
+  it("persists a deterministic event_uid before insert", async () => {
+    const repository = new MemoryOcRepository();
+    const body = await envelope("OC_OPENED");
+    const response = await handleOcEvidenceIngest(request(body), repository, () => OBSERVED_AT);
+    expect(response.status).toBe(201);
+    const inserted = repository.lastInserted;
+    expect(inserted?.event_uid).toBeTruthy();
+    expect(inserted?.event_uid).toBe(
+      makeEventUid({
+        signature: inserted!.signature,
+        type: inserted!.type,
+        mint: inserted!.mint,
+      }),
+    );
+    expect(inserted?.event_uid.startsWith(inserted!.signature)).toBe(true);
+  });
   it("returns 200 for an exact replay", async () => {
     const repository = new MemoryOcRepository();
     const body = await envelope("OC_OPENED");

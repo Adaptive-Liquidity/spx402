@@ -16,7 +16,18 @@ import {
   type HeliusEnhancedTx,
 } from "@/lib/indexer/helius.server";
 import { decodeTx, type DecodedEvent } from "@/lib/indexer/decode.server";
-import { decodeAeonTx, type AeonLookup } from "@/lib/indexer/decode-aeon.server";
+import {
+  AEON_OWNERSHIP_EVENT_TYPES,
+  AEON_OWNERSHIP_PAGE_SIZE,
+  decodeAeonWebhookBatch,
+  fetchAeonOwnershipEvents,
+  selectAeonMintsTouchedByPayload,
+} from "@/lib/indexer/aeon-lookup.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
+import {
+  persistIssueAuthorityPdas,
+  shouldRetryUnresolvedSlash,
+} from "@/lib/indexer/aeon-pda.server";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
@@ -50,7 +61,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         const { data: agentsRows } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address",
+            "mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address, aeon_agent_identity, aeon_authority_addresses, aeon_bond_addresses",
           );
         const agents = (agentsRows ?? []).map((r) => ({
           mint: r.mint,
@@ -66,14 +77,6 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
             category: r.category ?? "registered_agent",
           }));
         const executorWallets = executorAgents.map((e) => e.wallet);
-
-        // Build AEON lookup (mint -> CRI address)
-        const aeonAgents: AeonLookup[] = (agentsRows ?? [])
-          .filter((r) => !!r.aeon_cri_address)
-          .map((r) => ({
-            mint: r.mint,
-            aeonCriAddress: r.aeon_cri_address as string,
-          }));
 
         const events: DecodedEvent[] = [];
         for (const tx of txs) {
@@ -99,9 +102,49 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           // message when the guard itself rejected the config).
           await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonSkipDetail ?? aeonCfg.reason);
         }
-        if (aeonCfg.enabled && aeonAgents.length > 0) {
-          for (const tx of txs) {
-            for (const ev of decodeAeonTx(tx, aeonAgents, aeonCfg.programId)) {
+        if (aeonCfg.enabled) {
+          const aeonAgentRows = (agentsRows ?? []).filter((r) => r.category === "aeon_executor");
+          const touchedMints = selectAeonMintsTouchedByPayload(txs, aeonAgentRows);
+          const touchedRows = aeonAgentRows.filter((r) => touchedMints.includes(r.mint));
+          // Empty touched set: this payload is not AEON. Skip ownership lookup
+          // and AEON decode; continue non-AEON ingest. Not a failure.
+          if (touchedMints.length > 0) {
+            // Keyset-paginated on the primary key with exact-count
+            // verification: PostgREST truncates silently at db-max-rows, and
+            // offset pages can shift under concurrent inserts. A partial or
+            // inconsistent ownership history would drop or misattribute
+            // slash_bond, so any page error, short count, or page-cap
+            // exhaustion fails closed into the retryable 500 path.
+            const ownership = await fetchAeonOwnershipEvents(async (afterId) => {
+              let q = supabaseAdmin
+                .from("agent_events")
+                .select("id, mint, type, raw", { count: "exact" })
+                .in("mint", touchedMints)
+                .in("type", [...AEON_OWNERSHIP_EVENT_TYPES])
+                .order("id", { ascending: true })
+                .limit(AEON_OWNERSHIP_PAGE_SIZE);
+              if (afterId) q = q.gt("id", afterId);
+              const { data, error, count } = await q;
+              return { data, error, count };
+            });
+            if (!ownership.ok) {
+              const duration = Date.now() - startedAt;
+              await heartbeat("webhook_ingest", false, duration, "aeon_ownership_lookup_failed");
+              return new Response("aeon ownership lookup failed", { status: 500 });
+            }
+            const aeonDecoded = decodeAeonWebhookBatch(
+              txs,
+              touchedRows,
+              ownership.rows,
+              aeonCfg.programId,
+            );
+            if (shouldRetryUnresolvedSlash(txs, aeonDecoded, touchedRows, aeonCfg.programId)) {
+              const duration = Date.now() - startedAt;
+              await heartbeat("webhook_ingest", false, duration, "aeon_slash_unresolved_pending");
+              return new Response("aeon slash unresolved", { status: 500 });
+            }
+            await persistIssueAuthorityPdas(supabaseAdmin, aeonDecoded);
+            for (const ev of aeonDecoded) {
               aeonEvents.push({
                 mint: ev.mint,
                 type: ev.type,
@@ -111,6 +154,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
                 occurredAt: ev.occurredAt,
                 amountSol: ev.amountSol,
                 amountToken: ev.amountToken,
+                eventUid: ev.eventUid,
                 raw: ev.raw,
               });
             }
@@ -197,21 +241,27 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
 
         let inserted = 0;
         if (allEvents.length > 0) {
-          const rows = allEvents.map((e) => ({
-            mint: e.mint,
-            type: e.type,
-            severity: e.severity,
-            signature: e.signature,
-            slot: e.slot ?? undefined,
-            occurred_at: e.occurredAt,
-            amount_sol: e.amountSol,
-            amount_token: e.amountToken,
-            raw: e.raw as never,
-          }));
-          // Avoid double-counting if the same signature is replayed.
+          const rows = allEvents.map((e) =>
+            toAgentEventRow({
+              mint: e.mint,
+              type: e.type,
+              severity: e.severity,
+              signature: e.signature,
+              slot: e.slot,
+              occurredAt: e.occurredAt,
+              amountSol: e.amountSol,
+              amountToken: e.amountToken,
+              raw: e.raw,
+              eventUid: e.eventUid,
+            }),
+          );
+          // Avoid double-counting on Helius retries (event_uid, not signature).
           const { data, error } = await supabaseAdmin
             .from("agent_events")
-            .upsert(rows, { onConflict: "signature", ignoreDuplicates: true })
+            .upsert(rows as never, {
+              onConflict: AGENT_EVENTS_ON_CONFLICT,
+              ignoreDuplicates: true,
+            })
             .select("id");
           if (!error && data) inserted = data.length;
         }

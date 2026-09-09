@@ -43,6 +43,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             let query = supabaseAdmin
               .from("agents")
               .select("mint")
+              .neq("publication_status", "unpublished")
               .order("mint", { ascending: true })
               .limit(pageSize);
             if (lastMint) query = query.gt("mint", lastMint);
@@ -64,7 +65,8 @@ export const Route = createFileRoute("/sitemap.xml")({
             supabaseAdmin
               .from("agents")
               .select("executor_wallet")
-              .eq("identifier_kind", "aeon_executor")
+              .eq("category", "aeon_executor")
+              .neq("publication_status", "unpublished")
               .not("executor_wallet", "is", null)
               .limit(1000),
           ]);

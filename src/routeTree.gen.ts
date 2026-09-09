@@ -90,6 +90,7 @@ import { Route as ApiPublicCronAttesterHealthRouteImport } from './routes/api.pu
 import { Route as ApiPublicCronAlertDispatchRouteImport } from './routes/api.public.cron-alert-dispatch'
 import { Route as ApiPublicAdminAddServiceRouteImport } from './routes/api.public.admin-add-service'
 import { Route as ApiPublicAdminAddApiKeyRouteImport } from './routes/api.public.admin-add-api-key'
+import { Route as ApiAeonReleaseStatusRouteImport } from './routes/api.aeon.release-status'
 import { Route as AuthenticatedDashboardWatchlistRouteImport } from './routes/_authenticated.dashboard.watchlist'
 import { Route as AuthenticatedDashboardWalletsRouteImport } from './routes/_authenticated.dashboard.wallets'
 import { Route as AuthenticatedDashboardApiKeysRouteImport } from './routes/_authenticated.dashboard.api-keys'
@@ -526,6 +527,11 @@ const ApiPublicAdminAddApiKeyRoute = ApiPublicAdminAddApiKeyRouteImport.update({
   path: '/public/admin-add-api-key',
   getParentRoute: () => ApiRoute,
 } as any)
+const ApiAeonReleaseStatusRoute = ApiAeonReleaseStatusRouteImport.update({
+  id: '/aeon/release-status',
+  path: '/aeon/release-status',
+  getParentRoute: () => ApiRoute,
+} as any)
 const AuthenticatedDashboardWatchlistRoute =
   AuthenticatedDashboardWatchlistRouteImport.update({
     id: '/watchlist',
@@ -687,6 +693,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
@@ -781,6 +788,7 @@ export interface FileRoutesByTo {
   '/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
@@ -882,6 +890,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/api-keys': typeof AuthenticatedDashboardApiKeysRoute
   '/_authenticated/dashboard/wallets': typeof AuthenticatedDashboardWalletsRoute
   '/_authenticated/dashboard/watchlist': typeof AuthenticatedDashboardWatchlistRoute
+  '/api/aeon/release-status': typeof ApiAeonReleaseStatusRoute
   '/api/public/admin-add-api-key': typeof ApiPublicAdminAddApiKeyRoute
   '/api/public/admin-add-service': typeof ApiPublicAdminAddServiceRoute
   '/api/public/cron-alert-dispatch': typeof ApiPublicCronAlertDispatchRoute
@@ -983,6 +992,7 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/wallets'
     | '/dashboard/watchlist'
+    | '/api/aeon/release-status'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
@@ -1077,6 +1087,7 @@ export interface FileRouteTypes {
     | '/dashboard/api-keys'
     | '/dashboard/wallets'
     | '/dashboard/watchlist'
+    | '/api/aeon/release-status'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
@@ -1177,6 +1188,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/api-keys'
     | '/_authenticated/dashboard/wallets'
     | '/_authenticated/dashboard/watchlist'
+    | '/api/aeon/release-status'
     | '/api/public/admin-add-api-key'
     | '/api/public/admin-add-service'
     | '/api/public/cron-alert-dispatch'
@@ -1826,6 +1838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAdminAddApiKeyRouteImport
       parentRoute: typeof ApiRoute
     }
+    '/api/aeon/release-status': {
+      id: '/api/aeon/release-status'
+      path: '/aeon/release-status'
+      fullPath: '/api/aeon/release-status'
+      preLoaderRoute: typeof ApiAeonReleaseStatusRouteImport
+      parentRoute: typeof ApiRoute
+    }
     '/_authenticated/dashboard/watchlist': {
       id: '/_authenticated/dashboard/watchlist'
       path: '/watchlist'
@@ -2005,6 +2024,7 @@ const AboutRouteWithChildren = AboutRoute._addFileChildren(AboutRouteChildren)
 
 interface ApiRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiAeonReleaseStatusRoute: typeof ApiAeonReleaseStatusRoute
   ApiPublicAdminAddApiKeyRoute: typeof ApiPublicAdminAddApiKeyRoute
   ApiPublicAdminAddServiceRoute: typeof ApiPublicAdminAddServiceRoute
   ApiPublicCronAlertDispatchRoute: typeof ApiPublicCronAlertDispatchRoute
@@ -2041,6 +2061,7 @@ interface ApiRouteChildren {
 
 const ApiRouteChildren: ApiRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
+  ApiAeonReleaseStatusRoute: ApiAeonReleaseStatusRoute,
   ApiPublicAdminAddApiKeyRoute: ApiPublicAdminAddApiKeyRoute,
   ApiPublicAdminAddServiceRoute: ApiPublicAdminAddServiceRoute,
   ApiPublicCronAlertDispatchRoute: ApiPublicCronAlertDispatchRoute,

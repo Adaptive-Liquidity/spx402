@@ -6,6 +6,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 
 const TOLERANCE_MS = 15 * 60 * 1000; // burn must follow buyback within 15 min
 
@@ -46,17 +47,17 @@ export const Route = createFileRoute("/api/public/cron-reconciler")({
             });
             if (!matched) {
               await supabaseAdmin.from("agent_events").upsert(
-                {
+                toAgentEventRow({
                   mint: a.mint,
                   type: "FAILED_WINDOW",
                   severity: "critical",
                   signature: `failwin-${b.signature}`,
-                  occurred_at: new Date(bTime + TOLERANCE_MS).toISOString(),
-                  amount_sol: 0,
-                  amount_token: 0,
+                  occurredAt: new Date(bTime + TOLERANCE_MS).toISOString(),
+                  amountSol: 0,
+                  amountToken: 0,
                   raw: { sourceSignature: b.signature, reason: "no_burn_in_tolerance" },
-                },
-                { onConflict: "signature", ignoreDuplicates: true },
+                }) as never,
+                { onConflict: AGENT_EVENTS_ON_CONFLICT, ignoreDuplicates: true },
               );
               flagged++;
             }
