@@ -1,6 +1,8 @@
 // Derive AEON scoring counters from decoded agent_events rows.
 // Amounts in agent_events.amount_token are raw token units from IDL u64 args.
 // The canonical AEON mint on the documented v0.2 devnet pay tx uses 6 decimals.
+// aggregateAeonCounters writes display units into totalSlashedUsd — that column
+// name is historical; values are AEON token units until an oracle exists.
 
 export const AEON_TOKEN_DECIMALS = 6;
 

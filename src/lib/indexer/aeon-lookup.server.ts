@@ -14,8 +14,12 @@ export const AEON_OWNERSHIP_EVENT_TYPES = ["AEON_AUTHORITY_ISSUED", "BOND_DEPOSI
 
 export interface AeonAgentRow {
   mint: string;
+  category?: string | null;
   aeon_cri_address?: string | null;
   executor_wallet?: string | null;
+  aeon_agent_identity?: string | null;
+  aeon_authority_addresses?: string[] | null;
+  aeon_bond_addresses?: string[] | null;
 }
 
 export interface AeonOwnershipEventRow {
@@ -98,11 +102,16 @@ function ownershipFromIssueAuthorityTxs(
       if (aeonInstructionName(bytes.subarray(0, 8).toString("hex")) !== "issue_authority") continue;
       const parsed = decodeAeonArgs("issue_authority", bytes);
       const named = namedIssueAuthorityAccounts(ix.accounts ?? [], parsed);
-      const accounts = new Set(ix.accounts ?? []);
       for (const agent of agents) {
-        const cri = agent.aeonCriAddress;
-        const wallet = agent.executorWallet;
-        if (!((cri && accounts.has(cri)) || (wallet && accounts.has(wallet)))) continue;
+        const byWallet = Boolean(
+          named.agent && agent.executorWallet && named.agent === agent.executorWallet,
+        );
+        const byIdentity = Boolean(
+          named.agent_identity &&
+            agent.aeonAgentIdentity &&
+            named.agent_identity === agent.aeonAgentIdentity,
+        );
+        if (!byWallet && !byIdentity) continue;
         mergeOwnership(byMint, agent.mint, { authority: named.authority, bond: named.bond });
       }
     }
@@ -135,13 +144,25 @@ export function buildWebhookAeonLookup(
 ): AeonLookup[] {
   const base: AeonLookup[] = [];
   for (const row of agentRows) {
+    if (row.category !== "aeon_executor") continue;
     const cri = row.aeon_cri_address ?? null;
     const wallet = row.executor_wallet ?? null;
-    if (!cri && !wallet) continue;
+    if (!cri && !wallet && !row.aeon_agent_identity) continue;
+    const authorities = (row.aeon_authority_addresses ?? []).filter(
+      (value): value is string => typeof value === "string" && value.length > 0,
+    );
+    const bonds = (row.aeon_bond_addresses ?? []).filter(
+      (value): value is string => typeof value === "string" && value.length > 0,
+    );
     base.push({
       mint: row.mint,
       aeonCriAddress: cri,
       executorWallet: wallet,
+      aeonAgentIdentity: row.aeon_agent_identity ?? null,
+      aeonAuthorityAddress: authorities[0] ?? null,
+      aeonBondAddress: bonds[0] ?? null,
+      aeonAuthorityAddresses: authorities,
+      aeonBondAddresses: bonds,
     });
   }
   if (base.length === 0) return base;
@@ -150,6 +171,8 @@ export function buildWebhookAeonLookup(
   const fromTxs = ownershipFromIssueAuthorityTxs(txs, base, programId);
   return base.map((agent) => {
     const merged = emptyOwnership();
+    for (const value of agent.aeonAuthorityAddresses ?? []) merged.authorities.add(value);
+    for (const value of agent.aeonBondAddresses ?? []) merged.bonds.add(value);
     const hist = persisted.get(agent.mint);
     const live = fromTxs.get(agent.mint);
     if (hist) {

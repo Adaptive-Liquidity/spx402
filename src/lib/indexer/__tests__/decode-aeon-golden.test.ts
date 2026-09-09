@@ -23,6 +23,7 @@ interface RpcTx {
   slot?: number;
   meta?: {
     innerInstructions?: Array<{ index: number; instructions: RpcCompiledIx[] }>;
+    logMessages?: string[];
   };
   transaction?: {
     message?: {
@@ -57,6 +58,7 @@ function rpcToHelius(rpc: RpcTx): HeliusEnhancedTx {
     signature: rpc.transaction?.signatures?.[0],
     slot: rpc.slot,
     timestamp: rpc.blockTime ?? undefined,
+    logMessages: rpc.meta?.logMessages,
     instructions,
   };
 }

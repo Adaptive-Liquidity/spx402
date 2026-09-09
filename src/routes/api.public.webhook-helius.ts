@@ -23,6 +23,7 @@ import {
   fetchAeonOwnershipEvents,
 } from "@/lib/indexer/aeon-lookup.server";
 import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
+import { persistIssueAuthorityPdas, shouldRetryUnresolvedSlash } from "@/lib/indexer/aeon-pda.server";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";
@@ -56,7 +57,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         const { data: agentsRows } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address",
+            "mint, deposit_address, executor_wallet, identifier_kind, category, aeon_cri_address, aeon_agent_identity, aeon_authority_addresses, aeon_bond_addresses",
           );
         const agents = (agentsRows ?? []).map((r) => ({
           mint: r.mint,
@@ -98,9 +99,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
           await heartbeat("webhook_ingest_aeon_skip", true, 0, aeonSkipDetail ?? aeonCfg.reason);
         }
         if (aeonCfg.enabled) {
-          const aeonAgentRows = (agentsRows ?? []).filter(
-            (r) => !!r.aeon_cri_address || !!r.executor_wallet,
-          );
+          const aeonAgentRows = (agentsRows ?? []).filter((r) => r.category === "aeon_executor");
           const aeonMints = aeonAgentRows.map((r) => r.mint);
           let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
           if (aeonMints.length > 0) {
@@ -129,12 +128,19 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
             }
             ownershipEvents = ownership.rows;
           }
-          for (const ev of decodeAeonWebhookBatch(
+          const aeonDecoded = decodeAeonWebhookBatch(
             txs,
             aeonAgentRows,
             ownershipEvents,
             aeonCfg.programId,
-          )) {
+          );
+          if (shouldRetryUnresolvedSlash(txs, aeonDecoded, aeonAgentRows, aeonCfg.programId)) {
+            const duration = Date.now() - startedAt;
+            await heartbeat("webhook_ingest", false, duration, "aeon_slash_unresolved_pending");
+            return new Response("aeon slash unresolved", { status: 500 });
+          }
+          await persistIssueAuthorityPdas(supabaseAdmin, aeonDecoded);
+          for (const ev of aeonDecoded) {
             aeonEvents.push({
               mint: ev.mint,
               type: ev.type,

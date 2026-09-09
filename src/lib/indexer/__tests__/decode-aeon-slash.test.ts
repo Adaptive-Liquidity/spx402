@@ -20,6 +20,9 @@ const BOND_VAULT = "BondVault11111111111111111111111111111111111";
 const DESTINATION = "Dest11111111111111111111111111111111111111111";
 const CONFIG = "Config111111111111111111111111111111111111111";
 const AEON_MINT = "AeonMint1111111111111111111111111111111111111";
+const IDENTITY = "Identity111111111111111111111111111111111111";
+const CRI = "CriPda111111111111111111111111111111111111111";
+const OTHER_PROGRAM = "FakeBond111111111111111111111111111111111111";
 
 const SLASH_ACCOUNTS = [
   SLASHER_WALLET,
@@ -56,11 +59,22 @@ function bondSlashedLog(amount: number, authorityId = 7): string {
   return `Program data: ${payload.toString("base64")}`;
 }
 
+function aeonInvokeLogs(inner: string[], programId = AEON_PROGRAM_ID_DEVNET): string[] {
+  return [
+    `Program ${programId} invoke [1]`,
+    `Program ${SPL_TOKEN_PROGRAM_ID} invoke [2]`,
+    `Program ${SPL_TOKEN_PROGRAM_ID} success`,
+    ...inner,
+    `Program ${programId} success`,
+  ];
+}
+
 function slashTx(overrides: Partial<HeliusEnhancedTx> = {}): HeliusEnhancedTx {
   return {
     signature: SIG,
     slot: 11,
     timestamp: 1_700_000_100,
+    logMessages: aeonInvokeLogs([bondSlashedLog(500_000)]),
     instructions: [
       {
         programId: AEON_PROGRAM_ID_DEVNET,
@@ -80,10 +94,13 @@ const slasherAgent = {
 
 const bondedAgent = {
   mint: BONDED_MINT,
-  aeonCriAddress: null,
+  aeonCriAddress: CRI,
   executorWallet: BONDED_WALLET,
+  aeonAgentIdentity: IDENTITY,
   aeonAuthorityAddress: AUTHORITY_PDA,
   aeonBondAddress: BOND_PDA,
+  aeonAuthorityAddresses: [AUTHORITY_PDA],
+  aeonBondAddresses: [BOND_PDA],
 };
 
 describe("slash_bond attribution and amount", () => {
@@ -102,9 +119,7 @@ describe("slash_bond attribution and amount", () => {
 
   it("attributes BOND_SLASHED to the bonded authority, never the tracked slasher", () => {
     const events = decodeAeonTx(
-      slashTx({
-        logMessages: [bondSlashedLog(500_000)],
-      }),
+      slashTx(),
       [slasherAgent, bondedAgent],
       AEON_PROGRAM_ID_DEVNET,
     );
@@ -115,27 +130,36 @@ describe("slash_bond attribution and amount", () => {
   });
 
   it("emits nothing when only the slasher wallet is tracked", () => {
-    const events = decodeAeonTx(
-      slashTx({ logMessages: [bondSlashedLog(500_000)] }),
-      [slasherAgent],
-      AEON_PROGRAM_ID_DEVNET,
-    );
+    const events = decodeAeonTx(slashTx(), [slasherAgent], AEON_PROGRAM_ID_DEVNET);
     expect(events).toEqual([]);
   });
 
   it("records the slashed amount from the BondSlashed program event, not ix args", () => {
-    const events = decodeAeonTx(
-      slashTx({ logMessages: [bondSlashedLog(500_000)] }),
-      [slasherAgent, bondedAgent],
-      AEON_PROGRAM_ID_DEVNET,
-    );
+    const events = decodeAeonTx(slashTx(), [slasherAgent, bondedAgent], AEON_PROGRAM_ID_DEVNET);
     expect(events[0]?.amountToken).toBe(500_000);
     expect(events[0]?.raw.parsedData).toEqual({ authority_id: 7 });
   });
 
-  it("records the slashed amount from the bond vault raw token delta", () => {
+  it("ignores a fake BondSlashed emitted by another program first", () => {
     const events = decodeAeonTx(
       slashTx({
+        logMessages: [
+          `Program ${OTHER_PROGRAM} invoke [1]`,
+          bondSlashedLog(9_000_000),
+          `Program ${OTHER_PROGRAM} success`,
+          ...aeonInvokeLogs([bondSlashedLog(500_000)]),
+        ],
+      }),
+      [bondedAgent],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events[0]?.amountToken).toBe(500_000);
+  });
+
+  it("does not use a tx-wide vault delta as scoring truth", () => {
+    const events = decodeAeonTx(
+      slashTx({
+        logMessages: [],
         accountData: [
           {
             account: BOND_VAULT,
@@ -152,15 +176,49 @@ describe("slash_bond attribution and amount", () => {
       AEON_PROGRAM_ID_DEVNET,
     );
     expect(events).toHaveLength(1);
-    expect(events[0]?.amountToken).toBe(250_000);
+    expect(events[0]?.amountToken).toBe(0);
+  });
+
+  it("shared-vault two slashes with no events or inners score 0, not a combined delta", () => {
+    const events = decodeAeonTx(
+      {
+        signature: SIG,
+        slot: 11,
+        timestamp: 1_700_000_100,
+        logMessages: [],
+        accountData: [
+          {
+            account: BOND_VAULT,
+            tokenBalanceChanges: [
+              {
+                tokenAccount: BOND_VAULT,
+                rawTokenAmount: { tokenAmount: "-750000", decimals: 6 },
+              },
+            ],
+          },
+        ],
+        instructions: [
+          {
+            programId: AEON_PROGRAM_ID_DEVNET,
+            data: encodeIx("slash_bond", u64le(7)),
+            accounts: SLASH_ACCOUNTS,
+          },
+          {
+            programId: AEON_PROGRAM_ID_DEVNET,
+            data: encodeIx("slash_bond", u64le(7)),
+            accounts: SLASH_ACCOUNTS,
+          },
+        ],
+      },
+      [bondedAgent],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(events.map((e) => e.amountToken)).toEqual([0, 0]);
   });
 
   it("emits no success-path AEON events when transactionError is present", () => {
     const events = decodeAeonTx(
-      slashTx({
-        logMessages: [bondSlashedLog(500_000)],
-        transactionError: "InstructionError",
-      }),
+      slashTx({ transactionError: "InstructionError" }),
       [slasherAgent, bondedAgent],
       AEON_PROGRAM_ID_DEVNET,
     );
@@ -169,10 +227,7 @@ describe("slash_bond attribution and amount", () => {
 
   it("still emits BOND_SLASHED when transactionError is null", () => {
     const events = decodeAeonTx(
-      slashTx({
-        logMessages: [bondSlashedLog(500_000)],
-        transactionError: null,
-      }),
+      slashTx({ transactionError: null }),
       [slasherAgent, bondedAgent],
       AEON_PROGRAM_ID_DEVNET,
     );
@@ -236,9 +291,10 @@ describe("slash_bond attribution and amount", () => {
         signature: SIG,
         slot: 11,
         timestamp: 1_700_000_100,
-        // Logs are reversed vs instruction order so a first-log scan would
-        // assign 125_000 to both slashes.
-        logMessages: [bondSlashedLog(125_000, 9), bondSlashedLog(500_000, 7)],
+        logMessages: [
+          ...aeonInvokeLogs([bondSlashedLog(500_000, 7)]),
+          ...aeonInvokeLogs([bondSlashedLog(125_000, 9)]),
+        ],
         instructions: [
           {
             programId: AEON_PROGRAM_ID_DEVNET,
@@ -267,7 +323,10 @@ describe("slash_bond attribution and amount", () => {
         signature: SIG,
         slot: 11,
         timestamp: 1_700_000_100,
-        logMessages: [bondSlashedLog(100_000, 7), bondSlashedLog(200_000, 7)],
+        logMessages: [
+          ...aeonInvokeLogs([bondSlashedLog(100_000, 7)]),
+          ...aeonInvokeLogs([bondSlashedLog(200_000, 7)]),
+        ],
         instructions: [
           {
             programId: AEON_PROGRAM_ID_DEVNET,

@@ -45,11 +45,12 @@ export const Route = createFileRoute("/api/public/agent/$subject/evidence")({
         const { data: agent } = await supabaseAdmin
           .from("agents")
           .select(
-            "mint, symbol, name, category, identifier_kind, executor_wallet, core_asset, operator_wallet, score, grade, confidence_score, methodology_version, confidence_model_version",
+            "mint, symbol, name, category, identifier_kind, executor_wallet, core_asset, operator_wallet, score, grade, confidence_score, methodology_version, confidence_model_version, publication_status",
           )
           .eq("mint", subject)
           .maybeSingle();
         if (!agent) return errorJson(404, "subject_not_found");
+        if (agent.publication_status === "unpublished") return errorJson(404, "subject_not_found");
 
         const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
 

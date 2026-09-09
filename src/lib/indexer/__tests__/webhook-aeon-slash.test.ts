@@ -14,6 +14,7 @@ import {
 } from "../aeon-lookup.server";
 import { AEON_PROGRAM_ID_DEVNET } from "../../trust/config";
 import { SPL_TOKEN_PROGRAM_ID, type HeliusEnhancedTx } from "../helius.server";
+import { shouldRetryUnresolvedSlash } from "../aeon-pda.server";
 
 const SLASH_SIG = "sigSlashWh11111111111111111111111111111111111111111111111111111";
 const ISSUE_SIG = "sigIssueWh11111111111111111111111111111111111111111111111111111";
@@ -26,6 +27,7 @@ const BOND_PDA = "BondPda11111111111111111111111111111111111111";
 const BOND_VAULT = "BondVault11111111111111111111111111111111111";
 const DESTINATION = "Dest11111111111111111111111111111111111111111";
 const CONFIG = "Config111111111111111111111111111111111111111";
+const CRI = "CriPda111111111111111111111111111111111111111";
 const IDENTITY = "Identity111111111111111111111111111111111111";
 const AGENT_VAULT = "AgentVault1111111111111111111111111111111111";
 const AEON_MINT = "AeonMint1111111111111111111111111111111111111";
@@ -74,8 +76,24 @@ const SENTINEL_ISSUE_ACCOUNTS = [
 ];
 
 const agentRows = [
-  { mint: SLASHER_MINT, aeon_cri_address: null, executor_wallet: SLASHER_WALLET },
-  { mint: BONDED_MINT, aeon_cri_address: null, executor_wallet: BONDED_WALLET },
+  {
+    mint: SLASHER_MINT,
+    category: "aeon_executor",
+    aeon_cri_address: null,
+    executor_wallet: SLASHER_WALLET,
+    aeon_agent_identity: null,
+    aeon_authority_addresses: [] as string[],
+    aeon_bond_addresses: [] as string[],
+  },
+  {
+    mint: BONDED_MINT,
+    category: "aeon_executor",
+    aeon_cri_address: CRI,
+    executor_wallet: BONDED_WALLET,
+    aeon_agent_identity: IDENTITY,
+    aeon_authority_addresses: [] as string[],
+    aeon_bond_addresses: [] as string[],
+  },
 ];
 
 function u64le(n: number): Buffer {
@@ -110,12 +128,22 @@ function bondSlashedLog(amount: number): string {
   return `Program data: ${payload.toString("base64")}`;
 }
 
+function aeonInvokeLogs(inner: string[]): string[] {
+  return [
+    `Program ${AEON_PROGRAM_ID_DEVNET} invoke [1]`,
+    `Program ${SPL_TOKEN_PROGRAM_ID} invoke [2]`,
+    `Program ${SPL_TOKEN_PROGRAM_ID} success`,
+    ...inner,
+    `Program ${AEON_PROGRAM_ID_DEVNET} success`,
+  ];
+}
+
 function slashTx(): HeliusEnhancedTx {
   return {
     signature: SLASH_SIG,
     slot: 22,
     timestamp: 1_700_000_200,
-    logMessages: [bondSlashedLog(500_000)],
+    logMessages: aeonInvokeLogs([bondSlashedLog(500_000)]),
     instructions: [
       {
         programId: AEON_PROGRAM_ID_DEVNET,
@@ -229,6 +257,115 @@ describe("webhook AEON lookup for slash_bond", () => {
     const events = decodeAeonWebhookBatch([slashTx()], agentRows, [], AEON_PROGRAM_ID_DEVNET);
     expect(events.filter((e) => e.type === "BOND_SLASHED")).toEqual([]);
     expect(events.map((e) => e.mint)).not.toContain(SLASHER_MINT);
+  });
+
+  it("attributes same-batch issue+slash for a CRI-primary row via agent_identity", () => {
+    const criOnly = [
+      {
+        mint: CRI,
+        category: "aeon_executor",
+        aeon_cri_address: CRI,
+        executor_wallet: null,
+        aeon_agent_identity: IDENTITY,
+        aeon_authority_addresses: [] as string[],
+        aeon_bond_addresses: [] as string[],
+      },
+    ];
+    const events = decodeAeonWebhookBatch(
+      [issueTx(), slashTx()],
+      criOnly,
+      [],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    const slashed = events.filter((e) => e.type === "BOND_SLASHED");
+    expect(slashed).toHaveLength(1);
+    expect(slashed[0]?.mint).toBe(CRI);
+    expect(shouldRetryUnresolvedSlash( [issueTx(), slashTx()], events, criOnly, AEON_PROGRAM_ID_DEVNET)).toBe(
+      false,
+    );
+  });
+
+  it("ignores x402 executor_wallet rows in AEON lookup", () => {
+    const x402Only = [
+      {
+        mint: BONDED_MINT,
+        category: "x402_executor",
+        aeon_cri_address: null,
+        executor_wallet: BONDED_WALLET,
+        aeon_agent_identity: IDENTITY,
+        aeon_authority_addresses: [AUTHORITY_PDA],
+        aeon_bond_addresses: [BOND_PDA],
+      },
+    ];
+    const events = decodeAeonWebhookBatch([slashTx()], x402Only, [], AEON_PROGRAM_ID_DEVNET);
+    expect(events).toEqual([]);
+    expect(shouldRetryUnresolvedSlash([slashTx()], events, x402Only, AEON_PROGRAM_ID_DEVNET)).toBe(
+      false,
+    );
+  });
+
+  it("retries unmatched slash only while an aeon_executor still has empty PDA arrays", () => {
+    const pending = decodeAeonWebhookBatch([slashTx()], agentRows, [], AEON_PROGRAM_ID_DEVNET);
+    expect(shouldRetryUnresolvedSlash([slashTx()], pending, agentRows, AEON_PROGRAM_ID_DEVNET)).toBe(
+      true,
+    );
+
+    const knownPdas = agentRows.map((row) =>
+      row.mint === BONDED_MINT
+        ? {
+            ...row,
+            aeon_authority_addresses: [AUTHORITY_PDA],
+            aeon_bond_addresses: [BOND_PDA],
+          }
+        : {
+            ...row,
+            aeon_authority_addresses: ["OtherAuth111111111111111111111111111111111"],
+            aeon_bond_addresses: ["OtherBond111111111111111111111111111111111"],
+          },
+    );
+    const unmatched = decodeAeonWebhookBatch(
+      [slashTx()],
+      [
+        knownPdas[0],
+        {
+          ...knownPdas[1],
+          aeon_authority_addresses: ["OtherAuth111111111111111111111111111111111"],
+          aeon_bond_addresses: ["OtherBond111111111111111111111111111111111"],
+        },
+      ],
+      [],
+      AEON_PROGRAM_ID_DEVNET,
+    );
+    expect(unmatched.filter((e) => e.type === "BOND_SLASHED")).toEqual([]);
+    expect(
+      shouldRetryUnresolvedSlash(
+        [slashTx()],
+        unmatched,
+        [
+          knownPdas[0],
+          {
+            ...knownPdas[1],
+            aeon_authority_addresses: ["OtherAuth111111111111111111111111111111111"],
+            aeon_bond_addresses: ["OtherBond111111111111111111111111111111111"],
+          },
+        ],
+        AEON_PROGRAM_ID_DEVNET,
+      ),
+    ).toBe(false);
+  });
+
+  it("matches slash_bond from persisted PDA arrays on the agent row", () => {
+    const withPdas = [
+      agentRows[0],
+      {
+        ...agentRows[1],
+        aeon_authority_addresses: [AUTHORITY_PDA],
+        aeon_bond_addresses: [BOND_PDA],
+      },
+    ];
+    const events = decodeAeonWebhookBatch([slashTx()], withPdas, [], AEON_PROGRAM_ID_DEVNET);
+    expect(events.filter((e) => e.type === "BOND_SLASHED")).toHaveLength(1);
+    expect(events[0]?.mint).toBe(BONDED_MINT);
   });
 
   it("emits no success-path slash when the slash transaction reverted", () => {

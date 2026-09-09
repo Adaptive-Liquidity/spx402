@@ -127,13 +127,13 @@ export function DossierMetricStrip({
             tone={agent.escrowSuccessRate && agent.escrowSuccessRate >= 0.95 ? "verified" : "amber"}
           />
           <MetricCard
-            label="Active Bond"
-            value={`$${(agent.activeBondAmount ?? 0).toLocaleString()}`}
+            label="Active Bond (AEON)"
+            value={`${(agent.activeBondAmount ?? 0).toLocaleString()}`}
             tone={agent.activeBondAmount && agent.activeBondAmount >= 10000 ? "verified" : "amber"}
           />
           <MetricCard
-            label="Total Slashed"
-            value={`$${(agent.totalSlashedUsd ?? 0).toLocaleString()}`}
+            label="Total Slashed (AEON)"
+            value={`${(agent.totalSlashedUsd ?? 0).toLocaleString()}`}
             tone={agent.totalSlashedUsd && agent.totalSlashedUsd > 0 ? "critical" : "verified"}
           />
           <MetricCard

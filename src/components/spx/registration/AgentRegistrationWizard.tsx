@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { CATEGORIES } from "@/lib/agents/categories";
 import {
@@ -17,6 +16,7 @@ import {
 } from "@/lib/registration/model";
 import { StatusChip } from "@/components/spx/StatusChip";
 import { Field, OptionCard, PendingIntegration, YesNo, inputClass } from "./WizardPrimitives";
+import { submitAgentRegistration } from "@/lib/registration/register-agent.functions";
 import { cn } from "@/lib/utils";
 
 const OWNER_TYPE_LABEL: Record<string, string> = {
@@ -97,11 +97,9 @@ export function AgentRegistrationWizard() {
     setSubmitting(true);
     setSubmitError(null);
     const nullable = (v: string) => (v.trim() === "" ? null : v.trim());
-    const { data, error } = await supabase
-      .from("agent_registrations")
-      .insert([
-        {
-          user_id: user.id,
+    try {
+      const data = await submitAgentRegistration({
+        data: {
           agent_name: draft.agent_name.trim(),
           agent_description: nullable(draft.agent_description),
           agent_type: draft.agent_type,
@@ -125,7 +123,6 @@ export function AgentRegistrationWizard() {
           routing_change_authority: draft.routing_change_authority,
           visibility_status: draft.visibility_status,
           publication_intent: draft.publication_intent,
-          registration_status: "submitted",
           subject_identifier: nullable(draft.aeon_executor_wallet || draft.spx402_wallet_address),
           identifier_kind: draft.identifier_kind,
           disclosure_operates_agent: draft.disclosure_operates_agent,
@@ -140,15 +137,13 @@ export function AgentRegistrationWizard() {
             draft.disclosure_upgrade_authority_controller,
           ),
         },
-      ])
-      .select("id")
-      .single();
-    setSubmitting(false);
-    if (error || !data) {
-      setSubmitError(error?.message ?? "Registration could not be saved.");
-      return;
+      });
+      setSubmitting(false);
+      navigate({ to: "/dashboard/agents/$id", params: { id: data.id } });
+    } catch (err) {
+      setSubmitting(false);
+      setSubmitError(err instanceof Error ? err.message : "Registration could not be saved.");
     }
-    navigate({ to: "/dashboard/agents/$id", params: { id: data.id } });
   }
 
   return (
