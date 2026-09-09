@@ -96,7 +96,9 @@ describe.skipIf(!enabled)("local AEON identity/publication DB", () => {
 
     const { data: pdas, error: pdaError } = await admin
       .from("agents")
-      .select("aeon_agent_identity, aeon_authority_addresses, aeon_bond_addresses, publication_status")
+      .select(
+        "aeon_agent_identity, aeon_authority_addresses, aeon_bond_addresses, publication_status",
+      )
       .eq("mint", CRI)
       .single();
     expect(pdaError).toBeNull();

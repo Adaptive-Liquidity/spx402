@@ -85,7 +85,7 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
             seenAddrs.add(addr);
             const txs = await fetchAddressTxs(addr);
             const events = txs.flatMap((tx) => decodeTx(tx, lookup));
-            let aeonDecoded =
+            const aeonDecoded =
               aeonCfg.enabled && aeonRows.length > 0
                 ? decodeAeonWebhookBatch(txs, aeonRows, ownershipEvents, aeonCfg.programId)
                 : [];

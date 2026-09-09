@@ -23,7 +23,10 @@ import {
   fetchAeonOwnershipEvents,
 } from "@/lib/indexer/aeon-lookup.server";
 import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
-import { persistIssueAuthorityPdas, shouldRetryUnresolvedSlash } from "@/lib/indexer/aeon-pda.server";
+import {
+  persistIssueAuthorityPdas,
+  shouldRetryUnresolvedSlash,
+} from "@/lib/indexer/aeon-pda.server";
 import { resolveAeonProgramId } from "@/lib/trust/config";
 import { decodeSwapTx } from "@/lib/indexer/decode-swap.server";
 import { decodeX402Tx } from "@/lib/indexer/decode-x402.server";

@@ -280,9 +280,9 @@ describe("webhook AEON lookup for slash_bond", () => {
     const slashed = events.filter((e) => e.type === "BOND_SLASHED");
     expect(slashed).toHaveLength(1);
     expect(slashed[0]?.mint).toBe(CRI);
-    expect(shouldRetryUnresolvedSlash( [issueTx(), slashTx()], events, criOnly, AEON_PROGRAM_ID_DEVNET)).toBe(
-      false,
-    );
+    expect(
+      shouldRetryUnresolvedSlash([issueTx(), slashTx()], events, criOnly, AEON_PROGRAM_ID_DEVNET),
+    ).toBe(false);
   });
 
   it("ignores x402 executor_wallet rows in AEON lookup", () => {
@@ -306,9 +306,9 @@ describe("webhook AEON lookup for slash_bond", () => {
 
   it("retries unmatched slash only while an aeon_executor still has empty PDA arrays", () => {
     const pending = decodeAeonWebhookBatch([slashTx()], agentRows, [], AEON_PROGRAM_ID_DEVNET);
-    expect(shouldRetryUnresolvedSlash([slashTx()], pending, agentRows, AEON_PROGRAM_ID_DEVNET)).toBe(
-      true,
-    );
+    expect(
+      shouldRetryUnresolvedSlash([slashTx()], pending, agentRows, AEON_PROGRAM_ID_DEVNET),
+    ).toBe(true);
 
     const knownPdas = agentRows.map((row) =>
       row.mint === BONDED_MINT

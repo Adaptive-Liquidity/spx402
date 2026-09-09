@@ -108,8 +108,8 @@ function ownershipFromIssueAuthorityTxs(
         );
         const byIdentity = Boolean(
           named.agent_identity &&
-            agent.aeonAgentIdentity &&
-            named.agent_identity === agent.aeonAgentIdentity,
+          agent.aeonAgentIdentity &&
+          named.agent_identity === agent.aeonAgentIdentity,
         );
         if (!byWallet && !byIdentity) continue;
         mergeOwnership(byMint, agent.mint, { authority: named.authority, bond: named.bond });

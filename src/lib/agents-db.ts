@@ -214,7 +214,9 @@ export function fetchAgentIndex(): Promise<Agent[]> {
       .order("score", { ascending: false, nullsFirst: false })
       .limit(AGENT_INDEX_LIMIT);
     if (error) throw error;
-    return (data as unknown as AgentRow[]).map(rowToAgent).filter((a) => isPubliclyListed(a.publicationStatus));
+    return (data as unknown as AgentRow[])
+      .map(rowToAgent)
+      .filter((a) => isPubliclyListed(a.publicationStatus));
   })();
   indexCache = { at: Date.now(), promise };
   // A failed fetch must not poison the cache — drop it so the next

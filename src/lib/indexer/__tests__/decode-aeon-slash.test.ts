@@ -118,11 +118,7 @@ describe("slash_bond attribution and amount", () => {
   });
 
   it("attributes BOND_SLASHED to the bonded authority, never the tracked slasher", () => {
-    const events = decodeAeonTx(
-      slashTx(),
-      [slasherAgent, bondedAgent],
-      AEON_PROGRAM_ID_DEVNET,
-    );
+    const events = decodeAeonTx(slashTx(), [slasherAgent, bondedAgent], AEON_PROGRAM_ID_DEVNET);
     expect(events).toHaveLength(1);
     expect(events[0]?.mint).toBe(BONDED_MINT);
     expect(events[0]?.type).toBe("BOND_SLASHED");

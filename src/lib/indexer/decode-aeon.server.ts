@@ -140,16 +140,11 @@ function matchMints(ix: HeliusInstruction, agents: AeonLookup[]): string[] {
  * issue_authority attaches by executor signer or identity PDA — never CRI
  * against named.agent. See docs/aeon-identity.md.
  */
-function matchIssueAuthorityMints(
-  named: Record<string, string>,
-  agents: AeonLookup[],
-): string[] {
+function matchIssueAuthorityMints(named: Record<string, string>, agents: AeonLookup[]): string[] {
   const mints: string[] = [];
   const seen = new Set<string>();
   for (const a of agents) {
-    const byWallet = Boolean(
-      named.agent && a.executorWallet && named.agent === a.executorWallet,
-    );
+    const byWallet = Boolean(named.agent && a.executorWallet && named.agent === a.executorWallet);
     const byIdentity = Boolean(
       named.agent_identity && a.aeonAgentIdentity && named.agent_identity === a.aeonAgentIdentity,
     );

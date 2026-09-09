@@ -2,10 +2,7 @@
 // and decide whether an unmatched slash_bond must retry (500) or drop (200).
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import {
-  aeonInstructionName,
-  decodeInstructionDataBytes,
-} from "./aeon-idl";
+import { aeonInstructionName, decodeInstructionDataBytes } from "./aeon-idl";
 import type { AeonDecodedEvent } from "./decode-aeon.server";
 import { flattenInstructions, type HeliusEnhancedTx } from "./helius.server";
 import type { AeonAgentRow } from "./aeon-lookup.server";

@@ -369,7 +369,10 @@ export function AgentRegistrationWizard() {
                   onChange={(e) => set("treasury_wallet_address", e.target.value)}
                 />
               </Field>
-              <Field label="Recovery / admin wallet (optional)" error={errors.recovery_admin_wallet}>
+              <Field
+                label="Recovery / admin wallet (optional)"
+                error={errors.recovery_admin_wallet}
+              >
                 <input
                   className={inputClass}
                   value={draft.recovery_admin_wallet}

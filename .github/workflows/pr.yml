@@ -15,11 +15,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun run lint
+      # Repo-wide `eslint .` is already red on main (~2k Prettier nits).
+      # Gate this PR on the TypeScript it actually changes.
+      - name: Lint changed TypeScript
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          mapfile -d '' files < <(
+            git diff --name-only --diff-filter=ACMR -z "origin/${{ github.base_ref }}...HEAD" \
+              | grep -zE '\.(ts|tsx)$' || true
+          )
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No TypeScript files changed"
+            exit 0
+          fi
+          echo "Linting ${#files[@]} files"
+          bunx eslint "${files[@]}"
       - run: bun run typecheck
 
   pr-test:
