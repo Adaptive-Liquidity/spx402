@@ -1658,6 +1658,15 @@ export type Database = {
       }
     }
     Functions: {
+      append_aeon_issue_authority_pdas: {
+        Args: {
+          p_authorities: string[]
+          p_bonds: string[]
+          p_identity: string | null
+          p_mint: string
+        }
+        Returns: undefined
+      }
       enqueue_candidate_agent: { Args: { p_mint: string }; Returns: Json }
       get_api_key_usage: {
         Args: { p_key_id: string }

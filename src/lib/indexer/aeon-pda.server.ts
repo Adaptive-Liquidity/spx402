@@ -52,37 +52,18 @@ export function issueAuthorityPdaUpdates(events: AeonDecodedEvent[]): Map<string
 }
 
 export async function persistIssueAuthorityPdas(
-  admin: Pick<SupabaseClient, "from">,
+  admin: Pick<SupabaseClient, "rpc">,
   events: AeonDecodedEvent[],
 ): Promise<void> {
   const updates = issueAuthorityPdaUpdates(events);
   for (const [mint, pdas] of updates) {
     if (pdas.authorities.length === 0 && pdas.bonds.length === 0 && !pdas.identity) continue;
-    const { data: row } = await admin
-      .from("agents")
-      .select("aeon_authority_addresses, aeon_bond_addresses, aeon_agent_identity")
-      .eq("mint", mint)
-      .maybeSingle();
-    const nextAuth = uniqueAddrs([
-      ...((row?.aeon_authority_addresses as string[] | null) ?? []),
-      ...pdas.authorities,
-    ]);
-    const nextBonds = uniqueAddrs([
-      ...((row?.aeon_bond_addresses as string[] | null) ?? []),
-      ...pdas.bonds,
-    ]);
-    const identity =
-      (typeof row?.aeon_agent_identity === "string" && row.aeon_agent_identity) || pdas.identity;
-    const patch: {
-      aeon_authority_addresses: string[];
-      aeon_bond_addresses: string[];
-      aeon_agent_identity?: string;
-    } = {
-      aeon_authority_addresses: nextAuth,
-      aeon_bond_addresses: nextBonds,
-    };
-    if (identity) patch.aeon_agent_identity = identity;
-    const { error } = await admin.from("agents").update(patch).eq("mint", mint);
+    const { error } = await admin.rpc("append_aeon_issue_authority_pdas", {
+      p_mint: mint,
+      p_authorities: pdas.authorities,
+      p_bonds: pdas.bonds,
+      p_identity: pdas.identity,
+    });
     if (error) throw new Error(`AEON PDA persist failed for ${mint}: ${error.message}`);
   }
 }

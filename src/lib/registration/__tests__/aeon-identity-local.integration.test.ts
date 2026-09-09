@@ -105,6 +105,30 @@ describe.skipIf(!enabled)("local AEON identity/publication DB", () => {
     expect(pdas?.aeon_bond_addresses).toEqual([BOND]);
     expect(pdas?.publication_status).toBe("unpublished");
 
+    const AUTHORITY_2 = "LocAuth21111111111111111111111111111111111";
+    const BOND_2 = "LocBond21111111111111111111111111111111111";
+    const IDENTITY_2 = "LocId2111111111111111111111111111111111111";
+    await persistIssueAuthorityPdas(admin, [
+      {
+        mint: CRI,
+        type: "AEON_AUTHORITY_ISSUED",
+        raw: {
+          instruction: "issue_authority",
+          authority: AUTHORITY_2,
+          bond: BOND_2,
+          agent_identity: IDENTITY_2,
+        },
+      } as unknown as AeonDecodedEvent,
+    ]);
+    const { data: appended } = await admin
+      .from("agents")
+      .select("aeon_agent_identity, aeon_authority_addresses, aeon_bond_addresses")
+      .eq("mint", CRI)
+      .single();
+    expect(appended?.aeon_agent_identity).toBe(IDENTITY);
+    expect(appended?.aeon_authority_addresses?.sort()).toEqual([AUTHORITY, AUTHORITY_2].sort());
+    expect(appended?.aeon_bond_addresses?.sort()).toEqual([BOND, BOND_2].sort());
+
     const { data: stillHidden } = await anon.from("agents").select("mint").eq("mint", CRI);
     expect(stillHidden ?? []).toEqual([]);
 
