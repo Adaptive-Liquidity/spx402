@@ -151,14 +151,14 @@ function generateTerminalCardSVG(agent: Agent, events: DossierCardEvent[]): stri
 
   <!-- Key Metrics -->
   <g font-family="'IBM Plex Mono', monospace">
-    <text x="50" y="250" font-size="10" fill="#6F6F64">ACTIVE BOND</text>
-    <text x="50" y="270" font-size="16" font-weight="bold" fill="${agent.activeBondAmount >= 10000 ? "#27AE60" : "#C0392B"}">$${(agent.activeBondAmount ?? 0).toLocaleString()}</text>
+    <text x="50" y="250" font-size="10" fill="#6F6F64">ACTIVE BOND (AEON)</text>
+    <text x="50" y="270" font-size="16" font-weight="bold" fill="${agent.activeBondAmount >= 10000 ? "#27AE60" : "#C0392B"}">${(agent.activeBondAmount ?? 0).toLocaleString()}</text>
 
     <text x="250" y="250" font-size="10" fill="#6F6F64">ESCROW SUCCESS</text>
     <text x="250" y="270" font-size="16" font-weight="bold" fill="${agent.escrowSuccessRate >= 0.95 ? "#27AE60" : "#F5A623"}">${((agent.escrowSuccessRate ?? 0) * 100).toFixed(1)}%</text>
 
-    <text x="450" y="250" font-size="10" fill="#6F6F64">TOTAL SLASHED</text>
-    <text x="450" y="270" font-size="16" font-weight="bold" fill="${agent.totalSlashedUsd > 0 ? "#C0392B" : "#27AE60"}">$${(agent.totalSlashedUsd ?? 0).toLocaleString()}</text>
+    <text x="450" y="250" font-size="10" fill="#6F6F64">TOTAL SLASHED (AEON)</text>
+    <text x="450" y="270" font-size="16" font-weight="bold" fill="${agent.totalSlashedUsd > 0 ? "#C0392B" : "#27AE60"}">${(agent.totalSlashedUsd ?? 0).toLocaleString()}</text>
 
     <text x="620" y="250" font-size="10" fill="#6F6F64">ESCROWS DONE</text>
     <text x="620" y="270" font-size="16" font-weight="bold" fill="#E8E8E0">${agent.totalEscrowsCompleted ?? 0}</text>

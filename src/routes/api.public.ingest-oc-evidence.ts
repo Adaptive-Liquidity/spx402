@@ -9,6 +9,7 @@ import {
   type OcAgentEventInsert,
   type OcEvidenceEnvelope,
 } from "@/lib/indexer/oc-evidence.server";
+import { makeEventUid } from "@/lib/indexer/event-uid";
 
 // Auth: Authorization: Bearer <OC_INGEST_SECRET>
 // This route is intentionally live before task_executor.decoderLive: it
@@ -240,9 +241,11 @@ const supabaseOcEvidenceRepository: OcEvidenceRepository = {
     return { deadlines, error: false };
   },
   async insert(row) {
+    const event_uid =
+      row.event_uid || makeEventUid({ signature: row.signature, type: row.type, mint: row.mint });
     const { data, error } = await supabaseAdmin
       .from("agent_events")
-      .insert({ ...row, raw: row.raw as never })
+      .insert({ ...row, event_uid, raw: row.raw as never } as never)
       .select("id")
       .maybeSingle();
     return {

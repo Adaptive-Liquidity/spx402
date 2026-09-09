@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { canonicalJsonStringify, sha256Hex } from "@/lib/evidence/hash.server";
 import { checkOcIngestAuth } from "@/lib/indexer/auth.server";
+import { makeEventUid } from "@/lib/indexer/event-uid";
 import { score } from "@/lib/indexer/scoring.server";
 import {
   aggregateOutcomeContractCounters,
@@ -141,6 +142,11 @@ describe("Outcome Contract evidence ingestion", () => {
     expect(row.raw.observed_at).toBe(observedAt.toISOString());
     expect(row.raw.deadline_at).toBe(committedDeadline);
     expect(row.parser_version).toBe("spx-oc-v0.2.0");
+    expect(row.event_uid).toBe(
+      makeEventUid({ signature: row.signature, type: row.type, mint: row.mint }),
+    );
+    expect(row.event_uid).toContain(row.signature);
+    expect(row.event_uid).not.toMatch(/undefined|null/);
   });
 
   it("derives a non-null on-time rate from persisted v2 deadlines", () => {

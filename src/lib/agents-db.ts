@@ -5,6 +5,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SCORING_VERSION } from "@/lib/versions";
 import { qualifiesForLeaderboard } from "./agents";
+import { isPubliclyListed } from "./agents/publication";
 import type { Agent, AgentEvent, AgentScoreBreakdown, Grade } from "./agents";
 import type { AgentCategory, IdentifierKind } from "./agents/categories";
 
@@ -48,9 +49,8 @@ type AgentRow = {
   flagged: boolean | null;
   flag_reason: string | null;
   flagged_at: string | null;
-  // Optional until generated types are regenerated post-migration;
-  // rowToAgent defaults it to null when the column is absent.
   withheld_reason?: string | null;
+  publication_status?: string | null;
   // AEON primitives
   aeon_cri_address: string | null;
   total_slashed_usd: number | string;
@@ -117,6 +117,7 @@ function rowToAgent(r: AgentRow): Agent {
     flagged: Boolean(r.flagged),
     flagReason: r.flag_reason ?? null,
     flaggedAt: r.flagged_at ?? null,
+    publicationStatus: (r.publication_status as Agent["publicationStatus"]) ?? null,
     // AEON primitives
     aeonCriAddress: r.aeon_cri_address ?? null,
     totalSlashedUsd: num(r.total_slashed_usd),
@@ -181,6 +182,7 @@ const AGENT_LIST_COLUMNS = [
   "flag_reason",
   "flagged_at",
   "withheld_reason",
+  "publication_status",
   "chain",
   "aeon_cri_address",
   "total_slashed_usd",
@@ -212,7 +214,7 @@ export function fetchAgentIndex(): Promise<Agent[]> {
       .order("score", { ascending: false, nullsFirst: false })
       .limit(AGENT_INDEX_LIMIT);
     if (error) throw error;
-    return (data as unknown as AgentRow[]).map(rowToAgent);
+    return (data as unknown as AgentRow[]).map(rowToAgent).filter((a) => isPubliclyListed(a.publicationStatus));
   })();
   indexCache = { at: Date.now(), promise };
   // A failed fetch must not poison the cache — drop it so the next
@@ -362,6 +364,10 @@ export async function fetchExplorePage(opts: {
   };
 }
 
+function listedOrNull(agent: Agent): Agent | null {
+  return isPubliclyListed(agent.publicationStatus) ? agent : null;
+}
+
 /** Resolve one agent by exact mint, symbol, or mint prefix. */
 export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
   const q = mintOrSymbol.trim();
@@ -369,7 +375,7 @@ export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
 
   // Try exact mint first
   const { data: byMint } = await supabase.from("agents").select("*").eq("mint", q).maybeSingle();
-  if (byMint) return rowToAgent(byMint as AgentRow);
+  if (byMint) return listedOrNull(rowToAgent(byMint as AgentRow));
 
   // Try symbol (case-insensitive)
   const { data: bySymbol } = await supabase
@@ -377,7 +383,7 @@ export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
     .select("*")
     .ilike("symbol", q)
     .maybeSingle();
-  if (bySymbol) return rowToAgent(bySymbol as AgentRow);
+  if (bySymbol) return listedOrNull(rowToAgent(bySymbol as AgentRow));
 
   // Try mint prefix
   const { data: byPrefix } = await supabase
@@ -386,7 +392,7 @@ export async function fetchAgent(mintOrSymbol: string): Promise<Agent | null> {
     .ilike("mint", `${q}%`)
     .limit(1)
     .maybeSingle();
-  if (byPrefix) return rowToAgent(byPrefix as AgentRow);
+  if (byPrefix) return listedOrNull(rowToAgent(byPrefix as AgentRow));
 
   return null;
 }
@@ -396,5 +402,5 @@ export async function fetchAgentsByMints(mints: string[]): Promise<Agent[]> {
   if (mints.length === 0) return [];
   const { data, error } = await supabase.from("agents").select("*").in("mint", mints);
   if (error) throw error;
-  return (data as AgentRow[]).map(rowToAgent);
+  return (data as AgentRow[]).map(rowToAgent).filter((a) => isPubliclyListed(a.publicationStatus));
 }

@@ -17,6 +17,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { checkCronAuth } from "@/lib/indexer/auth.server";
+import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import {
   decodeEvmX402Tx,
   tierAOnly,
@@ -124,20 +125,20 @@ export const Route = createFileRoute("/api/public/cron-scan-x402-evm")({
               continue;
             }
             const { error } = await supabaseAdmin.from("agent_events").upsert(
-              {
+              toAgentEventRow({
                 mint: agent.mint,
                 chain: "base",
                 type: "X402_PAYMENT_RECEIVED",
                 severity: "info",
                 signature: ev.txHash,
                 slot: ev.blockNumber,
-                occurred_at: ev.occurredAt,
-                amount_sol: 0,
-                amount_token: ev.amountToken,
-                parser_version: EVM_X402_PARSER_VERSION,
-                raw: ev.raw as Record<string, string | number | boolean | null>,
-              },
-              { onConflict: "signature", ignoreDuplicates: true },
+                occurredAt: ev.occurredAt,
+                amountSol: 0,
+                amountToken: ev.amountToken,
+                parserVersion: EVM_X402_PARSER_VERSION,
+                raw: ev.raw as Record<string, unknown>,
+              }) as never,
+              { onConflict: AGENT_EVENTS_ON_CONFLICT, ignoreDuplicates: true },
             );
             if (!error) persisted += 1;
           }

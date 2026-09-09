@@ -289,7 +289,11 @@ export type Database = {
       agents: {
         Row: {
           active_bond_amount: number
+          aeon_agent_identity: string | null
+          aeon_authority_addresses: string[]
+          aeon_bond_addresses: string[]
           aeon_cri_address: string | null
+          aeon_program_id: string | null
           burn_confirmation_rate: number
           buyback_bps: number
           buyback_execution_rate: number
@@ -324,6 +328,7 @@ export type Database = {
           operator_wallet: string | null
           parser_version: string
           price_series: Json
+          publication_status: string
           score: number | null
           score_breakdown: Json
           scored_at: string | null
@@ -344,7 +349,11 @@ export type Database = {
         }
         Insert: {
           active_bond_amount?: number
+          aeon_agent_identity?: string | null
+          aeon_authority_addresses?: string[]
+          aeon_bond_addresses?: string[]
           aeon_cri_address?: string | null
+          aeon_program_id?: string | null
           burn_confirmation_rate?: number
           buyback_bps?: number
           buyback_execution_rate?: number
@@ -379,6 +388,7 @@ export type Database = {
           operator_wallet?: string | null
           parser_version?: string
           price_series?: Json
+          publication_status?: string
           score?: number | null
           score_breakdown?: Json
           scored_at?: string | null
@@ -399,7 +409,11 @@ export type Database = {
         }
         Update: {
           active_bond_amount?: number
+          aeon_agent_identity?: string | null
+          aeon_authority_addresses?: string[]
+          aeon_bond_addresses?: string[]
           aeon_cri_address?: string | null
+          aeon_program_id?: string | null
           burn_confirmation_rate?: number
           buyback_bps?: number
           buyback_execution_rate?: number
@@ -434,6 +448,7 @@ export type Database = {
           operator_wallet?: string | null
           parser_version?: string
           price_series?: Json
+          publication_status?: string
           score?: number | null
           score_breakdown?: Json
           scored_at?: string | null
@@ -1643,6 +1658,15 @@ export type Database = {
       }
     }
     Functions: {
+      append_aeon_issue_authority_pdas: {
+        Args: {
+          p_authorities: string[]
+          p_bonds: string[]
+          p_identity: string | null
+          p_mint: string
+        }
+        Returns: undefined
+      }
       enqueue_candidate_agent: { Args: { p_mint: string }; Returns: Json }
       get_api_key_usage: {
         Args: { p_key_id: string }

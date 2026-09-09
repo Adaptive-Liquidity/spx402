@@ -4,6 +4,7 @@
 // This file holds ONLY shared TypeScript types — no demo data lives in the app.
 
 import type { AgentCategory, IdentifierKind } from "./agents/categories";
+import { isPubliclyListed } from "./agents/publication";
 
 export type Grade =
   | "SPX AAA"
@@ -42,7 +43,22 @@ export type EventType =
   | "ESCROW_CANCELED"
   | "BOND_DEPOSITED"
   | "BOND_SLASHED"
-  | "RECEIPT_CREATED";
+  | "RECEIPT_CREATED"
+  | "AEON_PAYMENT"
+  | "AEON_AGENT_REGISTERED"
+  | "AEON_AUTHORITY_ISSUED"
+  | "AEON_AUTHORITY_REVOKED"
+  | "AEON_AUTHORITY_EXPIRED"
+  | "AEON_ATOMIC_SPLIT"
+  | "AEON_ORG_CREATED"
+  | "AEON_ORG_DEPOSIT"
+  | "AEON_ORG_SPLIT"
+  | "AEON_ORG_DISSOLVED"
+  | "AEON_ORG_JOINED"
+  | "AEON_ORG_SHARE_SET"
+  | "AEON_ORG_RESIDUAL_RECLAIMED"
+  | "AEON_PAUSE_SET"
+  | "AEON_CONFIG_INITIALIZED";
 
 export type Severity = "info" | "warn" | "critical" | "success";
 
@@ -121,6 +137,8 @@ export interface Agent {
   flagged: boolean;
   flagReason: string | null;
   flaggedAt: string | null;
+  /** Missing/null is treated as published. Unpublished rows stay off public surfaces. */
+  publicationStatus?: "unpublished" | "published" | null;
   // AEON primitives
   aeonCriAddress: string | null;
   totalSlashedUsd: number;
@@ -147,6 +165,7 @@ const LEADERBOARD_GRADES: ReadonlySet<Grade> = new Set([
 /** Return whether an agent satisfies the public leaderboard quality gate. */
 export function qualifiesForLeaderboard(agent: Agent): boolean {
   if (agent.flagged) return false;
+  if (!isPubliclyListed(agent.publicationStatus)) return false;
   if (agent.withheldReason != null) return false;
   if (agent.grade == null || !LEADERBOARD_GRADES.has(agent.grade)) return false;
   if ((agent.score ?? 0) < 50) return false;

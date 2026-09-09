@@ -16,6 +16,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { PUMPFUN_PROGRAM_ID } from "@/lib/indexer/helius.server";
+import { collectHeliusAccountAddresses } from "@/lib/indexer/helius-watch.server";
 import { checkAdminAuth } from "@/lib/indexer/auth.server";
 
 const HELIUS_API_BASE = "https://api.helius.xyz/v0";
@@ -76,18 +77,12 @@ async function handle(request: Request, action: "list" | "upsert" | "delete"): P
   // Now we additionally subscribe executor_wallet and core_asset.
   const { data: agents } = await supabaseAdmin
     .from("agents")
-    .select("mint, deposit_address, executor_wallet, core_asset");
-  const agentAddrs = new Set<string>();
-  for (const a of agents ?? []) {
-    if (a.mint) agentAddrs.add(a.mint);
-    if (a.deposit_address) agentAddrs.add(a.deposit_address);
-    if (a.executor_wallet) agentAddrs.add(a.executor_wallet);
-    if (a.core_asset) agentAddrs.add(a.core_asset);
-  }
-  // Always watch Pump.fun program so we can attribute buybacks even before
-  // an agent is registered.
-  agentAddrs.add(PUMPFUN_PROGRAM_ID);
-  const accountAddresses = Array.from(agentAddrs);
+    .select(
+      "mint, deposit_address, executor_wallet, core_asset, aeon_cri_address, aeon_authority_addresses, aeon_bond_addresses",
+    );
+  // Wallet + CRI + known PDAs. Never the AEON program ID — that would
+  // subscribe the indexer to every AEON tx on the cluster.
+  const accountAddresses = collectHeliusAccountAddresses(agents ?? [], [PUMPFUN_PROGRAM_ID]);
 
   // Find an existing SPX402 webhook (by URL match) so we update instead of
   // creating duplicates.

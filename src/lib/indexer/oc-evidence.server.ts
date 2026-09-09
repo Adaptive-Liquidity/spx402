@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { canonicalJsonStringify, sha256Hex } from "@/lib/evidence/hash.server";
+import { makeEventUid } from "@/lib/indexer/event-uid";
 
 export const OC_EVENT_TYPES = [
   "OC_OPENED",
@@ -148,6 +149,7 @@ export interface OcAgentEventInsert {
   signature: string;
   occurred_at: string;
   parser_version: string;
+  event_uid: string;
   raw: Record<string, unknown>;
 }
 
@@ -161,6 +163,7 @@ export function mapOcEvidenceToAgentEvent(
     throw new Error("invalid_observed_at");
   }
   const observedAtIso = observedAt.toISOString();
+  const signature = `oc-${evidence.subject}-${evidence.event_id}`;
   return {
     mint: evidence.subject,
     chain: "flok",
@@ -169,11 +172,16 @@ export function mapOcEvidenceToAgentEvent(
     // agent_events.signature is globally unique, while Flok event_id is
     // scoped only by contract/type/idempotency key. Include the bound subject
     // so two executors cannot suppress each other's evidence.
-    signature: `oc-${evidence.subject}-${evidence.event_id}`,
+    signature,
     // Scoring windows and recency use this server-owned timestamp. The
     // producer timestamp remains in raw.source_occurred_at for audit.
     occurred_at: observedAtIso,
     parser_version: "spx-oc-v0.2.0",
+    event_uid: makeEventUid({
+      signature,
+      type: evidence.type,
+      mint: evidence.subject,
+    }),
     raw: {
       source_schema: evidence.schema,
       evidence_source: "flok",
