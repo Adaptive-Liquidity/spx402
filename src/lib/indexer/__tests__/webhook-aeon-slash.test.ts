@@ -10,6 +10,8 @@ import {
   decodeAeonWebhookBatch,
   fetchAeonOwnershipEvents,
   resolveAeonOwnershipQuery,
+  selectAeonMintsTouchedByPayload,
+  shouldDecodeAeonBackfill,
   type AeonOwnershipEventRow,
 } from "../aeon-lookup.server";
 import { AEON_PROGRAM_ID_DEVNET } from "../../trust/config";
@@ -534,5 +536,78 @@ describe("fetchAeonOwnershipEvents", () => {
     const slashed = events.filter((e) => e.type === "BOND_SLASHED");
     expect(slashed).toHaveLength(1);
     expect(slashed[0]?.mint).toBe(BONDED_MINT);
+  });
+});
+
+describe("payload-touched AEON mint picking", () => {
+  const unrelated = {
+    mint: "UnrelatedMint1111111111111111111111111111111",
+    category: "aeon_executor",
+    aeon_cri_address: "UnrelatedCri111111111111111111111111111111",
+    executor_wallet: "UnrelatedWall11111111111111111111111111111",
+    aeon_agent_identity: null,
+    aeon_authority_addresses: [] as string[],
+    aeon_bond_addresses: [] as string[],
+  };
+
+  it("excludes unrelated AEON rows whose keys are absent from flattened accounts", () => {
+    const mints = selectAeonMintsTouchedByPayload([slashTx()], [...agentRows, unrelated]);
+    expect(mints).toContain(SLASHER_MINT);
+    expect(mints).not.toContain(unrelated.mint);
+    expect(mints).not.toContain(BONDED_MINT);
+  });
+
+  it("includes an AEON subject when a known PDA appears in flattened accounts", () => {
+    const withPdas = [
+      {
+        ...agentRows[1],
+        aeon_authority_addresses: [AUTHORITY_PDA],
+        aeon_bond_addresses: [BOND_PDA],
+      },
+    ];
+    const mints = selectAeonMintsTouchedByPayload([slashTx()], withPdas);
+    expect(mints).toEqual([BONDED_MINT]);
+  });
+
+  it("treats an empty touched set as skip, not an ownership lookup failure", () => {
+    const idle: HeliusEnhancedTx = {
+      signature: "sigIdle11111111111111111111111111111111111111111111111111111",
+      slot: 1,
+      timestamp: 1_700_000_000,
+      instructions: [{ programId: SYSTEM, accounts: [SYSTEM] }],
+    };
+    const touched = selectAeonMintsTouchedByPayload([idle], agentRows);
+    expect(touched).toEqual([]);
+    expect(
+      shouldDecodeAeonBackfill({
+        aeonEnabled: true,
+        touchedMints: touched,
+        ownershipOk: false,
+      }),
+    ).toBe(false);
+    expect(
+      shouldDecodeAeonBackfill({
+        aeonEnabled: true,
+        touchedMints: [],
+        ownershipOk: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("decodes AEON on backfill only when the address is an AEON subject and ownership loaded", () => {
+    expect(
+      shouldDecodeAeonBackfill({
+        aeonEnabled: true,
+        touchedMints: [BONDED_MINT],
+        ownershipOk: true,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDecodeAeonBackfill({
+        aeonEnabled: true,
+        touchedMints: [BONDED_MINT],
+        ownershipOk: false,
+      }),
+    ).toBe(false);
   });
 });

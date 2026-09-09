@@ -72,14 +72,14 @@ describe.skipIf(!enabled)("local AEON identity/publication DB", () => {
     expect(anonFilterError).toBeNull();
     expect(anonUnpublished ?? []).toEqual([]);
 
-    const merged = await upsertAeonIngestSubject(admin, {
-      agentName: "Local Identity Probe",
-      executorWallet: WALLET,
-      cri: "LocOtherCri111111111111111111111111111111",
-      programId: null,
-    });
-    expect(merged.mode).toBe("merge");
-    expect(merged.mint).toBe(CRI);
+    await expect(
+      upsertAeonIngestSubject(admin, {
+        agentName: "Local Identity Probe",
+        executorWallet: WALLET,
+        cri: "LocOtherCri111111111111111111111111111111",
+        programId: null,
+      }),
+    ).rejects.toThrow(/already registered/);
 
     await persistIssueAuthorityPdas(admin, [
       {

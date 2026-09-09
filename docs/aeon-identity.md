@@ -21,7 +21,7 @@ Do not subscribe Helius to the AEON program ID. Watch executor wallet, CRI, and 
 
 - If `aeon_cri` is present at submit: `mint = cri`
 - Else `mint = executor_wallet`
-- On wallet collision with an existing x402/registered row: **upsert AEON columns onto that row** (do not duplicate)
+- On wallet collision with any existing `agents.executor_wallet` row: **reject**. Registration never updates category, CRI, or `publication_status` on an existing row. A unique index on `executor_wallet` is **not** assumed; add it only after a duplicate audit is clean.
 
 ## `issue_authority` attachment
 
@@ -46,3 +46,13 @@ Existing catalog rows are backfilled to `published` in the unapplied migration s
 ## Lookup
 
 AEON decode lookup uses **`category === "aeon_executor"` only**, not every `executor_wallet`.
+
+## Production cutover (`event_uid`)
+
+This app SHA upserts `agent_events` on `event_uid` (`AGENT_EVENTS_ON_CONFLICT`). There is no dual-write on `signature`. Apply SQL **before** deploying this SHA:
+
+1. `20260908154500_aeon_identity_publication.sql`
+2. `20260908154600_append_aeon_pdas.sql`
+3. `20260908090000_agent_events_event_uid.sql`
+
+Confirm the unique index `agent_events_event_uid_key` on `agent_events.event_uid`, then deploy. Wallet uniqueness is **not** in that batch unless a duplicate `executor_wallet` audit is clean and you explicitly add that migration later. Do not migrate production as part of this PR.

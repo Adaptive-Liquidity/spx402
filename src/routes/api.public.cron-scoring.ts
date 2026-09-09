@@ -188,15 +188,15 @@ export const Route = createFileRoute("/api/public/cron-scoring")({
             counters.totalSwapCount +
             counters.totalX402Count +
             counters.totalOutcomeFulfilled +
-            counters.totalEscrowsCompleted +
-            counters.totalReceipts +
-            counters.totalAeonPayments;
+            counters.windowAeon.totalEscrowsCompleted +
+            counters.windowAeon.totalReceipts +
+            counters.windowAeon.totalAeonPayments;
           const failureCount =
             counters.failedWindows +
             counters.failedNegativeCount +
             counters.totalOutcomeFailed +
             counters.totalOutcomeSlashed +
-            counters.totalEscrowsFailed;
+            counters.windowAeon.totalEscrowsFailed;
           const totalEvents =
             counters.totalDepositsCount +
             counters.totalOutcomeOpened +

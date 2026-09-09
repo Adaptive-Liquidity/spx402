@@ -21,6 +21,7 @@ import {
   AEON_OWNERSHIP_PAGE_SIZE,
   decodeAeonWebhookBatch,
   fetchAeonOwnershipEvents,
+  selectAeonMintsTouchedByPayload,
 } from "@/lib/indexer/aeon-lookup.server";
 import { AGENT_EVENTS_ON_CONFLICT, toAgentEventRow } from "@/lib/indexer/agent-event-row";
 import {
@@ -103,9 +104,11 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
         }
         if (aeonCfg.enabled) {
           const aeonAgentRows = (agentsRows ?? []).filter((r) => r.category === "aeon_executor");
-          const aeonMints = aeonAgentRows.map((r) => r.mint);
-          let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
-          if (aeonMints.length > 0) {
+          const touchedMints = selectAeonMintsTouchedByPayload(txs, aeonAgentRows);
+          const touchedRows = aeonAgentRows.filter((r) => touchedMints.includes(r.mint));
+          // Empty touched set: this payload is not AEON. Skip ownership lookup
+          // and AEON decode; continue non-AEON ingest. Not a failure.
+          if (touchedMints.length > 0) {
             // Keyset-paginated on the primary key with exact-count
             // verification: PostgREST truncates silently at db-max-rows, and
             // offset pages can shift under concurrent inserts. A partial or
@@ -116,7 +119,7 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
               let q = supabaseAdmin
                 .from("agent_events")
                 .select("id, mint, type, raw", { count: "exact" })
-                .in("mint", aeonMints)
+                .in("mint", touchedMints)
                 .in("type", [...AEON_OWNERSHIP_EVENT_TYPES])
                 .order("id", { ascending: true })
                 .limit(AEON_OWNERSHIP_PAGE_SIZE);
@@ -129,33 +132,32 @@ export const Route = createFileRoute("/api/public/webhook-helius")({
               await heartbeat("webhook_ingest", false, duration, "aeon_ownership_lookup_failed");
               return new Response("aeon ownership lookup failed", { status: 500 });
             }
-            ownershipEvents = ownership.rows;
-          }
-          const aeonDecoded = decodeAeonWebhookBatch(
-            txs,
-            aeonAgentRows,
-            ownershipEvents,
-            aeonCfg.programId,
-          );
-          if (shouldRetryUnresolvedSlash(txs, aeonDecoded, aeonAgentRows, aeonCfg.programId)) {
-            const duration = Date.now() - startedAt;
-            await heartbeat("webhook_ingest", false, duration, "aeon_slash_unresolved_pending");
-            return new Response("aeon slash unresolved", { status: 500 });
-          }
-          await persistIssueAuthorityPdas(supabaseAdmin, aeonDecoded);
-          for (const ev of aeonDecoded) {
-            aeonEvents.push({
-              mint: ev.mint,
-              type: ev.type,
-              severity: ev.severity,
-              signature: ev.signature,
-              slot: ev.slot,
-              occurredAt: ev.occurredAt,
-              amountSol: ev.amountSol,
-              amountToken: ev.amountToken,
-              eventUid: ev.eventUid,
-              raw: ev.raw,
-            });
+            const aeonDecoded = decodeAeonWebhookBatch(
+              txs,
+              touchedRows,
+              ownership.rows,
+              aeonCfg.programId,
+            );
+            if (shouldRetryUnresolvedSlash(txs, aeonDecoded, touchedRows, aeonCfg.programId)) {
+              const duration = Date.now() - startedAt;
+              await heartbeat("webhook_ingest", false, duration, "aeon_slash_unresolved_pending");
+              return new Response("aeon slash unresolved", { status: 500 });
+            }
+            await persistIssueAuthorityPdas(supabaseAdmin, aeonDecoded);
+            for (const ev of aeonDecoded) {
+              aeonEvents.push({
+                mint: ev.mint,
+                type: ev.type,
+                severity: ev.severity,
+                signature: ev.signature,
+                slot: ev.slot,
+                occurredAt: ev.occurredAt,
+                amountSol: ev.amountSol,
+                amountToken: ev.amountToken,
+                eventUid: ev.eventUid,
+                raw: ev.raw,
+              });
+            }
           }
         }
 

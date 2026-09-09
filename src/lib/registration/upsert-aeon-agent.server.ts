@@ -7,15 +7,9 @@ export function isAeonRegistrationType(agentType: string): boolean {
   return (AEON_REGISTRATION_TYPES as readonly string[]).includes(agentType);
 }
 
-export function resolveAeonIngestMint(opts: {
-  cri: string | null;
-  wallet: string;
-  existingMintByWallet: string | null;
-}): { mint: string; mode: "insert" | "merge" } {
-  if (opts.existingMintByWallet) {
-    return { mint: opts.existingMintByWallet, mode: "merge" };
-  }
-  return { mint: opts.cri || opts.wallet, mode: "insert" };
+/** Surrogate PK for a new AEON row. Never reuse an existing agents.mint. */
+export function resolveAeonIngestMint(opts: { cri: string | null; wallet: string }): string {
+  return opts.cri || opts.wallet;
 }
 
 function symbolFromName(name: string): string {
@@ -33,36 +27,21 @@ export interface AeonIngestInput {
 export async function upsertAeonIngestSubject(
   admin: Pick<SupabaseClient, "from">,
   input: AeonIngestInput,
-): Promise<{ mint: string; mode: "insert" | "merge" }> {
+): Promise<{ mint: string; mode: "insert" }> {
   const wallet = input.executorWallet;
-  const { data: existing } = await admin
+  const { data: existing, error: lookupError } = await admin
     .from("agents")
     .select("mint")
     .eq("executor_wallet", wallet)
     .maybeSingle();
-  const resolved = resolveAeonIngestMint({
-    cri: input.cri,
-    wallet,
-    existingMintByWallet: existing?.mint ?? null,
-  });
-
-  const aeonPatch = {
-    category: "aeon_executor",
-    identifier_kind: "executor_wallet" as const,
-    executor_wallet: wallet,
-    aeon_cri_address: input.cri,
-    aeon_program_id: input.programId,
-    publication_status: PUBLICATION_UNPUBLISHED,
-  };
-
-  if (resolved.mode === "merge") {
-    const { error } = await admin.from("agents").update(aeonPatch).eq("mint", resolved.mint);
-    if (error) throw new Error(`AEON ingest merge failed: ${error.message}`);
-    return resolved;
+  if (lookupError) throw new Error(`AEON ingest lookup failed: ${lookupError.message}`);
+  if (existing?.mint) {
+    throw new Error("This executor wallet is already registered.");
   }
 
+  const mint = resolveAeonIngestMint({ cri: input.cri, wallet });
   const { error } = await admin.from("agents").insert({
-    mint: resolved.mint,
+    mint,
     name: input.agentName,
     symbol: symbolFromName(input.agentName),
     grade: "SPX404",
@@ -70,8 +49,13 @@ export async function upsertAeonIngestSubject(
     operator_verified: false,
     aeon_authority_addresses: [],
     aeon_bond_addresses: [],
-    ...aeonPatch,
+    category: "aeon_executor",
+    identifier_kind: "executor_wallet" as const,
+    executor_wallet: wallet,
+    aeon_cri_address: input.cri,
+    aeon_program_id: input.programId,
+    publication_status: PUBLICATION_UNPUBLISHED,
   });
   if (error) throw new Error(`AEON ingest insert failed: ${error.message}`);
-  return resolved;
+  return { mint, mode: "insert" };
 }

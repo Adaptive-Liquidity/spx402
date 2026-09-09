@@ -74,21 +74,19 @@ describe("AEON identity helpers", () => {
     expect(qualifiesForLeaderboard(agent({ publicationStatus: "published" }))).toBe(true);
   });
 
-  it("merges onto an existing wallet row instead of minting a CRI duplicate", () => {
+  it("uses CRI as mint when present, otherwise the executor wallet", () => {
     expect(
       resolveAeonIngestMint({
         cri: "Cri11111111111111111111111111111111111111111",
         wallet: "Wall11111111111111111111111111111111111111111",
-        existingMintByWallet: "ExistingMint1111111111111111111111111111111",
       }),
-    ).toEqual({ mint: "ExistingMint1111111111111111111111111111111", mode: "merge" });
+    ).toBe("Cri11111111111111111111111111111111111111111");
     expect(
       resolveAeonIngestMint({
-        cri: "Cri11111111111111111111111111111111111111111",
+        cri: null,
         wallet: "Wall11111111111111111111111111111111111111111",
-        existingMintByWallet: null,
       }),
-    ).toEqual({ mint: "Cri11111111111111111111111111111111111111111", mode: "insert" });
+    ).toBe("Wall11111111111111111111111111111111111111111");
   });
 
   it("collects wallet, CRI and PDAs but never a caller-supplied program id unless passed as extra", () => {

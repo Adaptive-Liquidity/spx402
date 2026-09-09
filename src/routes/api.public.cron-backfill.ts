@@ -14,7 +14,10 @@ import {
   AEON_OWNERSHIP_PAGE_SIZE,
   decodeAeonWebhookBatch,
   fetchAeonOwnershipEvents,
+  selectAeonMintsTouchedByAccounts,
+  shouldDecodeAeonBackfill,
   type AeonAgentRow,
+  type AeonOwnershipEventRow,
 } from "@/lib/indexer/aeon-lookup.server";
 import {
   issueAuthorityPdaUpdates,
@@ -54,25 +57,9 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
           aeonCfg = { enabled: false, reason: "invalid_config" } as const;
         }
 
-        let ownershipEvents: Array<{ mint: string; type: string; raw: unknown }> = [];
-        if (aeonCfg.enabled && aeonRows.length > 0) {
-          const ownership = await fetchAeonOwnershipEvents(async (afterId) => {
-            let q = supabaseAdmin
-              .from("agent_events")
-              .select("id, mint, type, raw", { count: "exact" })
-              .in(
-                "mint",
-                aeonRows.map((r) => r.mint),
-              )
-              .in("type", [...AEON_OWNERSHIP_EVENT_TYPES])
-              .order("id", { ascending: true })
-              .limit(AEON_OWNERSHIP_PAGE_SIZE);
-            if (afterId) q = q.gt("id", afterId);
-            const { data, error, count } = await q;
-            return { data, error, count };
-          });
-          if (ownership.ok) ownershipEvents = ownership.rows;
-        }
+        let ownershipEvents: AeonOwnershipEventRow[] = [];
+        const fetchedOwnershipMints = new Set<string>();
+        let ownershipLookupFailed = false;
 
         let totalDecoded = 0;
         let totalInserted = 0;
@@ -85,9 +72,45 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
             seenAddrs.add(addr);
             const txs = await fetchAddressTxs(addr);
             const events = txs.flatMap((tx) => decodeTx(tx, lookup));
+            const touchedMints = aeonCfg.enabled
+              ? selectAeonMintsTouchedByAccounts([addr], aeonRows)
+              : [];
+            if (aeonCfg.enabled && touchedMints.length > 0 && !ownershipLookupFailed) {
+              const need = touchedMints.filter((mint) => !fetchedOwnershipMints.has(mint));
+              if (need.length > 0) {
+                const ownership = await fetchAeonOwnershipEvents(async (afterId) => {
+                  let q = supabaseAdmin
+                    .from("agent_events")
+                    .select("id, mint, type, raw", { count: "exact" })
+                    .in("mint", need)
+                    .in("type", [...AEON_OWNERSHIP_EVENT_TYPES])
+                    .order("id", { ascending: true })
+                    .limit(AEON_OWNERSHIP_PAGE_SIZE);
+                  if (afterId) q = q.gt("id", afterId);
+                  const { data, error, count } = await q;
+                  return { data, error, count };
+                });
+                if (!ownership.ok) {
+                  ownershipLookupFailed = true;
+                } else {
+                  ownershipEvents = ownershipEvents.concat(ownership.rows);
+                  for (const mint of need) fetchedOwnershipMints.add(mint);
+                }
+              }
+            }
             const aeonDecoded =
-              aeonCfg.enabled && aeonRows.length > 0
-                ? decodeAeonWebhookBatch(txs, aeonRows, ownershipEvents, aeonCfg.programId)
+              aeonCfg.enabled &&
+              shouldDecodeAeonBackfill({
+                aeonEnabled: true,
+                touchedMints,
+                ownershipOk: !ownershipLookupFailed,
+              })
+                ? decodeAeonWebhookBatch(
+                    txs,
+                    aeonRows.filter((r) => touchedMints.includes(r.mint)),
+                    ownershipEvents,
+                    aeonCfg.programId,
+                  )
                 : [];
             if (aeonDecoded.length > 0) {
               await persistIssueAuthorityPdas(supabaseAdmin, aeonDecoded);
@@ -151,13 +174,13 @@ export const Route = createFileRoute("/api/public/cron-backfill")({
         const duration = Date.now() - started;
         await heartbeat(
           "backfill",
-          true,
+          !ownershipLookupFailed,
           duration,
           `agents=${lookup.length} decoded=${totalDecoded} inserted=${totalInserted}`,
         );
 
         return Response.json({
-          ok: true,
+          ok: !ownershipLookupFailed,
           agents: lookup.length,
           decoded: totalDecoded,
           inserted: totalInserted,

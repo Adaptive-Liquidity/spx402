@@ -261,6 +261,71 @@ export async function fetchAeonOwnershipEvents(
   return { ok: false };
 }
 
+/** Addresses that mark a payload or backfill target as this AEON subject. */
+export function aeonSubjectKeys(row: AeonAgentRow): string[] {
+  const keys: string[] = [];
+  const add = (value: string | null | undefined) => {
+    if (typeof value === "string" && value.length > 0) keys.push(value);
+  };
+  add(row.mint);
+  add(row.executor_wallet);
+  add(row.aeon_cri_address);
+  add(row.aeon_agent_identity);
+  for (const value of row.aeon_authority_addresses ?? []) add(value);
+  for (const value of row.aeon_bond_addresses ?? []) add(value);
+  return keys;
+}
+
+export function collectFlattenedInstructionAccounts(txs: HeliusEnhancedTx[]): Set<string> {
+  const accounts = new Set<string>();
+  for (const tx of txs) {
+    for (const ix of flattenInstructions(tx.instructions ?? [])) {
+      for (const account of ix.accounts ?? []) {
+        if (typeof account === "string" && account.length > 0) accounts.add(account);
+      }
+    }
+  }
+  return accounts;
+}
+
+/**
+ * AEON mints whose wallet / CRI / mint / known PDAs appear in `accounts`.
+ * Non-aeon_executor rows are ignored when category is set.
+ */
+export function selectAeonMintsTouchedByAccounts(
+  accounts: Iterable<string>,
+  agentRows: AeonAgentRow[],
+): string[] {
+  const set = accounts instanceof Set ? accounts : new Set(accounts);
+  const mints: string[] = [];
+  const seen = new Set<string>();
+  for (const row of agentRows) {
+    if (row.category != null && row.category !== "aeon_executor") continue;
+    if (!row.mint || seen.has(row.mint)) continue;
+    if (aeonSubjectKeys(row).some((key) => set.has(key))) {
+      seen.add(row.mint);
+      mints.push(row.mint);
+    }
+  }
+  return mints;
+}
+
+export function selectAeonMintsTouchedByPayload(
+  txs: HeliusEnhancedTx[],
+  agentRows: AeonAgentRow[],
+): string[] {
+  return selectAeonMintsTouchedByAccounts(collectFlattenedInstructionAccounts(txs), agentRows);
+}
+
+/** Backfill AEON decode only when this address belongs to an AEON subject and ownership loaded. */
+export function shouldDecodeAeonBackfill(opts: {
+  aeonEnabled: boolean;
+  touchedMints: readonly string[];
+  ownershipOk: boolean;
+}): boolean {
+  return opts.aeonEnabled && opts.touchedMints.length > 0 && opts.ownershipOk;
+}
+
 /** Decode AEON events using the same lookup the Helius webhook builds. */
 export function decodeAeonWebhookBatch(
   txs: HeliusEnhancedTx[],
