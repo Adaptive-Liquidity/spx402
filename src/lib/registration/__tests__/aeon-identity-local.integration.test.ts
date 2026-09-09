@@ -21,14 +21,14 @@ const AUTHORITY = "LocAuth11111111111111111111111111111111111";
 const BOND = "LocBond11111111111111111111111111111111111";
 
 describe.skipIf(!enabled)("local AEON identity/publication DB", () => {
-  const admin = createClient(LOCAL_URL, SERVICE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const anon = createClient(LOCAL_URL, ANON_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
   it("can SELECT identity/publication columns and hide unpublished from anon", async () => {
+    const admin = createClient(LOCAL_URL, SERVICE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const anon = createClient(LOCAL_URL, ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
     const { error: selectError } = await admin
       .from("agents")
       .select(
